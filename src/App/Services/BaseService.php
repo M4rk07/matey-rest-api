@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Silex\Provider\DoctrineServiceProvider;
+
 class BaseService
 {
     protected $db;
