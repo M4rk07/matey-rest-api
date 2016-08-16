@@ -32,6 +32,7 @@ class Client extends AbstractModel implements ClientInterface
     public function setClientId($clientId)
     {
         $this->clientId = $clientId;
+        return $this;
     }
 
     /**
@@ -48,6 +49,7 @@ class Client extends AbstractModel implements ClientInterface
     public function setClientSecret($clientSecret)
     {
         $this->clientSecret = $clientSecret;
+        return $this;
     }
 
     /**
@@ -64,6 +66,7 @@ class Client extends AbstractModel implements ClientInterface
     public function setRedirectUri($redirectUri)
     {
         $this->redirectUri = $redirectUri;
+        return $this;
     }
 
 

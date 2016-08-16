@@ -37,6 +37,7 @@ class AccessToken extends AbstractModel implements AccessTokenInterface
     public function setAccessToken($accessToken)
     {
         $this->accessToken = $accessToken;
+        return $this;
     }
 
     /**
@@ -53,6 +54,7 @@ class AccessToken extends AbstractModel implements AccessTokenInterface
     public function setTokenType($tokenType)
     {
         $this->tokenType = $tokenType;
+        return $this;
     }
 
     /**
@@ -69,6 +71,7 @@ class AccessToken extends AbstractModel implements AccessTokenInterface
     public function setClientId($clientId)
     {
         $this->clientId = $clientId;
+        return $this;
     }
 
     /**
@@ -85,6 +88,7 @@ class AccessToken extends AbstractModel implements AccessTokenInterface
     public function setUsername($username)
     {
         $this->username = $username;
+        return $this;
     }
 
     /**
@@ -101,6 +105,7 @@ class AccessToken extends AbstractModel implements AccessTokenInterface
     public function setExpires($expires)
     {
         $this->expires = $expires;
+        return $this;
     }
 
     /**
@@ -117,9 +122,12 @@ class AccessToken extends AbstractModel implements AccessTokenInterface
     public function setScope($scope)
     {
         $this->scope = $scope;
+        return $this;
     }
 
     public function setValuesFromArray ($values) {
+
+        $expires = \DateTime::createFromFormat('Y-m-d H:i:s', $values['expires']);
 
         $this->id = $values['id'];
 
@@ -127,8 +135,8 @@ class AccessToken extends AbstractModel implements AccessTokenInterface
         $this->tokenType = $values['token_type'];
         $this->clientId = $values['client_id'];
         $this->username = $values['username'];
-        $this->expires = $values['expires'];
-        $this->scope = $values['scope'];
+        $this->expires = $expires;
+        $this->scope = explode(" ", $values['scope']);
 
     }
 
@@ -140,8 +148,8 @@ class AccessToken extends AbstractModel implements AccessTokenInterface
             'token_type' => $model->getTokenType(),
             'client_id' => $model->getClientId(),
             'username' => $model->getUsername(),
-            'expires' => $model->getExpires(),
-            'scope' => $model->getScope()
+            'expires' => $model->getExpires()->format('Y-m-d H:i:s'),
+            'scope' => implode(" ", $model->getScope())
         );
 
         return $keyValues;

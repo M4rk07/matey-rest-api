@@ -30,6 +30,7 @@ class Scope extends AbstractModel implements ScopeInterface
     public function setScope($scope)
     {
         $this->scope = $scope;
+        return $this;
     }
 
 

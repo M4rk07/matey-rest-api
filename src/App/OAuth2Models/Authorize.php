@@ -32,6 +32,7 @@ class Authorize extends AbstractModel implements AuthorizeInterface
     public function setClientId($clientId)
     {
         $this->clientId = $clientId;
+        return $this;
     }
 
     /**
@@ -48,6 +49,7 @@ class Authorize extends AbstractModel implements AuthorizeInterface
     public function setUsername($username)
     {
         $this->username = $username;
+        return $this;
     }
 
     /**
@@ -64,6 +66,7 @@ class Authorize extends AbstractModel implements AuthorizeInterface
     public function setScope($scope)
     {
         $this->scope = $scope;
+        return $this;
     }
 
 
@@ -74,7 +77,7 @@ class Authorize extends AbstractModel implements AuthorizeInterface
 
         $this->clientId = $values['client_id'];
         $this->username = $values['username'];
-        $this->scope = $values['scope'];
+        $this->scope = explode(" ", $values['scope']);
     }
 
     public function getValuesAsArray(ModelInterface $model)
@@ -83,7 +86,7 @@ class Authorize extends AbstractModel implements AuthorizeInterface
             'id' => $model->getId(),
             'client_id' => $model->getClientId(),
             'username' => $model->getUsername(),
-            'scope' => $model->getScope()
+            'scope' => implode(" ", $model->getScope())
         );
 
         return $keyValues;

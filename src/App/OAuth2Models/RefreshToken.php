@@ -34,6 +34,7 @@ class RefreshToken extends AbstractModel implements RefreshTokenInterface
     public function setRefreshToken($refreshToken)
     {
         $this->refreshToken = $refreshToken;
+        return $this;
     }
 
     /**
@@ -50,6 +51,7 @@ class RefreshToken extends AbstractModel implements RefreshTokenInterface
     public function setClientId($clientId)
     {
         $this->clientId = $clientId;
+        return $this;
     }
 
     /**
@@ -66,6 +68,7 @@ class RefreshToken extends AbstractModel implements RefreshTokenInterface
     public function setUsername($username)
     {
         $this->username = $username;
+        return $this;
     }
 
     /**
@@ -82,6 +85,7 @@ class RefreshToken extends AbstractModel implements RefreshTokenInterface
     public function setExpires($expires)
     {
         $this->expires = $expires;
+        return $this;
     }
 
     /**
@@ -98,19 +102,22 @@ class RefreshToken extends AbstractModel implements RefreshTokenInterface
     public function setScope($scope)
     {
         $this->scope = $scope;
+        return $this;
     }
 
 
 
     public function setValuesFromArray($values)
     {
+        $expires = \DateTime::createFromFormat('Y-m-d H:i:s', $values['expires']);
+
         $this->id = $values['id'];
 
         $this->refreshToken = $values['refresh_token'];
         $this->clientId = $values['client_id'];
         $this->username = $values['username'];
-        $this->expires = $values['expires'];
-        $this->scope = $values['scope'];
+        $this->expires = $expires;
+        $this->scope = explode(" ", $values['scope']);
     }
 
     public function getValuesAsArray(ModelInterface $model)
@@ -120,8 +127,8 @@ class RefreshToken extends AbstractModel implements RefreshTokenInterface
             'refresh_token' => $model->getRefreshToken(),
             'client_id' => $model->getClientId(),
             'username' => $model->getUsername(),
-            'expires' => $model->getExpires(),
-            'scope' => $model->getScope()
+            'expires' => $model->getExpires()->format('Y-m-d H:i:s'),
+            'scope' => implode(" ", $model->getScope())
         );
 
         return $keyValues;

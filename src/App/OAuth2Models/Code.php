@@ -36,6 +36,7 @@ class Code extends AbstractModel implements CodeInterface
     public function setCode($code)
     {
         $this->code = $code;
+        return $this;
     }
 
     /**
@@ -52,6 +53,7 @@ class Code extends AbstractModel implements CodeInterface
     public function setClientId($clientId)
     {
         $this->clientId = $clientId;
+        return $this;
     }
 
     /**
@@ -68,6 +70,7 @@ class Code extends AbstractModel implements CodeInterface
     public function setUsername($username)
     {
         $this->username = $username;
+        return $this;
     }
 
     /**
@@ -84,6 +87,7 @@ class Code extends AbstractModel implements CodeInterface
     public function setRedirectUri($redirectUri)
     {
         $this->redirectUri = $redirectUri;
+        return $this;
     }
 
     /**
@@ -100,6 +104,7 @@ class Code extends AbstractModel implements CodeInterface
     public function setExpires($expires)
     {
         $this->expires = $expires;
+        return $this;
     }
 
     /**
@@ -116,20 +121,23 @@ class Code extends AbstractModel implements CodeInterface
     public function setScope($scope)
     {
         $this->scope = $scope;
+        return $this;
     }
 
 
 
     public function setValuesFromArray($values)
     {
+        $expires = \DateTime::createFromFormat('Y-m-d H:i:s', $values['expires']);
+
         $this->id = $values['id'];
 
         $this->code = $values['code'];
         $this->clientId = $values['client_id'];
         $this->username = $values['username'];
         $this->redirectUri = $values['redirect_uri'];
-        $this->expires = $values['expires'];
-        $this->scope = $values['scope'];
+        $this->expires = $expires;
+        $this->scope = explode(" ", $values['scope']);
     }
 
     public function getValuesAsArray(ModelInterface $model)
@@ -140,8 +148,8 @@ class Code extends AbstractModel implements CodeInterface
             'client_id' => $model->getClientId(),
             'username' => $model->getUsername(),
             'redirect_uri' => $model->getRedirectUri(),
-            'expires' => $model->getExpires(),
-            'scope' => $model->getScope()
+            'expires' => $model->getExpires()->format('Y-m-d H:i:s'),
+            'scope' => implode(" ", $model->getScope())
         );
 
         return $keyValues;
