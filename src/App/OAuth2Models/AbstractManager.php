@@ -44,6 +44,13 @@ abstract class AbstractManager extends BaseService
 
         $whereStr = [];
         foreach($criteria as $key => $value) {
+            if(strcmp($key, "accessToken") == 0) $key = "access_token";
+            else if(strcmp($key, "clientId") == 0) $key = "client_id";
+            else if(strcmp($key, "tokenType") == 0) $key = "token_type";
+            else if(strcmp($key, "clientSecret") == 0) $key = "client_secret";
+            else if(strcmp($key, "redirectUri") == 0) $key = "redirect_uri";
+            else if(strcmp($key, "refreshToken") == 0) $key = "refresh_token";
+
             $whereStr[] = $key . " LIKE :" . $key;
         }
         if ($whereStr) {
@@ -66,7 +73,7 @@ abstract class AbstractManager extends BaseService
             $orderByStr = '';
         }
         // add ORDER BY clausule
-        $sql .= " ORDER BY " . $orderByStr;
+        if(!empty($orderByStr)) $sql .= " ORDER BY " . $orderByStr;
 
         // add LIMIT clausule
         if($limit !== null) $sql .= " LIMIT " . $limit;
@@ -77,11 +84,18 @@ abstract class AbstractManager extends BaseService
 
         // bind WHERE criteria values
         foreach($criteria as $key => $value) {
+            if(strcmp($key, "accessToken") == 0) $key = "access_token";
+            else if(strcmp($key, "clientId") == 0) $key = "client_id";
+            else if(strcmp($key, "tokenType") == 0) $key = "token_type";
+            else if(strcmp($key, "clientSecret") == 0) $key = "client_secret";
+            else if(strcmp($key, "redirectUri") == 0) $key = "redirect_uri";
+            else if(strcmp($key, "refreshToken") == 0) $key = "refresh_token";
+
             $prepared->bindValue(':'.$key, $value);
         }
 
         $prepared->execute();
-        $all = $prepared->fetchAll(PDO::FETCH_ASSOC);
+        $all = $prepared->fetchAll();
         $models = $this->makeObjects($all);
 
         return $models ?: null;
@@ -112,10 +126,9 @@ abstract class AbstractManager extends BaseService
 
     public function makeObjects(array $all)
     {
-        $str = "Authorize";
         $modelObjects = [];
         foreach($all as $model) {
-            $object = new $this->className;
+            $object = new $this->className();
             $object->setValuesFromArray($model);
             array_push($modelObjects, $object);
         }

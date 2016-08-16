@@ -122,6 +122,8 @@ class Code extends AbstractModel implements CodeInterface
 
     public function setValuesFromArray($values)
     {
+        $this->id = $values['id'];
+
         $this->code = $values['code'];
         $this->clientId = $values['client_id'];
         $this->username = $values['username'];
@@ -133,6 +135,7 @@ class Code extends AbstractModel implements CodeInterface
     public function getValuesAsArray(ModelInterface $model)
     {
         $keyValues = array (
+            'id' => $model->getId(),
             'code' => $model->getCode(),
             'client_id' => $model->getClientId(),
             'username' => $model->getUsername(),

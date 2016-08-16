@@ -36,12 +36,15 @@ class Scope extends AbstractModel implements ScopeInterface
 
     public function setValuesFromArray($values)
     {
+        $this->id = $values['id'];
+
         $this->scope = $values['scope'];
     }
 
     public function getValuesAsArray(ModelInterface $model)
     {
         $keyValues = array (
+            'id' => $model->getId(),
             'scope' => $model->getScope()
         );
 

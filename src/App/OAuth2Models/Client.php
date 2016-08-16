@@ -69,6 +69,8 @@ class Client extends AbstractModel implements ClientInterface
 
     public function setValuesFromArray($values)
     {
+        $this->id = $values['id'];
+
         $this->clientId = $values['client_id'];
         $this->clientSecret = $values['client_secret'];
         $this->redirectUri = $values['redirect_uri'];
@@ -77,6 +79,7 @@ class Client extends AbstractModel implements ClientInterface
     public function getValuesAsArray(ModelInterface $model)
     {
         $keyValues = array (
+            'id' => $model->getId(),
             'client_id' => $model->getClientId(),
             'client_secret' => $model->getClientSecret(),
             'redirect_uri' => $model->getRedirectUri()

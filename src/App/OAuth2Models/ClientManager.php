@@ -15,7 +15,7 @@ class ClientManager extends AbstractManager implements ClientManagerInterface
     public function __construct () {
         parent::__construct();
         $this->tableName = "oauth2_clients";
-        $this->className = get_class($this);
+        $this->className = 'App\\OAuth2Models\\Client';
     }
 
 }

@@ -16,6 +16,6 @@ class RefreshTokenManager extends AbstractManager implements RefreshTokenManager
     public function __construct () {
         parent::__construct();
         $this->tableName = "oauth2_refresh_tokens";
-        $this->className = get_class($this);
+        $this->className = 'App\\OAuth2Models\\RefreshToken';
     }
 }

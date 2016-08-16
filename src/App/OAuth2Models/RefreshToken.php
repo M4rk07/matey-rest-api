@@ -104,6 +104,8 @@ class RefreshToken extends AbstractModel implements RefreshTokenInterface
 
     public function setValuesFromArray($values)
     {
+        $this->id = $values['id'];
+
         $this->refreshToken = $values['refresh_token'];
         $this->clientId = $values['client_id'];
         $this->username = $values['username'];
@@ -114,6 +116,7 @@ class RefreshToken extends AbstractModel implements RefreshTokenInterface
     public function getValuesAsArray(ModelInterface $model)
     {
         $keyValues = array (
+            'id' => $model->getId(),
             'refresh_token' => $model->getRefreshToken(),
             'client_id' => $model->getClientId(),
             'username' => $model->getUsername(),

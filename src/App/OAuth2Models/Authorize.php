@@ -70,6 +70,8 @@ class Authorize extends AbstractModel implements AuthorizeInterface
 
     public function setValuesFromArray($values)
     {
+        $this->id = $values['id'];
+
         $this->clientId = $values['client_id'];
         $this->username = $values['username'];
         $this->scope = $values['scope'];
@@ -78,6 +80,7 @@ class Authorize extends AbstractModel implements AuthorizeInterface
     public function getValuesAsArray(ModelInterface $model)
     {
         $keyValues = array (
+            'id' => $model->getId(),
             'client_id' => $model->getClientId(),
             'username' => $model->getUsername(),
             'scope' => $model->getScope()
