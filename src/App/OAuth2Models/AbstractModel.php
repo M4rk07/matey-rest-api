@@ -10,7 +10,7 @@ namespace App\OAuth2Models;
 
 use AuthBucket\OAuth2\Model\ModelInterface;
 
-abstract class AbstractModel implements ModelInterface
+abstract class AbstractModel
 {
     protected $id;
 
