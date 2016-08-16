@@ -7,13 +7,15 @@
  * Time: 12:59 AM
  */
 
-namespace Matey\OAuth2\Models;
+namespace App\OAuth2Models;
 
 use AuthBucket\OAuth2\Model\AccessTokenInterface;
+use AuthBucket\OAuth2\Model\ModelInterface;
+use AuthBucket\OAuth2\Exception\ServerErrorException;
 
-class AccessToken implements AccessTokenInterface
+class AccessToken extends AbstractModel implements AccessTokenInterface
 {
-    protected $id;
+
     protected $accessToken;
     protected $tokenType;
     protected $clientId;
@@ -21,69 +23,126 @@ class AccessToken implements AccessTokenInterface
     protected $expires;
     protected $scope;
 
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function setAccessToken($accessToken)
-    {
-        // TODO: Implement setAccessToken() method.
-    }
-
+    /**
+     * @return mixed
+     */
     public function getAccessToken()
     {
         return $this->accessToken;
     }
 
-    public function setTokenType($tokenType)
+    /**
+     * @param mixed $accessToken
+     */
+    public function setAccessToken($accessToken)
     {
-        // TODO: Implement setTokenType() method.
+        $this->accessToken = $accessToken;
     }
 
+    /**
+     * @return mixed
+     */
     public function getTokenType()
     {
         return $this->tokenType;
     }
 
-    public function setClientId($clientId)
+    /**
+     * @param mixed $tokenType
+     */
+    public function setTokenType($tokenType)
     {
-        // TODO: Implement setClientId() method.
+        $this->tokenType = $tokenType;
     }
 
+    /**
+     * @return mixed
+     */
     public function getClientId()
     {
         return $this->clientId;
     }
 
-    public function setUsername($username)
+    /**
+     * @param mixed $clientId
+     */
+    public function setClientId($clientId)
     {
-        // TODO: Implement setUsername() method.
+        $this->clientId = $clientId;
     }
 
+    /**
+     * @return mixed
+     */
     public function getUsername()
     {
         return $this->username;
     }
 
-    public function setExpires($expires)
+    /**
+     * @param mixed $username
+     */
+    public function setUsername($username)
     {
-        // TODO: Implement setExpires() method.
+        $this->username = $username;
     }
 
+    /**
+     * @return mixed
+     */
     public function getExpires()
     {
         return $this->expires;
     }
 
-    public function setScope($scope)
+    /**
+     * @param mixed $expires
+     */
+    public function setExpires($expires)
     {
-        // TODO: Implement setScope() method.
+        $this->expires = $expires;
     }
 
+    /**
+     * @return mixed
+     */
     public function getScope()
     {
         return $this->scope;
+    }
+
+    /**
+     * @param mixed $scope
+     */
+    public function setScope($scope)
+    {
+        $this->scope = $scope;
+    }
+
+    public function setValuesFromArray ($values) {
+
+        $this->accessToken = $values['access_token'];
+        $this->tokenType = $values['token_type'];
+        $this->clientId = $values['client_id'];
+        $this->username = $values['username'];
+        $this->expires = $values['expires'];
+        $this->scope = $values['scope'];
+
+    }
+
+    public function getValuesAsArray (ModelInterface $model) {
+
+        $keyValues = array (
+            'access_token' => $model->getAccessToken(),
+            'token_type' => $model->getTokenType(),
+            'client_id' => $model->getClientId(),
+            'username' => $model->getUsername(),
+            'expires' => $model->getExpires(),
+            'scope' => $model->getScope()
+        );
+
+        return $keyValues;
+
     }
 
 }

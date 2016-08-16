@@ -74,7 +74,7 @@ $app['security.encoder.digest'] = $app->share(function ($app) {
 });
 
 $app['security.user_provider.default'] = $app['security.user_provider.inmemory._proto']([
-    'demousername1' => ['ROLE_USER', 'root1'],
+    'root' => ['ROLE_USER', 'root'],
     'demousername2' => ['ROLE_USER', 'demopassword2'],
     'demousername3' => ['ROLE_USER', 'demopassword3'],
 ]);

@@ -8,9 +8,9 @@ class BaseService
 {
     protected $db;
 
-    public function __construct($db)
+    public function __construct()
     {
-        $this->db = $db;
+        $this->db = require __DIR__ . '/../../../resources/config/dbal_conn.php';
     }
 
 }

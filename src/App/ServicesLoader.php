@@ -16,7 +16,8 @@ class ServicesLoader
     public function bindServicesIntoContainer()
     {
         $this->app['notes.service'] = $this->app->share(function () {
-            return new Services\NotesService($this->app["db"]);
+            //return new Services\NotesService($this->app["db"]);
+            return new Services\NotesService();
         });
     }
 }
