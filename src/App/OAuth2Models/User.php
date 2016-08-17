@@ -12,7 +12,7 @@ namespace App\OAuth2Models;
 use AuthBucket\OAuth2\Model\ModelInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class User extends AbstractModel implements UserInterface
+class User extends AbstractModel implements ModelInterface, UserInterface
 {
 
     protected $username;
@@ -92,7 +92,6 @@ class User extends AbstractModel implements UserInterface
     public function getValuesAsArray(ModelInterface $model)
     {
         $keyValues = array (
-            'id' => $model->getId(),
             'email' => $model->getUsername(),
             'password' => $model->getPassword(),
             'roles' => $model->getRoles()

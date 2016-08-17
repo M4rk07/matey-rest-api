@@ -83,7 +83,6 @@ class Authorize extends AbstractModel implements AuthorizeInterface
     public function getValuesAsArray(ModelInterface $model)
     {
         $keyValues = array (
-            'id' => $model->getId(),
             'client_id' => $model->getClientId(),
             'username' => $model->getUsername(),
             'scope' => $this->createScopeStringFromArray($model->getScope())

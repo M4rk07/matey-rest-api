@@ -22,6 +22,25 @@ class UserManager extends AbstractManager implements UserProviderInterface
         $this->className = 'App\\OAuth2Models\\User';
     }
 
+    public function deleteUser(UserInterface $user)
+    {
+        $this->db->delete($this->tableName, array('id' => $user->getId()));
+
+        return $user;
+    }
+
+    public function reloadUser(UserInterface $user)
+    {
+        return $this->refreshUser($user);
+    }
+
+    public function updateUser(UserInterface $user)
+    {
+        $this->db->update($this->tableName, $user->getValuesAsArray($user), array('user_id' => $user->getId()));
+
+        return $user;
+    }
+
     public function loadUserByUsername($username)
     {
         $all = $this->db->fetchAll("SELECT * FROM " . $this->tableName . " WHERE email = ? LIMIT 1",
@@ -33,12 +52,17 @@ class UserManager extends AbstractManager implements UserProviderInterface
 
     public function refreshUser(UserInterface $user)
     {
-        // TODO: Implement refreshUser() method.
+        $all = $this->db->fetchAll("SELECT * FROM " . $this->tableName . " WHERE user_id = ? LIMIT 1",
+            array($user->getId()));
+        $models = $this->makeObjects($all);
+
+        return is_array($models) ? reset($models) : $models;
     }
 
     public function supportsClass($class)
     {
-        // TODO: Implement supportsClass() method.
+        return $this->className === $class
+        || is_subclass_of($class, $this->className);
     }
 
 }

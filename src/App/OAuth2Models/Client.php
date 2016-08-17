@@ -82,7 +82,6 @@ class Client extends AbstractModel implements ClientInterface
     public function getValuesAsArray(ModelInterface $model)
     {
         $keyValues = array (
-            'id' => $model->getId(),
             'client_id' => $model->getClientId(),
             'client_secret' => $model->getClientSecret(),
             'redirect_uri' => $model->getRedirectUri()

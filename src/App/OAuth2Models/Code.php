@@ -142,7 +142,6 @@ class Code extends AbstractModel implements CodeInterface
     public function getValuesAsArray(ModelInterface $model)
     {
         $keyValues = array (
-            'id' => $model->getId(),
             'code' => $model->getCode(),
             'client_id' => $model->getClientId(),
             'username' => $model->getUsername(),
