@@ -127,16 +127,14 @@ class AccessToken extends AbstractModel implements AccessTokenInterface
 
     public function setValuesFromArray ($values) {
 
-        $expires = \DateTime::createFromFormat('Y-m-d H:i:s', $values['expires']);
-
         $this->id = $values['id'];
 
         $this->accessToken = $values['access_token'];
         $this->tokenType = $values['token_type'];
         $this->clientId = $values['client_id'];
         $this->username = $values['username'];
-        $this->expires = $expires;
-        $this->scope = explode(" ", $values['scope']);
+        $this->expires = $this->createDateTimeFromString($values['expires']);
+        $this->scope = $this->createScopeArrayFromString($values['scope']);
 
     }
 
@@ -148,8 +146,8 @@ class AccessToken extends AbstractModel implements AccessTokenInterface
             'token_type' => $model->getTokenType(),
             'client_id' => $model->getClientId(),
             'username' => $model->getUsername(),
-            'expires' => $model->getExpires()->format('Y-m-d H:i:s'),
-            'scope' => implode(" ", $model->getScope())
+            'expires' => $model->getExpires()->format($this->dateFormat),
+            'scope' => $this->createScopeStringFromArray($model->getScope())
         );
 
         return $keyValues;

@@ -116,8 +116,8 @@ class RefreshToken extends AbstractModel implements RefreshTokenInterface
         $this->refreshToken = $values['refresh_token'];
         $this->clientId = $values['client_id'];
         $this->username = $values['username'];
-        $this->expires = $expires;
-        $this->scope = explode(" ", $values['scope']);
+        $this->expires = $this->createDateTimeFromString($values['expires']);
+        $this->scope = $this->createScopeArrayFromString($values['scope']);
     }
 
     public function getValuesAsArray(ModelInterface $model)
@@ -127,8 +127,8 @@ class RefreshToken extends AbstractModel implements RefreshTokenInterface
             'refresh_token' => $model->getRefreshToken(),
             'client_id' => $model->getClientId(),
             'username' => $model->getUsername(),
-            'expires' => $model->getExpires()->format('Y-m-d H:i:s'),
-            'scope' => implode(" ", $model->getScope())
+            'expires' => $model->getExpires()->format($this->dateFormat),
+            'scope' => $this->createScopeStringFromArray($model->getScope())
         );
 
         return $keyValues;

@@ -128,7 +128,6 @@ class Code extends AbstractModel implements CodeInterface
 
     public function setValuesFromArray($values)
     {
-        $expires = \DateTime::createFromFormat('Y-m-d H:i:s', $values['expires']);
 
         $this->id = $values['id'];
 
@@ -136,8 +135,8 @@ class Code extends AbstractModel implements CodeInterface
         $this->clientId = $values['client_id'];
         $this->username = $values['username'];
         $this->redirectUri = $values['redirect_uri'];
-        $this->expires = $expires;
-        $this->scope = explode(" ", $values['scope']);
+        $this->expires = $this->createDateTimeFromString($values['expires']);
+        $this->scope = $this->createScopeArrayFromString($values['scope']);
     }
 
     public function getValuesAsArray(ModelInterface $model)
@@ -148,8 +147,8 @@ class Code extends AbstractModel implements CodeInterface
             'client_id' => $model->getClientId(),
             'username' => $model->getUsername(),
             'redirect_uri' => $model->getRedirectUri(),
-            'expires' => $model->getExpires()->format('Y-m-d H:i:s'),
-            'scope' => implode(" ", $model->getScope())
+            'expires' => $model->getExpires()->format($this->dateFormat),
+            'scope' => $this->createScopeStringFromArray($model->getScope())
         );
 
         return $keyValues;

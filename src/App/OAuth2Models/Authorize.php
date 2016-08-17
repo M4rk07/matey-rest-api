@@ -77,7 +77,7 @@ class Authorize extends AbstractModel implements AuthorizeInterface
 
         $this->clientId = $values['client_id'];
         $this->username = $values['username'];
-        $this->scope = explode(" ", $values['scope']);
+        $this->scope = $this->createScopeArrayFromString($values['scope']);
     }
 
     public function getValuesAsArray(ModelInterface $model)
@@ -86,7 +86,7 @@ class Authorize extends AbstractModel implements AuthorizeInterface
             'id' => $model->getId(),
             'client_id' => $model->getClientId(),
             'username' => $model->getUsername(),
-            'scope' => implode(" ", $model->getScope())
+            'scope' => $this->createScopeStringFromArray($model->getScope())
         );
 
         return $keyValues;

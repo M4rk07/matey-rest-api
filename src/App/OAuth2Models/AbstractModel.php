@@ -13,10 +13,30 @@ use AuthBucket\OAuth2\Model\ModelInterface;
 abstract class AbstractModel
 {
     protected $id;
+    protected $dateFormat = 'Y-m-d H:i:s';
 
-    public function getId()
-    {
+    public function getId(){
+
         return $this->id;
+
+    }
+
+    public function createDateTimeFromString ($dateTimeString) {
+
+        return \DateTime::createFromFormat($this->dateFormat, $dateTimeString);
+
+    }
+
+    public function createScopeArrayFromString ($scopeString) {
+
+        return explode(" ", $scopeString);
+
+    }
+
+    public function createScopeStringFromArray ($scopeArray) {
+
+        return implode(" ", $scopeArray);
+
     }
 
     // sets protected class variables from array values
