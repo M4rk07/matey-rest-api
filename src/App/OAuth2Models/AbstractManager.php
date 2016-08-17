@@ -44,13 +44,7 @@ abstract class AbstractManager extends BaseService
 
         $whereStr = [];
         foreach($criteria as $key => $value) {
-            if(strcmp($key, "accessToken") == 0) $key = "access_token";
-            else if(strcmp($key, "clientId") == 0) $key = "client_id";
-            else if(strcmp($key, "tokenType") == 0) $key = "token_type";
-            else if(strcmp($key, "clientSecret") == 0) $key = "client_secret";
-            else if(strcmp($key, "redirectUri") == 0) $key = "redirect_uri";
-            else if(strcmp($key, "refreshToken") == 0) $key = "refresh_token";
-
+            $key = $this->makeColumnName($key);
             $whereStr[] = $key . " LIKE :" . $key;
         }
         if ($whereStr) {
@@ -84,13 +78,7 @@ abstract class AbstractManager extends BaseService
 
         // bind WHERE criteria values
         foreach($criteria as $key => $value) {
-            if(strcmp($key, "accessToken") == 0) $key = "access_token";
-            else if(strcmp($key, "clientId") == 0) $key = "client_id";
-            else if(strcmp($key, "tokenType") == 0) $key = "token_type";
-            else if(strcmp($key, "clientSecret") == 0) $key = "client_secret";
-            else if(strcmp($key, "redirectUri") == 0) $key = "redirect_uri";
-            else if(strcmp($key, "refreshToken") == 0) $key = "refresh_token";
-
+            $key = $this->makeColumnName($key);
             $prepared->bindValue(':'.$key, $value);
         }
 
@@ -134,6 +122,20 @@ abstract class AbstractManager extends BaseService
         }
 
         return $modelObjects;
+    }
+
+    public function makeColumnName ($key) {
+        if(strcmp($key, "accessToken") == 0) $key = "access_token";
+        else if(strcmp($key, "clientId") == 0) {
+            if($this->tableName == "oauth2_clients") $key = "id";
+            else $key = "client_id";
+        }
+        else if(strcmp($key, "tokenType") == 0) $key = "token_type";
+        else if(strcmp($key, "clientSecret") == 0) $key = "client_secret";
+        else if(strcmp($key, "redirectUri") == 0) $key = "redirect_uri";
+        else if(strcmp($key, "refreshToken") == 0) $key = "refresh_token";
+
+        return $key;
     }
 
 }

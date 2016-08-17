@@ -27,15 +27,15 @@ abstract class AbstractModel
 
     }
 
-    public function createScopeArrayFromString ($scopeString) {
+    public function createArrayFromString ($string) {
 
-        return explode(" ", $scopeString);
+        return explode(" ", $string);
 
     }
 
-    public function createScopeStringFromArray ($scopeArray) {
+    public function createStringFromArray ($array) {
 
-        return implode(" ", $scopeArray);
+        return implode(" ", $array);
 
     }
 

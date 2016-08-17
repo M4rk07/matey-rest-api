@@ -136,7 +136,7 @@ class Code extends AbstractModel implements CodeInterface
         $this->username = $values['username'];
         $this->redirectUri = $values['redirect_uri'];
         $this->expires = $this->createDateTimeFromString($values['expires']);
-        $this->scope = $this->createScopeArrayFromString($values['scope']);
+        $this->scope = $this->createArrayFromString($values['scope']);
     }
 
     public function getValuesAsArray(ModelInterface $model)
@@ -147,7 +147,7 @@ class Code extends AbstractModel implements CodeInterface
             'username' => $model->getUsername(),
             'redirect_uri' => $model->getRedirectUri(),
             'expires' => $model->getExpires()->format($this->dateFormat),
-            'scope' => $this->createScopeStringFromArray($model->getScope())
+            'scope' => $this->createStringFromArray($model->getScope())
         );
 
         return $keyValues;

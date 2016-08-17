@@ -104,6 +104,7 @@ $servicesLoader->bindServicesIntoContainer();
 $routesLoader = new App\RoutesLoader($app);
 $routesLoader->bindRoutesToControllers();
 
+// OAuth 2.0 ROUTES
 $app->get('/api/oauth2/authorize', 'authbucket_oauth2.oauth2_controller:authorizeAction')
     ->bind('api_oauth2_authorize');
 
