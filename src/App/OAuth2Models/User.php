@@ -81,11 +81,11 @@ class User extends AbstractModel implements ModelInterface, UserInterface
 
     public function setValuesFromArray($values)
     {
-        $this->id = $values['id'];
+        $this->id = $values['user_id'];
 
         $this->username = $values['email'];
         $this->password = $values['password'];
-        $this->roles = $values['roles'];
+        $this->roles = $this->createScopeArrayFromString($values['roles']);
 
     }
 
@@ -94,7 +94,7 @@ class User extends AbstractModel implements ModelInterface, UserInterface
         $keyValues = array (
             'email' => $model->getUsername(),
             'password' => $model->getPassword(),
-            'roles' => $model->getRoles()
+            'roles' => $this->createScopeStringFromArray($model->getRoles())
         );
 
         return $keyValues;

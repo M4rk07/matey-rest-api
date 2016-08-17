@@ -12,7 +12,7 @@ use App\ServicesLoader;
 use App\RoutesLoader;
 use Carbon\Carbon;
 
-date_default_timezone_set('Europe/London');
+//date_default_timezone_set('Europe/London');
 
 define("ROOT_PATH", __DIR__ . "/..");
 
@@ -73,17 +73,18 @@ $app['security.encoder.digest'] = $app->share(function ($app) {
     return new Symfony\Component\Security\Core\Encoder\PlaintextPasswordEncoder();
 });
 
+/*
 $app['security.user_provider.default'] = $app['security.user_provider.inmemory._proto']([
     'root' => ['ROLE_USER', 'root'],
     'demousername2' => ['ROLE_USER', 'demopassword2'],
     'demousername3' => ['ROLE_USER', 'demopassword3'],
-]);
+]);*/
 
 $app['security.firewalls'] = [
     'api_oauth2_authorize' => [
         'pattern' => '^/api/oauth2/authorize$',
         'http' => true,
-        'users' => $app['security.user_provider.default'],
+        'users' => $app['authbucket_oauth2.user_provider'],
     ],
     'api_oauth2_token' => [
         'pattern' => '^/api/oauth2/token$',
