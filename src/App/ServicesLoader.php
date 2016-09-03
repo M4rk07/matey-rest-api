@@ -19,6 +19,11 @@ class ServicesLoader
             //return new Services\NotesService($this->app["db"]);
             return new Services\NotesService();
         });
+
+        $this->app['userPosts.service'] = $this->app->share(function () {
+            //return new Services\UserPostsService();
+            return new Services\UserPostsService();
+        });
     }
 }
 

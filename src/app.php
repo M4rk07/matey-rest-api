@@ -90,10 +90,10 @@ $app['security.firewalls'] = [
         'pattern' => '^/api/oauth2/token$',
         'oauth2_token' => true,
     ],
-    'api_resource' => [
-        'pattern' => '^/api/v1',
-        'oauth2_resource' => true,
-    ]
+    //'api_resource' => [
+    //    'pattern' => '^/api/v1',
+    //    'oauth2_resource' => true,
+    //]
 ];
 
 //load services
