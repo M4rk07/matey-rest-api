@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 03, 2016 at 09:00 PM
+-- Generation Time: Sep 04, 2016 at 02:02 AM
 -- Server version: 5.6.17
 -- PHP Version: 5.5.12
 
@@ -156,16 +156,16 @@ CREATE TABLE IF NOT EXISTS `users` (
   `salt` varchar(32) NOT NULL,
   `roles` text,
   `phone_number` varchar(20) DEFAULT NULL,
-  `first_name` varchar(30) NOT NULL,
-  `last_name` varchar(30) NOT NULL,
+  `first_name` varchar(30) DEFAULT NULL,
+  `last_name` varchar(30) DEFAULT NULL,
   `profile_picture_link` varchar(200) DEFAULT NULL,
   `date_registered` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `is_verified` int(11) NOT NULL DEFAULT '0',
-  `gender` varchar(7) NOT NULL,
-  `birthday` varchar(11) NOT NULL,
-  `hometown` varchar(30) NOT NULL,
-  `location` varchar(30) NOT NULL,
-  `quote_status` varchar(120) NOT NULL,
+  `gender` varchar(7) DEFAULT NULL,
+  `birthday` varchar(11) DEFAULT NULL,
+  `hometown` varchar(30) DEFAULT NULL,
+  `location` varchar(30) DEFAULT NULL,
+  `quote_status` varchar(120) DEFAULT NULL,
   `private` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `email` (`email`)
@@ -176,8 +176,8 @@ CREATE TABLE IF NOT EXISTS `users` (
 --
 
 INSERT INTO `users` (`user_id`, `fb_id`, `email`, `password`, `salt`, `roles`, `phone_number`, `first_name`, `last_name`, `profile_picture_link`, `date_registered`, `is_verified`, `gender`, `birthday`, `hometown`, `location`, `quote_status`, `private`) VALUES
-(82, NULL, 'marko@marko.com', 'marko', '', NULL, NULL, 'Marko', 'Ognjenovic', NULL, '2016-08-16 16:57:58', 0, '', '', '', '', '', 0),
-(83, NULL, 'radovan@gmail.com', NULL, '', NULL, NULL, 'Radovan', 'Ristovic', NULL, '2016-09-03 15:17:17', 0, '', '', '', '', '', 0);
+(82, NULL, 'marko@marko.com', 'marko', '', NULL, NULL, 'Marko', 'Ognjenovic', NULL, '2016-08-16 16:57:58', 0, NULL, NULL, NULL, NULL, NULL, 0),
+(83, NULL, 'radovan@gmail.com', NULL, '', NULL, NULL, 'Radovan', 'Ristovic', NULL, '2016-09-03 15:17:17', 0, NULL, NULL, NULL, NULL, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -222,7 +222,7 @@ CREATE TABLE IF NOT EXISTS `user_friends` (
   `id_user_one` bigint(20) NOT NULL,
   `id_user_two` bigint(20) NOT NULL,
   `status` int(11) NOT NULL DEFAULT '0',
-  `date_friends` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date_friends` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY `user_one_id_2` (`id_user_one`),
   KEY `user_two_id` (`id_user_two`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -232,7 +232,7 @@ CREATE TABLE IF NOT EXISTS `user_friends` (
 --
 
 INSERT INTO `user_friends` (`id_user_one`, `id_user_two`, `status`, `date_friends`) VALUES
-(82, 83, 1, '2016-09-03 15:17:44');
+(82, 83, 1, '2016-09-03 17:17:44');
 
 -- --------------------------------------------------------
 
@@ -241,12 +241,12 @@ INSERT INTO `user_friends` (`id_user_one`, `id_user_two`, `status`, `date_friend
 --
 
 CREATE TABLE IF NOT EXISTS `user_groups` (
-  `group_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id_group` bigint(20) NOT NULL AUTO_INCREMENT,
   `group_name` varchar(50) CHARACTER SET latin1 NOT NULL,
-  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `creator_id` bigint(20) NOT NULL,
   `group_type` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`group_id`),
+  PRIMARY KEY (`id_group`),
   KEY `creator_id` (`creator_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
@@ -329,21 +329,21 @@ CREATE TABLE IF NOT EXISTS `user_phone_verifications` (
 CREATE TABLE IF NOT EXISTS `user_posts` (
   `id_post` bigint(20) NOT NULL AUTO_INCREMENT,
   `id_user` bigint(20) NOT NULL,
-  `group_id` bigint(20) DEFAULT NULL,
+  `id_group` bigint(20) DEFAULT NULL,
   `text` varchar(320) NOT NULL,
-  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_post`),
   KEY `author_id` (`id_user`),
-  KEY `group_id` (`group_id`)
+  KEY `group_id` (`id_group`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
 -- Dumping data for table `user_posts`
 --
 
-INSERT INTO `user_posts` (`id_post`, `id_user`, `group_id`, `text`, `date_created`) VALUES
-(1, 82, NULL, 'Najvece smo baje, sta da se radi...', '2016-09-03 15:01:01'),
-(2, 83, NULL, 'Ovo je neka druga objava..', '2016-09-03 16:47:29');
+INSERT INTO `user_posts` (`id_post`, `id_user`, `id_group`, `text`, `date_created`) VALUES
+(1, 82, NULL, 'Najvece smo baje, sta da se radi...', '2016-09-03 17:01:01'),
+(2, 83, NULL, 'Ovo je neka druga objava..', '2016-09-03 18:47:29');
 
 -- --------------------------------------------------------
 
@@ -372,7 +372,9 @@ CREATE TABLE IF NOT EXISTS `user_post_files` (
 
 CREATE TABLE IF NOT EXISTS `user_post_interests` (
   `id_post` bigint(20) NOT NULL,
-  `id_interest` bigint(20) NOT NULL
+  `id_interest` bigint(20) NOT NULL,
+  KEY `id_post` (`id_post`),
+  KEY `id_interest` (`id_interest`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -470,7 +472,7 @@ ALTER TABLE `user_groups`
 -- Constraints for table `user_group_belongs`
 --
 ALTER TABLE `user_group_belongs`
-  ADD CONSTRAINT `user_group_belongs_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `user_groups` (`group_id`),
+  ADD CONSTRAINT `user_group_belongs_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `user_groups` (`id_group`),
   ADD CONSTRAINT `user_group_belongs_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 --
@@ -484,14 +486,22 @@ ALTER TABLE `user_logins`
 -- Constraints for table `user_posts`
 --
 ALTER TABLE `user_posts`
+  ADD CONSTRAINT `user_posts_ibfk_3` FOREIGN KEY (`id_group`) REFERENCES `user_groups` (`id_group`),
   ADD CONSTRAINT `user_posts_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`user_id`),
-  ADD CONSTRAINT `user_posts_ibfk_2` FOREIGN KEY (`group_id`) REFERENCES `user_groups` (`group_id`);
+  ADD CONSTRAINT `user_posts_ibfk_2` FOREIGN KEY (`id_group`) REFERENCES `user_groups` (`id_group`);
 
 --
 -- Constraints for table `user_post_files`
 --
 ALTER TABLE `user_post_files`
   ADD CONSTRAINT `user_post_files_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `user_posts` (`id_post`);
+
+--
+-- Constraints for table `user_post_interests`
+--
+ALTER TABLE `user_post_interests`
+  ADD CONSTRAINT `user_post_interests_ibfk_2` FOREIGN KEY (`id_interest`) REFERENCES `user_interests` (`id_interest`),
+  ADD CONSTRAINT `user_post_interests_ibfk_1` FOREIGN KEY (`id_post`) REFERENCES `user_posts` (`id_post`);
 
 --
 -- Constraints for table `user_post_replies`
