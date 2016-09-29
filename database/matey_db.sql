@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 04, 2016 at 02:02 AM
+-- Generation Time: Sep 06, 2016 at 08:17 PM
 -- Server version: 5.6.17
 -- PHP Version: 5.5.12
 
@@ -250,16 +250,6 @@ CREATE TABLE IF NOT EXISTS `user_groups` (
   KEY `creator_id` (`creator_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
---
--- Triggers `user_groups`
---
-DROP TRIGGER IF EXISTS `automatic_join`;
-DELIMITER //
-CREATE TRIGGER `automatic_join` AFTER INSERT ON `user_groups`
- FOR EACH ROW INSERT INTO belongs (group_id, user_id) VALUES (NEW.group_id, NEW.creator_id)
-//
-DELIMITER ;
-
 -- --------------------------------------------------------
 
 --
@@ -486,9 +476,9 @@ ALTER TABLE `user_logins`
 -- Constraints for table `user_posts`
 --
 ALTER TABLE `user_posts`
-  ADD CONSTRAINT `user_posts_ibfk_3` FOREIGN KEY (`id_group`) REFERENCES `user_groups` (`id_group`),
   ADD CONSTRAINT `user_posts_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`user_id`),
-  ADD CONSTRAINT `user_posts_ibfk_2` FOREIGN KEY (`id_group`) REFERENCES `user_groups` (`id_group`);
+  ADD CONSTRAINT `user_posts_ibfk_2` FOREIGN KEY (`id_group`) REFERENCES `user_groups` (`id_group`),
+  ADD CONSTRAINT `user_posts_ibfk_3` FOREIGN KEY (`id_group`) REFERENCES `user_groups` (`id_group`);
 
 --
 -- Constraints for table `user_post_files`
@@ -500,8 +490,8 @@ ALTER TABLE `user_post_files`
 -- Constraints for table `user_post_interests`
 --
 ALTER TABLE `user_post_interests`
-  ADD CONSTRAINT `user_post_interests_ibfk_2` FOREIGN KEY (`id_interest`) REFERENCES `user_interests` (`id_interest`),
-  ADD CONSTRAINT `user_post_interests_ibfk_1` FOREIGN KEY (`id_post`) REFERENCES `user_posts` (`id_post`);
+  ADD CONSTRAINT `user_post_interests_ibfk_1` FOREIGN KEY (`id_post`) REFERENCES `user_posts` (`id_post`),
+  ADD CONSTRAINT `user_post_interests_ibfk_2` FOREIGN KEY (`id_interest`) REFERENCES `user_interests` (`id_interest`);
 
 --
 -- Constraints for table `user_post_replies`
