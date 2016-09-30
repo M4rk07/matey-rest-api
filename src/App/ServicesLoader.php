@@ -24,6 +24,11 @@ class ServicesLoader
             //return new Services\UserPostsService();
             return new Services\UserPostsService();
         });
+
+        $this->app['tester.service'] = $this->app->share(function () {
+            //return new Services\UserPostsService();
+            return new Services\DatabaseTesterService();
+        });
     }
 }
 

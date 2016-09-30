@@ -24,6 +24,10 @@ class RoutesLoader
         $this->app['userPosts.controller'] = $this->app->share(function () {
             return new Controllers\UserPostsController($this->app['userPosts.service']);
         });
+
+        $this->app['tester.controller'] = $this->app->share(function () {
+            return new Controllers\DatabaseTesterController($this->app['tester.service']);
+        });
     }
 
     public function bindRoutesToControllers()
@@ -36,6 +40,10 @@ class RoutesLoader
         $api->delete('/notes/{id}', "notes.controller:delete");
 
         $api->get('/posts/news_feed/{id_user_requesting}', "userPosts.controller:fetchNewsFeedPosts");
+
+        // TESTING
+        $api->get('/tester/fillUsersTable', "tester.controller:fillUsersTable");
+        $api->get('/tester/deleteAllUsersTable', "tester.controller:deleteAllUsersTable");
 
         $this->app->mount($this->app["api.endpoint"].'/'.$this->app["api.version"], $api);
     }

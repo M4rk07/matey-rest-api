@@ -10,7 +10,7 @@ use Doctrine\DBAL\DriverManager;
 $config = new \Doctrine\DBAL\Configuration();
 
 $connectionParams = array(
-    'dbname' => 'matey_db',
+    'dbname' => 'matey_db_v1',
     'user' => 'root',
     'password' => 'maka',
     'host' => 'localhost',
