@@ -17,6 +17,8 @@ class DatabaseTesterService extends BaseService
         $data = file_get_contents(__DIR__."/../../../tests/TEST_USER_DATA.json", true);
         $data = json_decode($data);
 
+        $start = microtime(true);
+
         foreach($data as $row) {
 
             $this->db->insert("matey_user", array(
@@ -26,6 +28,10 @@ class DatabaseTesterService extends BaseService
             ));
 
         }
+
+        $time_elapsed_secs = microtime(true) - $start;
+
+        echo "TIME ELAPSED: " . $time_elapsed_secs;
 
     }
 
