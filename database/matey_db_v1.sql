@@ -20,6 +20,103 @@ SET time_zone = "+00:00";
 -- Database: `matey_db_v1`
 --
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oauth2_access_tokens`
+--
+
+CREATE TABLE IF NOT EXISTS oauth2_access_tokens (
+  access_token varchar(255) NOT NULL,
+  token_type varchar(255) NOT NULL,
+  client_id varchar(255) NOT NULL,
+  username varchar(255) NOT NULL,
+  expires TIMESTAMP NOT NULL,
+  scope text,
+  PRIMARY KEY (access_token)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oauth2_authorize`
+--
+
+CREATE TABLE IF NOT EXISTS oauth2_authorize (
+  client_id varchar(255) NOT NULL,
+  username varchar(255) NOT NULL,
+  scope text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `oauth2_authorize`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oauth2_clients`
+--
+
+CREATE TABLE IF NOT EXISTS oauth2_clients (
+  id bigint(20) NOT NULL AUTO_INCREMENT,
+  client_secret varchar(255) NOT NULL,
+  redirect_uri text,
+  client_type varchar(15) NOT NULL,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `oauth2_clients`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oauth2_codes`
+--
+
+CREATE TABLE IF NOT EXISTS oauth2_codes (
+  code varchar(255) NOT NULL,
+  client_id varchar(255) NOT NULL,
+  username varchar(255) NOT NULL,
+  redirect_uri text,
+  expires datetime NOT NULL,
+  scope text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `oauth2_codes`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oauth2_refresh_tokens`
+--
+
+CREATE TABLE IF NOT EXISTS oauth2_refresh_tokens (
+  refresh_token varchar(255) NOT NULL,
+  client_id varchar(255) NOT NULL,
+  username varchar(255) NOT NULL,
+  expires datetime NOT NULL,
+  scope text,
+  PRIMARY KEY (refresh_token)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oauth2_scopes`
+--
+
+CREATE TABLE IF NOT EXISTS oauth2_scopes (
+  scope varchar(255) NOT NULL,
+  PRIMARY KEY (scope)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
 --
 -- Table structure for table `matey_user`
 --
@@ -69,7 +166,7 @@ CREATE TABLE IF NOT EXISTS matey_fb_user (
 CREATE TABLE IF NOT EXISTS matey_follower (
   from_user int(11) UNSIGNED NOT NULL,
   to_user int(11) UNSIGNED NOT NULL,
-  date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (from_user, to_user),
   FOREIGN KEY (from_user) REFERENCES matey_user(id_user),
   FOREIGN KEY (to_user) REFERENCES matey_user(id_user)
@@ -85,7 +182,7 @@ CREATE TABLE IF NOT EXISTS matey_post (
   id_post int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   id_user int(11) UNSIGNED NOT NULL,
   text varchar(7000) NOT NULL,
-  date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   num_of_responses int(11) UNSIGNED NOT NULL,
   PRIMARY KEY (id_post),
   FOREIGN KEY (id_user) REFERENCES matey_user(id_user)
@@ -102,7 +199,7 @@ CREATE TABLE IF NOT EXISTS matey_response (
   id_user int(11) UNSIGNED NOT NULL,
   id_post int(11) UNSIGNED NOT NULL,
   text varchar(7000) NOT NULL,
-  date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   num_of_approves int(11) UNSIGNED NOT NULL,
   PRIMARY KEY (id_response),
   FOREIGN KEY (id_user) REFERENCES matey_user(id_user),
@@ -132,7 +229,7 @@ CREATE TABLE IF NOT EXISTS matey_approve (
 CREATE TABLE IF NOT EXISTS matey_share (
   id_user int(11) UNSIGNED NOT NULL,
   id_post int(11) UNSIGNED NOT NULL,
-  date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (id_user) REFERENCES matey_user(id_user),
   FOREIGN KEY (id_post) REFERENCES matey_post(id_post)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -148,8 +245,8 @@ CREATE TABLE IF NOT EXISTS matey_activity (
   id_user int(11) UNSIGNED NOT NULL,
   id_source int(11) UNSIGNED NOT NULL,
   activity_type varchar(50) NOT NULL,
-  date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  data blob NOT NULL,
+  date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  srl_data blob NOT NULL,
   PRIMARY KEY (id_activity),
   FOREIGN KEY (id_user) REFERENCES matey_user(id_user)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
