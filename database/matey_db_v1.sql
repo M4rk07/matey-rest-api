@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS oauth2_access_tokens (
   token_type varchar(255) NOT NULL,
   client_id varchar(255) NOT NULL,
   username varchar(255) NOT NULL,
-  expires TIMESTAMP NOT NULL,
+  expires datetime NOT NULL,
   scope text,
   PRIMARY KEY (access_token)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS oauth2_authorize (
 --
 
 CREATE TABLE IF NOT EXISTS oauth2_clients (
-  id bigint(20) NOT NULL AUTO_INCREMENT,
+  client_id bigint(20) NOT NULL AUTO_INCREMENT,
   client_secret varchar(255) NOT NULL,
   redirect_uri text,
   client_type varchar(15) NOT NULL,
@@ -82,7 +82,8 @@ CREATE TABLE IF NOT EXISTS oauth2_codes (
   username varchar(255) NOT NULL,
   redirect_uri text,
   expires datetime NOT NULL,
-  scope text
+  scope text,
+  PRIMARY (code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --

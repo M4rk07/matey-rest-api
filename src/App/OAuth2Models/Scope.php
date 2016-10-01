@@ -37,7 +37,7 @@ class Scope extends AbstractModel implements ScopeInterface
 
     public function setValuesFromArray($values)
     {
-        $this->id = $values['id'];
+        $this->id = $values['scope'];
 
         $this->scope = $values['scope'];
     }

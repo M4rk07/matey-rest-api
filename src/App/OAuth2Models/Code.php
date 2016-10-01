@@ -129,7 +129,7 @@ class Code extends AbstractModel implements CodeInterface
     public function setValuesFromArray($values)
     {
 
-        $this->id = $values['id'];
+        $this->id = $values['code'];
 
         $this->code = $values['code'];
         $this->clientId = $values['client_id'];

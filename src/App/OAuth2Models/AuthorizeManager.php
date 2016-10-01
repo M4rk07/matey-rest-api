@@ -16,5 +16,6 @@ class AuthorizeManager extends AbstractManager implements AccessTokenManagerInte
         parent::__construct();
         $this->tableName = "oauth2_authorize";
         $this->className = 'App\\OAuth2Models\\Authorize';
+        $this->identifier = "client_id";
     }
 }

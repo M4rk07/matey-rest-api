@@ -17,5 +17,6 @@ class CodeManager extends AbstractManager implements CodeManagerInterface
         parent::__construct();
         $this->tableName = "oauth2_codes";
         $this->className = 'App\\OAuth2Models\\Code';
+        $this->identifier = "code";
     }
 }

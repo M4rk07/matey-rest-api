@@ -127,7 +127,7 @@ class AccessToken extends AbstractModel implements AccessTokenInterface
 
     public function setValuesFromArray ($values) {
 
-        $this->id = $values['id'];
+        $this->id = $values['access_token'];
 
         $this->accessToken = $values['access_token'];
         $this->tokenType = $values['token_type'];

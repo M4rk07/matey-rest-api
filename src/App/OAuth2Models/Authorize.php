@@ -73,7 +73,7 @@ class Authorize extends AbstractModel implements AuthorizeInterface
 
     public function setValuesFromArray($values)
     {
-        $this->id = $values['id'];
+        $this->id = $values['client_id'];
 
         $this->clientId = $values['client_id'];
         $this->username = $values['username'];

@@ -15,6 +15,7 @@ abstract class AbstractManager extends BaseService
 {
     protected $tableName;
     protected $className;
+    protected $identifier;
 
 
     public function getClassName()
@@ -99,7 +100,7 @@ abstract class AbstractManager extends BaseService
     public function updateModel(ModelInterface $model)
     {
 
-        $this->db->update($this->tableName, $model->getValuesAsArray($model), array('id' => $model->getId()));
+        $this->db->update($this->tableName, $model->getValuesAsArray($model), array(($this->identifier."") => $model->getId()));
 
         return $model;
     }
@@ -107,7 +108,7 @@ abstract class AbstractManager extends BaseService
     public function deleteModel(ModelInterface $model)
     {
 
-        $this->db->delete($this->tableName, array('id' => $model->getId()));
+        $this->db->delete($this->tableName, array(($this->identifier."") => $model->getId()));
 
         return $model;
     }
@@ -126,10 +127,7 @@ abstract class AbstractManager extends BaseService
 
     public function makeColumnName ($key) {
         if(strcmp($key, "accessToken") == 0) $key = "access_token";
-        else if(strcmp($key, "clientId") == 0) {
-            if($this->tableName == "oauth2_clients") $key = "id";
-            else $key = "client_id";
-        }
+        else if(strcmp($key, "clientId") == 0) $key = "client_id";
         else if(strcmp($key, "tokenType") == 0) $key = "token_type";
         else if(strcmp($key, "clientSecret") == 0) $key = "client_secret";
         else if(strcmp($key, "redirectUri") == 0) $key = "redirect_uri";

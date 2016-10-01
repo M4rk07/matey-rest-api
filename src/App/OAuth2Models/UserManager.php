@@ -18,13 +18,14 @@ class UserManager extends AbstractManager implements UserProviderInterface
 {
     public function __construct () {
         parent::__construct();
-        $this->tableName = "users";
+        $this->tableName = "matey_user";
         $this->className = 'App\\OAuth2Models\\User';
+        $this->identifier = "id_user";
     }
 
     public function deleteUser(UserInterface $user)
     {
-        $this->db->delete($this->tableName, array('id' => $user->getId()));
+        $this->db->delete($this->tableName, array($this->identifier => $user->getId()));
 
         return $user;
     }
@@ -36,14 +37,16 @@ class UserManager extends AbstractManager implements UserProviderInterface
 
     public function updateUser(UserInterface $user)
     {
-        $this->db->update($this->tableName, $user->getValuesAsArray($user), array('user_id' => $user->getId()));
+        $this->db->update($this->tableName, $user->getValuesAsArray($user), array($this->identifier => $user->getId()));
 
         return $user;
     }
 
     public function loadUserByUsername($username)
     {
-        $all = $this->db->fetchAll("SELECT * FROM " . $this->tableName . " WHERE email = ? LIMIT 1",
+        $all = $this->db->fetchAll("SELECT matey_user.*, matey_standard_user.password, matey_standard_user.salt
+        FROM " . $this->tableName . "
+        LEFT JOIN matey_standard_user USING(id_user) WHERE matey_user.email = ? LIMIT 1",
             array($username));
         $models = $this->makeObjects($all);
 
@@ -52,7 +55,9 @@ class UserManager extends AbstractManager implements UserProviderInterface
 
     public function refreshUser(UserInterface $user)
     {
-        $all = $this->db->fetchAll("SELECT * FROM " . $this->tableName . " WHERE user_id = ? LIMIT 1",
+        $all = $this->db->fetchAll("SELECT matey_user.*, matey_standard_user.password, matey_standard_user.salt
+        FROM " . $this->tableName . "
+        LEFT JOIN matey_standard_user ON matey_user.id_user = matey_standard_user.id_user WHERE matey_user.id_user = ? LIMIT 1",
             array($user->getId()));
         $models = $this->makeObjects($all);
 

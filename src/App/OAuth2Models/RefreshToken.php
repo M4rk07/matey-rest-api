@@ -111,7 +111,7 @@ class RefreshToken extends AbstractModel implements RefreshTokenInterface
     {
         $expires = \DateTime::createFromFormat('Y-m-d H:i:s', $values['expires']);
 
-        $this->id = $values['id'];
+        $this->id = $values['refresh_token'];
 
         $this->refreshToken = $values['refresh_token'];
         $this->clientId = $values['client_id'];

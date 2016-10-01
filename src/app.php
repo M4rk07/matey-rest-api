@@ -16,6 +16,13 @@ use Carbon\Carbon;
 
 define("ROOT_PATH", __DIR__ . "/..");
 
+//handling ERRORS
+$app->error(function (\Exception $e, Request $request, $code) {
+
+    return $e->getMessage();
+
+});
+
 //handling CORS preflight request
 $app->before(function (Request $request) {
    if ($request->getMethod() === "OPTIONS") {
@@ -59,7 +66,7 @@ $app->register(new ServiceControllerServiceProvider());
 $app->register(new DoctrineServiceProvider(), array(
 	"db.options" => array(
         "driver" => "pdo_mysql",
-        "dbname" => "notifinda_db",
+        "dbname" => "matey_db_v1",
         "host" => "localhost",
         "user" => "root",
         "password" => "maka",
@@ -73,8 +80,8 @@ $app['security.encoder.digest'] = $app->share(function ($app) {
     return new Symfony\Component\Security\Core\Encoder\PlaintextPasswordEncoder();
 });
 
-/*
-$app['security.user_provider.default'] = $app['security.user_provider.inmemory._proto']([
+
+/*$app['security.user_provider.default'] = $app['security.user_provider.inmemory._proto']([
     'root' => ['ROLE_USER', 'root'],
     'demousername2' => ['ROLE_USER', 'demopassword2'],
     'demousername3' => ['ROLE_USER', 'demopassword3'],
@@ -84,7 +91,8 @@ $app['security.firewalls'] = [
     'api_oauth2_authorize' => [
         'pattern' => '^/api/oauth2/authorize$',
         'http' => true,
-        'users' => $app['authbucket_oauth2.user_provider'],
+        //'users' => $app['security.user_provider.default']
+        'users' => $app['authbucket_oauth2.user_provider']
     ],
     'api_oauth2_token' => [
         'pattern' => '^/api/oauth2/token$',
