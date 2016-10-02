@@ -27,6 +27,7 @@ abstract class AbstractManager extends BaseService
     {
 
         $this->db->insert($this->tableName, $model->getValuesAsArray($model));
+        $model->setId($this->db->lastInsertId());
 
         return $model;
 
@@ -116,6 +117,7 @@ abstract class AbstractManager extends BaseService
     public function makeObjects(array $all)
     {
         $modelObjects = [];
+
         foreach($all as $model) {
             $object = new $this->className();
             $object->setValuesFromArray($model);

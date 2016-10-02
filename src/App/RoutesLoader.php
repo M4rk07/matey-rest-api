@@ -21,8 +21,8 @@ class RoutesLoader
             return new Controllers\NotesController($this->app['notes.service']);
         });
 
-        $this->app['userPosts.controller'] = $this->app->share(function () {
-            return new Controllers\UserPostsController($this->app['userPosts.service']);
+        $this->app['client.registration.controller'] = $this->app->share(function () {
+            return new Controllers\RegistrationController();
         });
 
         $this->app['tester.controller'] = $this->app->share(function () {
@@ -39,7 +39,7 @@ class RoutesLoader
         $api->put('/notes/{id}', "notes.controller:update");
         $api->delete('/notes/{id}', "notes.controller:delete");
 
-        $api->get('/posts/news_feed/{id_user_requesting}', "userPosts.controller:fetchNewsFeedPosts");
+        $api->post('/client/registration', "client.registration.controller:clientRegistration");
 
         // TESTING
         $api->get('/tester/fillUsersTable', "tester.controller:fillUsersTable");

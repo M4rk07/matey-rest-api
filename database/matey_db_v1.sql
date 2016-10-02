@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS matey_user (
 
 CREATE TABLE IF NOT EXISTS matey_standard_user (
   id_user int(11) UNSIGNED NOT NULL,
-  password varchar(40) NOT NULL,
+  password varchar(128) NOT NULL,
   salt varchar(20) NOT NULL,
   PRIMARY KEY(id_user),
   FOREIGN KEY (id_user) REFERENCES matey_user(id_user)
@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS matey_fb_user (
 CREATE TABLE IF NOT EXISTS oauth2_clients (
   client_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   client_secret varchar(255) NOT NULL,
+  app_name varchar(100) NOT NULL,
   redirect_uri text,
   client_type varchar(12) NOT NULL,
   PRIMARY KEY (client_id)
@@ -83,15 +84,15 @@ CREATE TABLE IF NOT EXISTS oauth2_clients (
 --
 
 CREATE TABLE IF NOT EXISTS oauth2_access_tokens (
-  access_token varchar(255) NOT NULL,
-  token_type varchar(255) NOT NULL,
+  access_token varchar(32) NOT NULL,
+  token_type varchar(20) NOT NULL,
   client_id int(11) UNSIGNED NOT NULL,
   username varchar(50) NOT NULL,
   expires datetime NOT NULL,
   scope text,
-  PRIMARY KEY (access_token),
   FOREIGN KEY (client_id) REFERENCES oauth2_clients(client_id),
-  FOREIGN KEY (username) REFERENCES matey_user(email)
+  FOREIGN KEY (username) REFERENCES matey_user(email),
+  KEY (access_token(10))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -117,14 +118,14 @@ CREATE TABLE IF NOT EXISTS oauth2_authorize (
 --
 
 CREATE TABLE IF NOT EXISTS oauth2_codes (
-  code varchar(255) NOT NULL,
+  code varchar(34) NOT NULL,
   client_id int(11) UNSIGNED NOT NULL,
   username varchar(50) NOT NULL,
   redirect_uri text,
   expires datetime NOT NULL,
   scope text,
-  PRIMARY KEY (code),
-  FOREIGN KEY (client_id) REFERENCES oauth2_clients(client_id)
+  FOREIGN KEY (client_id) REFERENCES oauth2_clients(client_id),
+  KEY (code(10))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -138,14 +139,14 @@ CREATE TABLE IF NOT EXISTS oauth2_codes (
 --
 
 CREATE TABLE IF NOT EXISTS oauth2_refresh_tokens (
-  refresh_token varchar(255) NOT NULL,
+  refresh_token varchar(32) NOT NULL,
   client_id int(11) UNSIGNED NOT NULL,
   username varchar(50) NOT NULL,
   expires datetime NOT NULL,
   scope text,
-  PRIMARY KEY (refresh_token),
   FOREIGN KEY (client_id) REFERENCES oauth2_clients(client_id),
-  FOREIGN KEY (username) REFERENCES matey_user(email)
+  FOREIGN KEY (username) REFERENCES matey_user(email),
+  KEY (refresh_token(10))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -155,7 +156,7 @@ CREATE TABLE IF NOT EXISTS oauth2_refresh_tokens (
 --
 
 CREATE TABLE IF NOT EXISTS oauth2_scopes (
-  scope varchar(255) NOT NULL,
+  scope varchar(20) NOT NULL,
   PRIMARY KEY (scope)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

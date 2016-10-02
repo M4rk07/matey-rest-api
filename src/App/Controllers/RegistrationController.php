@@ -8,20 +8,21 @@
 
 namespace App\Controllers;
 
-
+use App\Handler\ClientRegistrationHandler;
 use Symfony\Component\HttpFoundation\Request;
 
 class RegistrationController
 {
 
-    protected $registrationService;
+    protected $clientRegistrationService;
 
-    public function __construct($service)
+    public function __construct()
     {
-        $this->registrationService = $service;
     }
 
-    public function registerClient(Request $request) {
+    public function clientRegistration (Request $request) {
+
+        return (new ClientRegistrationHandler())->handle($request);
 
     }
 

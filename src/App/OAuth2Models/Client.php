@@ -17,6 +17,8 @@ class Client extends AbstractModel implements ClientInterface
     protected $clientId;
     protected $clientSecret;
     protected $redirectUri;
+    protected $appName;
+    protected $clientType;
 
     /**
      * @return mixed
@@ -52,6 +54,32 @@ class Client extends AbstractModel implements ClientInterface
         return $this;
     }
 
+    public function setAppName ($appName) {
+
+        $this->appName = $appName;
+        return $this;
+
+    }
+
+    public function getAppName () {
+
+        return $this->appName;
+
+    }
+
+    public function setClientType ($clientType) {
+
+        $this->clientType = $clientType;
+        return $this;
+
+    }
+
+    public function getClientType () {
+
+        return $this->clientType;
+
+    }
+
     /**
      * @return mixed
      */
@@ -76,6 +104,8 @@ class Client extends AbstractModel implements ClientInterface
 
         $this->clientId = $this->id;
         $this->clientSecret = $values['client_secret'];
+        $this->appName = $values['app_name'];
+        $this->clientType = $values['client_type'];
         $this->redirectUri = $values['redirect_uri'];
     }
 
@@ -84,6 +114,8 @@ class Client extends AbstractModel implements ClientInterface
         $keyValues = array (
             'client_id' => $model->getClientId(),
             'client_secret' => $model->getClientSecret(),
+            'app_name' => $model->getAppName(),
+            'client_type' => $model->getClientType(),
             'redirect_uri' => $model->getRedirectUri()
         );
 
