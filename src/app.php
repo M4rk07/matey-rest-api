@@ -77,7 +77,7 @@ $app->register(new DoctrineServiceProvider(), array(
 $app->register(new HttpCacheServiceProvider(), array("http_cache.cache_dir" => ROOT_PATH . "/storage/cache",));
 
 $app['security.encoder.digest'] = $app->share(function ($app) {
-    return new Symfony\Component\Security\Core\Encoder\PlaintextPasswordEncoder();
+    return new Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder();
 });
 
 
