@@ -13,21 +13,11 @@ use AuthBucket\OAuth2\Model\ModelInterface;
 
 abstract class AbstractManager extends BaseService
 {
-    protected $tableName;
-    protected $className;
-    protected $identifier;
-
-
-    public function getClassName()
-    {
-        return $this->className;
-    }
 
     public function createModel(ModelInterface $model)
     {
 
         $this->db->insert($this->tableName, $model->getValuesAsArray($model));
-        $model->setId($this->db->lastInsertId());
 
         return $model;
 
@@ -101,7 +91,7 @@ abstract class AbstractManager extends BaseService
     public function updateModel(ModelInterface $model)
     {
 
-        $this->db->update($this->tableName, $model->getValuesAsArray($model), array(($this->identifier."") => $model->getId()));
+        $this->db->update($this->tableName, $model->getValuesAsArray($model), array($this->identifier => $model->getId()));
 
         return $model;
     }
@@ -109,24 +99,12 @@ abstract class AbstractManager extends BaseService
     public function deleteModel(ModelInterface $model)
     {
 
-        $this->db->delete($this->tableName, array(($this->identifier."") => $model->getId()));
+        $this->db->delete($this->tableName, array($this->identifier => $model->getId()));
 
         return $model;
     }
 
-    public function makeObjects(array $all)
-    {
-        $modelObjects = [];
-
-        foreach($all as $model) {
-            $object = new $this->className();
-            $object->setValuesFromArray($model);
-            array_push($modelObjects, $object);
-        }
-
-        return $modelObjects;
-    }
-
+    // Needed because of authbucket defined colum names
     public function makeColumnName ($key) {
         if(strcmp($key, "accessToken") == 0) $key = "access_token";
         else if(strcmp($key, "clientId") == 0) $key = "client_id";

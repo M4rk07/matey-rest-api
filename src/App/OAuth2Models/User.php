@@ -19,6 +19,8 @@ class User extends AbstractModel implements ModelInterface, UserInterface
     protected $password;
     protected $roles;
     protected $salt;
+    protected $first_name;
+    protected $last_name;
 
     /**
      * @return mixed
@@ -84,6 +86,40 @@ class User extends AbstractModel implements ModelInterface, UserInterface
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getFirstName()
+    {
+        return $this->first_name;
+    }
+
+    /**
+     * @param mixed $first_name
+     */
+    public function setFirstName($first_name)
+    {
+        $this->first_name = $first_name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLastName()
+    {
+        return $this->last_name;
+    }
+
+    /**
+     * @param mixed $last_name
+     */
+    public function setLastName($last_name)
+    {
+        $this->last_name = $last_name;
+    }
+
+
+
     public function eraseCredentials()
     {
         // TODO: Implement eraseCredentials() method.
@@ -97,6 +133,8 @@ class User extends AbstractModel implements ModelInterface, UserInterface
         $this->password = $values['password'];
         $this->salt = $values['salt'];
         $this->roles = $this->createArrayFromString($values['roles']);
+        $this->first_name = $values['first_name'];
+        $this->last_name = $values['last_name'];
 
     }
 
@@ -106,7 +144,9 @@ class User extends AbstractModel implements ModelInterface, UserInterface
             'email' => $model->getUsername(),
             'password' => $model->getPassword(),
             'salt' => $model->getSalt(),
-            'roles' => $this->createStringFromArray($model->getRoles())
+            'roles' => $this->createStringFromArray($model->getRoles()),
+            'first_name' => $model->getFirstName(),
+            'last_name' => $model->getLastName()
         );
 
         return $keyValues;

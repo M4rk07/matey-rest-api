@@ -21,13 +21,6 @@ abstract class AbstractModel
 
     }
 
-    public function setId($id){
-
-        $this->id = $id;
-        return $this;
-
-    }
-
     public function createDateTimeFromString ($dateTimeString) {
 
         return \DateTime::createFromFormat($this->dateFormat, $dateTimeString);

@@ -125,6 +125,7 @@ class AccessToken extends AbstractModel implements AccessTokenInterface
         return $this;
     }
 
+    // set object values from array
     public function setValuesFromArray ($values) {
 
         $this->id = $values['access_token'];
@@ -138,6 +139,7 @@ class AccessToken extends AbstractModel implements AccessTokenInterface
 
     }
 
+    // gets object values as array
     public function getValuesAsArray (ModelInterface $model) {
 
         $keyValues = array (

@@ -14,7 +14,7 @@ class AccessTokenManager extends AbstractManager implements AccessTokenManagerIn
 {
     public function __construct () {
         parent::__construct();
-        $this->tableName = "oauth2_access_tokens";
+        $this->tableName = self::T_A_ACCESS_TOKEN;
         $this->className = 'App\\OAuth2Models\\AccessToken';
         $this->identifier = "access_token";
     }

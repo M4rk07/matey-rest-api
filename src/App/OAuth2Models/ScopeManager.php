@@ -15,7 +15,7 @@ class ScopeManager extends AbstractManager implements ScopeManagerInterface
 {
     public function __construct () {
         parent::__construct();
-        $this->tableName = "oauth2_scopes";
+        $this->tableName = self::T_A_SCOPES;
         $this->className = 'App\\OAuth2Models\\Scope';
         $this->identifier = "scope";
     }
