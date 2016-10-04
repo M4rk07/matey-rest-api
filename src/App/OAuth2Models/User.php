@@ -12,15 +12,31 @@ namespace App\OAuth2Models;
 use AuthBucket\OAuth2\Model\ModelInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class User extends AbstractModel implements ModelInterface, UserInterface
+class User
 {
 
+    protected $userId;
     protected $username;
-    protected $password;
-    protected $roles;
-    protected $salt;
+    protected $roles = array();
     protected $first_name;
     protected $last_name;
+
+    /**
+     * @return mixed
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    /**
+     * @param mixed $userId
+     */
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
+        return $this;
+    }
 
     /**
      * @return mixed
@@ -42,23 +58,6 @@ class User extends AbstractModel implements ModelInterface, UserInterface
     /**
      * @return mixed
      */
-    public function getPassword()
-    {
-        return $this->password;
-    }
-
-    /**
-     * @param mixed $password
-     */
-    public function setPassword($password)
-    {
-        $this->password = $password;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getRoles()
     {
         return $this->roles;
@@ -70,19 +69,6 @@ class User extends AbstractModel implements ModelInterface, UserInterface
     public function setRoles($roles)
     {
         $this->roles = $roles;
-        return $this;
-    }
-
-
-
-    public function getSalt()
-    {
-        return $this->salt;
-    }
-
-    public function setSalt($salt)
-    {
-        $this->salt = $salt;
         return $this;
     }
 
@@ -123,33 +109,6 @@ class User extends AbstractModel implements ModelInterface, UserInterface
     public function eraseCredentials()
     {
         // TODO: Implement eraseCredentials() method.
-    }
-
-    public function setValuesFromArray($values)
-    {
-        $this->id = $values['id_user'];
-
-        $this->username = $values['email'];
-        $this->password = $values['password'];
-        $this->salt = $values['salt'];
-        $this->roles = $this->createArrayFromString($values['roles']);
-        $this->first_name = $values['first_name'];
-        $this->last_name = $values['last_name'];
-
-    }
-
-    public function getValuesAsArray(ModelInterface $model)
-    {
-        $keyValues = array (
-            'email' => $model->getUsername(),
-            'password' => $model->getPassword(),
-            'salt' => $model->getSalt(),
-            'roles' => $this->createStringFromArray($model->getRoles()),
-            'first_name' => $model->getFirstName(),
-            'last_name' => $model->getLastName()
-        );
-
-        return $keyValues;
     }
 
 }

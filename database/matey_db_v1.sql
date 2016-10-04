@@ -163,6 +163,34 @@ CREATE TABLE IF NOT EXISTS oauth2_scopes (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `matey_device`
+--
+
+CREATE TABLE IF NOT EXISTS matey_device (
+  id_device int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  time_added TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY(id_device)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_login`
+--
+
+CREATE TABLE IF NOT EXISTS matey_login (
+  id_user int(11) UNSIGNED NOT NULL,
+  id_device int(11) UNSIGNED NOT NULL,
+  time_logged TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  status int(11) NOT NULL DEFAULT 1,
+  PRIMARY KEY (id_user, id_device),
+  FOREIGN KEY(id_user) REFERENCES matey_user(id_user),
+  FOREIGN KEY(id_device) REFERENCES matey_device(id_device)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `matey_follower`
 --
 

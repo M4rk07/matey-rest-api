@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Doctrine\DBAL\Connection;
 use Mockery\CountValidator\Exception;
 use Silex\Provider\DoctrineServiceProvider;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,6 +23,8 @@ class BaseService
     const T_SHARE = "matey_share";
     const T_ACTIVITY = "matey_activity";
     const T_ACTIVITY_TYPE = "matey_activity_type";
+    const T_DEVICE = "matey_device";
+    const T_LOGIN = "matey_login";
 
     // Database authorization table names
     const T_A_ACCESS_TOKEN = "oauth2_access_tokens";
@@ -88,32 +91,6 @@ class BaseService
     public function setIdentifier($identifier)
     {
         $this->identifier = $identifier;
-    }
-
-    // making objects form array
-    public function makeObjects(array $all)
-    {
-        $modelObjects = [];
-
-        try {
-
-            foreach ($all as $modelArray) {
-
-                $object = new $this->className();
-                $object->setValuesFromArray($modelArray);
-
-                array_push($modelObjects, $object);
-            }
-
-        } catch (Exception $e) {
-
-            return new JsonResponse(array(
-                "message" => strval($e->getMessage())
-            ), $e->getCode());
-
-        }
-
-        return $modelObjects;
     }
 
 }

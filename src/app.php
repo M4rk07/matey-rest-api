@@ -16,13 +16,6 @@ use Carbon\Carbon;
 
 define("ROOT_PATH", __DIR__ . "/..");
 
-//handling ERRORS
-$app->error(function (\Exception $e, Request $request, $code) {
-
-    return $e->getMessage();
-
-});
-
 //handling CORS preflight request
 $app->before(function (Request $request) {
    if ($request->getMethod() === "OPTIONS") {
@@ -91,17 +84,24 @@ $app['security.firewalls'] = [
     'api_oauth2_authorize' => [
         'pattern' => '^/api/oauth2/authorize$',
         'http' => true,
-        //'users' => $app['security.user_provider.default']
         'users' => $app['authbucket_oauth2.user_provider']
     ],
     'api_oauth2_token' => [
         'pattern' => '^/api/oauth2/token$',
         'oauth2_token' => true,
     ],
-    //'api_resource' => [
-    //    'pattern' => '^/api/v1',
-    //    'oauth2_resource' => true,
-    //]
+    'api_oauth2_login' => [
+        'pattern' => '^/api/oauth2/login$',
+        'oauth2_token' => true,
+    ],
+    'api_oauth2_debug' => [
+        'pattern' => '^/api/oauth2/debug$',
+        'oauth2_resource' => true,
+    ],
+    'api_resource' => [
+        'pattern' => '^/api/v1',
+        'oauth2_resource' => true,
+    ]
 ];
 
 //load services
@@ -112,6 +112,10 @@ $servicesLoader->bindServicesIntoContainer();
 $routesLoader = new App\RoutesLoader($app);
 $routesLoader->bindRoutesToControllers();
 
+$app['matey_oauth2.oauth2_controller.login'] = $app->share(function () use ($app) {
+    return new \App\Controllers\LoginController($app['login.service']);
+});
+
 // OAuth 2.0 ROUTES
 $app->get('/api/oauth2/authorize', 'authbucket_oauth2.oauth2_controller:authorizeAction')
     ->bind('api_oauth2_authorize');
@@ -121,6 +125,10 @@ $app->post('/api/oauth2/token', 'authbucket_oauth2.oauth2_controller:tokenAction
 
 $app->match('/api/oauth2/debug', 'authbucket_oauth2.oauth2_controller:debugAction')
     ->bind('api_oauth2_debug');
+
+// important login route
+$app->post('/api/oauth2/login', "matey_oauth2.oauth2_controller.login:loginUser");
+
 
 $app->error(function (\Exception $e, $code) use ($app) {
     $app['monolog']->addError($e->getMessage());

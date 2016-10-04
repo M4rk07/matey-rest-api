@@ -104,6 +104,32 @@ abstract class AbstractManager extends BaseService
         return $model;
     }
 
+    // making objects form array
+    public function makeObjects(array $all)
+    {
+        $modelObjects = [];
+
+        try {
+
+            foreach ($all as $modelArray) {
+
+                $object = new $this->className();
+                $object->setValuesFromArray($modelArray);
+
+                array_push($modelObjects, $object);
+            }
+
+        } catch (Exception $e) {
+
+            return new JsonResponse(array(
+                "message" => strval($e->getMessage())
+            ), $e->getCode());
+
+        }
+
+        return $modelObjects;
+    }
+
     // Needed because of authbucket defined colum names
     public function makeColumnName ($key) {
         if(strcmp($key, "accessToken") == 0) $key = "access_token";
