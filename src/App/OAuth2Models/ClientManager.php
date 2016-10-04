@@ -13,10 +13,7 @@ use AuthBucket\OAuth2\Model\ClientManagerInterface;
 class ClientManager extends AbstractManager implements ClientManagerInterface
 {
     public function __construct () {
-        parent::__construct();
-        $this->tableName = self::T_A_CLIENTS;
-        $this->className = 'App\\OAuth2Models\\Client';
-        $this->identifier = "client_id";
+        parent::__construct(self::T_A_CLIENTS, 'App\\OAuth2Models\\Client', "client_id");
     }
 
 }

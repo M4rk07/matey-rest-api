@@ -13,9 +13,6 @@ use AuthBucket\OAuth2\Model\AccessTokenManagerInterface;
 class AuthorizeManager extends AbstractManager implements AccessTokenManagerInterface
 {
     public function __construct () {
-        parent::__construct();
-        $this->tableName = self::T_A_AUTHORIZE;
-        $this->className = 'App\\OAuth2Models\\Authorize';
-        $this->identifier = "client_id";
+        parent::__construct(self::T_A_AUTHORIZE, 'App\\OAuth2Models\\Authorize', "client_id");
     }
 }

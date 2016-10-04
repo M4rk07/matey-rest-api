@@ -13,10 +13,7 @@ use AuthBucket\OAuth2\Model\AccessTokenManagerInterface;
 class AccessTokenManager extends AbstractManager implements AccessTokenManagerInterface
 {
     public function __construct () {
-        parent::__construct();
-        $this->tableName = self::T_A_ACCESS_TOKEN;
-        $this->className = 'App\\OAuth2Models\\AccessToken';
-        $this->identifier = "access_token";
+        parent::__construct(self::T_A_ACCESS_TOKEN, 'App\\OAuth2Models\\AccessToken', "access_token");
     }
 
 }

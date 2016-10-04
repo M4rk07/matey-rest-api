@@ -34,63 +34,12 @@ class BaseService
     const T_A_AUTHORIZE = "oauth2_authorize";
     const T_A_SCOPES = "oauth2_scopes";
 
-    // particular class properties
-    protected $tableName;
-    protected $className;
-    protected $identifier;
+
 
 
     public function __construct()
     {
         $this->db = require __DIR__ . '/../../../resources/config/dbal_conn.php';
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getTableName()
-    {
-        return $this->tableName;
-    }
-
-    /**
-     * @param mixed $tableName
-     */
-    public function setTableName($tableName)
-    {
-        $this->tableName = $tableName;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getClassName()
-    {
-        return $this->className;
-    }
-
-    /**
-     * @param mixed $className
-     */
-    public function setClassName($className)
-    {
-        $this->className = $className;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getIdentifier()
-    {
-        return $this->identifier;
-    }
-
-    /**
-     * @param mixed $identifier
-     */
-    public function setIdentifier($identifier)
-    {
-        $this->identifier = $identifier;
     }
 
 }

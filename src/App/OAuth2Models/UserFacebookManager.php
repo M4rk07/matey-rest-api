@@ -16,13 +16,6 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class UserFacebookManager extends BaseService
 {
 
-    public function __construct () {
-        parent::__construct();
-        $this->tableName = self::T_USER;
-        $this->className = 'App\\OAuth2Models\\UserFacebook';
-        $this->identifier = "id_user";
-    }
-
 
     public function loadUserByUsername($username)
     {

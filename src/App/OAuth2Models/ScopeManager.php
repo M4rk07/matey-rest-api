@@ -14,9 +14,6 @@ use AuthBucket\OAuth2\Model\ScopeManagerInterface;
 class ScopeManager extends AbstractManager implements ScopeManagerInterface
 {
     public function __construct () {
-        parent::__construct();
-        $this->tableName = self::T_A_SCOPES;
-        $this->className = 'App\\OAuth2Models\\Scope';
-        $this->identifier = "scope";
+        parent::__construct(self::T_A_SCOPES, 'App\\OAuth2Models\\Scope', "scope");
     }
 }

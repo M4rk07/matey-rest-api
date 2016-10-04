@@ -19,12 +19,6 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class UserStandardManager extends BaseService implements UserProviderInterface
 {
-    public function __construct () {
-        parent::__construct();
-        $this->tableName = self::T_USER;
-        $this->className = 'App\\OAuth2Models\\UserStandard';
-        $this->identifier = "id_user";
-    }
 
 
     public function loadUserByUsername($username)

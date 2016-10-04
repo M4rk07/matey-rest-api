@@ -14,9 +14,6 @@ use AuthBucket\OAuth2\Model\CodeManagerInterface;
 class CodeManager extends AbstractManager implements CodeManagerInterface
 {
     public function __construct () {
-        parent::__construct();
-        $this->tableName = self::T_A_CODES;
-        $this->className = 'App\\OAuth2Models\\Code';
-        $this->identifier = "code";
+        parent::__construct(self::T_A_CODES, 'App\\OAuth2Models\\Code', "code");
     }
 }

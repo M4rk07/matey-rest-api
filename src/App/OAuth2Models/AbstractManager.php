@@ -14,6 +14,27 @@ use AuthBucket\OAuth2\Model\ModelInterface;
 abstract class AbstractManager extends BaseService
 {
 
+    // particular class properties
+    protected $tableName;
+    protected $className;
+    protected $identifier;
+
+    public function __construct($tableName, $className, $identifier)
+    {
+        $this->tableName = $tableName;
+        $this->className = $className;
+        $this->identifier = $identifier;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClassName()
+    {
+        return $this->className;
+    }
+
+
     public function createModel(ModelInterface $model)
     {
 
