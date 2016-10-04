@@ -21,6 +21,7 @@ abstract class AbstractManager extends BaseService
 
     public function __construct($tableName, $className, $identifier)
     {
+        parent::__construct();
         $this->tableName = $tableName;
         $this->className = $className;
         $this->identifier = $identifier;

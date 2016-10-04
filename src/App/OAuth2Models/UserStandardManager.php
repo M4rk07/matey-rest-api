@@ -20,12 +20,10 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class UserStandardManager extends BaseService implements UserProviderInterface
 {
 
-
     public function loadUserByUsername($username)
     {
         $all = $this->db->fetchAll(
-            "SELECT " . self::T_USER . ".id_user, "
-            . self::T_USER . ".email, "
+            "SELECT " . self::T_USER . ".*, "
             . self::T_STANDARD_USER . ".password, "
             . self::T_STANDARD_USER . ".salt
             FROM " . self::T_USER . "
@@ -34,7 +32,7 @@ class UserStandardManager extends BaseService implements UserProviderInterface
             array($username)
         );
         // make objects form result
-        $models = $this->makeObjectsForLoadAndRefreshMethods($all);
+        $models = $this->makeObjects($all);
 
         return is_array($models) ? reset($models) : $models;
     }
@@ -42,8 +40,7 @@ class UserStandardManager extends BaseService implements UserProviderInterface
     public function refreshUser(UserInterface $user)
     {
         $all = $this->db->fetchAll(
-            "SELECT " . self::T_USER . ".id_user, "
-            . self::T_USER . ".email, "
+            "SELECT " . self::T_USER . ".*, "
             . self::T_STANDARD_USER . ".password, "
             . self::T_STANDARD_USER . ".salt
             FROM " . self::T_USER . "
@@ -51,19 +48,19 @@ class UserStandardManager extends BaseService implements UserProviderInterface
             WHERE matey_user.id_user = ? LIMIT 1",
             array($user->getId()));
         // make objects form result
-        $models = $this->makeObjectsForLoadAndRefreshMethods($all);
+        $models = $this->makeObjects($all);
 
         return is_array($models) ? reset($models) : $models;
     }
 
     public function supportsClass($class)
     {
-        return $this->className === $class
-        || is_subclass_of($class, $this->className);
+        return get_class($this) === $class
+        || is_subclass_of($class, get_class($this));
     }
 
     // making objects form array
-    public function makeObjectsForLoadAndRefreshMethods(array $all)
+    public function makeObjects(array $all)
     {
         $userObjects = [];
 
@@ -71,8 +68,10 @@ class UserStandardManager extends BaseService implements UserProviderInterface
 
             foreach ($all as $data) {
 
-                $object = new $this->className();
+                $object = new UserStandard();
                 $object->setUserId($data['id_user'])
+                    ->setFirstName($data['first_name'])
+                    ->setLastName($data['last_name'])
                     ->setUsername($data['email'])
                     ->setPassword($data['password'])
                     ->setSalt($data['salt']);

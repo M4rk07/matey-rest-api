@@ -8,7 +8,7 @@
 -- PHP Version: 7.0.8-0ubuntu0.16.04.2
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
+SET GLOBAL time_zone = "Europe/Belgrade";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -73,6 +73,7 @@ CREATE TABLE IF NOT EXISTS oauth2_clients (
   client_secret varchar(255) NOT NULL,
   app_name varchar(100) NOT NULL,
   redirect_uri text,
+  registration_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   client_type varchar(12) NOT NULL,
   PRIMARY KEY (client_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -88,11 +89,12 @@ CREATE TABLE IF NOT EXISTS oauth2_access_tokens (
   token_type varchar(20) NOT NULL,
   client_id int(11) UNSIGNED NOT NULL,
   username varchar(50) NOT NULL,
-  expires datetime NOT NULL,
+  expires TIMESTAMP NOT NULL,
+  date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   scope text,
+  PRIMARY KEY (username, access_token),
   FOREIGN KEY (client_id) REFERENCES oauth2_clients(client_id),
-  FOREIGN KEY (username) REFERENCES matey_user(email),
-  KEY (access_token(10))
+  FOREIGN KEY (username) REFERENCES matey_user(email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -105,6 +107,8 @@ CREATE TABLE IF NOT EXISTS oauth2_authorize (
   client_id int(11) UNSIGNED NOT NULL,
   username varchar(50) NOT NULL,
   scope text,
+  authorization_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (client_id, username),
   FOREIGN KEY (client_id) REFERENCES oauth2_clients(client_id),
   FOREIGN KEY (username) REFERENCES matey_user(email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -122,10 +126,11 @@ CREATE TABLE IF NOT EXISTS oauth2_codes (
   client_id int(11) UNSIGNED NOT NULL,
   username varchar(50) NOT NULL,
   redirect_uri text,
-  expires datetime NOT NULL,
+  expires TIMESTAMP NOT NULL,
+  date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   scope text,
-  FOREIGN KEY (client_id) REFERENCES oauth2_clients(client_id),
-  KEY (code(10))
+  PRIMARY KEY (username, code),
+  FOREIGN KEY (client_id) REFERENCES oauth2_clients(client_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -142,11 +147,12 @@ CREATE TABLE IF NOT EXISTS oauth2_refresh_tokens (
   refresh_token varchar(32) NOT NULL,
   client_id int(11) UNSIGNED NOT NULL,
   username varchar(50) NOT NULL,
-  expires datetime NOT NULL,
+  expires TIMESTAMP NOT NULL,
+  date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   scope text,
+  PRIMARY KEY (username, refresh_token),
   FOREIGN KEY (client_id) REFERENCES oauth2_clients(client_id),
-  FOREIGN KEY (username) REFERENCES matey_user(email),
-  KEY (refresh_token(10))
+  FOREIGN KEY (username) REFERENCES matey_user(email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------

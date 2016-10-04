@@ -12,7 +12,9 @@ use App\ServicesLoader;
 use App\RoutesLoader;
 use Carbon\Carbon;
 
-//date_default_timezone_set('Europe/London');
+$app['matey.timezone'] = 'Europe/Belgrade';
+
+date_default_timezone_set($app['matey.timezone']);
 
 define("ROOT_PATH", __DIR__ . "/..");
 
@@ -44,7 +46,7 @@ $app->before(function (Request $request) {
 
 # Register MUST have Silex providers for AuthBucketOAuth2ServiceProvider.
 $app->register(new MonologServiceProvider(), array(
-    "monolog.logfile" => ROOT_PATH . "/storage/logs/" . Carbon::now('Europe/London')->format("Y-m-d") . ".log",
+    "monolog.logfile" => ROOT_PATH . "/storage/logs/" . Carbon::now($app['matey.timezone'])->format("Y-m-d") . ".log",
     "monolog.level" => $app["log.level"],
     "monolog.name" => "application"
 ));
@@ -90,10 +92,6 @@ $app['security.firewalls'] = [
         'pattern' => '^/api/oauth2/token$',
         'oauth2_token' => true,
     ],
-    'api_oauth2_login' => [
-        'pattern' => '^/api/oauth2/login$',
-        'oauth2_token' => true,
-    ],
     'api_oauth2_debug' => [
         'pattern' => '^/api/oauth2/debug$',
         'oauth2_resource' => true,
@@ -125,9 +123,6 @@ $app->post('/api/oauth2/token', 'authbucket_oauth2.oauth2_controller:tokenAction
 
 $app->match('/api/oauth2/debug', 'authbucket_oauth2.oauth2_controller:debugAction')
     ->bind('api_oauth2_debug');
-
-// important login route
-$app->post('/api/oauth2/login', "matey_oauth2.oauth2_controller.login:loginUser");
 
 
 $app->error(function (\Exception $e, $code) use ($app) {
