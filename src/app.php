@@ -76,30 +76,24 @@ $app['security.encoder.digest'] = $app->share(function ($app) {
 });
 
 
-/*$app['security.user_provider.default'] = $app['security.user_provider.inmemory._proto']([
+$app['security.user_provider.default'] = $app['security.user_provider.inmemory._proto']([
     'root' => ['ROLE_USER', 'root'],
     'demousername2' => ['ROLE_USER', 'demopassword2'],
     'demousername3' => ['ROLE_USER', 'demopassword3'],
-]);*/
+]);
 
 $app['security.firewalls'] = [
-    'api_oauth2_authorize' => [
-        'pattern' => '^/api/oauth2/authorize$',
-        'http' => true,
-        'users' => $app['authbucket_oauth2.user_provider']
-    ],
-    'api_oauth2_token' => [
-        'pattern' => '^/api/oauth2/token$',
-        'oauth2_token' => true,
-    ],
-    'api_oauth2_debug' => [
-        'pattern' => '^/api/oauth2/debug$',
-        'oauth2_resource' => true,
-    ],
     'api_resource' => [
         'pattern' => '^/api/v1',
-        'oauth2_resource' => true,
-    ]
+        'oauth2_resource' => [
+            'resource_type' => 'debug_endpoint',
+            'scope' => [''],
+            'options' => [
+                'debug_endpoint' => 'http://localhost/matey-oauth2/web/index.php/api/oauth2/debug',
+                'cache' => false,
+            ],
+        ],
+    ],
 ];
 
 //load services

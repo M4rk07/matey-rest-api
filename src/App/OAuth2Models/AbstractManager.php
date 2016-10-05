@@ -105,6 +105,7 @@ abstract class AbstractManager extends BaseService
 
     public function readModelOneBy(array $criteria, array $orderBy = null)
     {
+
         $models = $this->readModelBy($criteria, $orderBy, 1, 0);
 
         return is_array($models) ? reset($models) : $models;

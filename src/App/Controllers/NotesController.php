@@ -18,12 +18,13 @@ class NotesController
 
     public function getAll()
     {
+        return "eeej";
         return new JsonResponse($this->notesService->getAll());
     }
 
     public function save(Request $request)
     {
-
+        return "eeej";
         $note = $this->getDataFromRequest($request);
         return new JsonResponse(array("id" => $this->notesService->save($note)));
 
