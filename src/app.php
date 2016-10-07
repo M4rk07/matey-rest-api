@@ -75,13 +75,6 @@ $app['security.encoder.digest'] = $app->share(function ($app) {
     return new Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder();
 });
 
-
-$app['security.user_provider.default'] = $app['security.user_provider.inmemory._proto']([
-    'root' => ['ROLE_USER', 'root'],
-    'demousername2' => ['ROLE_USER', 'demopassword2'],
-    'demousername3' => ['ROLE_USER', 'demopassword3'],
-]);
-
 $app['security.firewalls'] = [
     'api_resource' => [
         'pattern' => '^/api/v1',
@@ -103,20 +96,6 @@ $servicesLoader->bindServicesIntoContainer();
 //load routes
 $routesLoader = new App\RoutesLoader($app);
 $routesLoader->bindRoutesToControllers();
-
-$app['matey_oauth2.oauth2_controller.login'] = $app->share(function () use ($app) {
-    return new \App\Controllers\LoginController($app['login.service']);
-});
-
-// OAuth 2.0 ROUTES
-$app->get('/api/oauth2/authorize', 'authbucket_oauth2.oauth2_controller:authorizeAction')
-    ->bind('api_oauth2_authorize');
-
-$app->post('/api/oauth2/token', 'authbucket_oauth2.oauth2_controller:tokenAction')
-    ->bind('api_oauth2_token');
-
-$app->match('/api/oauth2/debug', 'authbucket_oauth2.oauth2_controller:debugAction')
-    ->bind('api_oauth2_debug');
 
 
 $app->error(function (\Exception $e, $code) use ($app) {
