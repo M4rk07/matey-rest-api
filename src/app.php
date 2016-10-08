@@ -13,6 +13,8 @@ use App\RoutesLoader;
 use Carbon\Carbon;
 
 $app['matey.timezone'] = 'Europe/Belgrade';
+$app['client_id'] = 1;
+$app['client_secret'] = 'marko';
 
 date_default_timezone_set($app['matey.timezone']);
 
@@ -97,6 +99,11 @@ $servicesLoader->bindServicesIntoContainer();
 $routesLoader = new App\RoutesLoader($app);
 $routesLoader->bindRoutesToControllers();
 
+$app['login.controller'] = $app->share(function () use ($app) {
+    return new \App\Controllers\LoginController($app['login.service']);
+});
+
+$app->post('/login', 'login.controller:loginAction');
 
 $app->error(function (\Exception $e, $code) use ($app) {
     $app['monolog']->addError($e->getMessage());

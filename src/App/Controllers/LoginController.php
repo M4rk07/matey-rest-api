@@ -13,6 +13,7 @@ use App\Services\BaseService;
 use App\Services\LoginService;
 use AuthBucket\OAuth2\Controller\OAuth2Controller;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
+use GuzzleHttp\Client;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,17 +27,12 @@ class LoginController extends AbstractController
         $this->service = $service;
     }
 
-    public function loginUser (Application $app, Request $request) {
+    public function loginAction (Application $app, Request $request) {
 
         $userType = $request->request->get("user_type");
-        $grantType = $request->request->get("grant_type");
 
-        if($grantType == "password") {
-
-            if ($userType == "fb") return $this->loginFbUser($app, $request);
-            else if ($userType == "standard") return $this->loginStandardUser($app, $request);
-
-        }
+        if ($userType == "fb") return $this->loginFbUser($app, $request);
+        else if ($userType == "standard") return $this->loginStandardUser($app, $request);
 
         throw new InvalidRequestException([
             'error_description' => 'The request includes an invalid parameter value.',
@@ -46,10 +42,22 @@ class LoginController extends AbstractController
 
     public function loginStandardUser (Application $app, Request $request) {
 
+        $username = $request->get("username");
+        $password = $request->get("password");
 
-            // starting token endpoint with password grant_type
-            $tokenController = $app['authbucket_oauth2.oauth2_controller'];
-            $parameters = $tokenController->tokenAction($request);
+        $client = new Client();
+        $response = $client->request('POST', 'http://localhost/matey-oauth2/web/index.php/api/oauth2/token', [
+            'form_params'   => array(
+                'username' => $username,
+                'password' => $password,
+                'grant_type' => 'password'
+            ),
+            'auth' => [$app['client_id'], $app['client_secret']]
+        ]);
+
+        $data = $response->getBody();
+
+        return new JsonResponse($data, 200);
 
             // fetching data for login from request
             $deviceId = $request->request->get("device_id");
