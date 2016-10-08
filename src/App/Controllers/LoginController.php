@@ -38,27 +38,12 @@ class LoginController extends AbstractController
     public function loginStandardUser (Application $app, Request $request) {
 
         $email = $request->request->get("email");
-        $password = $request->request->get("password");
         $deviceId = $request->request->get("device_id");
-
-        // request access token with password grant type
-        $client = new Client();
-        $response = $client->request('POST', 'http://localhost/matey-oauth2/web/index.php/api/oauth2/token', [
-            'form_params'   => array(
-                'grant_type' => 'password',
-                'username' => $email,
-                'password' => $password
-            ),
-            'auth' => [$app['matey_client_id'], $app['matey_client_secret']]
-        ]);
-        $tokenData = json_decode($response->getBody());
 
         // store user login information
         // on which device he is logging in
         $userData = $this->storeUserLoginInfo($deviceId, $email);
 
-        // make response
-        $parameters['token_data'] = $tokenData;
         $parameters['user_id'] = $userData['id_user'];
         $parameters['first_name'] = $userData['first_name'];
         $parameters['last_name'] = $userData['last_name'];

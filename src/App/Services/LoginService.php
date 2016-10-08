@@ -19,8 +19,8 @@ class LoginService extends BaseService
             array($email));
 
         $this->db->executeUpdate("INSERT INTO " . self::T_LOGIN . " (id_user, id_device) VALUES (?, ?) 
-        ON DUPLICATE KEY UPDATE status = 1, time_logged = NOW()",
-            array($userData[0]['id_user'], $deviceId));
+        ON DUPLICATE KEY UPDATE id_user = ?, status = 1, time_logged = NOW()",
+            array($userData[0]['id_user'], $deviceId, $userData[0]['id_user']));
 
         $userData = $userData[0];
 
