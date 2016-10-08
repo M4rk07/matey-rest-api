@@ -27,10 +27,11 @@ SET GLOBAL time_zone = "Europe/Belgrade";
 --
 
 CREATE TABLE IF NOT EXISTS matey_user (
-  id_user int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  id_user int(11) UNSIGNED NOT NULL,
   email varchar(50) CHARACTER SET utf8 NOT NULL,
   first_name varchar(50) CHARACTER SET utf8 NOT NULL,
   last_name varchar(50) CHARACTER SET utf8 NOT NULL,
+  birth_year int(11) UNSIGNED NOT NULL,
   PRIMARY KEY(id_user),
   UNIQUE KEY (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -58,7 +59,7 @@ CREATE TABLE IF NOT EXISTS matey_login (
   id_device int(11) UNSIGNED NOT NULL,
   time_logged TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   status int(11) NOT NULL DEFAULT 1,
-  PRIMARY KEY (id_user, id_device),
+  PRIMARY KEY (id_device),
   FOREIGN KEY(id_user) REFERENCES matey_user(id_user),
   FOREIGN KEY(id_device) REFERENCES matey_device(id_device)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

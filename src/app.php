@@ -12,39 +12,13 @@ use App\ServicesLoader;
 use App\RoutesLoader;
 use Carbon\Carbon;
 
+require_once __DIR__.'/../resources/config/security.php';
+
 $app['matey.timezone'] = 'Europe/Belgrade';
-$app['client_id'] = 1;
-$app['client_secret'] = 'marko';
 
 date_default_timezone_set($app['matey.timezone']);
 
 define("ROOT_PATH", __DIR__ . "/..");
-
-//handling CORS preflight request
-$app->before(function (Request $request) {
-   if ($request->getMethod() === "OPTIONS") {
-       $response = new Response();
-       $response->headers->set("Access-Control-Allow-Origin","*");
-       $response->headers->set("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS");
-       $response->headers->set("Access-Control-Allow-Headers","Content-Type");
-       $response->setStatusCode(200);
-       return $response->send();
-   }
-}, Application::EARLY_EVENT);
-
-//handling CORS respons with right headers
-$app->after(function (Request $request, Response $response) {
-   $response->headers->set("Access-Control-Allow-Origin","*");
-   $response->headers->set("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS");
-});
-
-//accepting JSON
-$app->before(function (Request $request) {
-    if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
-        $data = json_decode($request->getContent(), true);
-        $request->request->replace(is_array($data) ? $data : array());
-    }
-});
 
 # Register MUST have Silex providers for AuthBucketOAuth2ServiceProvider.
 $app->register(new MonologServiceProvider(), array(
@@ -61,7 +35,7 @@ $app->register(new AuthBucket\OAuth2\Provider\AuthBucketOAuth2ServiceProvider())
 $app->register(new ServiceControllerServiceProvider());
 
 $app->register(new DoctrineServiceProvider(), array(
-	"db.options" => array(
+    "db.options" => array(
         "driver" => "pdo_mysql",
         "dbname" => "matey_db_v1",
         "host" => "localhost",
@@ -73,42 +47,50 @@ $app->register(new DoctrineServiceProvider(), array(
 
 $app->register(new HttpCacheServiceProvider(), array("http_cache.cache_dir" => ROOT_PATH . "/storage/cache",));
 
-$app['security.encoder.digest'] = $app->share(function ($app) {
-    return new Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder();
+$app->register(new \App\Provider\MateyServiceProvider());
+
+//handling CORS preflight request
+$app->before(function (Request $request) {
+    if ($request->getMethod() === "OPTIONS") {
+        $response = new Response();
+        $response->headers->set("Access-Control-Allow-Origin","*");
+        $response->headers->set("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS");
+        $response->headers->set("Access-Control-Allow-Headers","Content-Type");
+        $response->setStatusCode(200);
+        return $response->send();
+    }
+}, Application::EARLY_EVENT);
+
+//handling CORS respons with right headers
+$app->after(function (Request $request, Response $response) {
+    $response->headers->set("Access-Control-Allow-Origin","*");
+    $response->headers->set("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS");
 });
 
-$app['security.firewalls'] = [
-    'api_resource' => [
-        'pattern' => '^/api/v1',
-        'oauth2_resource' => [
-            'resource_type' => 'debug_endpoint',
-            'scope' => [''],
-            'options' => [
-                'debug_endpoint' => 'http://localhost/matey-oauth2/web/index.php/api/oauth2/debug',
-                'cache' => false,
-            ],
-        ],
-    ],
-];
-
-//load services
-$servicesLoader = new App\ServicesLoader($app);
-$servicesLoader->bindServicesIntoContainer();
-
-//load routes
-$routesLoader = new App\RoutesLoader($app);
-$routesLoader->bindRoutesToControllers();
-
-$app['login.controller'] = $app->share(function () use ($app) {
-    return new \App\Controllers\LoginController($app['login.service']);
+//accepting JSON
+$app->before(function (Request $request) {
+    if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
+        $data = json_decode($request->getContent(), true);
+        $request->request->replace(is_array($data) ? $data : array());
+    }
 });
-
-$app->post('/login', 'login.controller:loginAction');
 
 $app->error(function (\Exception $e, $code) use ($app) {
     $app['monolog']->addError($e->getMessage());
     $app['monolog']->addError($e->getTraceAsString());
     return new JsonResponse(array("statusCode" => $code, "message" => $e->getMessage(), "stacktrace" => $e->getTraceAsString()));
 });
+
+$app['security.encoder.digest'] = $app->share(function ($app) {
+    return new Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder();
+});
+
+//load services
+$servicesLoader = new ServicesLoader($app);
+$servicesLoader->bindServicesIntoContainer();
+
+//load routes
+$routesLoader = new RoutesLoader($app);
+$routesLoader->bindRoutesToControllers();
 
 return $app;
