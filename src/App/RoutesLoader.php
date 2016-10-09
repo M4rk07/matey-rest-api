@@ -38,7 +38,7 @@ class RoutesLoader
     {
         $api = $this->app["controllers_factory"];
 
-        $api->post('/login', 'login.controller:loginAction');
+        $this->app->post('/login', 'login.controller:loginAction');
         $this->app->post('/register/user', 'registration.controller:registerStandardUserAction');
 
         // TESTING--------------------------------------------------

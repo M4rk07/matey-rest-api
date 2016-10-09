@@ -25,7 +25,7 @@ class MateyServiceProvider implements ServiceProviderInterface
     public function register(Application $app)
     {
         $app['matey_client_id'] = '1';
-        $app['matey_client_secret'] = 'marko';
+        $app['matey_client_secret'] = 'secret';
     }
 
     public function boot(Application $app)
