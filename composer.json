@@ -17,7 +17,8 @@
 		"monolog/monolog": "~1.6",
 		"doctrine/dbal": "~2.4",
 		"nesbot/Carbon": "~1.6",
-		"authbucket/oauth2-php": "~4.0"
+		"authbucket/oauth2-php": "~4.0",
+		"facebook/graph-sdk": "~5.0"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.1.4",

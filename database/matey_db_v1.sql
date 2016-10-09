@@ -27,11 +27,16 @@ SET GLOBAL time_zone = "Europe/Belgrade";
 --
 
 CREATE TABLE IF NOT EXISTS matey_user (
-  id_user int(11) UNSIGNED NOT NULL,
+  id_user int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   email varchar(50) CHARACTER SET utf8 NOT NULL,
+  verified tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+  is_active tinyint(1) UNSIGNED NOT NULL DEFAULT 1,
   first_name varchar(50) CHARACTER SET utf8 NOT NULL,
   last_name varchar(50) CHARACTER SET utf8 NOT NULL,
   birth_year int(11) UNSIGNED NOT NULL,
+  birth_date TIMESTAMP NOT NULL DEFAULT '',
+  gender varchar(6) NOT NULL DEFAULT '',
+  profile_picture_link NOT NULL DEFAULT '',
   PRIMARY KEY(id_user),
   UNIQUE KEY (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

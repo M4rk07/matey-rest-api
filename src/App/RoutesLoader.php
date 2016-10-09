@@ -38,8 +38,10 @@ class RoutesLoader
     {
         $api = $this->app["controllers_factory"];
 
-        $this->app->post('/login', 'login.controller:loginAction');
+        $api->post('/login', 'login.controller:loginAction');
+
         $this->app->post('/register/user', 'registration.controller:registerStandardUserAction');
+        $this->app->post('/register/social', 'registration.controller:registerSocialUserAction');
 
         // TESTING--------------------------------------------------
         $api->get('/notes', "notes.controller:getAll");

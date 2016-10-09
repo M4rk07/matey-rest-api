@@ -12,15 +12,24 @@ namespace App\Services;
 class RegistrationService extends BaseService
 {
 
-    public function storeUserData($userId, $email, $first_name, $last_name, $birth_year) {
+    public function storeUserData($email, $first_name, $last_name, $birth_year) {
 
         $this->db->insert(self::T_USER, array(
-            'id_user' => $userId,
             'email' => $email,
             'first_name' => $first_name,
             'last_name' => $last_name,
             'birth_year' => $birth_year
         ));
+
+    }
+
+    public function userExists($email) {
+
+        $result = $this->db->fetchAll("SELECT email FROM " . self::T_USER . " WHERE email = ? LIMIT 1",
+            array($email));
+
+        if(empty($result)) return false;
+        return true;
 
     }
 
