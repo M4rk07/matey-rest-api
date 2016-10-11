@@ -20,16 +20,21 @@ class RegistrationService extends BaseService
             'last_name' => $last_name,
             'birth_year' => $birth_year
         ));
+        return $this->db->lastInsertId();
 
     }
 
     public function userExists($email) {
 
-        $result = $this->db->fetchAll("SELECT email FROM " . self::T_USER . " WHERE email = ? LIMIT 1",
+        $result = $this->db->fetchAll("SELECT m_user.id_user, fb_info.fb_id 
+        FROM ".self::T_USER." as m_user
+        LEFT JOIN ".self::T_FACEBOOK_INFO." as fb_info USING(id_user) 
+        WHERE m_user.email = ? LIMIT 1",
             array($email));
 
         if(empty($result)) return false;
-        return true;
+
+        return $result[0];
 
     }
 

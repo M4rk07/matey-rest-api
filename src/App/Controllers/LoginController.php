@@ -23,29 +23,16 @@ class LoginController extends AbstractController
 {
 
     public function loginAction (Application $app, Request $request) {
-
-        $loginType = $request->request->get("login_type");
-
-        if ($loginType == "fb") return $this->loginFbUser($app, $request);
-        else if ($loginType == "standard") return $this->loginStandardUser($app, $request);
-
-        throw new InvalidRequestException([
-            'error_description' => 'The request includes an invalid parameter value.',
-        ]);
-
-    }
-
-    public function loginStandardUser (Application $app, Request $request) {
-
+        // fetch data from request
         $email = $request->request->get("email");
         $deviceId = $request->request->get("device_id");
+        $gcm = $request->request->get("gcm");
+
+        if(empty($gcm)) $gcm = "";
 
         // store user login information
         // on which device he is logging in
-        $userData = $this->storeUserLoginInfo($deviceId, $email);
-
-        // make response
-        //$parameters['token_data'] = $tokenData;
+        $userData = $this->storeUserLoginInfo($deviceId, $email, $gcm);
 
         return JsonResponse::create($userData, 200, [
             'Cache-Control' => 'no-store',
@@ -54,14 +41,11 @@ class LoginController extends AbstractController
 
     }
 
-    public function loginFbUser (Application $app, Request $request) {
-    }
-
-    public function storeUserLoginInfo ($deviceId, $email) {
+    public function storeUserLoginInfo ($deviceId, $email, $gcm) {
 
         // record that user is logged on device
         try {
-            $userData = $this->service->storeLoginRecord($deviceId, $email);
+            $userData = $this->service->storeLoginRecord($deviceId, $email, $gcm);
         } catch (\Exception $e) {
             throw new InvalidRequestException([
                 'error_description' => 'The request includes an invalid parameter value.',

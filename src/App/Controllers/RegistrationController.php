@@ -28,6 +28,12 @@ class RegistrationController extends AbstractController
         $last_name = $request->request->get('last_name');
         $birth_year = $request->request->get('birth_year');
 
+        if( $this->service->userExists($email) ) {
+            throw new InvalidRequestException([
+                'error_description' => 'User is already registered.',
+            ]);
+        }
+
         // register user on authorization server
         $client = new Client();
         $client->request('POST', 'http://localhost/matey-oauth2/web/index.php/api/oauth2/register/user', [
@@ -37,26 +43,35 @@ class RegistrationController extends AbstractController
             ),
         ]);
 
-        $this->storeUserData($email, $first_name, $last_name, $birth_year);
+        $this->service->storeUserData($email, $first_name, $last_name, $birth_year);
 
         return new JsonResponse(array('success' => true), 200);
 
     }
 
-    public function registerSocialUserAction (Request $request) {
+    public function authenticateSocialUserAction (Request $request) {
 
         $fbUser = $this->checkFacebookToken($request);
 
+        $haveAccount = false;
         $email = $fbUser->getEmail();
-        if( $this->service->userExists($email) ) {
-            return new JsonResponse(array('success' => true), 200);
+
+        if( ($user = $this->service->userExists($email)) ) {
+            if(!empty($user['fb_id'])) return new JsonResponse(array(), 200);
+            else $haveAccount = true;
         }
 
-        $firstName = $fbUser->getFirstName();
-        $lastName = $fbUser->getLastName();
-        $birthYear = 1992;
+        $fbId = $fbUser->getId();
+        if($haveAccount == false) {
+            $firstName = $fbUser->getFirstName();
+            $lastName = $fbUser->getLastName();
+            $birthYear = $fbUser->getBirthday();
 
-        $this->storeUserData($email, $firstName, $lastName, $birthYear);
+            $newUserId = $this->service->storeUserData($email, $firstName, $lastName, $birthYear);
+            $this->service->storeFacebookData($newUserId, $fbId);
+        } else {
+            $this->service->storeFacebookData($user['id_user'], $fbId);
+        }
 
         $parametres = array(
           "username" => $email,
@@ -66,16 +81,9 @@ class RegistrationController extends AbstractController
 
     }
 
-    public function storeUserData($email, $first_name, $last_name, $birth_year) {
-
-        $this->service->storeUserData($email, $first_name, $last_name, $birth_year);
-
-    }
-
     public function checkFacebookToken (Request $request) {
 
         $fbToken = $request->request->get("access_token");
-        $fbUserId = $request->request->get("fb_user_id");
 
         $app_id = '1702025086719722';
         $app_secret = 'd7f4251a562c52bfb45c9daf8354f35d';
@@ -91,7 +99,7 @@ class RegistrationController extends AbstractController
         // Validation (these will throw FacebookSDKException's when they fail)
         $tokenMetadata->validateAppId($app_id);
         // If you know the user ID this access token belongs to, you can validate it here
-        $tokenMetadata->validateUserId($fbUserId);
+        //$tokenMetadata->validateUserId($fbUserId);
         $tokenMetadata->validateExpiration();
 
         try {
@@ -108,12 +116,6 @@ class RegistrationController extends AbstractController
         }
         // TAKING THE USER
         $user = $response->getGraphUser();
-        // Check if user id matches
-        if($user->getId() != $fbUserId) {
-            throw new InvalidRequestException([
-                'error_description' => 'The request includes an invalid parameter value.',
-            ]);
-        }
 
         return $user;
 

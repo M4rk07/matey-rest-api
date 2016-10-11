@@ -34,11 +34,21 @@ CREATE TABLE IF NOT EXISTS matey_user (
   first_name varchar(50) CHARACTER SET utf8 NOT NULL,
   last_name varchar(50) CHARACTER SET utf8 NOT NULL,
   birth_year int(11) UNSIGNED NOT NULL,
-  birth_date TIMESTAMP NOT NULL DEFAULT '',
-  gender varchar(6) NOT NULL DEFAULT '',
-  profile_picture_link NOT NULL DEFAULT '',
   PRIMARY KEY(id_user),
   UNIQUE KEY (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_user`
+--
+
+CREATE TABLE IF NOT EXISTS matey_facebook_info (
+  id_user int(11) UNSIGNED NOT NULL,
+  fb_id bigint(64) UNSIGNED NOT NULL,
+  PRIMARY KEY(id_user),
+  FOREIGN KEY(id_user) REFERENCES matey_user(id_user)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------

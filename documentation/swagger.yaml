@@ -1,0 +1,95 @@
+# Example YAML to get you started quickly.
+# Be aware that YAML has indentation based scoping.
+# Code completion support is available so start typing for available options.
+swagger: '2.0'
+info:
+  title: Matey Resource API
+  description: Resource API for Android application Matey.
+  version: "1.0"
+# the domain of the service
+host: api.uber.com
+# array of all schemes that your API supports
+schemes:
+  - http
+# will be prefixed to all paths
+produces:
+  - application/json
+
+# Describe your paths here
+paths:
+  # This is a path endpoint. Change it.
+  /register/user:
+    # This is a HTTP operation
+    post:
+      # Describe this verb here. Note: you can use markdown
+      description: |
+        Endpoint for user registration.
+      # This is array of GET operation parameters:
+      parameters:
+        # An example parameter that is in query and is required
+        - name: email
+          in: formData
+          description: User's email.
+          required: true
+          type: string
+        - name: password
+          in: formData
+          description: User's password. Must be at least 5 characters long.
+          required: true
+          type: string
+        - name: first_name
+          in: formData
+          description: User's first name.
+          required: true
+          type: string
+        - name: last_name
+          in: formData
+          description: User's last name.
+          required: true
+          type: string
+        - name: birth_year
+          in: formData
+          description: User's bearth year.
+          required: true
+          type: integer
+      # Expected responses for this operation:
+      responses:
+        200:
+          description: Successful registration.
+  /api/v1/login:
+    post:
+      description: Endpoint for user login with access token and device id.
+      parameters:
+        - name: access_token
+          in: formData
+          description: OAuth2 access token.
+          required: true
+          type: string
+        - name: email
+          in: formData
+          description: User's email.
+          required: true
+          type: string
+        - name: device_id
+          in: formData
+          description: Device id user is trying to log in.
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Object with user information.
+          schema:
+            items:
+              $ref: '#/definitions/User'
+definitions:
+  User:
+    type: object
+    properties:
+      id_user:
+        type: integer
+      first_name:
+        type: string
+      last_name:
+        type: string
+      birth_year:
+        type: integer

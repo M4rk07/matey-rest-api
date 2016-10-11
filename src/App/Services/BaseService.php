@@ -14,6 +14,7 @@ class BaseService
 
     // Database resource table names
     const T_USER = "matey_user";
+    const T_FACEBOOK_INFO = "matey_facebook_info";
     const T_FOLLOWER = "matey_follower";
     const T_POST = "matey_post";
     const T_APPROVE = "matey_approve";

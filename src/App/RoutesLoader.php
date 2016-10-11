@@ -41,7 +41,7 @@ class RoutesLoader
         $api->post('/login', 'login.controller:loginAction');
 
         $this->app->post('/register/user', 'registration.controller:registerStandardUserAction');
-        $this->app->post('/register/social', 'registration.controller:registerSocialUserAction');
+        $this->app->post('/authenticate/social', 'registration.controller:authenticateSocialUserAction');
 
         // TESTING--------------------------------------------------
         $api->get('/notes', "notes.controller:getAll");

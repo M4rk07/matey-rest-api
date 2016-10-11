@@ -13,10 +13,16 @@ use AuthBucket\OAuth2\Exception\InvalidRequestException;
 class LoginService extends BaseService
 {
 
-    public function storeLoginRecord ($deviceId, $email) {
+    public function storeLoginRecord ($deviceId, $email, $gcm) {
 
         $userData = $this->db->fetchAll("SELECT * FROM " . self::T_USER . " WHERE email = ? LIMIT 1",
             array($email));
+
+        if(empty($userData)) {
+            throw new InvalidRequestException([
+                'error_description' => 'The request includes an invalid parameter value.',
+            ]);
+        }
 
         $this->db->executeUpdate("INSERT INTO " . self::T_LOGIN . " (id_user, id_device) VALUES (?, ?) 
         ON DUPLICATE KEY UPDATE id_user = ?, status = 1, time_logged = NOW()",
