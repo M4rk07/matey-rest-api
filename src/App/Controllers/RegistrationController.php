@@ -49,6 +49,20 @@ class RegistrationController extends AbstractController
 
     }
 
+    public function registerDeviceAction (Request $request) {
+
+        $gcm = $request->request->get("gcm");
+
+        if(empty($gcm)) throw new InvalidRequestException([
+            'error_description' => 'The request includes an invalid parameter value.',
+        ]);
+
+        $deviceId = $this->service->registerDevice($gcm);
+
+        return new JsonResponse(array('device_id' => $deviceId), 200);
+
+    }
+
     public function authenticateSocialUserAction (Request $request) {
 
         $fbUser = $this->checkFacebookToken($request);
@@ -70,7 +84,7 @@ class RegistrationController extends AbstractController
             $newUserId = $this->service->storeUserData($email, $firstName, $lastName, $birthYear);
             $this->service->storeFacebookData($newUserId, $fbId);
         } else {
-            $this->service->storeFacebookData($user['id_user'], $fbId);
+            $this->service->storeFacebookData($user['user_id'], $fbId);
         }
 
         $parametres = array(

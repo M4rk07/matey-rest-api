@@ -26,13 +26,10 @@ class LoginController extends AbstractController
         // fetch data from request
         $email = $request->request->get("email");
         $deviceId = $request->request->get("device_id");
-        $gcm = $request->request->get("gcm");
-
-        if(empty($gcm)) $gcm = "";
 
         // store user login information
         // on which device he is logging in
-        $userData = $this->storeUserLoginInfo($deviceId, $email, $gcm);
+        $userData = $this->storeUserLoginInfo($deviceId, $email);
 
         return JsonResponse::create($userData, 200, [
             'Cache-Control' => 'no-store',
@@ -41,11 +38,11 @@ class LoginController extends AbstractController
 
     }
 
-    public function storeUserLoginInfo ($deviceId, $email, $gcm) {
+    public function storeUserLoginInfo ($deviceId, $email) {
 
         // record that user is logged on device
         try {
-            $userData = $this->service->storeLoginRecord($deviceId, $email, $gcm);
+            $userData = $this->service->storeLoginRecord($deviceId, $email);
         } catch (\Exception $e) {
             throw new InvalidRequestException([
                 'error_description' => 'The request includes an invalid parameter value.',

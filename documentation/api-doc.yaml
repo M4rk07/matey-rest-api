@@ -52,10 +52,24 @@ paths:
           description: User's bearth year.
           required: true
           type: integer
-      # Expected responses for this operation:
       responses:
         200:
           description: Successful registration.
+  /register/device:
+    post:
+      description: Endpoint for device registration.
+      parameters:
+        - name: gcm
+          in: formData
+          description: Device GCM key.
+          required: true
+          type: string
+      responses:
+        200:
+          description: Object with device id information.
+          schema:
+            items:
+              $ref: '#/definitions/Device'
   /api/v1/login:
     post:
       description: Endpoint for user login with access token and device id.
@@ -82,10 +96,15 @@ paths:
             items:
               $ref: '#/definitions/User'
 definitions:
+  Device:
+    type: object
+    properties:
+      device_id:
+        type: string
   User:
     type: object
     properties:
-      id_user:
+      user_id:
         type: integer
       first_name:
         type: string

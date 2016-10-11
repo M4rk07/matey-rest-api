@@ -13,7 +13,7 @@ use AuthBucket\OAuth2\Exception\InvalidRequestException;
 class LoginService extends BaseService
 {
 
-    public function storeLoginRecord ($deviceId, $email, $gcm) {
+    public function storeLoginRecord ($deviceId, $email) {
 
         $userData = $this->db->fetchAll("SELECT * FROM " . self::T_USER . " WHERE email = ? LIMIT 1",
             array($email));
@@ -24,9 +24,9 @@ class LoginService extends BaseService
             ]);
         }
 
-        $this->db->executeUpdate("INSERT INTO " . self::T_LOGIN . " (id_user, id_device) VALUES (?, ?) 
-        ON DUPLICATE KEY UPDATE id_user = ?, status = 1, time_logged = NOW()",
-            array($userData[0]['id_user'], $deviceId, $userData[0]['id_user']));
+        $this->db->executeUpdate("INSERT INTO " . self::T_LOGIN . " (user_id, device_id) VALUES (?, ?) 
+        ON DUPLICATE KEY UPDATE user_id = ?, status = 1, time_logged = NOW()",
+            array($userData[0]['user_id'], $deviceId, $userData[0]['user_id']));
 
         $userData = $userData[0];
 

@@ -41,6 +41,7 @@ class RoutesLoader
         $api->post('/login', 'login.controller:loginAction');
 
         $this->app->post('/register/user', 'registration.controller:registerStandardUserAction');
+        $this->app->post('/register/device', 'registration.controller:registerDeviceAction');
         $this->app->post('/authenticate/social', 'registration.controller:authenticateSocialUserAction');
 
         // TESTING--------------------------------------------------

@@ -26,9 +26,9 @@ class RegistrationService extends BaseService
 
     public function userExists($email) {
 
-        $result = $this->db->fetchAll("SELECT m_user.id_user, fb_info.fb_id 
+        $result = $this->db->fetchAll("SELECT m_user.user_id, fb_info.fb_id 
         FROM ".self::T_USER." as m_user
-        LEFT JOIN ".self::T_FACEBOOK_INFO." as fb_info USING(id_user) 
+        LEFT JOIN ".self::T_FACEBOOK_INFO." as fb_info USING(user_id) 
         WHERE m_user.email = ? LIMIT 1",
             array($email));
 
@@ -36,6 +36,14 @@ class RegistrationService extends BaseService
 
         return $result[0];
 
+    }
+
+    public function registerDevice($gcm) {
+
+        $this->db->insert(self::T_DEVICE, array(
+            'gcm' => $gcm,
+        ));
+        return $this->db->lastInsertId();
     }
 
 }
