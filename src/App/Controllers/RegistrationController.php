@@ -43,9 +43,10 @@ class RegistrationController extends AbstractController
             ),
         ]);
 
-        $this->service->storeUserData($email, $first_name, $last_name, $birth_year);
+        $newUserId = $this->service->storeUserData($email, $first_name, $last_name, $birth_year);
+        $this->service->cacheUser($newUserId, $email, $first_name, $last_name, $birth_year);
 
-        return new JsonResponse(array('success' => true), 200);
+        return $this->returnOk();
 
     }
 

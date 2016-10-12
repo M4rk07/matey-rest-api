@@ -9,6 +9,8 @@
 namespace App\Services;
 
 
+use Predis\Client;
+
 class RegistrationService extends BaseService
 {
 
@@ -25,6 +27,7 @@ class RegistrationService extends BaseService
     }
 
     public function userExists($email) {
+        $redis = new Client();
 
         $result = $this->db->fetchAll("SELECT m_user.user_id, fb_info.fb_id 
         FROM ".self::T_USER." as m_user
@@ -36,6 +39,20 @@ class RegistrationService extends BaseService
 
         return $result[0];
 
+    }
+
+    public function cacheUser($user_id, $email, $firstName, $lastName, $birthYear, $fb_id = null) {
+        $redis = new Client();
+        $redis->hmset("user:".$user_id, array(
+            'email' => $email,
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'birth_year' => $birthYear,
+            $fb_id == null ? : 'fb_id' => $fb_id
+        ));
+        $redis->set("user:by_email:".$email, $user_id);
+        $redis->set("user:num_of_posts:".$user_id, 0);
+        $redis->set("user:num_of_responses:".$user_id, 0);
     }
 
     public function registerDevice($gcm) {

@@ -32,6 +32,14 @@ class ServicesLoader
         $this->app['registration.service'] = $this->app->share(function () {
             return new Services\RegistrationService();
         });
+
+        $this->app['follower.service'] = $this->app->share (function() {
+           return new Services\FollowerService();
+        });
+
+        $this->app['post.service'] = $this->app->share (function() {
+            return new Services\PostService();
+        });
     }
 }
 

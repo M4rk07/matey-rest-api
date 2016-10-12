@@ -9,6 +9,8 @@
 namespace App\Controllers;
 
 
+use Symfony\Component\HttpFoundation\JsonResponse;
+
 abstract class AbstractController
 {
 
@@ -33,6 +35,12 @@ abstract class AbstractController
     public function setService($service)
     {
         $this->service = $service;
+    }
+
+    public function returnOk () {
+
+        return new JsonResponse(null, 200);
+
     }
 
 }

@@ -28,6 +28,7 @@ $app->register(new MonologServiceProvider(), array(
 ));
 $app->register(new Silex\Provider\SecurityServiceProvider());
 $app->register(new Silex\Provider\ValidatorServiceProvider());
+$app->register(new Predis\Silex\ClientServiceProvider());
 
 # Register AuthBucketOAuth2ServiceProvider.
 $app->register(new AuthBucket\OAuth2\Provider\AuthBucketOAuth2ServiceProvider());
