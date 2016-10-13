@@ -40,6 +40,10 @@ class ServicesLoader
         $this->app['post.service'] = $this->app->share (function() {
             return new Services\PostService();
         });
+
+        $this->app['newsfeed.service'] = $this->app->share (function() {
+            return new Services\NewsFeedService();
+        });
     }
 }
 

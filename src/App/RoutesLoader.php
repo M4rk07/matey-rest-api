@@ -4,6 +4,7 @@ namespace App;
 
 use App\Controllers\FollowerController;
 use App\Controllers\LoginController;
+use App\Controllers\NewsFeedController;
 use App\Controllers\PostController;
 use App\Controllers\RegistrationController;
 use Silex\Application;
@@ -42,6 +43,10 @@ class RoutesLoader
         $this->app['post.controller'] = $this->app->share(function () {
             return new PostController($this->app['post.service']);
         });
+
+        $this->app['newsfeed.controller'] = $this->app->share(function () {
+            return new NewsFeedController($this->app['newsfeed.service']);
+        });
     }
 
     public function bindRoutesToControllers()
@@ -63,6 +68,8 @@ class RoutesLoader
         $api->post('/post/response/add', 'post.controller:addResponseAction');
         $api->post('/post/response/remove', 'post.controller:deleteResponseAction');
         $api->post('/post/response/approve', 'post.controller:approveAction');
+
+        $api->get('/newsfeed/{user_id}', 'newsfeed.controller:getNewsFeedAction');
 
         // TESTING--------------------------------------------------
         $api->get('/notes', "notes.controller:getAll");
