@@ -22,11 +22,6 @@ class FollowerController extends AbstractController
 
         $this->service->createFollow($fromUser, $toUser);
 
-        // cache it
-        $redis = new Client();
-        $redis->zadd("followers:".$toUser, array($fromUser => 0));
-        $redis->zadd("following:".$fromUser, array($toUser => 0));
-
         return $this->returnOk();
     }
 
@@ -36,9 +31,6 @@ class FollowerController extends AbstractController
         $toUser = $request->request->get("to_user");
 
         $this->service->deleteFollow($fromUser, $toUser);
-
-        $redis = new Client();
-        $redis->zrem("following:".$fromUser, $toUser);
 
         return $this->returnOk();
     }

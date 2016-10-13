@@ -47,11 +47,6 @@ paths:
           description: User's last name.
           required: true
           type: string
-        - name: birth_year
-          in: formData
-          description: User's bearth year.
-          required: true
-          type: integer
       responses:
         200:
           description: Successful registration.

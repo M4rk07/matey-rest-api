@@ -54,9 +54,15 @@ class RoutesLoader
 
         // API ROUTES
         $api->post('/login', 'login.controller:loginAction');
+
         $api->post('/follower/add', 'follower.controller:followAction');
         $api->post('/follower/remove', 'follower.controller:unfollowAction');
+
         $api->post('/post/add', 'post.controller:addPostAction');
+        $api->post('/post/remove', 'post.controller:deletePostAction');
+        $api->post('/post/response/add', 'post.controller:addResponseAction');
+        $api->post('/post/response/remove', 'post.controller:deleteResponseAction');
+        $api->post('/post/response/approve', 'post.controller:approveAction');
 
         // TESTING--------------------------------------------------
         $api->get('/notes', "notes.controller:getAll");

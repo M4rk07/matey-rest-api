@@ -19,6 +19,9 @@ class FollowerService extends BaseService
             'to_user' => $toUser
         ));
 
+        $this->redis->hincrby("user:statistics:".$fromUser, "num_of_following", 1);
+        $this->redis->hincrby("user:statistics:".$toUser, "num_of_followers", 1);
+
     }
 
     public function deleteFollow($fromUser, $toUser) {
@@ -27,6 +30,9 @@ class FollowerService extends BaseService
             'from_user' => $fromUser,
             'to_user' => $toUser
         ));
+
+        $this->redis->hincrby("user:statistics:".$fromUser, "num_of_following", -1);
+        $this->redis->hincrby("user:statistics:".$toUser, "num_of_followers", -1);
 
     }
 

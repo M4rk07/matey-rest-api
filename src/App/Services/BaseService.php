@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Doctrine\DBAL\Connection;
 use Mockery\CountValidator\Exception;
+use Predis\Client;
 use Silex\Provider\DoctrineServiceProvider;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -11,6 +12,7 @@ class BaseService
 {
     // Database connection holder
     protected $db;
+    protected $redis;
 
     // Database resource table names
     const T_USER = "matey_user";
@@ -31,6 +33,9 @@ class BaseService
     public function __construct()
     {
         $this->db = require __DIR__ . '/../../../resources/config/dbal_conn.php';
+        $this->redis = new Client(array(
+            "persistent" => "1"
+        ));
     }
 
 }

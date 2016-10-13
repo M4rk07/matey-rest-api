@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS matey_user (
   is_active tinyint(1) UNSIGNED NOT NULL DEFAULT 1,
   first_name varchar(50) CHARACTER SET utf8 NOT NULL,
   last_name varchar(50) CHARACTER SET utf8 NOT NULL,
-  birth_year int(11) UNSIGNED NOT NULL,
+  profile_picture VARCHAR(1000) NOT NULL DEFAULT 'http://image.flaticon.com/icons/png/128/149/149071.png',
   PRIMARY KEY(user_id),
   UNIQUE KEY (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -102,11 +102,10 @@ CREATE TABLE IF NOT EXISTS matey_follower (
 --
 
 CREATE TABLE IF NOT EXISTS matey_post (
-  post_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  post_id varchar(50) NOT NULL,
   user_id int(11) UNSIGNED NOT NULL,
   text varchar(7000) NOT NULL,
   date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  num_of_responses int(11) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (post_id),
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -120,10 +119,9 @@ CREATE TABLE IF NOT EXISTS matey_post (
 CREATE TABLE IF NOT EXISTS matey_response (
   response_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id int(11) UNSIGNED NOT NULL,
-  post_id int(11) UNSIGNED NOT NULL,
+  post_id varchar(50) NOT NULL,
   text varchar(7000) NOT NULL,
   date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  num_of_approves int(11) UNSIGNED NOT NULL,
   PRIMARY KEY (response_id),
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY (post_id) REFERENCES matey_post(post_id)
@@ -151,7 +149,7 @@ CREATE TABLE IF NOT EXISTS matey_approve (
 
 CREATE TABLE IF NOT EXISTS matey_share (
   user_id int(11) UNSIGNED NOT NULL,
-  post_id int(11) UNSIGNED NOT NULL,
+  post_id varchar(50) NOT NULL,
   date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY (post_id) REFERENCES matey_post(post_id)
@@ -188,7 +186,7 @@ CREATE TABLE IF NOT EXISTS matey_parent_type (
 CREATE TABLE IF NOT EXISTS matey_activity (
   activity_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id int(11) UNSIGNED NOT NULL,
-  source_id int(11) UNSIGNED NOT NULL,
+  source_id varchar(50) NOT NULL,
   parent_type varchar(50) NOT NULL,
   activity_type varchar(50) NOT NULL,
   date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

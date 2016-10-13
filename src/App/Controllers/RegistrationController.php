@@ -26,7 +26,6 @@ class RegistrationController extends AbstractController
         $password = $request->request->get('password');
         $first_name = $request->request->get('first_name');
         $last_name = $request->request->get('last_name');
-        $birth_year = $request->request->get('birth_year');
 
         if( $this->service->userExists($email) ) {
             throw new InvalidRequestException([
@@ -43,8 +42,7 @@ class RegistrationController extends AbstractController
             ),
         ]);
 
-        $newUserId = $this->service->storeUserData($email, $first_name, $last_name, $birth_year);
-        $this->service->cacheUser($newUserId, $email, $first_name, $last_name, $birth_year);
+        $newUserId = $this->service->storeUserData($email, $first_name, $last_name);
 
         return $this->returnOk();
 
@@ -80,9 +78,8 @@ class RegistrationController extends AbstractController
         if($haveAccount == false) {
             $firstName = $fbUser->getFirstName();
             $lastName = $fbUser->getLastName();
-            $birthYear = $fbUser->getBirthday();
 
-            $newUserId = $this->service->storeUserData($email, $firstName, $lastName, $birthYear);
+            $newUserId = $this->service->storeUserData($email, $firstName, $lastName);
             $this->service->storeFacebookData($newUserId, $fbId);
         } else {
             $this->service->storeFacebookData($user['user_id'], $fbId);

@@ -11,57 +11,81 @@ namespace App\Controllers;
 require_once __DIR__.'/../MateyModels/Post.php';
 
 use App\Models\Post;
+use App\Security\IdGenerator;
 use App\Services\FollowerService;
 use Predis\Client;
 use Symfony\Component\HttpFoundation\Request;
 
 class PostController extends AbstractController
 {
-    protected $redis;
 
     public function addPostAction (Request $request) {
 
         $user_id = $request->request->get("user_id");
         $text = $request->request->get("text");
 
-        $post_id = $this->service->createPost($user_id, $text);
+        $idGenerator = new IdGenerator();
+        $post_id = $idGenerator->generatePostId($user_id);
+        $this->service->createPost($post_id, $user_id, $text);
 
+        // CREATING ACTIVITY
         $post = new Post();
         $post->setPostId($post_id)
             ->setText($text);
         $srlPost= $post->serialize();
-
-        $activityType = "posted";
-        $parentType = "post";
         // create activity in database
-        $this->service->createActivity($user_id, $post_id, $parentType, $activityType, $srlPost);
-        $this->cachePosts($post_id, $user_id, $text);
+        $this->service->createActivity($user_id, $post_id, self::PARENT_POST, self::ACTIVITY_POST, $srlPost);
+
+        return $this->returnOk(array("post_id" => $post_id));
+
+    }
+
+    public function deletePostAction(Request $request) {
+        $user_id = $request->request->get("user_id");
+        $post_id = $request->request->get("post_id");
+
+        $this->service->deletePost($post_id, $user_id);
+        $this->service->deleteActivity($post_id, self::PARENT_POST);
 
         return $this->returnOk();
 
     }
 
-    public function cachePosts ($post_id, $user_id, $text) {
-        // CACHE TO REDIS
-        $this->redis = new Client();
-        // cache new post
-        $this->redis->hmset("post:".$post_id, array("user_id" => $user_id, "text" => $text, "time" => time()));
-        $this->redis->set("post:num_of_responses:".$post_id, 0);
-        $this->redis->incr("user:num_of_posts:".$user_id);
-        // push to news feed
-        $this->pushToNewsFeeds($post_id, $user_id);
-    }
+    public function addResponseAction (Request $request) {
 
-    public function pushToNewsFeeds($post_id, $ofUser) {
+        $user_id = $request->request->get("user_id");
+        $text = $request->request->get("text");
+        $post_id = $request->request->get("post_id");
 
-        $followers = $this->redis->zrange("followers:".$ofUser,0,-1);
-        $followers[] = $ofUser;
+        $idGenerator = new IdGenerator();
+        $response_id = $idGenerator->generateResponseId($user_id);
+        $this->service->createResponse($response_id, $user_id, $post_id, $text);
 
-        foreach($followers as $follower) {
-            $this->redis->lpush("newsfeed:posts:".$follower, $post_id);
-            $this->redis->ltrim("newsfeed:posts:".$follower, 0, 300);
-        }
+        return $this->returnOk(array("response_id" => $response_id));
 
     }
+
+    public function deleteResponseAction(Request $request) {
+
+        $response_id = $request->request->get("response_id");
+
+        $this->service->deleteResponse($response_id);
+
+        return $this->returnOk();
+
+    }
+
+    public function approveAction (Request $request) {
+
+        $user_id = $request->request->get("user_id");
+        $response_id = $request->request->get("response_id");
+
+        $this->service->approve($user_id, $response_id);
+
+        return $this->returnOk();
+
+    }
+
+
 
 }

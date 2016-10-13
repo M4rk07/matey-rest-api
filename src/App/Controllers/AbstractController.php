@@ -16,6 +16,9 @@ abstract class AbstractController
 
     protected $service;
 
+    const PARENT_POST = "POST";
+    const ACTIVITY_POST = "posted";
+
     public function __construct($service)
     {
         $this->service = $service;
@@ -37,9 +40,9 @@ abstract class AbstractController
         $this->service = $service;
     }
 
-    public function returnOk () {
+    public function returnOk (array $parameters = array()) {
 
-        return new JsonResponse(null, 200);
+        return new JsonResponse($parameters, 200);
 
     }
 
