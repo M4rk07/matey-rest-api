@@ -14,26 +14,33 @@ use Symfony\Component\HttpFoundation\Request;
 class NewsFeedService extends BaseService
 {
 
-    public function getPostIds($user_id, $start, $count) {
+    public function getActivityIds($user_id, $start, $count) {
 
-        return $this->redis->lrange("newsfeed:posts:".$user_id, $start, $start+$count);
+        return $this->redis->lrange("newsfeed:".$user_id, $start, $start+$count);
 
     }
 
-    public function getPosts ($posts, $limit) {
+    public function getActivities ($activity_id, $limit) {
 
-        $this->db->executeQuery("SELECT * 
-        FROM ".self::T_ACTIVITY." 
-        WHERE source_id IN (?) AND parent_type = POST LIMIT ".$limit,
-            array($posts),
+        $stmt = $this->db->executeQuery("SELECT act.*, usr.first_name, usr.last_name, usr.profile_picture 
+        FROM ".self::T_ACTIVITY." act
+        JOIN ".self::T_USER." as usr USING(user_id)
+        WHERE act.activity_id IN (?) LIMIT ".$limit,
+            array($activity_id),
             array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
         );
 
+        $stmt->execute();
+        return $stmt->fetchAll();
+
     }
 
-    public function getStatistics($post_id) {
-
-        return $this->redis->hgetall("post:statistics:".$post_id);
+    public function getStatistics($type, $id) {
+        if($type == self::TYPE_POST) {
+            return $this->redis->hgetall("post:statistics:" . $id);
+        } else if ($type == self::TYPE_RESPONSE) {
+            return $this->redis->hgetall("response:statistics:" . $id);
+        }
 
     }
 
@@ -41,12 +48,15 @@ class NewsFeedService extends BaseService
 
         $users = $this->redis->lrange("post:responses:user:".$post_id, 0, -1);
 
-        return $this->db->executeQuery("SELECT * 
-        FROM ".self::T_USER." 
+        $stmt = $this->db->executeQuery("SELECT usr.profile_picture 
+        FROM ".self::T_USER." as usr
         WHERE user_id IN (?) LIMIT 3",
             array($users),
             array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
         );
+
+        $stmt->execute();
+        return $stmt->fetchAll();
 
     }
 

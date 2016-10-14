@@ -8,9 +8,6 @@
 
 namespace App\Controllers;
 
-require_once __DIR__.'/../MateyModels/Post.php';
-
-use App\Models\Post;
 use App\Security\IdGenerator;
 use App\Services\FollowerService;
 use Predis\Client;
@@ -27,14 +24,6 @@ class PostController extends AbstractController
         $idGenerator = new IdGenerator();
         $post_id = $idGenerator->generatePostId($user_id);
         $this->service->createPost($post_id, $user_id, $text);
-
-        // CREATING ACTIVITY
-        $post = new Post();
-        $post->setPostId($post_id)
-            ->setText($text);
-        $srlPost= $post->serialize();
-        // create activity in database
-        $this->service->createActivity($user_id, $post_id, self::PARENT_POST, self::ACTIVITY_POST, $srlPost);
 
         return $this->returnOk(array("post_id" => $post_id));
 
@@ -68,8 +57,10 @@ class PostController extends AbstractController
     public function deleteResponseAction(Request $request) {
 
         $response_id = $request->request->get("response_id");
+        $post_id = $request->request->get("post_id");
+        $user_id = $request->request->get("user_id");
 
-        $this->service->deleteResponse($response_id);
+        $this->service->deleteResponse($response_id, $post_id, $user_id);
 
         return $this->returnOk();
 

@@ -12,17 +12,17 @@ namespace App\Security;
 class IdGenerator
 {
 
-    protected $server_code = 111;
+    protected $server_code = 1111;
 
     protected $post_code = 1;
     protected $response_code = 2;
 
     public function generatePostId($user_id) {
-        return uniqid($this->server_code."_".$user_id."_".$this->post_code."_", true);
+        return uniqid($this->server_code."_".$this->post_code."_".$user_id."_", true);
     }
 
     public function generateResponseId($user_id) {
-        return uniqid($this->server_code."_".$user_id."_".$this->response_code."_", true);
+        return uniqid($this->server_code."_".$this->response_code."_".$user_id."_", true);
     }
 
 }

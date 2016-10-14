@@ -12,6 +12,7 @@ use App\ServicesLoader;
 use App\RoutesLoader;
 use Carbon\Carbon;
 
+// DISABLE SECURITY FOR TESTING
 require_once __DIR__.'/../resources/config/security.php';
 
 $app['matey.timezone'] = 'Europe/Belgrade';

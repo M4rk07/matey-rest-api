@@ -19,17 +19,19 @@ class PostService extends BaseService
             'user_id' => $user_id,
             'text' => $text
         ));
+        $activity_id = $this->createPostActivity($post_id, $user_id, $text);
 
-        // cache new post
+        // UPDATE STATISTICS
         $this->redis->hmset("post:statistics:".$post_id, array(
             "num_of_responses" => 0,
             "num_of_shares" => 0
         ));
         $this->redis->hincrby("user:statistics:".$user_id, "num_of_posts", 1);
-        // push to news feed
-        $this->pushToNewsFeeds($post_id, $user_id);
+        $this->redis->sadd("user:posts_checker_set:".$user_id, $post_id);
+        // PUSH TO NEWS FEEDS
+        $this->pushToNewsFeeds($activity_id, $user_id);
 
-        return $post_id;
+        return $activity_id;
 
     }
 
@@ -50,15 +52,22 @@ class PostService extends BaseService
 
     }
 
-    public function createActivity($user_id, $source_id, $parent_type, $activity_type, $srl_data) {
+    public function createPostActivity($post_id, $user_id, $text) {
 
         $this->db->insert(self::T_ACTIVITY, array(
             'user_id' => $user_id,
-            'source_id' => $source_id,
-            'parent_type' => $parent_type,
-            'activity_type' => $activity_type,
-            'srl_data' => $srl_data
+            'source_id' => $post_id,
+            'parent_id' => $post_id,
+            'parent_type' => self::TYPE_POST,
+            'activity_type' => self::TYPE_POST,
+            'srl_data' => serialize(
+                array(
+                    "text" => $text
+                )
+            )
         ));
+
+        return $this->db->lastInsertId();
 
     }
 
@@ -71,19 +80,6 @@ class PostService extends BaseService
 
     }
 
-    public function pushToNewsFeeds($post_id, $ofUser) {
-
-        $followerManager = new FollowerService();
-        $followers = $followerManager->returnFollowers($ofUser);
-        $followers[]['from_user'] = $ofUser;
-
-        foreach($followers as $follower) {
-            $this->redis->lpush("newsfeed:posts:".$follower['from_user'], $post_id);
-            $this->redis->ltrim("newsfeed:posts:".$follower['from_user'], 0, 300);
-        }
-
-    }
-
     public function createResponse($response_id, $user_id, $post_id, $text) {
 
         $this->db->insert(self::T_RESPONSE, array(
@@ -92,6 +88,10 @@ class PostService extends BaseService
             'post_id' => $post_id,
             'text' => $text
         ));
+        $activity_id = $this->createResponseActivity($response_id, $user_id, $post_id, $text);
+
+        // PUSH TO NEWS FEEDS
+        $this->pushToNewsFeeds($activity_id, $user_id, $post_id);
 
         // cache new post
         $this->redis->hmset("response:statistics:".$response_id, array(
@@ -103,14 +103,40 @@ class PostService extends BaseService
         $this->redis->lpush("post:responses:".$post_id, $response_id);
         $this->redis->ltrim("post:responses:".$post_id, 0, 10);
 
+        $this->redis->hincrby("post:statistics:".$post_id, "num_of_responses", 1);
+        $this->redis->hincrby("user:statistics:".$user_id, "num_of_responses", 1);
+
     }
 
-    public function deleteResponse($response_id) {
+    public function createResponseActivity($response_id, $user_id, $post_id, $text) {
 
-        $this->db->delete(self::T_RESPONSE, array(
-            'response_id' => $response_id
+        $this->db->insert(self::T_ACTIVITY, array(
+            'user_id' => $user_id,
+            'source_id' => $response_id,
+            'parent_id' => $post_id,
+            'parent_type' => self::TYPE_POST,
+            'activity_type' => self::TYPE_RESPONSE,
+            'srl_data' => serialize(
+                array(
+                    "text" => $text
+                )
+            )
         ));
 
+        return $this->db->lastInsertId();
+
+    }
+
+    public function deleteResponse($response_id, $post_id, $user_id) {
+
+        $this->db->delete(self::T_RESPONSE, array(
+            'response_id' => $response_id,
+            'post_id' => $post_id,
+            'user_id' => $user_id
+        ));
+
+        $this->redis->hincrby("post:statistics:".$post_id, "num_of_responses", -1);
+        $this->redis->hincrby("user:statistics:".$user_id, "num_of_responses", -1);
         $this->redis->hdel("response:statistics:".$response_id, array(
             "num_of_approves"
         ));

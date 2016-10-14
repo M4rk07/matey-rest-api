@@ -17,7 +17,7 @@ class FollowerController extends AbstractController
 
     public function followAction(Request $request) {
 
-        $fromUser = intval($request->request->get("from_user"));
+        $fromUser = intval($request->request->get("user_id"));
         $toUser = intval($request->request->get("to_user"));
 
         $this->service->createFollow($fromUser, $toUser);
@@ -27,7 +27,7 @@ class FollowerController extends AbstractController
 
     public function unfollowAction(Request $request) {
 
-        $fromUser = $request->request->get("from_user");
+        $fromUser = $request->request->get("user_id");
         $toUser = $request->request->get("to_user");
 
         $this->service->deleteFollow($fromUser, $toUser);

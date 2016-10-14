@@ -5,7 +5,8 @@
  * Date: 8.10.16.
  * Time: 22.55
  */
-
+$app['security.firewalls'] =[];
+/*
 $app['security.firewalls'] = [
     'api_resource' => [
         'pattern' => '^/api/v1',
@@ -19,3 +20,4 @@ $app['security.firewalls'] = [
         ],
     ],
 ];
+*/

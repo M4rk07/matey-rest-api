@@ -8,7 +8,6 @@
 
 namespace App\Controllers;
 
-
 use Symfony\Component\HttpFoundation\Request;
 
 class NewsFeedController extends AbstractController
@@ -19,13 +18,18 @@ class NewsFeedController extends AbstractController
         $start = $request->get("start");
         $count = $request->get("count");
 
-        $posts = $this->getPostIds($user_id, $start, $count);
+        $posts = $this->service->getActivityIds($user_id, $start, $count);
 
-        $fullPosts = $this->service->getPosts($posts, count($posts));
+        $fullPosts = $this->service->getActivities($posts, count($posts));
 
+        $i =0;
         foreach($fullPosts as $post) {
-            $fullPosts[$post['source_id']]['statistics'] = $this->service->getStatistics($post['source_id']);
-            $fullPosts[$post['source_id']]['last_users_respond'] = $this->service->getLastUsersRespond($post['source_id']);
+            $fullPosts[$i]['statistics'] = $this->service->getStatistics($fullPosts[$i]['activity_type'], $post['source_id']);
+            if($fullPosts[$i]['activity_type'] == "POST")
+                $fullPosts[$i]['last_users_respond'] = $this->service->getLastUsersRespond($post['parent_id']);
+            $fullPosts[$i]['data'] = unserialize($fullPosts[$i]['srl_data']);
+            unset($fullPosts[$i]['srl_data']);
+            $i++;
         }
 
         return $this->returnOk($fullPosts);

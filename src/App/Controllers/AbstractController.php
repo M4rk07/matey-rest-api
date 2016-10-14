@@ -16,9 +16,6 @@ abstract class AbstractController
 
     protected $service;
 
-    const PARENT_POST = "POST";
-    const ACTIVITY_POST = "posted";
-
     public function __construct($service)
     {
         $this->service = $service;

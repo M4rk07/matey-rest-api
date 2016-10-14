@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS matey_post (
 --
 
 CREATE TABLE IF NOT EXISTS matey_response (
-  response_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  response_id varchar(50) NOT NULL,
   user_id int(11) UNSIGNED NOT NULL,
   post_id varchar(50) NOT NULL,
   text varchar(7000) NOT NULL,
@@ -135,7 +135,7 @@ CREATE TABLE IF NOT EXISTS matey_response (
 
 CREATE TABLE IF NOT EXISTS matey_approve (
   user_id int(11) UNSIGNED NOT NULL,
-  response_id int(11) UNSIGNED NOT NULL,
+  response_id varchar(50) NOT NULL,
   PRIMARY KEY (user_id, response_id),
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY (response_id) REFERENCES matey_response(response_id)
@@ -187,6 +187,7 @@ CREATE TABLE IF NOT EXISTS matey_activity (
   activity_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id int(11) UNSIGNED NOT NULL,
   source_id varchar(50) NOT NULL,
+  parent_id varchar(50) NOT NULL,
   parent_type varchar(50) NOT NULL,
   activity_type varchar(50) NOT NULL,
   date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -194,8 +195,35 @@ CREATE TABLE IF NOT EXISTS matey_activity (
   PRIMARY KEY (activity_id),
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY (activity_type) REFERENCES matey_activity_type(activity_type),
-  FOREIGN KEY (parent_type) REFERENCES matey_parent_type(parent_type)
+  FOREIGN KEY (parent_type) REFERENCES matey_activity_type(activity_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- --------------------------------------------------------
 
+--
+-- TRIGGER for table `matey_posts`
+--
 
+DELIMITER /
+CREATE TRIGGER delete_response AFTER DELETE on matey_post
+FOR EACH ROW
+BEGIN
+DELETE FROM matey_response
+WHERE matey_response.post_id = old.post_id;
+END;
+/
+DELIMITER ;
+-- --------------------------------------------------------
+
+--
+-- TRIGGER for table `matey_responses`
+--
+DELIMITER /
+CREATE TRIGGER delete_approve AFTER DELETE on matey_response
+FOR EACH ROW
+BEGIN
+DELETE FROM matey_approve
+WHERE matey_approve.response_id = old.response_id;
+END;
+/
+DELIMITER ;
