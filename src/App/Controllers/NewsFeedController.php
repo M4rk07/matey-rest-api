@@ -48,10 +48,12 @@ class NewsFeedController extends AbstractController
 
         $i =0;
         foreach($fullPosts as $post) {
+
             $fullPosts[$i]['data'] = unserialize($fullPosts[$i]['srl_data']);
             $fullPosts[$i]['data']['statistics'] = $this->service->getStatistics($fullPosts[$i]['activity_type'], $post['source_id']);
             if($fullPosts[$i]['activity_type'] == "POST")
-                $fullPosts[$i]['last_users_respond'] = $this->service->getLastUsersRespond($post['source_id']);
+                $fullPosts[$i]['data']['last_users_respond'] = $this->service->getLastUsersRespond($post['source_id']);
+
             unset($fullPosts[$i]['srl_data']);
             $i++;
         }

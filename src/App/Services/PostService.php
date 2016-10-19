@@ -26,8 +26,8 @@ class PostService extends NewsFeedGuruService
             "num_of_responses" => 0,
             "num_of_shares" => 0
         ));
-        $this->redis->hincrby("user:statistics:".$user_id, "num_of_posts", 1);
-        $this->redis->sadd("user:posts_checker_set:".$user_id, $post_id);
+        $this->redis->hincrby(self::TYPE_USER.":statistics:".$user_id, "num_of_posts", 1);
+        $this->redis->sadd(self::TYPE_USER.":posts-checker-set:".$user_id, $post_id);
         // PUSH TO NEWS FEEDS
         $this->pushToNewsFeeds($activity_id, $user_id);
 
@@ -42,11 +42,11 @@ class PostService extends NewsFeedGuruService
         ));
 
         // cache new post
-        $this->redis->hdel("post:statistics:".$post_id, array(
+        $this->redis->hdel(self::TYPE_POST.":statistics:".$post_id, array(
             "num_of_responses",
             "num_of_shares"
         ));
-        $this->redis->hincrby("user:statistics:".$user_id, "num_of_posts", -1);
+        $this->redis->hincrby(self::TYPE_USER."statistics:".$user_id, "num_of_posts", -1);
 
         return $post_id;
 
@@ -62,6 +62,7 @@ class PostService extends NewsFeedGuruService
             'activity_type' => self::TYPE_POST,
             'srl_data' => serialize(
                 array(
+                    "post_id" => $post_id,
                     "text" => $text
                 )
             )
@@ -118,6 +119,7 @@ class PostService extends NewsFeedGuruService
             'activity_type' => self::TYPE_RESPONSE,
             'srl_data' => serialize(
                 array(
+                    "response_id" => $response_id,
                     "text" => $text
                 )
             )

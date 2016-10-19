@@ -24,7 +24,7 @@ class RegistrationService extends BaseService
 
         $user_id = $this->db->lastInsertId();
 
-        $this->redis->set(self::TYPE_USER.":by_email:".$email, $user_id);
+        $this->redis->set(self::TYPE_USER.":by-email:".$email, $user_id);
         $this->redis->hmset(self::TYPE_USER.":statistics:".$user_id, array(
             'num_of_posts' => 0,
             'num_of_responses' => 0,
