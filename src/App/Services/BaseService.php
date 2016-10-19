@@ -27,10 +27,10 @@ class BaseService
     const T_DEVICE = "matey_device";
     const T_LOGIN = "matey_login";
 
+    const TYPE_INTEREST = "INTEREST";
     const TYPE_POST = "POST";
     const TYPE_FOLLOW = "FOLLOW";
     const TYPE_RESPONSE = "RESPONSE";
-
 
     public function __construct()
     {

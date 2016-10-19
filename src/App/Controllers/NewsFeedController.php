@@ -9,6 +9,8 @@
 namespace App\Controllers;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 class NewsFeedController extends AbstractController
 {
@@ -17,6 +19,28 @@ class NewsFeedController extends AbstractController
 
         $start = $request->get("start");
         $count = $request->get("count");
+
+        $this->validate($user_id, [
+            new NotBlank(),
+            new Type(array(
+                'message' => 'This is not a valid user_id.',
+                'type' => 'numeric'
+            ))
+        ]);
+        $this->validate($start, [
+            new NotBlank(),
+            new Type(array(
+                'message' => 'This is not a valid start.',
+                'type' => 'numeric'
+            ))
+        ]);
+        $this->validate($count, [
+            new NotBlank(),
+            new Type(array(
+                'message' => 'This is not a valid count.',
+                'type' => 'numeric'
+            ))
+        ]);
 
         $posts = $this->service->getActivityIds($user_id, $start, $count);
 

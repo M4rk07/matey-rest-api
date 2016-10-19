@@ -201,6 +201,32 @@ CREATE TABLE IF NOT EXISTS matey_activity (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `matey_interests`
+--
+
+CREATE TABLE IF NOT EXISTS matey_interests (
+  interest_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  interest varchar(50) NOT NULL,
+  PRIMARY KEY (interest_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- POPULATE table `matey_interests`
+--
+
+INSERT INTO matey_interests (interest) VALUES
+('Arts & Entertainment'), ('Automotive & Vehicle'), ('Beauty & Fitness'),
+('Business & Industrial'), ('Computers & Technology'), ('Education and Employment'),
+('Food & Drink'), ('Home & Garden'), ('Law & Goverment'),
+('Leisure & Hobbies'), ('News'), ('Science'),
+('Shopping'), ('Sports'), ('Travel'),
+('Video Games');
+
+-- --------------------------------------------------------
+
+--
 -- TRIGGER for table `matey_posts`
 --
 

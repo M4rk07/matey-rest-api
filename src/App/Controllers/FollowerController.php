@@ -11,6 +11,8 @@ namespace App\Controllers;
 use Predis\Client;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 class FollowerController extends AbstractController
 {
@@ -19,6 +21,21 @@ class FollowerController extends AbstractController
 
         $fromUser = intval($request->request->get("user_id"));
         $toUser = intval($request->request->get("to_user"));
+
+        $this->validate($fromUser, [
+            new NotBlank(),
+            new Type(array(
+                'message' => 'This is not a valid user_id.',
+                'type' => 'numeric'
+            ))
+        ]);
+        $this->validate($toUser, [
+            new NotBlank(),
+            new Type(array(
+                'message' => 'This is not a valid user_id.',
+                'type' => 'numeric'
+            ))
+        ]);
 
         $this->service->createFollow($fromUser, $toUser);
 
@@ -29,6 +46,21 @@ class FollowerController extends AbstractController
 
         $fromUser = $request->request->get("user_id");
         $toUser = $request->request->get("to_user");
+
+        $this->validate($fromUser, [
+            new NotBlank(),
+            new Type(array(
+                'message' => 'This is not a valid user_id.',
+                'type' => 'numeric'
+            ))
+        ]);
+        $this->validate($toUser, [
+            new NotBlank(),
+            new Type(array(
+                'message' => 'This is not a valid user_id.',
+                'type' => 'numeric'
+            ))
+        ]);
 
         $this->service->deleteFollow($fromUser, $toUser);
 

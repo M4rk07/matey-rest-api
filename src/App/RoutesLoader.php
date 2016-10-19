@@ -29,23 +29,23 @@ class RoutesLoader
         // TESTING----------------------------------------------------
 
         $this->app['registration.controller'] = $this->app->share(function () {
-            return new RegistrationController($this->app['registration.service']);
+            return new RegistrationController($this->app['registration.service'], $this->app['validator']);
         });
 
         $this->app['login.controller'] = $this->app->share(function () {
-            return new LoginController($this->app['login.service']);
+            return new LoginController($this->app['login.service'], $this->app['validator']);
         });
 
         $this->app['follower.controller'] = $this->app->share(function () {
-            return new FollowerController($this->app['follower.service']);
+            return new FollowerController($this->app['follower.service'], $this->app['validator']);
         });
 
         $this->app['post.controller'] = $this->app->share(function () {
-            return new PostController($this->app['post.service']);
+            return new PostController($this->app['post.service'], $this->app['validator']);
         });
 
         $this->app['newsfeed.controller'] = $this->app->share(function () {
-            return new NewsFeedController($this->app['newsfeed.service']);
+            return new NewsFeedController($this->app['newsfeed.service'], $this->app['validator']);
         });
     }
 

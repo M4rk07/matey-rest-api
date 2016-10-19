@@ -29,6 +29,7 @@
 	"autoload": {
 		"psr-0": {
 			"App": "src/"
-		}
+		},
+		"psr-4": {"App\\Validators\\": "src/App/Validator/Constraints"}
 	}
 }
