@@ -14,6 +14,7 @@ use App\Services\FollowerService;
 use Predis\Client;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Type;
 
 class PostController extends AbstractController
@@ -23,6 +24,7 @@ class PostController extends AbstractController
 
         $user_id = $request->request->get("user_id");
         $text = $request->request->get("text");
+        $interest_id = $request->request->get("interest_id");
 
         $this->validate($user_id, [
             new NotBlank(),
@@ -31,13 +33,16 @@ class PostController extends AbstractController
                 'type' => 'numeric'
             ))
         ]);
+        $this->validate($interest_id, [
+            new NotBlank(),
+        ]);
         $this->validate($text, [
             new NotBlank()
         ]);
 
         $idGenerator = new IdGenerator();
         $post_id = $idGenerator->generatePostId($user_id);
-        $this->service->createPost($post_id, $user_id, $text);
+        $this->service->createPost($post_id, $interest_id, $user_id, $text);
 
         return $this->returnOk(array("post_id" => $post_id));
 

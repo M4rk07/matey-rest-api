@@ -9,20 +9,20 @@
 namespace App\Services;
 
 
-class PostService extends BaseService
+class PostService extends NewsFeedGuruService
 {
 
-    public function createPost($post_id, $user_id, $text) {
+    public function createPost($post_id, $interest_id, $user_id, $text) {
 
         $this->db->insert(self::T_POST, array(
             'post_id' => $post_id,
             'user_id' => $user_id,
             'text' => $text
         ));
-        $activity_id = $this->createPostActivity($post_id, $user_id, $text);
+        $activity_id = $this->createPostActivity($post_id, $interest_id, $user_id, $text);
 
         // UPDATE STATISTICS
-        $this->redis->hmset("post:statistics:".$post_id, array(
+        $this->redis->hmset(self::TYPE_POST.":statistics:".$post_id, array(
             "num_of_responses" => 0,
             "num_of_shares" => 0
         ));
@@ -52,13 +52,13 @@ class PostService extends BaseService
 
     }
 
-    public function createPostActivity($post_id, $user_id, $text) {
+    public function createPostActivity($post_id, $interest_id, $user_id, $text) {
 
         $this->db->insert(self::T_ACTIVITY, array(
             'user_id' => $user_id,
             'source_id' => $post_id,
-            'parent_id' => $post_id,
-            'parent_type' => self::TYPE_POST,
+            'parent_id' => $interest_id,
+            'parent_type' => self::TYPE_INTEREST,
             'activity_type' => self::TYPE_POST,
             'srl_data' => serialize(
                 array(
@@ -94,17 +94,17 @@ class PostService extends BaseService
         $this->pushToNewsFeeds($activity_id, $user_id, $post_id);
 
         // cache new post
-        $this->redis->hmset("response:statistics:".$response_id, array(
+        $this->redis->hmset(self::TYPE_RESPONSE.":statistics:".$response_id, array(
             "num_of_approves" => 0
         ));
-        $this->redis->lpush("post:responses:user:".$post_id, $user_id);
-        $this->redis->ltrim("post:responses:user:".$post_id, 0, 3);
+        $this->redis->lpush(self::TYPE_POST.":responses-of-users:".$post_id, $user_id);
+        $this->redis->ltrim(self::TYPE_POST.":responses-of-users:".$post_id, 0, 3);
 
-        $this->redis->lpush("post:responses:".$post_id, $response_id);
-        $this->redis->ltrim("post:responses:".$post_id, 0, 10);
+        $this->redis->lpush(self::TYPE_POST.":responses:".$post_id, $response_id);
+        $this->redis->ltrim(self::TYPE_POST.":responses:".$post_id, 0, 10);
 
-        $this->redis->hincrby("post:statistics:".$post_id, "num_of_responses", 1);
-        $this->redis->hincrby("user:statistics:".$user_id, "num_of_responses", 1);
+        $this->redis->hincrby(self::TYPE_POST.":statistics:".$post_id, "num_of_responses", 1);
+        $this->redis->hincrby(self::TYPE_USER.":statistics:".$user_id, "num_of_responses", 1);
 
     }
 
@@ -135,9 +135,9 @@ class PostService extends BaseService
             'user_id' => $user_id
         ));
 
-        $this->redis->hincrby("post:statistics:".$post_id, "num_of_responses", -1);
-        $this->redis->hincrby("user:statistics:".$user_id, "num_of_responses", -1);
-        $this->redis->hdel("response:statistics:".$response_id, array(
+        $this->redis->hincrby(self::TYPE_POST.":statistics:".$post_id, "num_of_responses", -1);
+        $this->redis->hincrby(self::TYPE_USER.":statistics:".$user_id, "num_of_responses", -1);
+        $this->redis->hdel(self::TYPE_RESPONSE.":statistics:".$response_id, array(
             "num_of_approves"
         ));
 
@@ -150,7 +150,7 @@ class PostService extends BaseService
             'user_id' => $user_id
         ));
 
-        $this->redis->hincrby("response:statistics:".$response_id, "num_of_approves", 1);
+        $this->redis->hincrby(self::TYPE_RESPONSE.":statistics:".$response_id, "num_of_approves", 1);
 
     }
 

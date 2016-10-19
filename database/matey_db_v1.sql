@@ -169,17 +169,6 @@ CREATE TABLE IF NOT EXISTS matey_activity_type (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `matey_parent_type`
---
-
-CREATE TABLE IF NOT EXISTS matey_parent_type (
-  parent_type varchar(50) NOT NULL,
-  PRIMARY KEY (parent_type)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `matey_activity`
 --
 
@@ -223,6 +212,16 @@ INSERT INTO matey_interests (interest) VALUES
 ('Leisure & Hobbies'), ('News'), ('Science'),
 ('Shopping'), ('Sports'), ('Travel'),
 ('Video Games');
+
+-- --------------------------------------------------------
+
+--
+-- POPULATE table `matey_activity_type`
+--
+
+INSERT INTO matey_activity_type (activity_type) VALUES
+('INTEREST'), ('POST'), ('RESPONSE'),
+('FOLLOW');
 
 -- --------------------------------------------------------
 

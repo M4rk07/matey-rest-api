@@ -11,7 +11,7 @@ namespace App\Services;
 
 use Symfony\Component\HttpFoundation\Request;
 
-class NewsFeedService extends BaseService
+class NewsFeedService extends NewsFeedGuruService
 {
 
     public function getActivityIds($user_id, $start, $count) {
@@ -35,18 +35,11 @@ class NewsFeedService extends BaseService
 
     }
 
-    public function getStatistics($type, $id) {
-        if($type == self::TYPE_POST) {
-            return $this->redis->hgetall("post:statistics:" . $id);
-        } else if ($type == self::TYPE_RESPONSE) {
-            return $this->redis->hgetall("response:statistics:" . $id);
-        }
 
-    }
 
     public function getLastUsersRespond($post_id) {
 
-        $users = $this->redis->lrange("post:responses:user:".$post_id, 0, -1);
+        $users = $this->redis->lrange(self::TYPE_POST.":responses-of-users:".$post_id, 0, -1);
 
         $stmt = $this->db->executeQuery("SELECT usr.profile_picture 
         FROM ".self::T_USER." as usr

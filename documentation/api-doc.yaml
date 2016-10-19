@@ -69,11 +69,6 @@ paths:
     post:
       description: Endpoint for user login with access token and device id.
       parameters:
-        - name: access_token
-          in: formData
-          description: OAuth2 access token.
-          required: true
-          type: string
         - name: email
           in: formData
           description: User's email.
@@ -90,6 +85,146 @@ paths:
           schema:
             items:
               $ref: '#/definitions/User'
+  /api/v1/follower/add:
+    post:
+      description: Endpoint for following new user.
+      parameters:
+        - name: user_id
+          in: formData
+          description: ID of user following.
+          required: true
+          type: integer
+        - name: to_user
+          in: formData
+          description: ID of user that have been followed.
+          required: true
+          type: integer
+      responses:
+        200:
+          description: OK.
+  /api/v1/follower/remove:
+    post:
+      description: Endpoint for following new user.
+      parameters:
+        - name: user_id
+          in: formData
+          description: ID of user that request removing.
+          required: true
+          type: integer
+        - name: to_user
+          in: formData
+          description: ID of user that needs to be removed.
+          required: true
+          type: integer
+      responses:
+        200:
+          description: OK.
+  /api/v1/post/add:
+    post:
+      description: Endpoint for posting.
+      parameters:
+        - name: user_id
+          in: formData
+          description: ID of user requesting.
+          required: true
+          type: integer
+        - name: interest_id
+          in: formData
+          description: ID of interest.
+          required: true
+          type: integer
+        - name: text
+          in: formData
+          description: Text of the post.
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK.
+          schema:
+            items:
+              $ref: '#/definitions/PostId'
+  /api/v1/post/remove:
+    post:
+      description: Endpoint for removing post.
+      parameters:
+        - name: user_id
+          in: formData
+          description: ID of user requesting.
+          required: true
+          type: integer
+        - name: post_id
+          in: formData
+          description: ID of the post.
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK.
+  /api/v1/post/response/add:
+    post:
+      description: Endpoint for removing post.
+      parameters:
+        - name: user_id
+          in: formData
+          description: ID of user requesting.
+          required: true
+          type: integer
+        - name: post_id
+          in: formData
+          description: ID of the post.
+          required: true
+          type: string
+        - name: text
+          in: formData
+          description: Text of the post.
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK.
+          schema:
+            items:
+              $ref: '#/definitions/ResponseId'
+  /api/v1/post/response/remove:
+    post:
+      description: Endpoint for removing post.
+      parameters:
+        - name: user_id
+          in: formData
+          description: ID of user requesting.
+          required: true
+          type: integer
+        - name: post_id
+          in: formData
+          description: ID of the post.
+          required: true
+          type: string
+        - name: response_id
+          in: formData
+          description: ID of the post.
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK.
+  /api/v1/post/response/approve:
+    post:
+      description: Endpoint for removing post.
+      parameters:
+        - name: user_id
+          in: formData
+          description: ID of user requesting.
+          required: true
+          type: integer
+        - name: response_id
+          in: formData
+          description: ID of the response.
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK.
 definitions:
   Device:
     type: object
@@ -107,3 +242,13 @@ definitions:
         type: string
       birth_year:
         type: integer
+  PostId:
+    type: object
+    properties:
+      post_id:
+        type: string
+  ResponseId:
+    type: object
+    properties:
+      response_id:
+        type: string

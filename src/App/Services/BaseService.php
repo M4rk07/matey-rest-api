@@ -27,6 +27,7 @@ class BaseService
     const T_DEVICE = "matey_device";
     const T_LOGIN = "matey_login";
 
+    const TYPE_USER = "USER";
     const TYPE_INTEREST = "INTEREST";
     const TYPE_POST = "POST";
     const TYPE_FOLLOW = "FOLLOW";
@@ -38,24 +39,6 @@ class BaseService
         $this->redis = new Client(array(
             "persistent" => "1"
         ));
-    }
-
-    public function pushToNewsFeeds($activity_id, $user_id, $check_id = null) {
-
-        $followerManager = new FollowerService();
-        $followers = $followerManager->returnFollowers($user_id);
-        $followers[]['from_user'] = $user_id;
-
-        foreach($followers as $follower) {
-            if($check_id != null) {
-                if ($this->redis->sismember("user:posts_checker_set:".$follower['from_user'], $check_id))
-                    continue;
-            }
-
-            $this->redis->lpush("newsfeed:".$follower['from_user'], $activity_id);
-            $this->redis->ltrim("newsfeed:".$follower['from_user'], 0, 500);
-        }
-
     }
 
 }

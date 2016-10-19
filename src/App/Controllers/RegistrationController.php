@@ -54,6 +54,8 @@ class RegistrationController extends AbstractController
             new NotBlank(),
             new Name()
         ]);
+        $first_name = ucfirst($first_name);
+        $last_name = ucfirst($last_name);
 
         if( $this->service->userExists($email) ) {
             throw new InvalidRequestException([
@@ -63,7 +65,7 @@ class RegistrationController extends AbstractController
 
         // register user on authorization server
         $client = new Client();
-        $client->request('POST', 'http://localhost/matey-oauth2/web/index.php/api/oauth2/register/user', [
+        $client->request('POST', self::BASE_OAuth2_URL.'/api/oauth2/register/user', [
             'form_params'   => array(
                 'username' => $email,
                 'password' => $password
