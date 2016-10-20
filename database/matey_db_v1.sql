@@ -190,28 +190,112 @@ CREATE TABLE IF NOT EXISTS matey_activity (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `matey_interests`
+-- Table structure for table `matey_interest`
 --
 
-CREATE TABLE IF NOT EXISTS matey_interests (
-  interest_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS matey_interest (
   interest varchar(50) NOT NULL,
-  PRIMARY KEY (interest_id)
+  PRIMARY KEY (interest)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- POPULATE table `matey_interests`
+-- Table structure for table `matey_subinterest`
 --
 
-INSERT INTO matey_interests (interest) VALUES
-('Arts & Entertainment'), ('Automotive & Vehicle'), ('Beauty & Fitness'),
-('Business & Industrial'), ('Computers & Technology'), ('Education and Employment'),
-('Food & Drink'), ('Home & Garden'), ('Law & Goverment'),
-('Leisure & Hobbies'), ('News'), ('Science'),
-('Shopping'), ('Sports'), ('Travel'),
+CREATE TABLE IF NOT EXISTS matey_subinterest (
+  interest varchar(50) NOT NULL,
+  subinterest varchar(50) NOT NULL,
+  PRIMARY KEY (subinterest),
+  FOREIGN KEY(interest) REFERENCES matey_interest(interest)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- POPULATE table `matey_interest`
+--
+
+INSERT INTO matey_interest (interest) VALUES
+('Arts & Entertainment'),
+('Automotive & Vehicle'),
+('Beauty & Fitness'),
+('Business & Industrial'),
+('Computers & Technology'),
+('Education and Employment'),
+('Food & Drink'),
+('Home & Garden'),
+('Law & Government'),
+('Leisure & Hobbies'),
+('News'),
+('Science'),
+('Shopping'),
+('Sports'),
+('Travel'),
 ('Video Games');
+
+-- --------------------------------------------------------
+
+--
+-- POPULATE table `matey_subinterest`
+--
+
+INSERT INTO matey_subinterest (interest, subinterest) VALUES
+('Arts & Entertainment', 'Celebrities & Entertainment News'),
+('Arts & Entertainment', 'Comics & Animation'),
+('Arts & Entertainment', 'Humor'),
+('Arts & Entertainment', 'Movies'),
+('Arts & Entertainment', 'Music & Audio'),
+('Arts & Entertainment', 'TV'),
+('Automotive & Vehicle', 'Boats & Watercraft'),
+('Automotive & Vehicle', 'Classic Vehicles'),
+('Automotive & Vehicle', 'Motorcycles'),
+('Beauty & Fitness', 'Face & Body Care'),
+('Beauty & Fitness', 'Fashion & Style'),
+('Beauty & Fitness', 'Fitness'),
+('Business & Industrial', 'Advertising & Marketing'),
+('Business & Industrial', 'Finance'),
+('Business & Industrial', 'Business News'),
+('Business & Industrial', 'Business Services'),
+('Computers & Technology', 'Computer Hardware'),
+('Computers & Technology', 'Consumer Electronics'),
+('Computers & Technology', 'Programming'),
+('Computers & Technology', 'News'),
+('Education and Employment', 'Colleges & Universities'),
+('Education and Employment', 'Employment'),
+('Education and Employment', 'Primary & Secondary Schooling (K-12)'),
+('Food & Drink', 'Cooking & Recipes'),
+('Food & Drink', 'Restaurants'),
+('Home & Garden', 'Gardening & Landscaping'),
+('Home & Garden', 'Home Furnishings'),
+('Home & Garden', 'Home Improvement'),
+('Home & Garden', 'Real Estate Listings'),
+('Law & Government', 'Government'),
+('Law & Government', 'Legal'),
+('Leisure & Hobbies', 'Books'),
+('Leisure & Hobbies', 'Crafts'),
+('Leisure & Hobbies', 'Games & Puzzles'),
+('Leisure & Hobbies', 'Outdoors'),
+('News', 'Politics'),
+('News', 'Weather'),
+('News', 'Global News'),
+('Science', 'Math'),
+('Science', 'Physics'),
+('Shopping', 'Apparel'),
+('Shopping', 'Discount & Outlet Stores'),
+('Shopping', 'Toys'),
+('Sports', 'College Sports'),
+('Sports', 'Extreme Sports'),
+('Sports', 'Fantasy Sports'),
+('Sports', 'Professional Sports'),
+('Sports', 'Sports News'),
+('Travel', 'Hotels & Transportation'),
+('Travel', 'Tourist Destinations'),
+('Travel', 'Travel Guides & Travelogues'),
+('Video Games', 'Casual'),
+('Video Games', 'Hardcore'),
+('Video Games', 'Virtual Worlds');
 
 -- --------------------------------------------------------
 

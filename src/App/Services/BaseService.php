@@ -27,11 +27,20 @@ class BaseService
     const T_DEVICE = "matey_device";
     const T_LOGIN = "matey_login";
 
+    // ACTIVITY TYPES
     const TYPE_USER = "USER";
     const TYPE_INTEREST = "INTEREST";
     const TYPE_POST = "POST";
     const TYPE_FOLLOW = "FOLLOW";
     const TYPE_RESPONSE = "RESPONSE";
+
+    // REDIS KEYS
+    const REDIS_NEWSFEED = "USER:newsfeed:";
+    const REDIS_STATISTICS_POST = "POST:statistics:";
+    const REDIS_STATISTICS_USER = "USER:statistics:";
+    const REDIS_STATISTICS_RESPONSE = "RESPONSE:statistics:";
+    const REDIS_POST_CHECKER_SET = "USER:posts-checker-set:";
+    const REDIS_LAST_3_RESPONSES = "POST:last-3-reponses:";
 
     public function __construct()
     {

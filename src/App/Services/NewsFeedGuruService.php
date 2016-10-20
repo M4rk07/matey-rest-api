@@ -20,12 +20,12 @@ class NewsFeedGuruService extends BaseService
 
         foreach($followers as $follower) {
             if($check_id != null) {
-                if ($this->redis->sismember("user:posts_checker_set:".$follower['from_user'], $check_id))
+                if ($this->redis->sismember(self::REDIS_POST_CHECKER_SET.$follower['from_user'], $check_id))
                     continue;
             }
 
-            $this->redis->lpush("newsfeed:".$follower['from_user'], $activity_id);
-            $this->redis->ltrim("newsfeed:".$follower['from_user'], 0, 500);
+            $this->redis->lpush(self::REDIS_NEWSFEED.$follower['from_user'], $activity_id);
+            $this->redis->ltrim(self::REDIS_NEWSFEED.$follower['from_user'], 0, 500);
         }
 
     }

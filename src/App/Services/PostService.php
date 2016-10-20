@@ -26,8 +26,8 @@ class PostService extends NewsFeedGuruService
             "num_of_responses" => 0,
             "num_of_shares" => 0
         ));
-        $this->redis->hincrby(self::TYPE_USER.":statistics:".$user_id, "num_of_posts", 1);
-        $this->redis->sadd(self::TYPE_USER.":posts-checker-set:".$user_id, $post_id);
+        $this->redis->hincrby(self::REDIS_STATISTICS_USER.$user_id, "num_of_posts", 1);
+        $this->redis->sadd(self::REDIS_POST_CHECKER_SET.$user_id, $post_id);
         // PUSH TO NEWS FEEDS
         $this->pushToNewsFeeds($activity_id, $user_id);
 
@@ -42,11 +42,11 @@ class PostService extends NewsFeedGuruService
         ));
 
         // cache new post
-        $this->redis->hdel(self::TYPE_POST.":statistics:".$post_id, array(
+        $this->redis->hdel(self::REDIS_STATISTICS_POST.$post_id, array(
             "num_of_responses",
             "num_of_shares"
         ));
-        $this->redis->hincrby(self::TYPE_USER."statistics:".$user_id, "num_of_posts", -1);
+        $this->redis->hincrby(self::REDIS_STATISTICS_USER.$user_id, "num_of_posts", -1);
 
         return $post_id;
 
@@ -95,17 +95,14 @@ class PostService extends NewsFeedGuruService
         $this->pushToNewsFeeds($activity_id, $user_id, $post_id);
 
         // cache new post
-        $this->redis->hmset(self::TYPE_RESPONSE.":statistics:".$response_id, array(
+        $this->redis->hmset(self::REDIS_STATISTICS_RESPONSE.$response_id, array(
             "num_of_approves" => 0
         ));
-        $this->redis->lpush(self::TYPE_POST.":responses-of-users:".$post_id, $user_id);
-        $this->redis->ltrim(self::TYPE_POST.":responses-of-users:".$post_id, 0, 3);
+        $this->redis->lpush(self::REDIS_LAST_3_RESPONSES.$post_id, $user_id);
+        $this->redis->ltrim(self::REDIS_LAST_3_RESPONSES.$post_id, 0, 3);
 
-        $this->redis->lpush(self::TYPE_POST.":responses:".$post_id, $response_id);
-        $this->redis->ltrim(self::TYPE_POST.":responses:".$post_id, 0, 10);
-
-        $this->redis->hincrby(self::TYPE_POST.":statistics:".$post_id, "num_of_responses", 1);
-        $this->redis->hincrby(self::TYPE_USER.":statistics:".$user_id, "num_of_responses", 1);
+        $this->redis->hincrby(self::REDIS_STATISTICS_POST.$post_id, "num_of_responses", 1);
+        $this->redis->hincrby(self::REDIS_STATISTICS_USER.$user_id, "num_of_responses", 1);
 
     }
 
@@ -137,9 +134,9 @@ class PostService extends NewsFeedGuruService
             'user_id' => $user_id
         ));
 
-        $this->redis->hincrby(self::TYPE_POST.":statistics:".$post_id, "num_of_responses", -1);
-        $this->redis->hincrby(self::TYPE_USER.":statistics:".$user_id, "num_of_responses", -1);
-        $this->redis->hdel(self::TYPE_RESPONSE.":statistics:".$response_id, array(
+        $this->redis->hincrby(self::REDIS_STATISTICS_POST.$post_id, "num_of_responses", -1);
+        $this->redis->hincrby(self::REDIS_STATISTICS_USER.$user_id, "num_of_responses", -1);
+        $this->redis->hdel(self::REDIS_STATISTICS_RESPONSE.$response_id, array(
             "num_of_approves"
         ));
 
@@ -152,7 +149,7 @@ class PostService extends NewsFeedGuruService
             'user_id' => $user_id
         ));
 
-        $this->redis->hincrby(self::TYPE_RESPONSE.":statistics:".$response_id, "num_of_approves", 1);
+        $this->redis->hincrby(self::REDIS_STATISTICS_RESPONSE.$response_id, "num_of_approves", 1);
 
     }
 
