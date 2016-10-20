@@ -8,9 +8,6 @@
 
 namespace App\Services;
 
-
-use Predis\Client;
-
 class RegistrationService extends BaseService
 {
 
@@ -22,16 +19,7 @@ class RegistrationService extends BaseService
             'last_name' => $last_name
         ));
 
-        $user_id = $this->db->lastInsertId();
-
-        $this->redis->set(self::TYPE_USER.":by-email:".$email, $user_id);
-        $this->redis->hmset(self::TYPE_USER.":statistics:".$user_id, array(
-            'num_of_posts' => 0,
-            'num_of_responses' => 0,
-            'num_of_received_approves' => 0,
-            'num_of_followers' => 0,
-            'num_of_following' => 0
-        ));
+        $this->db->lastInsertId();
 
         return $this->db->lastInsertId();
 

@@ -8,6 +8,7 @@
 
 namespace App\Controllers;
 
+use App\Services\BaseService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -42,23 +43,35 @@ class NewsFeedController extends AbstractController
             ))
         ]);
 
-        $posts = $this->service->getActivityIds($user_id, $start, $count);
+        $activities_ids = $this->redisService->getIDsFromNewsFeed($user_id, $start, $count);
+        $activities = $this->service->getActivities($activities_ids, count($activities_ids));
+        $finalActivities = array();
 
-        $fullPosts = $this->service->getActivities($posts, count($posts));
-
-        $i =0;
-        foreach($fullPosts as $post) {
-
-            $fullPosts[$i]['data'] = unserialize($fullPosts[$i]['srl_data']);
-            $fullPosts[$i]['data']['statistics'] = $this->service->getStatistics($fullPosts[$i]['activity_type'], $post['source_id']);
-            if($fullPosts[$i]['activity_type'] == "POST")
-                $fullPosts[$i]['data']['last_users_respond'] = $this->service->getLastUsersRespond($post['source_id']);
-
-            unset($fullPosts[$i]['srl_data']);
-            $i++;
+        foreach($activities as $activity) {
+            $finalActivities[] = $this->handleActivity($activity);
         }
 
-        return $this->returnOk($fullPosts);
+        return $this->returnOk($finalActivities);
+
+    }
+
+    public function handleActivity ($activity) {
+
+        $activity['data'] = unserialize($activity['srl_data']);
+        unset($activity['srl_data']);
+
+        if($activity['activity_type'] == BaseService::TYPE_POST) {
+
+            $activity['data']['statistics'] = $this->redisService->getPostStatistics($activity['source_id']);
+            $activity['data']['last_users_respond'] = $this->redisService->getLastUsersRespond($activity['source_id']);
+
+        } else if ($activity['activity_type'] == BaseService::TYPE_RESPONSE) {
+
+            $activity['data']['statistics'] = $this->redisService->getResponseStatistics($activity['source_id']);
+
+        }
+
+        return $activity;
 
     }
 

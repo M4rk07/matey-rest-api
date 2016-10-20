@@ -14,11 +14,6 @@ use Symfony\Component\HttpFoundation\Request;
 class NewsFeedService extends NewsFeedGuruService
 {
 
-    public function getActivityIds($user_id, $start, $count) {
-
-        return $this->redis->lrange("newsfeed:".$user_id, $start, $start+$count);
-
-    }
 
     public function getActivities ($activity_id, $limit) {
 

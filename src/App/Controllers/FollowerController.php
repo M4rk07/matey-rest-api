@@ -38,6 +38,8 @@ class FollowerController extends AbstractController
         ]);
 
         $this->service->createFollow($fromUser, $toUser);
+        $this->redisService->incrUserNumOfFollowers($toUser, 1);
+        $this->redisService->incrUserNumOfFollowing($fromUser, 1);
 
         return $this->returnOk();
     }
@@ -63,6 +65,8 @@ class FollowerController extends AbstractController
         ]);
 
         $this->service->deleteFollow($fromUser, $toUser);
+        $this->redisService->incrUserNumOfFollowers($toUser, -1);
+        $this->redisService->incrUserNumOfFollowing($fromUser, -1);
 
         return $this->returnOk();
     }

@@ -10,6 +10,7 @@ namespace App\Controllers;
 
 
 use App\Services\BaseService;
+use App\Services\Redis\RedisService;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -18,13 +19,19 @@ abstract class AbstractController
 {
 
     protected $service;
+    protected $redisService;
     protected $validator;
 
     const BASE_OAuth2_URL = "http://localhost/matey-oauth2/web/index.php";
 
-    public function __construct(BaseService $service, ValidatorInterface $validator)
+    public function __construct(
+        BaseService $service,
+        RedisService $redisService,
+        ValidatorInterface $validator
+    )
     {
         $this->service = $service;
+        $this->redisService = $redisService;
         $this->validator = $validator;
     }
 

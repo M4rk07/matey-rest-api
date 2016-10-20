@@ -72,7 +72,8 @@ class RegistrationController extends AbstractController
             ),
         ]);
 
-        $this->service->storeUserData($email, $first_name, $last_name);
+        $user_id = $this->service->storeUserData($email, $first_name, $last_name);
+        $this->redisService->initializeUserStatistics($user_id);
 
         return $this->returnOk();
 
@@ -111,6 +112,7 @@ class RegistrationController extends AbstractController
 
             $newUserId = $this->service->storeUserData($email, $firstName, $lastName);
             $this->service->storeFacebookData($newUserId, $fbId);
+            $this->redisService->initializeUserStatistics($newUserId);
         } else {
             $this->service->storeFacebookData($user['user_id'], $fbId);
         }

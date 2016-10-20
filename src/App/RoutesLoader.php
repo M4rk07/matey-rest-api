@@ -22,30 +22,24 @@ class RoutesLoader
 
     private function instantiateControllers()
     {
-        // TESTING--------------------------------------------------
-        $this->app['notes.controller'] = $this->app->share(function () {
-            return new Controllers\NotesController($this->app['notes.service']);
-        });
-        // TESTING----------------------------------------------------
-
         $this->app['registration.controller'] = $this->app->share(function () {
-            return new RegistrationController($this->app['registration.service'], $this->app['validator']);
+            return new RegistrationController($this->app['registration.service'], $this->app['redis.service'], $this->app['validator']);
         });
 
         $this->app['login.controller'] = $this->app->share(function () {
-            return new LoginController($this->app['login.service'], $this->app['validator']);
+            return new LoginController($this->app['login.service'], $this->app['redis.service'], $this->app['validator']);
         });
 
         $this->app['follower.controller'] = $this->app->share(function () {
-            return new FollowerController($this->app['follower.service'], $this->app['validator']);
+            return new FollowerController($this->app['follower.service'], $this->app['redis.service'], $this->app['validator']);
         });
 
         $this->app['post.controller'] = $this->app->share(function () {
-            return new PostController($this->app['post.service'], $this->app['validator']);
+            return new PostController($this->app['post.service'], $this->app['redis.service'], $this->app['validator']);
         });
 
         $this->app['newsfeed.controller'] = $this->app->share(function () {
-            return new NewsFeedController($this->app['newsfeed.service'], $this->app['validator']);
+            return new NewsFeedController($this->app['newsfeed.service'], $this->app['redis.service'], $this->app['validator']);
         });
     }
 
@@ -70,14 +64,6 @@ class RoutesLoader
         $api->post('/post/response/approve', 'post.controller:approveAction');
 
         $api->get('/newsfeed/{user_id}', 'newsfeed.controller:getNewsFeedAction');
-
-        // TESTING--------------------------------------------------
-        $api->get('/notes', "notes.controller:getAll");
-        $api->post('/notes', "notes.controller:save");
-        $api->put('/notes/{id}', "notes.controller:update");
-        $api->delete('/notes/{id}', "notes.controller:delete");
-        // TESTING----------------------------------------------------
-
 
         $this->app->mount($this->app["api.endpoint"].'/'.$this->app["api.version"], $api);
     }
