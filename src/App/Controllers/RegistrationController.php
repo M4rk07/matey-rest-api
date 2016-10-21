@@ -9,6 +9,7 @@
 namespace App\Controllers;
 
 
+use App\Paths\Paths;
 use App\Validators\FirstName;
 use App\Validators\Name;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
@@ -65,7 +66,7 @@ class RegistrationController extends AbstractController
 
         // register user on authorization server
         $client = new Client();
-        $client->request('POST', self::BASE_OAuth2_URL.'/api/oauth2/register/user', [
+        $client->request('POST', Paths::BASE_OAuth2_URL.'/api/oauth2/register/user', [
             'form_params'   => array(
                 'username' => $email,
                 'password' => $password

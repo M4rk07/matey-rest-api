@@ -22,9 +22,9 @@ $connectionParams = array(
 );
 
 /*$connectionParams = array(
-    'dbname' => 'notifinda_db',
+    'dbname' => 'matey_db_v1',
     'user' => 'm4rk07',
-    'password' => 'maka',
+    'password' => '',
     'host' => '0.0.0.0',
     'driver' => 'pdo_mysql',
     'port' => 3306,
