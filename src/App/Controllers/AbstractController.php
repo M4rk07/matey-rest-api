@@ -15,14 +15,16 @@ use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/*
+ * Controller that is used as main controller for every other
+ */
+
 abstract class AbstractController
 {
 
     protected $service;
     protected $redisService;
     protected $validator;
-
-    const BASE_OAuth2_URL = "http://localhost/matey-oauth2/web/index.php";
 
     public function __construct(
         BaseService $service,
@@ -57,13 +59,29 @@ abstract class AbstractController
 
     }
 
+    public function returnNotOk ($message = null) {
+
+        throw new InvalidRequestException([
+            'error_description' => ($message==null) ? 'The request includes an invalid parameter value.' : $message,
+        ]);
+
+    }
+
     public function validate ($value, array $classes) {
+
+        $value = $this->clearValue($value);
+
         $errors = $this->validator->validate($value, $classes);
         if (count($errors) > 0) {
             throw new InvalidRequestException([
                 'error_description' => 'The request includes an invalid parameter value.',
             ]);
         }
+
+    }
+
+    public function clearValue ($value) {
+        return trim($value);
     }
 
 }

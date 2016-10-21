@@ -11,26 +11,8 @@ namespace App\Services;
 
 use Symfony\Component\HttpFoundation\Request;
 
-class NewsFeedService extends NewsFeedGuruService
+class NewsFeedService extends ActivityService
 {
-
-
-    public function getActivities ($activity_id, $limit) {
-
-        $stmt = $this->db->executeQuery("SELECT act.*, usr.first_name, usr.last_name, usr.profile_picture 
-        FROM ".self::T_ACTIVITY." act
-        JOIN ".self::T_USER." as usr USING(user_id)
-        WHERE act.activity_id IN (?) LIMIT ".$limit,
-            array($activity_id),
-            array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
-        );
-
-        $stmt->execute();
-        return $stmt->fetchAll();
-
-    }
-
-
 
     public function getLastUsersRespond($post_id) {
 

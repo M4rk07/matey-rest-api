@@ -9,7 +9,7 @@
 namespace App\Services;
 
 
-class PostService extends BaseService
+class PostService extends ActivityService
 {
 
     public function createPost($post_id, $interest_id, $user_id, $text) {
@@ -30,26 +30,11 @@ class PostService extends BaseService
 
     }
 
-    public function createActivity($user_id, $source_id, $activity_type, $parent_id, $parent_type, $srl_data) {
+    public function bookmarkPost($post_id, $user_id) {
 
-        $this->db->delete(self::T_ACTIVITY, array(
-            'user_id' => $user_id,
-            'source_id' => $source_id,
-            'activity_type' => $activity_type,
-            'parent_id' => $parent_id,
-            'parent_type' => $parent_type,
-            'srl_data' => $srl_data
-        ));
-
-        return $this->db->lastInsertId();
-
-    }
-
-    public function deleteActivity($post_id, $parent_type) {
-
-        $this->db->delete(self::T_ACTIVITY, array(
-            'source_id' => $post_id,
-            'parent_type' => $parent_type
+        $this->db->insert(self::T_BOOKMARK, array(
+            'post_id' => $post_id,
+            'user_id' => $user_id
         ));
 
     }

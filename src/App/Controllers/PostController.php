@@ -83,6 +83,28 @@ class PostController extends AbstractController
 
     }
 
+    public function bookmarkPostAction (Request $request) {
+        $user_id = $request->request->get("user_id");
+        $post_id = $request->request->get("post_id");
+
+        $this->validate($user_id, [
+            new NotBlank(),
+            new Type(array(
+                'message' => 'This is not a valid user_id.',
+                'type' => 'numeric'
+            ))
+        ]);
+        $this->validate($post_id, [
+            new NotBlank()
+        ]);
+
+        $this->service->bookmarkPost($post_id, $user_id);
+        $this->redisService->pushPostBookmark($post_id, $user_id);
+
+        return $this->returnOk();
+
+    }
+
     public function addResponseAction (Request $request) {
 
         $user_id = $request->request->get("user_id");

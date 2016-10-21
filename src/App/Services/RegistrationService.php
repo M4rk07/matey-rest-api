@@ -39,10 +39,22 @@ class RegistrationService extends BaseService
 
     }
 
-    public function registerDevice($gcm) {
+    public function registerDevice($gcm, $deviceSecret) {
 
         $this->db->insert(self::T_DEVICE, array(
             'gcm' => $gcm,
+            'device_secret' => $deviceSecret
+        ));
+        return $this->db->lastInsertId();
+    }
+
+    public function updateDevice($device_id, $gcm, $old_gcm) {
+
+        $this->db->update(self::T_DEVICE, array(
+            'gcm' => $gcm
+        ), array(
+            'device_id' => $device_id,
+            'gcm' => $old_gcm
         ));
         return $this->db->lastInsertId();
     }

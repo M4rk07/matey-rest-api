@@ -10,6 +10,7 @@ namespace App\Controllers;
 
 
 use App\Paths\Paths;
+use App\Security\SecretGenerator;
 use App\Validators\FirstName;
 use App\Validators\Name;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
@@ -64,6 +65,15 @@ class RegistrationController extends AbstractController
             ]);
         }
 
+        $this->registerUserCredentialsOnAuth($email, $password);
+        $user_id = $this->service->storeUserData($email, $first_name, $last_name);
+        $this->redisService->initializeUserStatistics($user_id);
+
+        return $this->returnOk();
+
+    }
+
+    public function registerUserCredentialsOnAuth ($email, $password) {
         // register user on authorization server
         $client = new Client();
         $client->request('POST', Paths::BASE_OAuth2_URL.'/api/oauth2/register/user', [
@@ -72,26 +82,45 @@ class RegistrationController extends AbstractController
                 'password' => $password
             ),
         ]);
-
-        $user_id = $this->service->storeUserData($email, $first_name, $last_name);
-        $this->redisService->initializeUserStatistics($user_id);
-
-        return $this->returnOk();
-
     }
 
     public function registerDeviceAction (Request $request) {
 
+        $device_id = $request->request->get("device_id");
         $gcm = $request->request->get("gcm");
+        $old_gcm = $request->request->get("old_gcm");
 
         $this->validate($gcm, [
             new NotBlank()
         ]);
 
-        $deviceId = $this->service->registerDevice($gcm);
+        if(!empty($old_gcm) && !empty($device_id)) $this->updateDeviceGcm($device_id, $gcm, $old_gcm);
+        else $this->registerDevice($gcm);
 
-        return new JsonResponse(array('device_id' => $deviceId), 200);
+    }
 
+    public function updateDeviceGcm($device_id, $gcm, $old_gcm) {
+        $this->validate($device_id, [
+            new NotBlank()
+        ]);
+        $this->validate($old_gcm, [
+            new NotBlank()
+        ]);
+
+        $this->service->updateDevice($device_id, $gcm, $old_gcm);
+
+        $this->returnOk();
+    }
+
+    public function registerDevice($gcm) {
+        $secretGenerator = new SecretGenerator();
+        $deviceSecret = $secretGenerator->generateDeviceSecret();
+        $deviceId = $this->service->registerDevice($gcm, $deviceSecret);
+
+        return new JsonResponse(array(
+            'device_id' => $deviceId,
+            'device_secret' => $deviceSecret
+        ), 200);
     }
 
     public function authenticateSocialUserAction (Request $request) {
@@ -107,7 +136,7 @@ class RegistrationController extends AbstractController
         }
 
         $fbId = $fbUser->getId();
-        if($haveAccount == false) {
+        if($haveAccount === false) {
             $firstName = $fbUser->getFirstName();
             $lastName = $fbUser->getLastName();
 

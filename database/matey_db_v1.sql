@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS matey_device (
   device_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   time_added TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   gcm varchar(500) NOT NULL,
+  device_secret varchar(100),
   PRIMARY KEY(device_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -108,6 +109,20 @@ CREATE TABLE IF NOT EXISTS matey_post (
   date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (post_id),
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_bookmark`
+--
+
+CREATE TABLE IF NOT EXISTS matey_bookmark (
+  post_id varchar(50) NOT NULL,
+  user_id int(11) UNSIGNED NOT NULL,
+  clock timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
+  FOREIGN KEY (post_id) REFERENCES matey_post(post_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -305,7 +320,7 @@ INSERT INTO matey_subinterest (interest, subinterest) VALUES
 
 INSERT INTO matey_activity_type (activity_type) VALUES
 ('INTEREST'), ('POST'), ('RESPONSE'),
-('FOLLOW');
+('FOLLOW'), ('SHARE');
 
 -- --------------------------------------------------------
 

@@ -24,6 +24,7 @@ class RedisService
     const SUBKEY_STATISTICS = "statistics";
     const SUBKEY_POST_CHECKET_SET = "posts-checker-set";
     const SUBKEY_LAST_RESPONSES = "last-responses";
+    const SUBKEY_BOOKMARKS = "bookmarks";
 
     const FIELD_NUM_OF_POSTS = "num_of_posts";
     const FIELD_NUM_OF_RESPONSES = "num_of_responses";
@@ -57,6 +58,10 @@ class RedisService
     public function pushLastResponseToPost ($post_id, $user_id) {
         $this->redis->lpush(self::KEY_POST.":".self::SUBKEY_LAST_RESPONSES.":".$post_id, $user_id);
         $this->redis->ltrim(self::KEY_POST.":".self::SUBKEY_LAST_RESPONSES.":".$post_id, 0, 3);
+    }
+
+    public function pushPostBookmark ($post_id, $user_id) {
+        $this->redis->sadd(self::KEY_POST.":".self::SUBKEY_BOOKMARKS.":".$post_id, $user_id);
     }
 
     // --------------------------------------------------------------------

@@ -9,7 +9,7 @@
 namespace App\Services;
 
 
-class FollowerService extends BaseService
+class FollowerService extends ActivityService
 {
 
     public function createFollow($fromUser, $toUser) {

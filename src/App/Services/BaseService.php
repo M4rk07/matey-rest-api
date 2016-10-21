@@ -12,7 +12,6 @@ class BaseService
 {
     // Database connection holder
     protected $db;
-    protected $redis;
 
     // Database resource table names
     const T_USER = "matey_user";
@@ -26,6 +25,7 @@ class BaseService
     const T_ACTIVITY_TYPE = "matey_activity_type";
     const T_DEVICE = "matey_device";
     const T_LOGIN = "matey_login";
+    const T_BOOKMARK = "matey_bookmark";
 
     // ACTIVITY TYPES
     const TYPE_USER = "USER";
@@ -33,6 +33,7 @@ class BaseService
     const TYPE_POST = "POST";
     const TYPE_FOLLOW = "FOLLOW";
     const TYPE_RESPONSE = "RESPONSE";
+    const TYPE_SHARE = "SHARE";
 
     // REDIS KEYS
     const REDIS_NEWSFEED = "USER:newsfeed:";
@@ -45,9 +46,6 @@ class BaseService
     public function __construct()
     {
         $this->db = require __DIR__ . '/../../../resources/config/dbal_conn.php';
-        $this->redis = new Client(array(
-            "persistent" => "1"
-        ));
     }
 
 }

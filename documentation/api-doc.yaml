@@ -85,7 +85,7 @@ paths:
           schema:
             items:
               $ref: '#/definitions/User'
-  /api/v1/follower/add:
+  /api/v1/follower/ACTION:
     post:
       description: Endpoint for following new user.
       parameters:
@@ -97,23 +97,6 @@ paths:
         - name: to_user
           in: formData
           description: ID of user that have been followed.
-          required: true
-          type: integer
-      responses:
-        200:
-          description: OK.
-  /api/v1/follower/remove:
-    post:
-      description: Endpoint for following new user.
-      parameters:
-        - name: user_id
-          in: formData
-          description: ID of user that request removing.
-          required: true
-          type: integer
-        - name: to_user
-          in: formData
-          description: ID of user that needs to be removed.
           required: true
           type: integer
       responses:

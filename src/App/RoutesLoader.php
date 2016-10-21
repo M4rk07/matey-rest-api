@@ -54,8 +54,10 @@ class RoutesLoader
         // API ROUTES
         $api->post('/login', 'login.controller:loginAction');
 
-        $api->post('/follower/add', 'follower.controller:followAction');
-        $api->post('/follower/remove', 'follower.controller:unfollowAction');
+        // for "action" valid values are:
+        // - follow
+        // - unfollow
+        $api->post('/follower/{action}', 'follower.controller:followerAction');
 
         $api->post('/post/add', 'post.controller:addPostAction');
         $api->post('/post/remove', 'post.controller:deletePostAction');
@@ -64,6 +66,7 @@ class RoutesLoader
         $api->post('/post/response/approve', 'post.controller:approveAction');
 
         $api->get('/newsfeed/{user_id}', 'newsfeed.controller:getNewsFeedAction');
+        $api->post('/newsfeed/activity/share', 'newsfeed.controller:shareActivityAction');
 
         $this->app->mount($this->app["api.endpoint"].'/'.$this->app["api.version"], $api);
     }
