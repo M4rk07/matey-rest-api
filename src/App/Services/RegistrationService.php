@@ -25,6 +25,17 @@ class RegistrationService extends BaseService
 
     }
 
+    public function storeFacebookData($newUserId, $fbId) {
+
+        $this->db->insert(self::T_FACEBOOK_INFO, array(
+            'user_id' => $newUserId,
+            'fb_id' => $fbId
+        ));
+
+        return $this->db->lastInsertId();
+
+    }
+
     public function userExists($email) {
 
         $result = $this->db->fetchAll("SELECT m_user.user_id, fb_info.fb_id 

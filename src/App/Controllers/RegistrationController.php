@@ -131,7 +131,9 @@ class RegistrationController extends AbstractController
         $email = $fbUser->getEmail();
 
         if( ($user = $this->service->userExists($email)) ) {
-            if(!empty($user['fb_id'])) return new JsonResponse(array(), 200);
+            if(!empty($user['fb_id'])) return new JsonResponse(array(
+                "username" => $email,
+            ), 200);
             else $haveAccount = true;
         }
 
@@ -147,11 +149,9 @@ class RegistrationController extends AbstractController
             $this->service->storeFacebookData($user['user_id'], $fbId);
         }
 
-        $parametres = array(
-          "username" => $email,
-        );
-
-        return new JsonResponse($parametres, 200);
+        return new JsonResponse(array(
+            "username" => $email,
+        ), 200);
 
     }
 
@@ -182,7 +182,7 @@ class RegistrationController extends AbstractController
 
         try {
             // Returns a `Facebook\FacebookResponse` object
-            $response = $fb->get('/me?fields=id,email', $fbToken);
+            $response = $fb->get('/me?fields=id,email,first_name,last_name', $fbToken);
         } catch(FacebookResponseException $e) {
             throw new InvalidRequestException([
                 'error_description' => 'The request includes an invalid parameter value.',
