@@ -28,12 +28,15 @@ class LoginController extends AbstractController
 
     public function loginAction (Request $request) {
         // fetch data from request
-        $email = $request->request->get("email");
+        $user_id = $request->request->get("user_id");
         $deviceId = $request->request->get("device_id");
 
-        $this->validate($email, [
+        $this->validate($user_id, [
             new NotBlank(),
-            new Email()
+            new Type(array(
+                'message' => 'This is not a valid device_id.',
+                'type' => 'numeric'
+            ))
         ]);
         $this->validate($deviceId, [
             new NotBlank(),
@@ -45,7 +48,7 @@ class LoginController extends AbstractController
 
         // store user login information
         // on which device he is logging in
-        $userData = $this->service->storeLoginRecord($deviceId, $email);
+        $userData = $this->service->storeLoginRecord($deviceId, $user_id);
 
         return JsonResponse::create($userData, 200, [
             'Cache-Control' => 'no-store',

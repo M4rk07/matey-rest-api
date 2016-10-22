@@ -25,6 +25,7 @@ class RedisService
     const SUBKEY_POST_CHECKET_SET = "posts-checker-set";
     const SUBKEY_LAST_RESPONSES = "last-responses";
     const SUBKEY_BOOKMARKS = "bookmarks";
+    const SUBKEY_USER_ID = "user-id";
 
     const FIELD_NUM_OF_POSTS = "num_of_posts";
     const FIELD_NUM_OF_RESPONSES = "num_of_responses";
@@ -84,10 +85,14 @@ class RedisService
         return $this->redis->hgetall(self::KEY_RESPONSE.":".self::SUBKEY_STATISTICS.":".$response_id);
     }
 
+    public function getUserIdByEmail ($email) {
+        return $this->redis->get(self::KEY_USER.":".self::SUBKEY_USER_ID.":".$email);
+    }
+
     // --------------------------------------------------------------------
     // INITIALIZING FUNCTIONS
 
-    public function initializeUserStatistics($user_id) {
+    public function initializeUserStatistics($user_id, $email) {
         $this->redis->hmset(self::KEY_USER.":".self::SUBKEY_STATISTICS.":".$user_id, array(
             self::FIELD_NUM_OF_FOLLOWERS => 0,
             self::FIELD_NUM_OF_FOLLOWING => 0,
@@ -96,6 +101,7 @@ class RedisService
             self::FIELD_NUM_OF_RESPONSES => 0,
             self::FIELD_NUM_OF_BEST_RESPONSES => 0
         ));
+        $this->redis->set(self::KEY_USER.":".self::SUBKEY_USER_ID.":".$email, $user_id);
     }
 
     public function initializePostStatistics($post_id) {

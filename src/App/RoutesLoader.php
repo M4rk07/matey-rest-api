@@ -47,6 +47,7 @@ class RoutesLoader
     {
         $api = $this->app["controllers_factory"];
 
+        $this->app->post('/test', 'registration.controller:testAuthorization');
         $this->app->post('/register/user', 'registration.controller:registerStandardUserAction');
         $this->app->post('/register/device', 'registration.controller:registerDeviceAction');
         $this->app->post('/authenticate/social', 'registration.controller:authenticateSocialUserAction');

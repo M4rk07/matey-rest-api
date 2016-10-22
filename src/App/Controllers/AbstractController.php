@@ -9,10 +9,13 @@
 namespace App\Controllers;
 
 
+use App\Paths\Paths;
 use App\Services\BaseService;
 use App\Services\Redis\RedisService;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
+use GuzzleHttp\Client;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /*
@@ -82,6 +85,21 @@ abstract class AbstractController
 
     public function clearValue ($value) {
         return trim($value);
+    }
+
+    public function testAuthorization (Request $request) {
+
+        $client = new Client();
+        $client->request('POST', Paths::DEBUG_ENDPOINT, [
+            'headers' => [
+                'Authorization' => 'Bearer 00a9fedbae926eb74625f71685c0161e'
+            ],
+            'form_params'   => array(
+                'access_token' => '00a9fedbae926eb74625f71685c0161e'
+            ),
+        ]);
+
+        return $this->returnOk();
     }
 
 }

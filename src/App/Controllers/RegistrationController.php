@@ -67,7 +67,7 @@ class RegistrationController extends AbstractController
 
         $this->registerUserCredentialsOnAuth($email, $password);
         $user_id = $this->service->storeUserData($email, $first_name, $last_name);
-        $this->redisService->initializeUserStatistics($user_id);
+        $this->redisService->initializeUserStatistics($user_id, $email);
 
         return $this->returnOk();
 
@@ -94,8 +94,8 @@ class RegistrationController extends AbstractController
             new NotBlank()
         ]);
 
-        if(!empty($old_gcm) && !empty($device_id)) $this->updateDeviceGcm($device_id, $gcm, $old_gcm);
-        else $this->registerDevice($gcm);
+        if(!empty($old_gcm) && !empty($device_id)) return $this->updateDeviceGcm($device_id, $gcm, $old_gcm);
+        else return $this->registerDevice($gcm);
 
     }
 
@@ -142,7 +142,7 @@ class RegistrationController extends AbstractController
 
             $newUserId = $this->service->storeUserData($email, $firstName, $lastName);
             $this->service->storeFacebookData($newUserId, $fbId);
-            $this->redisService->initializeUserStatistics($newUserId);
+            $this->redisService->initializeUserStatistics($newUserId, $email);
         } else {
             $this->service->storeFacebookData($user['user_id'], $fbId);
         }
