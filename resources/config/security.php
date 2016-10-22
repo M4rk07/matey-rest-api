@@ -14,7 +14,7 @@ $app['security.firewalls'] = [
             'resource_type' => 'debug_endpoint',
             'scope' => [''],
             'options' => [
-                'debug_endpoint' => 'http://localhost/matey-oauth2/web/index.php/api/oauth2/debug',
+                'debug_endpoint' => \App\Paths\Paths::DEBUG_ENDPOINT,
                 'cache' => false,
             ],
         ],

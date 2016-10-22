@@ -33,6 +33,7 @@ class RedisService
     const FIELD_NUM_OF_FOLLOWING = "num_of_following";
     const FIELD_NUM_OF_FOLLOWERS = "num_of_followers";
     const FIELD_NUM_OF_SHARES = "num_of_shares";
+    const FIELD_NUM_OF_BEST_RESPONSES = "num_of_best_responses";
 
     public function __construct()
     {
@@ -92,7 +93,8 @@ class RedisService
             self::FIELD_NUM_OF_FOLLOWING => 0,
             self::FIELD_NUM_OF_POSTS => 0,
             self::FIELD_NUM_OF_RECEIVED_APPROVES => 0,
-            self::FIELD_NUM_OF_RESPONSES => 0
+            self::FIELD_NUM_OF_RESPONSES => 0,
+            self::FIELD_NUM_OF_BEST_RESPONSES => 0
         ));
     }
 

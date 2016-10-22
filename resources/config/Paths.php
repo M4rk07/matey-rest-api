@@ -10,5 +10,6 @@ class Paths
 {
 
     const BASE_OAuth2_URL = "http://localhost/matey-oauth2/web/index.php";
+    const DEBUG_ENDPOINT = "http://localhost/matey-oauth2/web/index.php/api/oauth2/debug";
 
 }
