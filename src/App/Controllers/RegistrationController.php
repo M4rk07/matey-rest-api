@@ -10,6 +10,7 @@ namespace App\Controllers;
 
 
 use App\Paths\Paths;
+use App\Security\SaltGenerator;
 use App\Security\SecretGenerator;
 use App\Validators\FirstName;
 use App\Validators\Name;
@@ -25,6 +26,7 @@ use Mockery\Matcher\Not;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use \Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\EmailValidator;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -65,23 +67,19 @@ class RegistrationController extends AbstractController
             ]);
         }
 
-        $this->registerUserCredentialsOnAuth($email, $password);
-        $user_id = $this->service->storeUserData($email, $first_name, $last_name);
+        // generate random salt
+        $salt = (new SaltGenerator())->generateSalt();
+
+        // encode password and salt
+        $passwordEncoder = new MessageDigestPasswordEncoder();
+        $encodedPassword = $passwordEncoder->encodePassword($password, $salt);
+
+        $user_id = $this->service->storeUserData($email, $first_name, $last_name, $encodedPassword, $salt);
+        $this->service->storeUserCredentialsData($email, $encodedPassword, $salt);
         $this->redisService->initializeUserStatistics($user_id, $email);
 
         return $this->returnOk();
 
-    }
-
-    public function registerUserCredentialsOnAuth ($email, $password) {
-        // register user on authorization server
-        $client = new Client();
-        $client->request('POST', Paths::BASE_OAuth2_URL.'/api/oauth2/register/user', [
-            'form_params'   => array(
-                'username' => $email,
-                'password' => $password
-            ),
-        ]);
     }
 
     public function registerDeviceAction (Request $request) {

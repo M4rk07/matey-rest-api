@@ -229,6 +229,123 @@ CREATE TABLE IF NOT EXISTS matey_subinterest (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `matey_user`
+--
+
+CREATE TABLE IF NOT EXISTS oauth2_user (
+  username varchar(50) CHARACTER SET utf8 NOT NULL,
+  password varchar(128) CHARACTER SET utf8 NOT NULL,
+  salt varchar(20) CHARACTER SET utf8 NOT NULL,
+  PRIMARY KEY (username),
+  KEY (username, password, salt),
+  FOREIGN KEY (username) REFERENCES matey_user(email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oauth2_clients`
+--
+
+CREATE TABLE IF NOT EXISTS oauth2_client (
+  client_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  client_secret varchar(255) NOT NULL,
+  app_name varchar(100) NOT NULL,
+  redirect_uri text,
+  registration_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  client_type varchar(12) NOT NULL DEFAULT 'public',
+  PRIMARY KEY (client_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oauth2_access_tokens`
+--
+
+CREATE TABLE IF NOT EXISTS oauth2_access_token (
+  access_token varchar(32) NOT NULL,
+  token_type varchar(20) NOT NULL,
+  client_id int(11) UNSIGNED NOT NULL,
+  username varchar(50) NOT NULL,
+  expires TIMESTAMP NOT NULL,
+  date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  scope text,
+  PRIMARY KEY (username, access_token),
+  FOREIGN KEY (client_id) REFERENCES oauth2_client(client_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oauth2_authorize`
+--
+
+CREATE TABLE IF NOT EXISTS oauth2_authorize (
+  client_id int(11) UNSIGNED NOT NULL,
+  username varchar(50) NOT NULL,
+  scope text,
+  authorization_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (client_id, username),
+  FOREIGN KEY (client_id) REFERENCES oauth2_client(client_id),
+  FOREIGN KEY (username) REFERENCES oauth2_user(username)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oauth2_codes`
+--
+
+CREATE TABLE IF NOT EXISTS oauth2_code (
+  code varchar(34) NOT NULL,
+  client_id int(11) UNSIGNED NOT NULL,
+  username varchar(50) NOT NULL,
+  redirect_uri text,
+  expires TIMESTAMP NOT NULL,
+  date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  scope text,
+  PRIMARY KEY (username, code),
+  FOREIGN KEY (client_id) REFERENCES oauth2_client(client_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `oauth2_codes`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oauth2_refresh_tokens`
+--
+
+CREATE TABLE IF NOT EXISTS oauth2_refresh_token (
+  refresh_token varchar(32) NOT NULL,
+  client_id int(11) UNSIGNED NOT NULL,
+  username varchar(50) NOT NULL,
+  expires TIMESTAMP NOT NULL,
+  date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  scope text,
+  PRIMARY KEY (username, refresh_token),
+  FOREIGN KEY (client_id) REFERENCES oauth2_client(client_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oauth2_scopes`
+--
+
+CREATE TABLE IF NOT EXISTS oauth2_scope (
+  scope varchar(20) NOT NULL,
+  PRIMARY KEY (scope)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
 -- POPULATE table `matey_interest`
 --
 

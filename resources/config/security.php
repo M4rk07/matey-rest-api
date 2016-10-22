@@ -7,6 +7,8 @@
  */
 //$app['security.firewalls'] =[];
 
+
+/*
 $app['security.firewalls'] = [
     'api_resource' => [
         'pattern' => '^/api/v1',
@@ -19,4 +21,4 @@ $app['security.firewalls'] = [
             ],
         ],
     ],
-];
+];*/

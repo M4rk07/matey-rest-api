@@ -25,6 +25,16 @@ class RegistrationService extends BaseService
 
     }
 
+    public function storeUserCredentialsData($email, $encodedPassword, $salt) {
+
+        $this->db->insert(self::T_A_USER, array(
+            'username' => $email,
+            'password' => $encodedPassword,
+            'salt' => $salt
+        ));
+
+    }
+
     public function storeFacebookData($newUserId, $fbId) {
 
         $this->db->insert(self::T_FACEBOOK_INFO, array(

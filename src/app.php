@@ -95,4 +95,34 @@ $servicesLoader->bindServicesIntoContainer();
 $routesLoader = new RoutesLoader($app);
 $routesLoader->bindRoutesToControllers();
 
+$app['security.firewalls'] = [
+    'api_oauth2_authorize' => [
+        'pattern' => '^/api/oauth2/authorize$',
+        'http' => true,
+        'users' => $app['authbucket_oauth2.user_provider']
+    ],
+    'api_oauth2_token' => [
+        'pattern' => '^/api/oauth2/token$',
+        'oauth2_token' => true,
+    ],
+    'api_oauth2_debug' => [
+        'pattern' => '^/api/oauth2/debug$',
+        'oauth2_resource' => true,
+    ],
+    'api_resource' => [
+        'pattern' => '^/api/v1',
+        'oauth2_resource' => true,
+    ],
+];
+
+// OAuth 2.0 ROUTES
+$app->get('/api/oauth2/authorize', 'authbucket_oauth2.oauth2_controller:authorizeAction')
+    ->bind('api_oauth2_authorize');
+
+$app->post('/api/oauth2/token', 'authbucket_oauth2.oauth2_controller:tokenAction')
+    ->bind('api_oauth2_token');
+
+$app->match('/api/oauth2/debug', 'authbucket_oauth2.oauth2_controller:debugAction')
+    ->bind('api_oauth2_debug');
+
 return $app;

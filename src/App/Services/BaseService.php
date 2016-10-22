@@ -27,6 +27,15 @@ class BaseService
     const T_LOGIN = "matey_login";
     const T_BOOKMARK = "matey_bookmark";
 
+    // Database authorization table names
+    const T_A_USER = "oauth2_user";
+    const T_A_ACCESS_TOKEN = "oauth2_access_token";
+    const T_A_REFRESH_TOKEN = "oauth2_refresh_token";
+    const T_A_CLIENTS = "oauth2_client";
+    const T_A_CODES = "oauth2_code";
+    const T_A_AUTHORIZE = "oauth2_authorize";
+    const T_A_SCOPES = "oauth2_scope";
+
     // ACTIVITY TYPES
     const TYPE_USER = "USER";
     const TYPE_INTEREST = "INTEREST";
