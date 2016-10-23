@@ -57,4 +57,16 @@ class BaseService
         $this->db = require __DIR__ . '/../../../resources/config/dbal_conn.php';
     }
 
+    public function startTransaction() {
+        $this->db->beginTransaction();
+    }
+
+    public function commitTransaction() {
+        $this->db->commit();
+    }
+
+    public function rollbackTransaction() {
+        $this->db->rollBack();
+    }
+
 }

@@ -61,9 +61,12 @@ class RegistrationController extends AbstractController
         $first_name = ucfirst($first_name);
         $last_name = ucfirst($last_name);
 
+        $haveFbAccount = false;
+
         if( $this->service->userExists($email) ) {
-            throw new InvalidRequestException([
-                'error_description' => 'User is already registered.',
+            if(!$this->service->userCredentialsExists($email)) $haveFbAccount = true;
+            else throw new InvalidRequestException([
+                'error_description' => 'User is already registered.', 'error' => 'full_registered'
             ]);
         }
 
@@ -74,9 +77,22 @@ class RegistrationController extends AbstractController
         $passwordEncoder = new MessageDigestPasswordEncoder();
         $encodedPassword = $passwordEncoder->encodePassword($password, $salt);
 
-        $user_id = $this->service->storeUserData($email, $first_name, $last_name, $encodedPassword, $salt);
-        $this->service->storeUserCredentialsData($email, $encodedPassword, $salt);
-        $this->redisService->initializeUserStatistics($user_id, $email);
+        $this->service->startTransaction();
+        try {
+
+            if (!$haveFbAccount) {
+                $user_id = $this->service->storeUserData($email, $first_name, $last_name);
+                $this->redisService->initializeUserStatistics($user_id);
+                $this->redisService->initializeUserIdByEmail($email, $user_id);
+            }
+            $this->service->storeUserCredentialsData($email, $encodedPassword, $salt);
+
+            $this->service->commitTransaction();
+        } catch (\Exception $e) {
+            $this->service->rollbackTransaction();
+            throw $e;
+        }
+
 
         return $this->returnOk();
 
@@ -129,7 +145,7 @@ class RegistrationController extends AbstractController
         $email = $fbUser->getEmail();
 
         if( ($user = $this->service->userExists($email)) ) {
-            if(!empty($user['fb_id'])) return new JsonResponse(array(
+            if( $this->service->userFbAccountExists($user['user_id']) ) return new JsonResponse(array(
                 "username" => $email,
             ), 200);
             else $haveAccount = true;
@@ -140,9 +156,17 @@ class RegistrationController extends AbstractController
             $firstName = $fbUser->getFirstName();
             $lastName = $fbUser->getLastName();
 
-            $newUserId = $this->service->storeUserData($email, $firstName, $lastName);
-            $this->service->storeFacebookData($newUserId, $fbId);
-            $this->redisService->initializeUserStatistics($newUserId, $email);
+            $this->service->startTransaction();
+            try {
+                $newUserId = $this->service->storeUserData($email, $firstName, $lastName);
+                $this->service->storeFacebookData($newUserId, $fbId);
+                $this->service->commitTransaction();
+            } catch (\Exception $e) {
+                $this->service->rollbackTransaction();
+                throw $e;
+            }
+            $this->redisService->initializeUserStatistics($newUserId);
+            $this->redisService->initializeUserIdByEmail($email, $newUserId);
         } else {
             $this->service->storeFacebookData($user['user_id'], $fbId);
         }

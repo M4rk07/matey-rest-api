@@ -346,6 +346,14 @@ CREATE TABLE IF NOT EXISTS oauth2_scope (
 -- --------------------------------------------------------
 
 --
+-- POPULATE table `oauth2_client`
+--
+
+INSERT INTO oauth2_client (app_name) VALUES ('Matey');
+
+-- --------------------------------------------------------
+
+--
 -- POPULATE table `matey_interest`
 --
 

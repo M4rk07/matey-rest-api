@@ -92,7 +92,7 @@ class RedisService
     // --------------------------------------------------------------------
     // INITIALIZING FUNCTIONS
 
-    public function initializeUserStatistics($user_id, $email) {
+    public function initializeUserStatistics($user_id) {
         $this->redis->hmset(self::KEY_USER.":".self::SUBKEY_STATISTICS.":".$user_id, array(
             self::FIELD_NUM_OF_FOLLOWERS => 0,
             self::FIELD_NUM_OF_FOLLOWING => 0,
@@ -101,6 +101,9 @@ class RedisService
             self::FIELD_NUM_OF_RESPONSES => 0,
             self::FIELD_NUM_OF_BEST_RESPONSES => 0
         ));
+    }
+
+    public function initializeUserIdByEmail ($email, $user_id) {
         $this->redis->set(self::KEY_USER.":".self::SUBKEY_USER_ID.":".$email, $user_id);
     }
 

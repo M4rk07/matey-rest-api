@@ -48,16 +48,31 @@ class RegistrationService extends BaseService
 
     public function userExists($email) {
 
-        $result = $this->db->fetchAll("SELECT m_user.user_id, fb_info.fb_id 
-        FROM ".self::T_USER." as m_user
-        LEFT JOIN ".self::T_FACEBOOK_INFO." as fb_info USING(user_id) 
-        WHERE m_user.email = ? LIMIT 1",
+        $result = $this->db->fetchAll("SELECT user_id
+        FROM ".self::T_USER." 
+        WHERE email = ? LIMIT 1",
             array($email));
 
         if(empty($result)) return false;
-
         return $result[0];
+    }
 
+    public function userFbAccountExists ($user_id) {
+
+        $result = $this->db->fetchAll("SELECT fb_id FROM ".self::T_FACEBOOK_INFO." WHERE user_id = ? LIMIT 1",
+            array($user_id));
+
+        if(empty($result)) return false;
+        return true;
+    }
+
+    public function userCredentialsExists($email) {
+
+        $result = $this->db->fetchAll("SELECT password FROM " . self::T_A_USER . " WHERE username = ? LIMIT 1",
+            array($email));
+
+        if(empty($result)) return false;
+        return true;
     }
 
     public function registerDevice($gcm, $deviceSecret) {

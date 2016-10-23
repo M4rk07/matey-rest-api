@@ -44,6 +44,8 @@ class NewsFeedController extends AbstractController
         ]);
 
         $activities_ids = $this->redisService->getIDsFromNewsFeed($user_id, $start, $count);
+        if(empty($activities_ids)) return $this->returnOk();
+
         $activities = $this->service->getActivities($activities_ids, count($activities_ids));
         $finalActivities = array();
 
