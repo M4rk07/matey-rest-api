@@ -52,6 +52,7 @@ class RedisService
         $followers[]['from_user'] = $user_id;
 
         foreach($followers as $follower) {
+            echo "PUSHED: ".$activity_id;
             $this->redis->lpush(self::KEY_USER.":".self::SUBKEY_NEWSFEED.":".$follower['from_user'], $activity_id);
             $this->redis->ltrim(self::KEY_USER.":".self::SUBKEY_NEWSFEED.":".$follower['from_user'], 0, 500);
         }

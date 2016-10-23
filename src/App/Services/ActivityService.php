@@ -14,7 +14,7 @@ class ActivityService extends BaseService
 
     public function createActivity($user_id, $source_id, $activity_type, $parent_id, $parent_type, $srl_data) {
 
-        $this->db->delete(self::T_ACTIVITY, array(
+        $this->db->insert(self::T_ACTIVITY, array(
             'user_id' => $user_id,
             'source_id' => $source_id,
             'activity_type' => $activity_type,
