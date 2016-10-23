@@ -13,6 +13,7 @@ use App\Services\BaseService;
 use App\Services\LoginService;
 use AuthBucket\OAuth2\Controller\OAuth2Controller;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
+use AuthBucket\OAuth2\TokenType\BearerTokenTypeHandler;
 use AuthBucket\OAuth2\Validator\Constraints\Username;
 use GuzzleHttp\Client;
 use Silex\Application;
@@ -77,6 +78,11 @@ class LoginController extends AbstractController
                 'type' => 'numeric'
             ))
         ]);
+
+        $this->service->storeLogoutRecord($deviceId, $user_id);
+        //$this->service->invalidateAccessToken($accessToken);
+
+        return $this->returnOk();
 
     }
 

@@ -34,4 +34,18 @@ class LoginService extends BaseService
 
     }
 
+    public function storeLogoutRecord ($device_id, $user_id) {
+
+        $this->db->executeUpdate("UPDATE " . self::T_LOGIN . " SET status = 0 WHERE device_id = ? AND user_id = ?",
+            array($device_id, $user_id));
+
+    }
+
+    public function invalidateAccessToken($accessToken) {
+
+        $this->db->executeUpdate("UPDATE ".self::T_A_ACCESS_TOKEN." SET expires = NOW() WHERE access_token = ?",
+            array($accessToken));
+
+    }
+
 }
