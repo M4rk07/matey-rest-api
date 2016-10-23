@@ -39,7 +39,7 @@ class SocialExchangeGrantTypeHandler extends AbstractGrantTypeHandler
         }
 
         $response = $this->authenticateSocialUser($request);
-        $response = json_decode($response->getBody());
+        $response = json_decode($response->getContent());
         $username = $response->username;
 
         // Check and set scope.

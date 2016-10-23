@@ -25,7 +25,9 @@ class BearerTokenTypeHandler extends AbstractTokenTypeHandler
 {
     public function getAccessToken(Request $request)
     {
-        $tokenHeaders = $request->headers->get('Authorization', false);
+
+        $tokenHeaders = $request->headers->get('X-Bearer-Authorization', false);
+
         if ($tokenHeaders && preg_match('/Bearer\s*([^\s]+)/', $tokenHeaders, $matches)) {
             $tokenHeaders = $matches[1];
         } else {

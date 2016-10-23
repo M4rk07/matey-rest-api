@@ -47,7 +47,6 @@ class RoutesLoader
     {
         $api = $this->app["controllers_factory"];
 
-        $this->app->post('/test', 'registration.controller:testAuthorization');
         $this->app->post('/register/user', 'registration.controller:registerStandardUserAction');
         $this->app->post('/register/device', 'registration.controller:registerDeviceAction');
         $this->app->post('/authenticate/social', 'registration.controller:authenticateSocialUserAction');
@@ -66,7 +65,7 @@ class RoutesLoader
         $api->post('/post/response/remove', 'post.controller:deleteResponseAction');
         $api->post('/post/response/approve', 'post.controller:approveAction');
 
-        $api->get('/newsfeed/{user_id}', 'newsfeed.controller:getNewsFeedAction');
+        $api->get('/newsfeed', 'newsfeed.controller:getNewsFeedAction');
         $api->post('/newsfeed/activity/share', 'newsfeed.controller:shareActivityAction');
 
         $this->app->mount($this->app["api.endpoint"].'/'.$this->app["api.version"], $api);

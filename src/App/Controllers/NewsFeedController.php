@@ -16,8 +16,9 @@ use Symfony\Component\Validator\Constraints\Type;
 class NewsFeedController extends AbstractController
 {
 
-    public function getNewsFeedAction(Request $request, $user_id) {
+    public function getNewsFeedAction(Request $request) {
 
+        $user_id = $request->get("user_id");
         $start = $request->get("start");
         $count = $request->get("count");
 

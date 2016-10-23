@@ -111,16 +111,9 @@ class ResourceListener implements ListenerInterface
         /*
          * Checking username against token username
          */
-        $username = $request->get('email');
         $tokenUsername = $tokenAuthenticated->getUsername();
-
-        if($username !== $tokenUsername) {
-            throw new InvalidRequestException([
-                'error_description' => 'The request includes an invalid parameter value.',
-            ]);
-        }
         $redisService = new RedisService();
-        $user_id = $redisService->getUserIdByEmail($username);
+        $user_id = $redisService->getUserIdByEmail($tokenUsername);
         $request->request->set("user_id", $user_id);
 
     }
