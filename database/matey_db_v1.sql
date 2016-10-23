@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS matey_device (
   device_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   time_added TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   gcm varchar(500) NOT NULL,
-  device_secret varchar(100),
+  device_secret varchar(100) NOT NULL,
   PRIMARY KEY(device_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -233,11 +233,12 @@ CREATE TABLE IF NOT EXISTS matey_subinterest (
 --
 
 CREATE TABLE IF NOT EXISTS oauth2_user (
+  user_id int(11) NOT NULL,
   username varchar(50) CHARACTER SET utf8 NOT NULL,
   password varchar(128) CHARACTER SET utf8 NOT NULL,
   salt varchar(20) CHARACTER SET utf8 NOT NULL,
-  PRIMARY KEY (username),
-  KEY (username, password, salt),
+  PRIMARY KEY (user_id),
+  UNIQUE KEY (username),
   FOREIGN KEY (username) REFERENCES matey_user(email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

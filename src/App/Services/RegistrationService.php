@@ -25,9 +25,10 @@ class RegistrationService extends BaseService
 
     }
 
-    public function storeUserCredentialsData($email, $encodedPassword, $salt) {
+    public function storeUserCredentialsData($user_id, $email, $encodedPassword, $salt) {
 
         $this->db->insert(self::T_A_USER, array(
+            'user_id' => $user_id,
             'username' => $email,
             'password' => $encodedPassword,
             'salt' => $salt
@@ -47,9 +48,10 @@ class RegistrationService extends BaseService
     }
 
     public function userExists($email) {
-
-        $result = $this->db->fetchAll("SELECT user_id
-        FROM ".self::T_USER." 
+        $result = $this->db->fetchAll("SELECT m_user.user_id, o_user.username, m_f_user.fb_id
+        FROM ".self::T_USER." as m_user
+        LEFT JOIN ".self::T_A_USER." as o_user USING(user_id)
+        LEFT JOIN ".self::T_FACEBOOK_INFO." as m_f_user USING(user_id)
         WHERE email = ? LIMIT 1",
             array($email));
 
@@ -85,14 +87,12 @@ class RegistrationService extends BaseService
     }
 
     public function updateDevice($device_id, $gcm, $old_gcm) {
-
-        $this->db->update(self::T_DEVICE, array(
+        return $this->db->update(self::T_DEVICE, array(
             'gcm' => $gcm
         ), array(
             'device_id' => $device_id,
             'gcm' => $old_gcm
         ));
-        return $this->db->lastInsertId();
     }
 
 }

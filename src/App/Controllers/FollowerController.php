@@ -26,6 +26,7 @@ class FollowerController extends AbstractController
 
         // validate values from request,
         // for user id it must be numeric string
+        if($fromUser == $toUser) throw new InvalidRequestException();
         $this->validate($fromUser, [
             new NotBlank(),
             new Type(array(
