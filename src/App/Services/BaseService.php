@@ -26,6 +26,7 @@ class BaseService
     const T_DEVICE = "matey_device";
     const T_LOGIN = "matey_login";
     const T_BOOKMARK = "matey_bookmark";
+    const T_USER_INFO = "matey_user_info";
 
     // Database authorization table names
     const T_A_USER = "oauth2_user";

@@ -83,19 +83,21 @@ class RegistrationController extends AbstractController
                  * In this case user will have to use another email to register
                  */
 
-            else if(empty($user['username']) && empty($user['fb_id'])) throw new ServerErrorException();
+            else if(!empty($user['username']) && empty($user['fb_id'])) throw new InvalidRequestException([
+                'error' => 'stnd_registered'
+            ]);
                 /*
                  * If this is reached, user is fully registered.
                  * There is facebook account and standard account.
                  */
-            else throw new InvalidRequestException([
-                'error' => 'standard_registered'
+            else if(!empty($user['username']) && !empty($user('fb_id'))) throw new InvalidRequestException([
+                'error' => 'full_registered'
             ]);
+            else throw new ServerErrorException();
         }
 
         // generating random salt
         $salt = (new SaltGenerator())->generateSalt();
-
         // encoding password and salt
         $passwordEncoder = new MessageDigestPasswordEncoder();
         $encodedPassword = $passwordEncoder->encodePassword($password, $salt);
@@ -112,7 +114,6 @@ class RegistrationController extends AbstractController
             // redis statistics and user id by email finding
             $this->redisService->initializeUserStatistics($user_id);
             $this->redisService->initializeUserIdByEmail($email, $user_id);
-
             // storing credentials
             $this->service->storeUserCredentialsData($user_id, $email, $encodedPassword, $salt);
 
@@ -228,7 +229,7 @@ class RegistrationController extends AbstractController
                  * In this case asking for merge.
                  */
             else if(empty($user['fb_id']) && !empty($user['username'])) throw new InvalidRequestException([
-                'error' => 'standard_registered'
+                'error' => 'stnd_registered'
             ]);
                 /*
                  * If there is not facebook id nor username, there is some server error.
@@ -242,6 +243,7 @@ class RegistrationController extends AbstractController
         $fbId = $fbUser->getId();
         $firstName = $fbUser->getFirstName();
         $lastName = $fbUser->getLastName();
+        $profilePicture = $fbUser->getPicture();
 
         /*
          * Starting transaction.
@@ -251,10 +253,11 @@ class RegistrationController extends AbstractController
             /*
              * Storing user and facebook data in database.
              */
-            $newUserId = $this->service->storeUserData($email, $firstName, $lastName);
+            $newUserId = $this->service->storeUserData($email, $firstName, $lastName, $profilePicture);
+            $this->service->storeFacebookData($newUserId, $fbId);
             $this->redisService->initializeUserStatistics($newUserId);
             $this->redisService->initializeUserIdByEmail($email, $newUserId);
-            $this->service->storeFacebookData($newUserId, $fbId);
+
             $this->service->commitTransaction();
         } catch (\Exception $e) {
             $this->service->rollbackTransaction();

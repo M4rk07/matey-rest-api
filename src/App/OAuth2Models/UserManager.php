@@ -26,17 +26,6 @@ class UserManager extends BaseService implements UserProviderInterface
 
     }
 
-    // RETURNS ASSOC ARRAY WITH USER ATRIBUTES
-    public function loadUserIdByUsername($username) {
-        $user = $this->db->fetchAll(
-            "SELECT user_id 
-            FROM ".self::T_USER."
-            WHERE email = ? LIMIT 1",
-            array($username)
-        );
-        return $user[0];
-    }
-
     public function loadUserByUsername($username)
     {
         $all = $this->db->fetchAll(

@@ -28,6 +28,7 @@ class RedisService
     const SUBKEY_BOOKMARKS = "bookmarks";
     const SUBKEY_USER_ID = "user-id";
     const SUBKEY_FOLLOWERS = "following";
+    const SUBKEY_LOGIN_GCMS = "login-gcms";
 
     const FIELD_NUM_OF_POSTS = "num_of_posts";
     const FIELD_NUM_OF_RESPONSES = "num_of_responses";
@@ -43,6 +44,18 @@ class RedisService
         $this->redis = new Client(array(
             "persistent" => "1"
         ));
+    }
+
+    public function startRedisTransaction() {
+        $this->redis->multi();
+    }
+
+    public function commitRedisTransaction() {
+        $this->redis->exec();
+    }
+
+    public function rollbackRedisTransaction() {
+        $this->redis->discard();
     }
 
     // --------------------------------------------------------------------
@@ -86,6 +99,10 @@ class RedisService
 
     public function pushNewFollowing ($user_id, $followed_user_id) {
         $this->redis->sadd(self::KEY_USER.":".self::SUBKEY_FOLLOWERS.":".$user_id, $followed_user_id);
+    }
+
+    public function pushNewLoginGcm ($user_id, $gcm) {
+        $this->redis->sadd(self::KEY_USER.":".self::SUBKEY_LOGIN_GCMS.":".$user_id, $gcm);
     }
 
     // --------------------------------------------------------------------
@@ -160,6 +177,10 @@ class RedisService
 
     public function deleteFollowing ($user_id, $followed_user_id) {
         $this->redis->srem(self::KEY_USER.":".self::SUBKEY_FOLLOWERS.":".$user_id, $followed_user_id);
+    }
+
+    public function deleteLoginGcm ($user_id, $gcm) {
+        $this->redis->srem(self::KEY_USER.":".self::SUBKEY_LOGIN_GCMS.":".$user_id, $gcm);
     }
 
     // --------------------------------------------------------------------

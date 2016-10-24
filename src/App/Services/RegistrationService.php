@@ -11,37 +11,33 @@ namespace App\Services;
 class RegistrationService extends BaseService
 {
 
-    public function storeUserData($email, $first_name, $last_name) {
+    public function storeUserData($email, $first_name, $last_name, $profilePicture = null) {
 
-        $this->db->insert(self::T_USER, array(
-            'email' => $email,
-            'first_name' => $first_name,
-            'last_name' => $last_name
-        ));
-
-        $this->db->lastInsertId();
+        $this->db->executeUpdate("INSERT INTO ".self::T_USER." (email, first_name, last_name, profile_picture) VALUES (?,?,?,?)",
+            array($email, $first_name, $last_name, $profilePicture));
 
         return $this->db->lastInsertId();
 
     }
 
+    public function storeUserInfo($birthday = null, $gender = null, $hometown = null) {
+
+        $this->db->executeUpdate("INSERT INTO ".self::T_USER_INFO." (birthday, gender, hometown) VALUES (?,?,?)",
+            array($birthday, $gender, $hometown));
+
+    }
+
     public function storeUserCredentialsData($user_id, $email, $encodedPassword, $salt) {
 
-        $this->db->insert(self::T_A_USER, array(
-            'user_id' => $user_id,
-            'username' => $email,
-            'password' => $encodedPassword,
-            'salt' => $salt
-        ));
+        $this->db->executeUpdate("INSERT INTO ".self::T_A_USER." (user_id, username, password, salt) VALUES (?,?,?,?)",
+            array($user_id, $email, $encodedPassword, $salt));
 
     }
 
     public function storeFacebookData($newUserId, $fbId) {
 
-        $this->db->insert(self::T_FACEBOOK_INFO, array(
-            'user_id' => $newUserId,
-            'fb_id' => $fbId
-        ));
+        $this->db->executeUpdate("INSERT INTO ".self::T_FACEBOOK_INFO." (user_id, fb_id) VALUES (?,?)",
+            array($newUserId, $fbId));
 
         return $this->db->lastInsertId();
 
@@ -79,20 +75,17 @@ class RegistrationService extends BaseService
 
     public function registerDevice($gcm, $deviceSecret) {
 
-        $this->db->insert(self::T_DEVICE, array(
-            'gcm' => $gcm,
-            'device_secret' => $deviceSecret
-        ));
+        $this->db->executeUpdate("INSERT INTO ".self::T_DEVICE." (gcm, device_secret) VALUES (?,?)",
+            array($gcm, $deviceSecret));
+
         return $this->db->lastInsertId();
     }
 
     public function updateDevice($device_id, $gcm, $old_gcm) {
-        return $this->db->update(self::T_DEVICE, array(
-            'gcm' => $gcm
-        ), array(
-            'device_id' => $device_id,
-            'gcm' => $old_gcm
-        ));
+
+        return $this->db->executeUpdate("UPDATE ".self::T_DEVICE." SET gcm = ? WHERE device_id = ? AND gcm = ?",
+            array($gcm, $device_id, $old_gcm));
+
     }
 
 }

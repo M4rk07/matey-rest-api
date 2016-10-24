@@ -12,9 +12,11 @@
 namespace AuthBucket\OAuth2\Security\Firewall;
 
 use App\OAuth2Models\UserManager;
+use App\Services\BackupService;
 use App\Services\Redis\RedisService;
 use AuthBucket\OAuth2\Exception\ExceptionInterface;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
+use AuthBucket\OAuth2\Exception\ServerErrorException;
 use AuthBucket\OAuth2\Security\Authentication\Token\AccessTokenToken;
 use AuthBucket\OAuth2\TokenType\TokenTypeHandlerFactoryInterface;
 use AuthBucket\OAuth2\Validator\Constraints\AccessToken;
@@ -113,14 +115,37 @@ class ResourceListener implements ListenerInterface
          * Checking username against token username
          */
         $tokenUsername = $tokenAuthenticated->getUsername();
+        /*
+         * Fetching user id from redis storage
+         */
         $redisService = new RedisService();
         $user_id = $redisService->getUserIdByEmail($tokenUsername);
+        /*
+         * If redis isn't available, trying backup system - from MySQL database
+         */
         if(empty($user_id)) {
-            $userManager = new UserManager();
+            $userManager = new BackupService();
             $user = $userManager->loadUserIdByUsername($tokenUsername);
+            /*
+             * If there is nothing in database, throw server error
+             */
+            if(empty($user['user_id'])) throw new ServerErrorException();
+            // Set user id
             $user_id = $user['user_id'];
-            $redisService->initializeUserIdByEmail($tokenUsername, $user_id);
+            /*
+             * Try to push to redis storage now
+             */
+            try {
+                $redisService->initializeUserIdByEmail($tokenUsername, $user_id);
+            } catch (\Exception $e) {
+                /*
+                 * Redis couldn't store it, ok never mind
+                 */
+            }
         }
+        /*
+         * Push user id to request
+         */
         $request->request->set("user_id", $user_id);
 
     }

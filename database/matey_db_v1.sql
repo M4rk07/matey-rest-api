@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS matey_user (
   is_active tinyint(1) UNSIGNED NOT NULL DEFAULT 1,
   first_name varchar(50) CHARACTER SET utf8 NOT NULL,
   last_name varchar(50) CHARACTER SET utf8 NOT NULL,
-  profile_picture VARCHAR(1000) NOT NULL DEFAULT 'http://image.flaticon.com/icons/png/128/149/149071.png',
+  profile_picture VARCHAR(1000) NULL,
   PRIMARY KEY(user_id),
   UNIQUE KEY (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS matey_login (
   device_id int(11) UNSIGNED NOT NULL,
   time_logged TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   status int(11) NOT NULL DEFAULT 1,
+  gcm varchar(500) NOT NULL,
   PRIMARY KEY (device_id),
   FOREIGN KEY(user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY(device_id) REFERENCES matey_device(device_id)
@@ -226,6 +227,19 @@ CREATE TABLE IF NOT EXISTS matey_subinterest (
   subinterest varchar(50) NOT NULL,
   PRIMARY KEY (subinterest_id),
   FOREIGN KEY(interest_id) REFERENCES matey_interest(interest_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_user_info`
+--
+
+CREATE TABLE IF NOT EXISTS matey_user_interest (
+  user_id int(11) UNSIGNED NOT NULL,
+  interest_id int(11) UNSIGNED NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
+  FOREIGN KEY (interest_id) REFERENCES matey_interest(interest_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------

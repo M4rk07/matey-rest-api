@@ -53,6 +53,7 @@ class RoutesLoader
 
         // API ROUTES
         $api->post('/login', 'login.controller:loginAction');
+        $api->post('/logout', 'login.controller:logoutAction');
 
         // for "action" valid values are:
         // - follow

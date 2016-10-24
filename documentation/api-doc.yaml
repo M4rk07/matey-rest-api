@@ -1,237 +1,303 @@
-# Example YAML to get you started quickly.
-# Be aware that YAML has indentation based scoping.
-# Code completion support is available so start typing for available options.
-swagger: '2.0'
-info:
-  title: Matey Resource API
-  description: Resource API for Android application Matey.
-  version: "1.0"
-# the domain of the service
-host: api.uber.com
-# array of all schemes that your API supports
-schemes:
-  - http
-# will be prefixed to all paths
-produces:
-  - application/json
-
-# Describe your paths here
-paths:
-  # This is a path endpoint. Change it.
-  /register/user:
-    # This is a HTTP operation
-    post:
-      # Describe this verb here. Note: you can use markdown
-      description: |
-        Endpoint for user registration.
-      # This is array of GET operation parameters:
-      parameters:
-        # An example parameter that is in query and is required
-        - name: email
-          in: formData
-          description: User's email.
-          required: true
-          type: string
-        - name: password
-          in: formData
-          description: User's password. Must be at least 5 characters long.
-          required: true
-          type: string
-        - name: first_name
-          in: formData
-          description: User's first name.
-          required: true
-          type: string
-        - name: last_name
-          in: formData
-          description: User's last name.
-          required: true
-          type: string
-      responses:
-        200:
-          description: Successful registration.
-  /register/device:
-    post:
-      description: Endpoint for device registration.
-      parameters:
-        - name: gcm
-          in: formData
-          description: Device GCM key.
-          required: true
-          type: string
-      responses:
-        200:
-          description: Object with device id information.
-          schema:
-            items:
-              $ref: '#/definitions/Device'
-  /api/v1/login:
-    post:
-      description: Endpoint for user login with access token and device id.
-      parameters:
-        - name: email
-          in: formData
-          description: User's email.
-          required: true
-          type: string
-        - name: device_id
-          in: formData
-          description: Device id user is trying to log in.
-          required: true
-          type: integer
-      responses:
-        200:
-          description: Object with user information.
-          schema:
-            items:
-              $ref: '#/definitions/User'
-  /api/v1/follower/ACTION:
-    post:
-      description: Endpoint for following new user.
-      parameters:
-        - name: user_id
-          in: formData
-          description: ID of user following.
-          required: true
-          type: integer
-        - name: to_user
-          in: formData
-          description: ID of user that have been followed.
-          required: true
-          type: integer
-      responses:
-        200:
-          description: OK.
-  /api/v1/post/add:
-    post:
-      description: Endpoint for posting.
-      parameters:
-        - name: user_id
-          in: formData
-          description: ID of user requesting.
-          required: true
-          type: integer
-        - name: interest_id
-          in: formData
-          description: ID of interest.
-          required: true
-          type: integer
-        - name: text
-          in: formData
-          description: Text of the post.
-          required: true
-          type: string
-      responses:
-        200:
-          description: OK.
-          schema:
-            items:
-              $ref: '#/definitions/PostId'
-  /api/v1/post/remove:
-    post:
-      description: Endpoint for removing post.
-      parameters:
-        - name: user_id
-          in: formData
-          description: ID of user requesting.
-          required: true
-          type: integer
-        - name: post_id
-          in: formData
-          description: ID of the post.
-          required: true
-          type: string
-      responses:
-        200:
-          description: OK.
-  /api/v1/post/response/add:
-    post:
-      description: Endpoint for removing post.
-      parameters:
-        - name: user_id
-          in: formData
-          description: ID of user requesting.
-          required: true
-          type: integer
-        - name: post_id
-          in: formData
-          description: ID of the post.
-          required: true
-          type: string
-        - name: text
-          in: formData
-          description: Text of the post.
-          required: true
-          type: string
-      responses:
-        200:
-          description: OK.
-          schema:
-            items:
-              $ref: '#/definitions/ResponseId'
-  /api/v1/post/response/remove:
-    post:
-      description: Endpoint for removing post.
-      parameters:
-        - name: user_id
-          in: formData
-          description: ID of user requesting.
-          required: true
-          type: integer
-        - name: post_id
-          in: formData
-          description: ID of the post.
-          required: true
-          type: string
-        - name: response_id
-          in: formData
-          description: ID of the post.
-          required: true
-          type: string
-      responses:
-        200:
-          description: OK.
-  /api/v1/post/response/approve:
-    post:
-      description: Endpoint for removing post.
-      parameters:
-        - name: user_id
-          in: formData
-          description: ID of user requesting.
-          required: true
-          type: integer
-        - name: response_id
-          in: formData
-          description: ID of the response.
-          required: true
-          type: string
-      responses:
-        200:
-          description: OK.
-definitions:
-  Device:
-    type: object
-    properties:
-      device_id:
-        type: string
-  User:
-    type: object
-    properties:
-      user_id:
-        type: integer
-      first_name:
-        type: string
-      last_name:
-        type: string
-      birth_year:
-        type: integer
-  PostId:
-    type: object
-    properties:
-      post_id:
-        type: string
-  ResponseId:
-    type: object
-    properties:
-      response_id:
-        type: string
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Matey Resource API",
+        "description": "Resource API for Android application Matey.",
+        "version": "1.0"
+    },
+    "host": "api.uber.com",
+    "schemes": [
+        "http"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/register/user": {
+            "post": {
+                "description": "Endpoint for user registration.\n",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "formData",
+                        "description": "User's email.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "password",
+                        "in": "formData",
+                        "description": "User's password. Must be at least 5 characters long.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "first_name",
+                        "in": "formData",
+                        "description": "User's first name.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "last_name",
+                        "in": "formData",
+                        "description": "User's last name.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful registration."
+                    }
+                }
+            }
+        },
+        "/register/device": {
+            "post": {
+                "description": "Endpoint for device registration.",
+                "parameters": [
+                    {
+                        "name": "gcm",
+                        "in": "formData",
+                        "description": "Device GCM key.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Object with device id information.",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/Device"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/login": {
+            "post": {
+                "description": "Endpoint for user login with access token and device id.",
+                "parameters": [
+                    {
+                        "name": "device_id",
+                        "in": "formData",
+                        "description": "Device id user is trying to log in.",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Object with user information.",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/User"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/follower/ACTION": {
+            "post": {
+                "description": "Endpoint for following new user. ACTION can be \"follow\" or \"unfollow\".",
+                "parameters": [
+                    {
+                        "name": "to_user",
+                        "in": "formData",
+                        "description": "ID of user that have been followed or removing follow.",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK."
+                    }
+                }
+            }
+        },
+        "/api/v1/post/add": {
+            "post": {
+                "description": "Endpoint for posting.",
+                "parameters": [
+                    {
+                        "name": "interest_id",
+                        "in": "formData",
+                        "description": "ID of interest.",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "text",
+                        "in": "formData",
+                        "description": "Text of the post.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK.",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/PostId"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/post/remove": {
+            "post": {
+                "description": "Endpoint for removing post.",
+                "parameters": [
+                    {
+                        "name": "post_id",
+                        "in": "formData",
+                        "description": "ID of the post.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK."
+                    }
+                }
+            }
+        },
+        "/api/v1/post/response/add": {
+            "post": {
+                "description": "Endpoint for removing post.",
+                "parameters": [
+                    {
+                        "name": "post_id",
+                        "in": "formData",
+                        "description": "ID of the post.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "text",
+                        "in": "formData",
+                        "description": "Text of the post.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK.",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/ResponseId"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/post/response/remove": {
+            "post": {
+                "description": "Endpoint for removing post.",
+                "parameters": [
+                    {
+                        "name": "post_id",
+                        "in": "formData",
+                        "description": "ID of the post.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "response_id",
+                        "in": "formData",
+                        "description": "ID of the response.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK."
+                    }
+                }
+            }
+        },
+        "/api/v1/post/response/approve": {
+            "post": {
+                "description": "Endpoint for approving response.",
+                "parameters": [
+                    {
+                        "name": "response_id",
+                        "in": "formData",
+                        "description": "ID of the response.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK."
+                    }
+                }
+            }
+        },
+        "/api/v1/newsfeed": {
+            "post": {
+                "description": "Endpoint for fetching news feed.",
+                "responses": {
+                    "200": {
+                        "description": "OK."
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Device": {
+            "type": "object",
+            "properties": {
+                "device_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "User": {
+            "type": "object",
+            "properties": {
+                "user_id": {
+                    "type": "integer"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "birth_year": {
+                    "type": "integer"
+                }
+            }
+        },
+        "PostId": {
+            "type": "object",
+            "properties": {
+                "post_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "ResponseId": {
+            "type": "object",
+            "properties": {
+                "response_id": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

@@ -13,6 +13,7 @@ use App\Services\BaseService;
 use App\Services\LoginService;
 use AuthBucket\OAuth2\Controller\OAuth2Controller;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
+use AuthBucket\OAuth2\Exception\ServerErrorException;
 use AuthBucket\OAuth2\TokenType\BearerTokenTypeHandler;
 use AuthBucket\OAuth2\Validator\Constraints\Username;
 use GuzzleHttp\Client;
@@ -47,9 +48,11 @@ class LoginController extends AbstractController
             ))
         ]);
 
+        $gcm = $this->service->getDeviceGcm($deviceId);
         // store user login information
         // on which device he is logging in
-        $userData = $this->service->storeLoginRecord($deviceId, $user_id);
+        $userData = $this->service->storeLoginRecord($deviceId, $user_id, $gcm);
+        $this->redisService->pushNewLoginGcm($userData['user_id'], $gcm);
 
         return JsonResponse::create($userData, 200, [
             'Cache-Control' => 'no-store',
@@ -79,8 +82,16 @@ class LoginController extends AbstractController
             ))
         ]);
 
-        $this->service->storeLogoutRecord($deviceId, $user_id);
-        //$this->service->invalidateAccessToken($accessToken);
+        $this->service->startTransaction();
+        try {
+            $gcm = $this->service->getDeviceGcm($deviceId);
+            $this->service->storeLogoutRecord($deviceId, $user_id);
+            $this->redisService->deleteLoginGcm($user_id, $gcm);
+            $this->service->commitTransaction();
+        } catch (\Exception $e) {
+            $this->service->rollbackTransaction();
+            throw new ServerErrorException();
+        }
 
         return $this->returnOk();
 

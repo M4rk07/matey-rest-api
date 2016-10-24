@@ -9,6 +9,8 @@
 namespace App\Controllers;
 
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
+use AuthBucket\OAuth2\Exception\ServerErrorException;
+use Mockery\CountValidator\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -26,7 +28,6 @@ class FollowerController extends AbstractController
 
         // validate values from request,
         // for user id it must be numeric string
-        if(strcasecmp($fromUser, $toUser) == 0) throw new InvalidRequestException();
         $this->validate($fromUser, [
             new NotBlank(),
             new Type(array(
@@ -42,6 +43,8 @@ class FollowerController extends AbstractController
             ))
         ]);
 
+        if(strcasecmp($fromUser, $toUser) == 0) throw new InvalidRequestException();
+
         if($action == "follow") $this->follow($fromUser,$toUser);
         else if ($action == "unfollow") $this->unfollow($fromUser, $toUser);
         else throw new InvalidRequestException([
@@ -55,7 +58,7 @@ class FollowerController extends AbstractController
     public function follow ($fromUser, $toUser) {
         // create follow in database
         $this->service->createFollow($fromUser, $toUser);
-        // store follow in redis
+            // store follow in redis
         $this->redisService->incrUserNumOfFollowers($toUser, 1);
         $this->redisService->incrUserNumOfFollowing($fromUser, 1);
         $this->redisService->pushNewFollowing($fromUser, $toUser);
@@ -63,7 +66,8 @@ class FollowerController extends AbstractController
          * Push just followed user activities to following user newsfeed
          */
         $followedUserActivities = $this->service->getActivityIdsByUser($toUser, 10);
-        $this->redisService->pushActivitiesToOneFeed($followedUserActivities, $fromUser);
+        if(!empty($followedUserActivities))
+            $this->redisService->pushActivitiesToOneFeed($followedUserActivities, $fromUser);
 
     }
 
