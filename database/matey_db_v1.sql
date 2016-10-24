@@ -194,7 +194,7 @@ CREATE TABLE IF NOT EXISTS matey_activity (
   parent_id int(11) UNSIGNED NOT NULL,
   parent_type varchar(50) NOT NULL,
   activity_type varchar(50) NOT NULL,
-  date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  activity_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   srl_data blob NOT NULL,
   PRIMARY KEY (activity_id),
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id),

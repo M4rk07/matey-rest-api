@@ -47,8 +47,10 @@ class PostController extends AbstractController
                 "text" => $text
             )
         );
+
+        $time = $this->returnTime();
         $activity_id = $this->service->createActivity($user_id, $post_id, BaseService::TYPE_POST, $interest_id, BaseService::TYPE_INTEREST, $srl_data);
-        $this->redisService->pushToNewsFeeds($activity_id, $user_id);
+        $this->redisService->pushToNewsFeeds($activity_id, $time, $user_id);
         $this->redisService->incrUserNumOfPosts($user_id, 1);
         $this->redisService->initializePostStatistics($post_id);
 

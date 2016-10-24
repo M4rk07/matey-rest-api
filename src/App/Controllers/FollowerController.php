@@ -26,7 +26,7 @@ class FollowerController extends AbstractController
 
         // validate values from request,
         // for user id it must be numeric string
-        if($fromUser == $toUser) throw new InvalidRequestException();
+        if(strcasecmp($fromUser, $toUser) == 0) throw new InvalidRequestException();
         $this->validate($fromUser, [
             new NotBlank(),
             new Type(array(
@@ -58,6 +58,13 @@ class FollowerController extends AbstractController
         // store follow in redis
         $this->redisService->incrUserNumOfFollowers($toUser, 1);
         $this->redisService->incrUserNumOfFollowing($fromUser, 1);
+        $this->redisService->pushNewFollowing($fromUser, $toUser);
+        /*
+         * Push just followed user activities to following user newsfeed
+         */
+        $followedUserActivities = $this->service->getActivityIdsByUser($toUser, 10);
+        $this->redisService->pushActivitiesToOneFeed($followedUserActivities, $fromUser);
+
     }
 
     public function unfollow ($fromUser, $toUser) {
@@ -66,6 +73,7 @@ class FollowerController extends AbstractController
         // remove follow in redis
         $this->redisService->incrUserNumOfFollowers($toUser, -1);
         $this->redisService->incrUserNumOfFollowing($fromUser, -1);
+        $this->redisService->deleteFollowing($fromUser, $toUser);
     }
 
 }

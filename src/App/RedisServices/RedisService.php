@@ -1,5 +1,6 @@
 <?php
 namespace App\Services\Redis;
+use App\Algos\Algo;
 use App\Services\FollowerService;
 use Predis\Client;
 
@@ -26,6 +27,7 @@ class RedisService
     const SUBKEY_LAST_RESPONSES = "last-responses";
     const SUBKEY_BOOKMARKS = "bookmarks";
     const SUBKEY_USER_ID = "user-id";
+    const SUBKEY_FOLLOWERS = "following";
 
     const FIELD_NUM_OF_POSTS = "num_of_posts";
     const FIELD_NUM_OF_RESPONSES = "num_of_responses";
@@ -46,16 +48,31 @@ class RedisService
     // --------------------------------------------------------------------
     // PUSHING FUNCTIONS
 
-    public function pushToNewsFeeds ($activity_id, $user_id, $check_id = null) {
+    public function pushToNewsFeeds ($activity_id, $activity_time, $user_id) {
         $followerManager = new FollowerService();
         $followers = $followerManager->returnFollowers($user_id);
         $followers[]['from_user'] = $user_id;
 
         foreach($followers as $follower) {
-            echo "PUSHED: ".$activity_id;
-            $this->redis->lpush(self::KEY_USER.":".self::SUBKEY_NEWSFEED.":".$follower['from_user'], $activity_id);
-            $this->redis->ltrim(self::KEY_USER.":".self::SUBKEY_NEWSFEED.":".$follower['from_user'], 0, 500);
+            $this->pushToFeed($activity_id, $activity_time, $follower['from_user']);
         }
+    }
+
+    public function pushActivitiesToOneFeed($activities, $user_id) {
+
+        foreach($activities as $activity) {
+            $this->pushToFeed($activity['activity_id'], $activity['activity_time'], $user_id);
+        }
+
+    }
+
+    public function pushToFeed($activity_id, $activity_time, $user_id) {
+        $algo = new Algo();
+        $score = $algo->calculateActivityTimeScore($activity_time);
+        $this->redis->zadd(self::KEY_USER.":".self::SUBKEY_NEWSFEED.":".$user_id, array(
+            $activity_id => $score
+        ));
+        $this->redis->zremrangebyrank(self::KEY_USER.":".self::SUBKEY_NEWSFEED.":".$user_id, 0, -301);
     }
 
     public function pushLastResponseToPost ($post_id, $user_id) {
@@ -67,11 +84,15 @@ class RedisService
         $this->redis->sadd(self::KEY_POST.":".self::SUBKEY_BOOKMARKS.":".$post_id, $user_id);
     }
 
+    public function pushNewFollowing ($user_id, $followed_user_id) {
+        $this->redis->sadd(self::KEY_USER.":".self::SUBKEY_FOLLOWERS.":".$user_id, $followed_user_id);
+    }
+
     // --------------------------------------------------------------------
     // GETTERS FUNCTIONS
 
     public function getIDsFromNewsFeed ($user_id, $start, $count) {
-        return $this->redis->lrange(self::KEY_USER.":".self::SUBKEY_NEWSFEED.":".$user_id, $start, $start+$count);
+        return $this->redis->zrevrange(self::KEY_USER.":".self::SUBKEY_NEWSFEED.":".$user_id, $start, $start+$count);
     }
 
     public function getLastUsersRespond($post_id) {
@@ -135,6 +156,10 @@ class RedisService
         $this->redis->hdel(self::KEY_RESPONSE.":".self::SUBKEY_STATISTICS.":".$response_id, array(
             self::FIELD_NUM_OF_APPROVES
         ));
+    }
+
+    public function deleteFollowing ($user_id, $followed_user_id) {
+        $this->redis->srem(self::KEY_USER.":".self::SUBKEY_FOLLOWERS.":".$user_id, $followed_user_id);
     }
 
     // --------------------------------------------------------------------

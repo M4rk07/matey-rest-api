@@ -37,6 +37,7 @@
 			"App": "src/"
 		},
 		"psr-4": {
+			"App\\": "src",
 			"App\\Validators\\": "src/App/Validator/Constraints",
 			"App\\Services\\Redis\\": "src/App/RedisServices",
 			"AuthBucket\\OAuth2\\": "authbucket/oauth2-php"

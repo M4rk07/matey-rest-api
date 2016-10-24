@@ -62,6 +62,11 @@ abstract class AbstractController
 
     }
 
+    public function returnTime() {
+        $time = new \DateTime();
+        return $time->format('Y-m-d H:i:s');
+    }
+
     public function returnNotOk ($message = null) {
 
         throw new InvalidRequestException([

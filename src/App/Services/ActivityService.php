@@ -58,4 +58,11 @@ class ActivityService extends BaseService
 
     }
 
+    public function getActivityIdsByUser ($user_id, $limit) {
+
+        return $this->fetchAll("SELECT activity_id, date_added FROM ".self::T_ACTIVITY." WHERE user_id = ? LIMIT ".$limit,
+            array($user_id));
+
+    }
+
 }

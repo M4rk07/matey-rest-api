@@ -11,6 +11,7 @@
 
 namespace AuthBucket\OAuth2\Security\Firewall;
 
+use App\OAuth2Models\UserManager;
 use App\Services\Redis\RedisService;
 use AuthBucket\OAuth2\Exception\ExceptionInterface;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
@@ -114,6 +115,12 @@ class ResourceListener implements ListenerInterface
         $tokenUsername = $tokenAuthenticated->getUsername();
         $redisService = new RedisService();
         $user_id = $redisService->getUserIdByEmail($tokenUsername);
+        if(empty($user_id)) {
+            $userManager = new UserManager();
+            $user = $userManager->loadUserIdByUsername($tokenUsername);
+            $user_id = $user['user_id'];
+            $redisService->initializeUserIdByEmail($tokenUsername, $user_id);
+        }
         $request->request->set("user_id", $user_id);
 
     }
