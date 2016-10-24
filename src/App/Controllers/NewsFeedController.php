@@ -82,30 +82,4 @@ class NewsFeedController extends AbstractController
 
     }
 
-    public function shareActivityAction(Request $request) {
-
-        $user_id = $request->request->get('user_id');
-        $activity_id = $request->request->get('activity_id');
-
-        $this->validate($user_id, [
-            new NotBlank(),
-            new Type(array(
-                'message' => 'This is not a valid user_id.',
-                'type' => 'numeric'
-            ))
-        ]);
-        $this->validate($activity_id, [
-            new NotBlank()
-        ]);
-
-        $activity = $this->service->getActivityOne($activity_id);
-        if(empty($activity)) $this->returnNotOk("Requested resource doesn't exist.");
-        $this->service->createActivity($user_id, $activity['source_id'], BaseService::TYPE_SHARE, $activity['parent_id'], $activity['parent_type'], $activity['srl_data']);
-
-        $this->redisService->pushToNewsFeeds($activity_id, $user_id);
-
-        $this->returnOk();
-
-    }
-
 }

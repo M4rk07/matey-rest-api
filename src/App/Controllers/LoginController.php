@@ -51,8 +51,13 @@ class LoginController extends AbstractController
         $gcm = $this->service->getDeviceGcm($deviceId);
         // store user login information
         // on which device he is logging in
-        $userData = $this->service->storeLoginRecord($deviceId, $user_id, $gcm);
-        $this->redisService->pushNewLoginGcm($userData['user_id'], $gcm);
+        try {
+            $userData = $this->service->storeLoginRecord($deviceId, $user_id, $gcm);
+            $this->redisService->pushNewLoginGcm($userData['user_id'], $gcm);
+        } catch (\Exception $e) {
+            $this->service->rollbackTransaction();
+            throw new ServerErrorException();
+        }
 
         return JsonResponse::create($userData, 200, [
             'Cache-Control' => 'no-store',
@@ -82,9 +87,9 @@ class LoginController extends AbstractController
             ))
         ]);
 
+        $gcm = $this->service->getDeviceGcm($deviceId);
         $this->service->startTransaction();
         try {
-            $gcm = $this->service->getDeviceGcm($deviceId);
             $this->service->storeLogoutRecord($deviceId, $user_id);
             $this->redisService->deleteLoginGcm($user_id, $gcm);
             $this->service->commitTransaction();

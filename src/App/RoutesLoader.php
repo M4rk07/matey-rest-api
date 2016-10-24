@@ -67,7 +67,6 @@ class RoutesLoader
         $api->post('/post/response/approve', 'post.controller:approveAction');
 
         $api->get('/newsfeed', 'newsfeed.controller:getNewsFeedAction');
-        $api->post('/newsfeed/activity/share', 'newsfeed.controller:shareActivityAction');
 
         $this->app->mount($this->app["api.endpoint"].'/'.$this->app["api.version"], $api);
     }

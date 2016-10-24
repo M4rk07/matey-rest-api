@@ -25,7 +25,7 @@ class LoginService extends BaseService
         }
 
         $this->db->executeUpdate("INSERT INTO " . self::T_LOGIN . " (user_id, device_id, gcm) VALUES (?, ?, ?) 
-        ON DUPLICATE KEY UPDATE user_id = ?, status = 1, time_logged = NOW(), gcm = ?",
+        ON DUPLICATE KEY UPDATE user_id = ?, status = 1, time_logged = NOW(), gcm = ? WHERE status = 0",
             array($user_id, $deviceId, $gcm, $user_id, $gcm));
 
         $userData = $userData[0];
