@@ -60,9 +60,16 @@ class ActivityService extends BaseService
 
     public function getActivityIdsByUser ($user_id, $limit) {
 
-        return $this->fetchAll("SELECT activity_id, date_added FROM ".self::T_ACTIVITY." WHERE user_id = ? LIMIT ".$limit,
+        return $this->db->fetchAll("SELECT activity_id, activity_time FROM ".self::T_ACTIVITY." WHERE user_id = ? ORDER BY activity_id DESC LIMIT ".$limit,
             array($user_id));
 
+    }
+
+    public function getUserRespondDataForActivity($user_id) {
+        $result = $this->db->fetchAll("SELECT profile_picture FROM ".self::T_USER." WHERE user_id = ? LIMIT 1",
+            array($user_id));
+
+        return $result[0];
     }
 
 }

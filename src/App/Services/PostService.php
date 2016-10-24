@@ -40,10 +40,9 @@ class PostService extends ActivityService
 
     }
 
-    public function createResponse($response_id, $user_id, $post_id, $text) {
+    public function createResponse($user_id, $post_id, $text) {
 
         $this->db->insert(self::T_RESPONSE, array(
-            'response_id' => $response_id,
             'user_id' => $user_id,
             'post_id' => $post_id,
             'text' => $text

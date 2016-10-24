@@ -32,7 +32,7 @@ class FollowerService extends ActivityService
 
     public function returnFollowers ($ofUser) {
 
-        return $this->db->fetchAll("SELECT flw.from_user FROM ".self::T_FOLLOWER." as flw WHERE to_user = ?",
+        return $this->db->fetchAll("SELECT flw.from_user FROM ".self::T_FOLLOWER." as flw WHERE flw.to_user = ?",
             array($ofUser));
 
     }

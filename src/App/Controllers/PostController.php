@@ -131,8 +131,9 @@ class PostController extends AbstractController
                 "text" => $text
             )
         );
+        $time = $this->returnTime();
         $activity_id = $this->service->createActivity($user_id, $response_id, BaseService::TYPE_RESPONSE, $post_id, BaseService::TYPE_POST, $srl_data);
-        $this->redisService->pushToNewsFeeds($activity_id, $user_id);
+        $this->redisService->pushToNewsFeeds($activity_id, $time, $user_id);
         $this->redisService->initializeResponseStatistics($response_id);
         $this->redisService->incrPostNumOfResponses($post_id, 1);
         $this->redisService->incrUserNumOfResponses($user_id, 1);

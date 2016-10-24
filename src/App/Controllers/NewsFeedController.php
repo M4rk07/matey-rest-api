@@ -66,7 +66,11 @@ class NewsFeedController extends AbstractController
         if($activity['activity_type'] == BaseService::TYPE_POST) {
 
             $activity['data']['statistics'] = $this->redisService->getPostStatistics($activity['source_id']);
-            $activity['data']['last_users_respond'] = $this->redisService->getLastUsersRespond($activity['source_id']);
+            $users_respond = $this->redisService->getLastUsersRespond($activity['source_id']);
+            $activity['data']['last_users_respond'] = array();
+            foreach($users_respond as $user_id) {
+                $activity['data']['last_users_respond'][] = $this->service->getUserRespondDataForActivity($user_id);
+            }
 
         } else if ($activity['activity_type'] == BaseService::TYPE_RESPONSE) {
 
