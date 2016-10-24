@@ -51,9 +51,11 @@ class LoginController extends AbstractController
         $gcm = $this->service->getDeviceGcm($deviceId);
         // store user login information
         // on which device he is logging in
+        $this->service->startTransaction();
         try {
             $userData = $this->service->storeLoginRecord($deviceId, $user_id, $gcm);
             $this->redisService->pushNewLoginGcm($userData['user_id'], $gcm);
+            $this->service->commitTransaction();
         } catch (\Exception $e) {
             $this->service->rollbackTransaction();
             throw new ServerErrorException();
