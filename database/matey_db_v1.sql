@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS matey_follower (
 --
 
 CREATE TABLE IF NOT EXISTS matey_post (
-  post_id varchar(50) NOT NULL,
+  post_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id int(11) UNSIGNED NOT NULL,
   text varchar(7000) NOT NULL,
   date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS matey_post (
 --
 
 CREATE TABLE IF NOT EXISTS matey_bookmark (
-  post_id varchar(50) NOT NULL,
+  post_id int(11) UNSIGNED NOT NULL,
   user_id int(11) UNSIGNED NOT NULL,
   clock timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
@@ -132,9 +132,9 @@ CREATE TABLE IF NOT EXISTS matey_bookmark (
 --
 
 CREATE TABLE IF NOT EXISTS matey_response (
-  response_id varchar(50) NOT NULL,
+  response_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id int(11) UNSIGNED NOT NULL,
-  post_id varchar(50) NOT NULL,
+  post_id int(11) UNSIGNED NOT NULL,
   text varchar(7000) NOT NULL,
   date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (response_id),
@@ -150,7 +150,7 @@ CREATE TABLE IF NOT EXISTS matey_response (
 
 CREATE TABLE IF NOT EXISTS matey_approve (
   user_id int(11) UNSIGNED NOT NULL,
-  response_id varchar(50) NOT NULL,
+  response_id int(11) UNSIGNED NOT NULL,
   PRIMARY KEY (user_id, response_id),
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY (response_id) REFERENCES matey_response(response_id)
@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS matey_approve (
 
 CREATE TABLE IF NOT EXISTS matey_share (
   user_id int(11) UNSIGNED NOT NULL,
-  post_id varchar(50) NOT NULL,
+  post_id int(11) UNSIGNED NOT NULL,
   date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY (post_id) REFERENCES matey_post(post_id)
@@ -190,8 +190,8 @@ CREATE TABLE IF NOT EXISTS matey_activity_type (
 CREATE TABLE IF NOT EXISTS matey_activity (
   activity_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id int(11) UNSIGNED NOT NULL,
-  source_id varchar(50) NOT NULL,
-  parent_id varchar(50) NOT NULL,
+  source_id int(11) UNSIGNED NOT NULL,
+  parent_id int(11) UNSIGNED NOT NULL,
   parent_type varchar(50) NOT NULL,
   activity_type varchar(50) NOT NULL,
   date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -209,8 +209,9 @@ CREATE TABLE IF NOT EXISTS matey_activity (
 --
 
 CREATE TABLE IF NOT EXISTS matey_interest (
+  interest_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   interest varchar(50) NOT NULL,
-  PRIMARY KEY (interest)
+  PRIMARY KEY (interest_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -220,10 +221,11 @@ CREATE TABLE IF NOT EXISTS matey_interest (
 --
 
 CREATE TABLE IF NOT EXISTS matey_subinterest (
-  interest varchar(50) NOT NULL,
+  subinterest_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  interest_id int(11) UNSIGNED NOT NULL,
   subinterest varchar(50) NOT NULL,
-  PRIMARY KEY (subinterest),
-  FOREIGN KEY(interest) REFERENCES matey_interest(interest)
+  PRIMARY KEY (subinterest_id),
+  FOREIGN KEY(interest_id) REFERENCES matey_interest(interest_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -382,61 +384,61 @@ INSERT INTO matey_interest (interest) VALUES
 -- POPULATE table `matey_subinterest`
 --
 
-INSERT INTO matey_subinterest (interest, subinterest) VALUES
-('Arts & Entertainment', 'Celebrities & Entertainment News'),
-('Arts & Entertainment', 'Comics & Animation'),
-('Arts & Entertainment', 'Humor'),
-('Arts & Entertainment', 'Movies'),
-('Arts & Entertainment', 'Music & Audio'),
-('Arts & Entertainment', 'TV'),
-('Automotive & Vehicle', 'Boats & Watercraft'),
-('Automotive & Vehicle', 'Classic Vehicles'),
-('Automotive & Vehicle', 'Motorcycles'),
-('Beauty & Fitness', 'Face & Body Care'),
-('Beauty & Fitness', 'Fashion & Style'),
-('Beauty & Fitness', 'Fitness'),
-('Business & Industrial', 'Advertising & Marketing'),
-('Business & Industrial', 'Finance'),
-('Business & Industrial', 'Business News'),
-('Business & Industrial', 'Business Services'),
-('Computers & Technology', 'Computer Hardware'),
-('Computers & Technology', 'Consumer Electronics'),
-('Computers & Technology', 'Programming'),
-('Computers & Technology', 'News'),
-('Education and Employment', 'Colleges & Universities'),
-('Education and Employment', 'Employment'),
-('Education and Employment', 'Primary & Secondary Schooling (K-12)'),
-('Food & Drink', 'Cooking & Recipes'),
-('Food & Drink', 'Restaurants'),
-('Home & Garden', 'Gardening & Landscaping'),
-('Home & Garden', 'Home Furnishings'),
-('Home & Garden', 'Home Improvement'),
-('Home & Garden', 'Real Estate Listings'),
-('Law & Government', 'Government'),
-('Law & Government', 'Legal'),
-('Leisure & Hobbies', 'Books'),
-('Leisure & Hobbies', 'Crafts'),
-('Leisure & Hobbies', 'Games & Puzzles'),
-('Leisure & Hobbies', 'Outdoors'),
-('News', 'Politics'),
-('News', 'Weather'),
-('News', 'Global News'),
-('Science', 'Math'),
-('Science', 'Physics'),
-('Shopping', 'Apparel'),
-('Shopping', 'Discount & Outlet Stores'),
-('Shopping', 'Toys'),
-('Sports', 'College Sports'),
-('Sports', 'Extreme Sports'),
-('Sports', 'Fantasy Sports'),
-('Sports', 'Professional Sports'),
-('Sports', 'Sports News'),
-('Travel', 'Hotels & Transportation'),
-('Travel', 'Tourist Destinations'),
-('Travel', 'Travel Guides & Travelogues'),
-('Video Games', 'Casual'),
-('Video Games', 'Hardcore'),
-('Video Games', 'Virtual Worlds');
+INSERT INTO matey_subinterest (interest_id, subinterest) VALUES
+(1, 'Celebrities & Entertainment News'),
+(1, 'Comics & Animation'),
+(1, 'Humor'),
+(1, 'Movies'),
+(1, 'Music & Audio'),
+(1, 'TV'),
+(2, 'Boats & Watercraft'),
+(2, 'Classic Vehicles'),
+(2, 'Motorcycles'),
+(3, 'Face & Body Care'),
+(3, 'Fashion & Style'),
+(3, 'Fitness'),
+(4, 'Advertising & Marketing'),
+(4, 'Finance'),
+(4, 'Business News'),
+(4, 'Business Services'),
+(5, 'Computer Hardware'),
+(5, 'Consumer Electronics'),
+(5, 'Programming'),
+(5, 'News'),
+(6, 'Colleges & Universities'),
+(6, 'Employment'),
+(6, 'Primary & Secondary Schooling (K-12)'),
+(7, 'Cooking & Recipes'),
+(7, 'Restaurants'),
+(8, 'Gardening & Landscaping'),
+(8, 'Home Furnishings'),
+(8, 'Home Improvement'),
+(8, 'Real Estate Listings'),
+(9, 'Government'),
+(9, 'Legal'),
+(10, 'Books'),
+(10, 'Crafts'),
+(10, 'Games & Puzzles'),
+(10, 'Outdoors'),
+(11, 'Politics'),
+(11, 'Weather'),
+(11, 'Global News'),
+(12, 'Math'),
+(12, 'Physics'),
+(13, 'Apparel'),
+(13, 'Discount & Outlet Stores'),
+(13, 'Toys'),
+(14, 'College Sports'),
+(14, 'Extreme Sports'),
+(14, 'Fantasy Sports'),
+(14, 'Professional Sports'),
+(14, 'Sports News'),
+(15, 'Hotels & Transportation'),
+(15, 'Tourist Destinations'),
+(15, 'Travel Guides & Travelogues'),
+(16, 'Casual'),
+(16, 'Hardcore'),
+(16, 'Virtual Worlds');
 
 -- --------------------------------------------------------
 

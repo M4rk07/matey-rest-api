@@ -24,7 +24,7 @@ class PostController extends AbstractController
 
         $user_id = $request->request->get("user_id");
         $text = $request->request->get("text");
-        $interest = $request->request->get("interest");
+        $interest_id = $request->request->get("interest_id");
 
         $this->validate($user_id, [
             new NotBlank(),
@@ -33,24 +33,21 @@ class PostController extends AbstractController
                 'type' => 'numeric'
             ))
         ]);
-        $this->validate($interest, [
+        $this->validate($interest_id, [
             new NotBlank(),
         ]);
         $this->validate($text, [
             new NotBlank()
         ]);
 
-        $idGenerator = new IdGenerator();
-        $post_id = $idGenerator->generatePostId($user_id);
+        $post_id = $this->service->createPost($interest_id, $user_id, $text);
         $srl_data = serialize(
             array(
                 "post_id" => $post_id,
                 "text" => $text
             )
         );
-
-        $this->service->createPost($post_id, $interest, $user_id, $text);
-        $activity_id = $this->service->createActivity($user_id, $post_id, BaseService::TYPE_POST, $interest, BaseService::TYPE_INTEREST, $srl_data);
+        $activity_id = $this->service->createActivity($user_id, $post_id, BaseService::TYPE_POST, $interest_id, BaseService::TYPE_INTEREST, $srl_data);
         $this->redisService->pushToNewsFeeds($activity_id, $user_id);
         $this->redisService->incrUserNumOfPosts($user_id, 1);
         $this->redisService->initializePostStatistics($post_id);
@@ -125,16 +122,13 @@ class PostController extends AbstractController
             new NotBlank()
         ]);
 
-        $idGenerator = new IdGenerator();
-        $response_id = $idGenerator->generateResponseId($user_id);
+        $response_id = $this->service->createResponse($user_id, $post_id, $text);
         $srl_data = serialize(
             array(
                 "response_id" => $response_id,
                 "text" => $text
             )
         );
-
-        $this->service->createResponse($response_id, $user_id, $post_id, $text);
         $activity_id = $this->service->createActivity($user_id, $response_id, BaseService::TYPE_RESPONSE, $post_id, BaseService::TYPE_POST, $srl_data);
         $this->redisService->pushToNewsFeeds($activity_id, $user_id);
         $this->redisService->initializeResponseStatistics($response_id);

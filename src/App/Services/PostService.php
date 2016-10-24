@@ -12,13 +12,14 @@ namespace App\Services;
 class PostService extends ActivityService
 {
 
-    public function createPost($post_id, $interest_id, $user_id, $text) {
+    public function createPost($interest_id, $user_id, $text) {
 
         $this->db->insert(self::T_POST, array(
-            'post_id' => $post_id,
             'user_id' => $user_id,
             'text' => $text
         ));
+
+        return $this->db->lastInsertId();
 
     }
 
@@ -47,6 +48,8 @@ class PostService extends ActivityService
             'post_id' => $post_id,
             'text' => $text
         ));
+
+        return $this->db->lastInsertId();
 
     }
 
