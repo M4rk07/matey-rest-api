@@ -8,6 +8,7 @@
 
 namespace App\Controllers;
 
+use App\Algos\ActivityWeights;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
 use Mockery\CountValidator\Exception;
@@ -28,20 +29,8 @@ class FollowerController extends AbstractController
 
         // validate values from request,
         // for user id it must be numeric string
-        $this->validate($fromUser, [
-            new NotBlank(),
-            new Type(array(
-                'message' => 'This is not a valid user_id.',
-                'type' => 'numeric'
-            ))
-        ]);
-        $this->validate($toUser, [
-            new NotBlank(),
-            new Type(array(
-                'message' => 'This is not a valid user_id.',
-                'type' => 'numeric'
-            ))
-        ]);
+        $this->validateNumericUnsigned($fromUser);
+        $this->validateNumericUnsigned($toUser);
 
         if(strcasecmp($fromUser, $toUser) == 0) throw new InvalidRequestException();
 
@@ -61,11 +50,11 @@ class FollowerController extends AbstractController
             // store follow in redis
         $this->redisService->incrUserNumOfFollowers($toUser, 1);
         $this->redisService->incrUserNumOfFollowing($fromUser, 1);
-        $this->redisService->pushNewFollowing($fromUser, $toUser);
+        $this->redisService->incrUserRelationship($fromUser, $toUser, ActivityWeights::FOLLOW_SCORE, $this->returnTime());
         /*
          * Push just followed user activities to following user newsfeed
          */
-        $followedUserActivities = $this->service->getActivityIdsByUser($toUser, 10);
+        $followedUserActivities = $this->service->getActivityIdsByUser($toUser, 30);
         if(!empty($followedUserActivities))
             $this->redisService->pushActivitiesToOneFeed($followedUserActivities, $fromUser);
 
@@ -77,7 +66,6 @@ class FollowerController extends AbstractController
         // remove follow in redis
         $this->redisService->incrUserNumOfFollowers($toUser, -1);
         $this->redisService->incrUserNumOfFollowing($fromUser, -1);
-        $this->redisService->deleteFollowing($fromUser, $toUser);
     }
 
 }

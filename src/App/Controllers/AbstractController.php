@@ -16,6 +16,9 @@ use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use GuzzleHttp\Client;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\Constraints\GreaterThan;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /*
@@ -86,6 +89,19 @@ abstract class AbstractController
             ]);
         }
 
+    }
+
+    public function validateNumericUnsigned ($value) {
+        $this->validate($value, [
+            new NotBlank(),
+            new Type(array(
+                'message' => 'This is not a valid subinterest_id.',
+                'type' => 'numeric'
+            )),
+            new GreaterThan(array(
+                'value' => 0
+            ))
+        ]);
     }
 
     public function clearValue ($value) {

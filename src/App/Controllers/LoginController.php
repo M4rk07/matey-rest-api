@@ -33,20 +33,7 @@ class LoginController extends AbstractController
         $user_id = $request->request->get("user_id");
         $deviceId = $request->request->get("device_id");
 
-        $this->validate($user_id, [
-            new NotBlank(),
-            new Type(array(
-                'message' => 'This is not a valid device_id.',
-                'type' => 'numeric'
-            ))
-        ]);
-        $this->validate($deviceId, [
-            new NotBlank(),
-            new Type(array(
-                'message' => 'This is not a valid device_id.',
-                'type' => 'numeric'
-            ))
-        ]);
+        $this->validateNumericUnsigned($deviceId);
 
         $gcm = $this->service->getDeviceGcm($deviceId);
         // store user login information
@@ -74,20 +61,7 @@ class LoginController extends AbstractController
         $user_id = $request->request->get('user_id');
         $deviceId = $request->request->get('device_id');
 
-        $this->validate($user_id, [
-            new NotBlank(),
-            new Type(array(
-                'message' => 'This is not a valid device_id.',
-                'type' => 'numeric'
-            ))
-        ]);
-        $this->validate($deviceId, [
-            new NotBlank(),
-            new Type(array(
-                'message' => 'This is not a valid device_id.',
-                'type' => 'numeric'
-            ))
-        ]);
+        $this->validateNumericUnsigned($deviceId);
 
         $gcm = $this->service->getDeviceGcm($deviceId);
         $this->service->startTransaction();

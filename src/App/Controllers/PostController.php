@@ -8,6 +8,7 @@
 
 namespace App\Controllers;
 
+use App\Algos\ActivityWeights;
 use App\Security\IdGenerator;
 use App\Services\BaseService;
 use App\Services\FollowerService;
@@ -26,18 +27,9 @@ class PostController extends AbstractController
 
         $user_id = $request->request->get("user_id");
         $text = $request->request->get("text");
-        $interest_id = $request->request->get("interest_id");
+        $subinterest_id = $request->request->get("interest_id");
 
-        $this->validate($user_id, [
-            new NotBlank(),
-            new Type(array(
-                'message' => 'This is not a valid user_id.',
-                'type' => 'numeric'
-            ))
-        ]);
-        $this->validate($interest_id, [
-            new NotBlank(),
-        ]);
+        $this->validateNumericUnsigned($subinterest_id);
         $this->validate($text, [
             new NotBlank()
         ]);
@@ -45,17 +37,19 @@ class PostController extends AbstractController
         $time = $this->returnTime();
         $this->service->startTransaction();
         try {
-            $post_id = $this->service->createPost($interest_id, $user_id, $text);
+            $post_id = $this->service->createPost($subinterest_id, $user_id, $text);
                 $srl_data = serialize(array(
                     "post_id" => $post_id,
                     "text" => $text
                 ));
-            $activity_id = $this->service->createActivity($user_id, $post_id, BaseService::TYPE_POST, $interest_id, BaseService::TYPE_INTEREST, $srl_data);
+            $activity_id = $this->service->createActivity($user_id, $post_id, BaseService::TYPE_POST, $subinterest_id, BaseService::TYPE_INTEREST, $srl_data);
             $this->redisService->startRedisTransaction();
             try {
                 $this->redisService->pushToNewsFeeds($activity_id, $time, $user_id);
                 $this->redisService->incrUserNumOfPosts($user_id, 1);
                 $this->redisService->initializePostStatistics($post_id);
+                // evident user interest
+                $this->redisService->incrUserSubinterestStatistic($user_id, $subinterest_id, ActivityWeights::POST_SCORE);
                 $this->redisService->commitRedisTransaction();
             } catch (\Exception $e) {
                 $this->redisService->rollbackRedisTransaction();
@@ -75,16 +69,7 @@ class PostController extends AbstractController
         $user_id = $request->request->get("user_id");
         $post_id = $request->request->get("post_id");
 
-        $this->validate($user_id, [
-            new NotBlank(),
-            new Type(array(
-                'message' => 'This is not a valid user_id.',
-                'type' => 'numeric'
-            ))
-        ]);
-        $this->validate($post_id, [
-            new NotBlank()
-        ]);
+        $this->validateNumericUnsigned($post_id);
 
         $this->service->startTransaction();
         try {
@@ -109,16 +94,7 @@ class PostController extends AbstractController
         $user_id = $request->request->get("user_id");
         $post_id = $request->request->get("post_id");
 
-        $this->validate($user_id, [
-            new NotBlank(),
-            new Type(array(
-                'message' => 'This is not a valid user_id.',
-                'type' => 'numeric'
-            ))
-        ]);
-        $this->validate($post_id, [
-            new NotBlank()
-        ]);
+        $this->validateNumericUnsigned($post_id);
 
         $this->service->bookmarkPost($post_id, $user_id);
         $this->redisService->pushPostBookmark($post_id, $user_id);
@@ -132,18 +108,12 @@ class PostController extends AbstractController
         $user_id = $request->request->get("user_id");
         $text = $request->request->get("text");
         $post_id = $request->request->get("post_id");
+        $subinterest_id = $request->request->get("subinterest_id");
+        $user_posted_id = $request->request->get("user_posted_id");
 
-        $this->validate($user_id, [
-            new NotBlank(),
-            new Type(array(
-                'message' => 'This is not a valid user_id.',
-                'type' => 'numeric'
-            ))
-        ]);
+        $this->validateNumericUnsigned($subinterest_id);
+        $this->validateNumericUnsigned($post_id);
         $this->validate($text, [
-            new NotBlank()
-        ]);
-        $this->validate($post_id, [
             new NotBlank()
         ]);
 
@@ -162,6 +132,10 @@ class PostController extends AbstractController
                 $this->redisService->initializeResponseStatistics($response_id);
                 $this->redisService->incrUserNumOfResponses($user_id, 1);
                 $this->redisService->pushLastResponseToPost($post_id, $user_id);
+                // evident user interest
+                $this->redisService->incrUserSubinterestStatistic($user_id, $subinterest_id, ActivityWeights::RESPONSE_SCORE);
+                // evident users relationship
+                $this->redisService->incrUserRelationship($user_id, $user_posted_id, ActivityWeights::RESPONSE_SCORE, $time);
                 $this->redisService->commitRedisTransaction();
             } catch (\Exception $e) {
                 $this->redisService->rollbackRedisTransaction();
@@ -187,19 +161,8 @@ class PostController extends AbstractController
         $post_id = $request->request->get("post_id");
         $user_id = $request->request->get("user_id");
 
-        $this->validate($user_id, [
-            new NotBlank(),
-            new Type(array(
-                'message' => 'This is not a valid user_id.',
-                'type' => 'numeric'
-            ))
-        ]);
-        $this->validate($response_id, [
-            new NotBlank()
-        ]);
-        $this->validate($post_id, [
-            new NotBlank()
-        ]);
+        $this->validateNumericUnsigned($response_id);
+        $this->validateNumericUnsigned($post_id);
 
         $this->service->startTransaction();
         try {
@@ -225,22 +188,16 @@ class PostController extends AbstractController
 
         $user_id = $request->request->get("user_id");
         $response_id = $request->request->get("response_id");
+        $response_owner_id = $request->request->get("response_owner_id");
 
-        $this->validate($user_id, [
-            new NotBlank(),
-            new Type(array(
-                'message' => 'This is not a valid user_id.',
-                'type' => 'numeric'
-            ))
-        ]);
-        $this->validate($response_id, [
-            new NotBlank()
-        ]);
+        $this->validateNumericUnsigned($response_id);
 
+        $time = $this->returnTime();
         $this->service->startTransaction();
         try {
             $this->service->approve($user_id, $response_id);
             $this->redisService->incrResponseNumOfApproves($response_id, 1);
+            $this->redisService->incrUserRelationship($user_id, $response_owner_id, ActivityWeights::APPROVE_SCORE, $time);
             $this->service->commitTransaction();
         } catch (\Exception $e) {
             $this->service->rollbackTransaction();

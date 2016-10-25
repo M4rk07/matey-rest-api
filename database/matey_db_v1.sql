@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS matey_user (
   is_active tinyint(1) UNSIGNED NOT NULL DEFAULT 1,
   first_name varchar(50) CHARACTER SET utf8 NOT NULL,
   last_name varchar(50) CHARACTER SET utf8 NOT NULL,
+  full_name varchar(100) CHARACTER SET utf8 NOT NULL,
   profile_picture VARCHAR(1000) NULL,
   PRIMARY KEY(user_id),
   UNIQUE KEY (email)
@@ -232,14 +233,16 @@ CREATE TABLE IF NOT EXISTS matey_subinterest (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `matey_user_info`
+-- Table structure for table `matey_user_subinterest`
 --
 
-CREATE TABLE IF NOT EXISTS matey_user_interest (
+CREATE TABLE IF NOT EXISTS matey_user_subinterest (
   user_id int(11) UNSIGNED NOT NULL,
-  interest_id int(11) UNSIGNED NOT NULL,
+  subinterest_id int(11) UNSIGNED NOT NULL,
+  score int(11) UNSIGNED NOT NULL,
+  PRIMARY KEY (user_id, subinterest_id),
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
-  FOREIGN KEY (interest_id) REFERENCES matey_interest(interest_id)
+  FOREIGN KEY (subinterest_id) REFERENCES matey_subinterest(subinterest_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------

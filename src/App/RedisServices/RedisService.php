@@ -29,15 +29,24 @@ class RedisService
     const SUBKEY_USER_ID = "user-id";
     const SUBKEY_FOLLOWERS = "following";
     const SUBKEY_LOGIN_GCMS = "login-gcms";
+    const SUBKEY_SUBINTERESTS = "chosen-subinterests";
+    const SUBKEY_SUBINTEREST_STATISTICS = "interest-statistics";
+    const SUBKEY_RELATIONSHIP = "relationship";
 
     const FIELD_NUM_OF_POSTS = "num_of_posts";
-    const FIELD_NUM_OF_RESPONSES = "num_of_responses";
+    const FIELD_NUM_OF_GIVEN_RESPONSES = "num_of_responses";
     const FIELD_NUM_OF_RECEIVED_APPROVES = "num_of_received_approves";
     const FIELD_NUM_OF_APPROVES = "num_of_approves";
+    const FIELD_NUM_OF_GIVEN_APPROVES = "num_of_given_approves";
     const FIELD_NUM_OF_FOLLOWING = "num_of_following";
     const FIELD_NUM_OF_FOLLOWERS = "num_of_followers";
     const FIELD_NUM_OF_SHARES = "num_of_shares";
     const FIELD_NUM_OF_BEST_RESPONSES = "num_of_best_responses";
+    const FIELD_NUM_OF_RECEIVED_RESPONSES = "num_of_received_responses";
+    const FIELD_NUM_OF_PROFILE_CLICKS = "num_of_profile_clicks";
+    const FILED_NUM_OF_SHARES = "num_of_shares";
+    const FIELD_SCORE = "score";
+    const FIELD_TIME = "time";
 
     public function __construct()
     {
@@ -105,6 +114,12 @@ class RedisService
         $this->redis->sadd(self::KEY_USER.":".self::SUBKEY_LOGIN_GCMS.":".$user_id, $gcm);
     }
 
+    public function pushSubinterest ($user_id, $subinterest_id, $score) {
+        $this->redis->zadd(self::KEY_USER.":".self::SUBKEY_SUBINTERESTS.":".$user_id, array(
+           $subinterest_id => $score
+        ));
+    }
+
     // --------------------------------------------------------------------
     // GETTERS FUNCTIONS
 
@@ -136,9 +151,13 @@ class RedisService
             self::FIELD_NUM_OF_FOLLOWERS => 0,
             self::FIELD_NUM_OF_FOLLOWING => 0,
             self::FIELD_NUM_OF_POSTS => 0,
+            self::FIELD_NUM_OF_GIVEN_APPROVES => 0,
             self::FIELD_NUM_OF_RECEIVED_APPROVES => 0,
-            self::FIELD_NUM_OF_RESPONSES => 0,
-            self::FIELD_NUM_OF_BEST_RESPONSES => 0
+            self::FIELD_NUM_OF_GIVEN_RESPONSES => 0,
+            self::FIELD_NUM_OF_RECEIVED_RESPONSES => 0,
+            self::FIELD_NUM_OF_BEST_RESPONSES => 0,
+            self::FIELD_NUM_OF_PROFILE_CLICKS => 0,
+            self::FILED_NUM_OF_SHARES => 0
         ));
     }
 
@@ -148,7 +167,7 @@ class RedisService
 
     public function initializePostStatistics($post_id) {
         $this->redis->hmset(self::KEY_POST.":".self::SUBKEY_STATISTICS.":".$post_id, array(
-            self::FIELD_NUM_OF_RESPONSES => 0,
+            self::FIELD_NUM_OF_GIVEN_RESPONSES => 0,
             self::FIELD_NUM_OF_SHARES => 0
         ));
     }
@@ -164,7 +183,7 @@ class RedisService
 
     public function deletePostStatistics($post_id) {
         $this->redis->hdel(self::KEY_POST.":".self::SUBKEY_STATISTICS.":".$post_id, array(
-            self::FIELD_NUM_OF_RESPONSES,
+            self::FIELD_NUM_OF_GIVEN_RESPONSES,
             self::FIELD_NUM_OF_SHARES
         ));
     }
@@ -203,17 +222,26 @@ class RedisService
     }
 
     public function incrUserNumOfResponses($user_id, $incrby) {
-        $this->redis->hincrby(self::KEY_USER.":".self::SUBKEY_STATISTICS.":".$user_id, self::FIELD_NUM_OF_RESPONSES, $incrby);
+        $this->redis->hincrby(self::KEY_USER.":".self::SUBKEY_STATISTICS.":".$user_id, self::FIELD_NUM_OF_GIVEN_RESPONSES, $incrby);
     }
 
     public function incrPostNumOfResponses($post_id, $incrby) {
-        $this->redis->hincrby(self::KEY_POST.":".self::SUBKEY_STATISTICS.":".$post_id, self::FIELD_NUM_OF_RESPONSES, $incrby);
+        $this->redis->hincrby(self::KEY_POST.":".self::SUBKEY_STATISTICS.":".$post_id, self::FIELD_NUM_OF_GIVEN_RESPONSES, $incrby);
     }
 
     public function incrResponseNumOfApproves($response_id, $incrby) {
         $this->redis->hincrby(self::KEY_RESPONSE.":".self::SUBKEY_STATISTICS.":".$response_id, self::FIELD_NUM_OF_APPROVES, $incrby);
     }
 
+    public function incrUserSubinterestStatistic ($user_id, $subinterest_id, $score) {
+        $this->redis->zincrby(self::KEY_USER.":".self::SUBKEY_SUBINTEREST_STATISTICS.":".$user_id, $score, $subinterest_id);
+    }
+    public function incrUserRelationship ($user_from, $user_to, $score, $now_time) {
+        $this->redis->hincrby(self::KEY_POST.":".self::SUBKEY_RELATIONSHIP.":".$user_from.":".$user_to,
+            self::FIELD_SCORE, $score);
+        $this->redis->hset(self::KEY_POST.":".self::SUBKEY_RELATIONSHIP.":".$user_from.":".$user_to,
+            self::FIELD_TIME, $now_time);
+    }
 
 
 }

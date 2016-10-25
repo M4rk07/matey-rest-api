@@ -38,6 +38,10 @@ class ServicesLoader
         $this->app['newsfeed.service'] = $this->app->share (function() {
             return new Services\NewsFeedService();
         });
+
+        $this->app['interest.service'] = $this->app->share (function() {
+            return new Services\InterestService();
+        });
     }
 }
 

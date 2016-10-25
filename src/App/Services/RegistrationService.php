@@ -11,10 +11,10 @@ namespace App\Services;
 class RegistrationService extends BaseService
 {
 
-    public function storeUserData($email, $first_name, $last_name, $profilePicture = null) {
+    public function storeUserData($email, $first_name, $last_name, $fullName, $profilePicture = null) {
 
-        $this->db->executeUpdate("INSERT INTO ".self::T_USER." (email, first_name, last_name, profile_picture) VALUES (?,?,?,?)",
-            array($email, $first_name, $last_name, $profilePicture));
+        $this->db->executeUpdate("INSERT INTO ".self::T_USER." (email, first_name, last_name, full_name, profile_picture) VALUES (?,?,?,?,?)",
+            array($email, $first_name, $last_name, $fullName, $profilePicture));
 
         return $this->db->lastInsertId();
 

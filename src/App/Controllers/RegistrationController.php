@@ -102,6 +102,7 @@ class RegistrationController extends AbstractController
         $passwordEncoder = new MessageDigestPasswordEncoder();
         $encodedPassword = $passwordEncoder->encodePassword($password, $salt);
 
+        $fullName = $first_name . " " . $last_name;
         /*
          * Starting registration through transaction
          * If any of steps goes wrong, rolls back everything
@@ -109,7 +110,7 @@ class RegistrationController extends AbstractController
         $this->service->startTransaction();
         try {
             // storing standard user data
-            $user_id = $this->service->storeUserData($email, $first_name, $last_name);
+            $user_id = $this->service->storeUserData($email, $first_name, $last_name, $fullName);
 
             // redis statistics and user id by email finding
             $this->redisService->initializeUserStatistics($user_id);
@@ -169,9 +170,7 @@ class RegistrationController extends AbstractController
         /*
          * Validating parameters
          */
-        $this->validate($device_id, [
-            new NotBlank()
-        ]);
+        $this->validateNumericUnsigned($device_id);
         $this->validate($old_gcm, [
             new NotBlank()
         ]);
@@ -244,6 +243,7 @@ class RegistrationController extends AbstractController
         $firstName = $fbUser->getFirstName();
         $lastName = $fbUser->getLastName();
         $profilePicture = $fbUser->getPicture();
+        $fullName = $fbUser->getName();
 
         /*
          * Starting transaction.
@@ -253,7 +253,7 @@ class RegistrationController extends AbstractController
             /*
              * Storing user and facebook data in database.
              */
-            $newUserId = $this->service->storeUserData($email, $firstName, $lastName, $profilePicture);
+            $newUserId = $this->service->storeUserData($email, $firstName, $lastName, $fullName, $profilePicture);
             $this->service->storeFacebookData($newUserId, $fbId);
             $this->redisService->initializeUserStatistics($newUserId);
             $this->redisService->initializeUserIdByEmail($email, $newUserId);
