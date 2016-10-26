@@ -8,6 +8,7 @@ use App\Controllers\LoginController;
 use App\Controllers\NewsFeedController;
 use App\Controllers\PostController;
 use App\Controllers\RegistrationController;
+use App\Controllers\TestController;
 use Silex\Application;
 
 class RoutesLoader
@@ -46,11 +47,17 @@ class RoutesLoader
         $this->app['interest.controller'] = $this->app->share(function () {
             return new InterestController($this->app['interest.service'], $this->app['redis.service'], $this->app['validator']);
         });
+
+        $this->app['test.controller'] = $this->app->share(function () {
+            return new TestController($this->app['test.service'], $this->app['redis.service'], $this->app['validator']);
+        });
     }
 
     public function bindRoutesToControllers()
     {
         $api = $this->app["controllers_factory"];
+
+        $this->app->get('/test', 'test.controller:fillCategories');
 
         $this->app->post('/register/user', 'registration.controller:registerStandardUserAction');
         $this->app->post('/register/device', 'registration.controller:registerDeviceAction');
@@ -70,7 +77,8 @@ class RoutesLoader
         $api->post('/post/response/add', 'post.controller:addResponseAction');
         $api->post('/post/response/remove', 'post.controller:deleteResponseAction');
         $api->post('/post/response/approve', 'post.controller:approveAction');
-        $api->post('/subinterest/add', 'interest.controller:addSubinterestAction');
+        $api->post('/interests/add', 'interest.controller:addInterestsAction');
+        $api->get('/interests', 'interest.controller:showInterestsAction');
 
         $api->get('/newsfeed', 'newsfeed.controller:getNewsFeedAction');
 

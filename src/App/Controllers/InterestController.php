@@ -18,43 +18,77 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class InterestController extends AbstractController
 {
-    const MIN_SUBINTEREST_SCORE = 1;
-    const MAX_SUBINTEREST_SCORE = 5;
+    const MIN_DEPTH = 0;
+    const MAX_DEPTH = 3;
 
-    public function addSubinterestAction(Request $request) {
+    public function addInterestsAction(Request $request) {
 
         $user_id = $request->request->get("user_id");
-        $subinterests = $request->getContent();
-        $subinterests = json_decode($subinterests);
+        $interests = $request->getContent();
+        $interests = json_decode($interests);
 
-        if(!is_array($subinterests))
+        if(!is_array($interests))
             throw new InvalidRequestException(array('error_description' => 'Given value is not an array.'));
 
         /*
          * Validating received data
          */
-        foreach($subinterests as $subinterest) {
-            $this->validateNumericUnsigned($subinterest->subinterest_id);
-            $this->validateNumericUnsigned($subinterest->score);
-            $this->validate($subinterest->score, [
+        foreach($interests as $interest) {
+            $this->validateNumericUnsigned($interest->interest_id);
+            $this->validateNumericUnsigned($interest->depth);
+            $this->validate($interest->depth, [
                 new Range(array(
-                    'min' => self::MIN_SUBINTEREST_SCORE,
-                    'max' => self::MAX_SUBINTEREST_SCORE
+                    'min' => self::MIN_DEPTH,
+                    'max' => self::MAX_DEPTH
                 )),
             ]);
         }
 
         /*
-         * Storing data about user subinterests
+         * Storing data about user interest
          */
-        foreach($subinterests as $subinterest) {
+        $this->storeInterests($user_id, $interests);
 
-            $this->service->createUserSubinterest($user_id, $subinterest->subinterest_id, $subinterest->score);
-            $this->redisService->pushSubinterest($user_id, $subinterest->subinterest_id, $subinterest->score);
+        return $this->returnOk();
+    }
+
+    public function storeInterests ($user_id, $interests) {
+
+        foreach($interests as $interest) {
+
+            $this->service->createUserInterest($user_id, $interest->interest_id, $interest->depth);
+
+            if($interest->depth == 0) {
+                $this->redisService->pushInterestDepth0($user_id, $interest->interest_id, 10);
+            }
+            else if($interest->depth == 1) {
+                $result = $this->service->findParentDepth_1($interest->interest_id);
+                if(empty($result['interest_0_id']))
+                    throw new InvalidRequestException();
+                $this->redisService->pushInterestDepth1($user_id, $result['interest_0_id'], $interest->interest_id, 10);
+            }
+            else if($interest->depth == 2) {
+                $result = $this->service->findParentDepth_2($interest->interest_id);
+                if(empty($result['interest_0_id']) || empty($result['interest_1_id']))
+                    throw new InvalidRequestException();
+                $this->redisService->pushInterestDepth2($user_id, $result['interest_0_id'], $result['interest_1_id'], $interest->interest_id, 10);
+            }
+            else if($interest->depth == 3) {
+                $result = $this->service->findParentDepth_3($interest->interest_id);
+                if(empty($result['interest_0_id']) || empty($result['interest_1_id']) || empty($result['interest_2_id']))
+                    throw new InvalidRequestException();
+                $this->redisService->pushInterestDepth3($user_id, $result['interest_0_id'], $result['interest_1_id'], $result['interest_2_id'], $interest->interest_id, 10);
+            }
 
         }
 
-        return $this->returnOk();
+    }
+
+    public function showInterestsAction(Request $request) {
+
+        $user_id = $request->request->get('user_id');
+        return $this->returnOk($this->redisService->getInterests($user_id));
+
     }
 
 }

@@ -20,6 +20,7 @@ class RedisService
     const KEY_USER = "USER";
     const KEY_POST = "POST";
     const KEY_RESPONSE = "RESPONSE";
+    const KEY_INTEREST = "INTEREST";
 
     const SUBKEY_NEWSFEED = "newsfeed";
     const SUBKEY_STATISTICS = "statistics";
@@ -32,6 +33,10 @@ class RedisService
     const SUBKEY_SUBINTERESTS = "chosen-subinterests";
     const SUBKEY_SUBINTEREST_STATISTICS = "interest-statistics";
     const SUBKEY_RELATIONSHIP = "relationship";
+    const SUBKEY_DEPTH_0 = "depth-0";
+    const SUBKEY_DEPTH_1 = "depth-1";
+    const SUBKEY_DEPTH_2 = "depth-2";
+    const SUBKEY_DEPTH_3 = "depth-3";
 
     const FIELD_NUM_OF_POSTS = "num_of_posts";
     const FIELD_NUM_OF_GIVEN_RESPONSES = "num_of_responses";
@@ -120,6 +125,33 @@ class RedisService
         ));
     }
 
+    public function pushInterestDepth0 ($user_id, $interest_0_id, $score) {
+
+        $this->redis->zincrby(self::KEY_INTEREST.":".self::SUBKEY_DEPTH_0.":".$user_id, $score, $interest_0_id);
+
+    }
+
+    public function pushInterestDepth1 ($user_id, $interest_0_id, $interest_1_id, $score) {
+
+        $this->redis->zincrby(self::KEY_INTEREST.":".self::SUBKEY_DEPTH_1.":".$user_id.":".$interest_0_id, $score, $interest_1_id);
+        $this->pushInterestDepth0($user_id, $interest_0_id, $score);
+
+    }
+
+    public function pushInterestDepth2 ($user_id, $interest_0_id, $interest_1_id, $interest_2_id, $score) {
+
+        $this->redis->zincrby(self::KEY_INTEREST.":".self::SUBKEY_DEPTH_2.":".$user_id.":".$interest_0_id.":".$interest_1_id, $score, $interest_2_id);
+        $this->pushInterestDepth1($user_id, $interest_0_id, $interest_1_id, $score);
+
+    }
+
+    public function pushInterestDepth3 ($user_id, $interest_0_id, $interest_1_id, $interest_2_id, $interest_3_id, $score) {
+
+        $this->redis->zincrby(self::KEY_INTEREST.":".self::SUBKEY_DEPTH_3.":".$user_id.":".$interest_0_id.":".$interest_1_id.":".$interest_2_id, $score, $interest_3_id);
+        $this->pushInterestDepth2($user_id, $interest_0_id, $interest_1_id, $interest_2_id, $score);
+
+    }
+
     // --------------------------------------------------------------------
     // GETTERS FUNCTIONS
 
@@ -141,6 +173,12 @@ class RedisService
 
     public function getUserIdByEmail ($email) {
         return $this->redis->get(self::KEY_USER.":".self::SUBKEY_USER_ID.":".$email);
+    }
+
+    public function getInterests ($user_id) {
+
+        return array();
+
     }
 
     // --------------------------------------------------------------------

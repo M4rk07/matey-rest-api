@@ -42,6 +42,10 @@ class ServicesLoader
         $this->app['interest.service'] = $this->app->share (function() {
             return new Services\InterestService();
         });
+        $this->app['test.service'] = $this->app->share (function() {
+            return new Services\TestService();
+        });
+
     }
 }
 

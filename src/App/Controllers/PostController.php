@@ -49,7 +49,7 @@ class PostController extends AbstractController
                 $this->redisService->incrUserNumOfPosts($user_id, 1);
                 $this->redisService->initializePostStatistics($post_id);
                 // evident user interest
-                $this->redisService->incrUserSubinterestStatistic($user_id, $subinterest_id, ActivityWeights::POST_SCORE);
+                // $this->redisService->incrUserSubinterestStatistic($user_id, $subinterest_id, ActivityWeights::POST_SCORE);
                 $this->redisService->commitRedisTransaction();
             } catch (\Exception $e) {
                 $this->redisService->rollbackRedisTransaction();
@@ -108,10 +108,8 @@ class PostController extends AbstractController
         $user_id = $request->request->get("user_id");
         $text = $request->request->get("text");
         $post_id = $request->request->get("post_id");
-        $subinterest_id = $request->request->get("subinterest_id");
         $user_posted_id = $request->request->get("user_posted_id");
 
-        $this->validateNumericUnsigned($subinterest_id);
         $this->validateNumericUnsigned($post_id);
         $this->validate($text, [
             new NotBlank()
@@ -133,7 +131,7 @@ class PostController extends AbstractController
                 $this->redisService->incrUserNumOfResponses($user_id, 1);
                 $this->redisService->pushLastResponseToPost($post_id, $user_id);
                 // evident user interest
-                $this->redisService->incrUserSubinterestStatistic($user_id, $subinterest_id, ActivityWeights::RESPONSE_SCORE);
+                // $this->redisService->incrUserSubinterestStatistic($user_id, $subinterest_id, ActivityWeights::RESPONSE_SCORE);
                 // evident users relationship
                 $this->redisService->incrUserRelationship($user_id, $user_posted_id, ActivityWeights::RESPONSE_SCORE, $time);
                 $this->redisService->commitRedisTransaction();

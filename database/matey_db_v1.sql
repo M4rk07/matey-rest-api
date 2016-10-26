@@ -207,42 +207,69 @@ CREATE TABLE IF NOT EXISTS matey_activity (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `matey_interest`
+-- Table structure for table `matey_user_interest`
 --
 
-CREATE TABLE IF NOT EXISTS matey_interest (
-  interest_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  interest varchar(50) NOT NULL,
-  PRIMARY KEY (interest_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `matey_subinterest`
---
-
-CREATE TABLE IF NOT EXISTS matey_subinterest (
-  subinterest_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  interest_id int(11) UNSIGNED NOT NULL,
-  subinterest varchar(50) NOT NULL,
-  PRIMARY KEY (subinterest_id),
-  FOREIGN KEY(interest_id) REFERENCES matey_interest(interest_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `matey_user_subinterest`
---
-
-CREATE TABLE IF NOT EXISTS matey_user_subinterest (
+CREATE TABLE IF NOT EXISTS matey_user_interest (
   user_id int(11) UNSIGNED NOT NULL,
-  subinterest_id int(11) UNSIGNED NOT NULL,
-  score int(11) UNSIGNED NOT NULL,
-  PRIMARY KEY (user_id, subinterest_id),
-  FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
-  FOREIGN KEY (subinterest_id) REFERENCES matey_subinterest(subinterest_id)
+  interest_id int(11) UNSIGNED NOT NULL,
+  depth tinyint(1) UNSIGNED NOT NULL,
+  PRIMARY KEY (user_id, interest_id, depth),
+  FOREIGN KEY (user_id) REFERENCES matey_user(user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_interest_depth_0`
+--
+
+CREATE TABLE IF NOT EXISTS matey_interest_depth_0 (
+  interest_0_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  interest varchar(50) NOT NULL,
+  PRIMARY KEY (interest_0_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_interest_depth_1`
+--
+
+CREATE TABLE IF NOT EXISTS matey_interest_depth_1 (
+  interest_1_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  interest_0_id int(11) UNSIGNED NOT NULL,
+  interest varchar(50) NOT NULL,
+  PRIMARY KEY (interest_1_id),
+  FOREIGN KEY (interest_0_id) REFERENCES matey_interest_depth_0(interest_0_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_interest_depth_2`
+--
+
+CREATE TABLE IF NOT EXISTS matey_interest_depth_2 (
+  interest_2_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  interest_1_id int(11) UNSIGNED NOT NULL,
+  interest varchar(50) NOT NULL,
+  PRIMARY KEY (interest_2_id),
+  FOREIGN KEY (interest_1_id) REFERENCES matey_interest_depth_1(interest_1_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_interest_depth_3`
+--
+
+CREATE TABLE IF NOT EXISTS matey_interest_depth_3 (
+  interest_3_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  interest_2_id int(11) UNSIGNED NOT NULL,
+  interest varchar(50) NOT NULL,
+  PRIMARY KEY (interest_3_id),
+  FOREIGN KEY (interest_2_id) REFERENCES matey_interest_depth_2(interest_2_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -370,92 +397,6 @@ CREATE TABLE IF NOT EXISTS oauth2_scope (
 --
 
 INSERT INTO oauth2_client (app_name) VALUES ('Matey');
-
--- --------------------------------------------------------
-
---
--- POPULATE table `matey_interest`
---
-
-INSERT INTO matey_interest (interest) VALUES
-('Arts & Entertainment'),
-('Automotive & Vehicle'),
-('Beauty & Fitness'),
-('Business & Industrial'),
-('Computers & Technology'),
-('Education and Employment'),
-('Food & Drink'),
-('Home & Garden'),
-('Law & Government'),
-('Leisure & Hobbies'),
-('News'),
-('Science'),
-('Shopping'),
-('Sports'),
-('Travel'),
-('Video Games');
-
--- --------------------------------------------------------
-
---
--- POPULATE table `matey_subinterest`
---
-
-INSERT INTO matey_subinterest (interest_id, subinterest) VALUES
-(1, 'Celebrities & Entertainment News'),
-(1, 'Comics & Animation'),
-(1, 'Humor'),
-(1, 'Movies'),
-(1, 'Music & Audio'),
-(1, 'TV'),
-(2, 'Boats & Watercraft'),
-(2, 'Classic Vehicles'),
-(2, 'Motorcycles'),
-(3, 'Face & Body Care'),
-(3, 'Fashion & Style'),
-(3, 'Fitness'),
-(4, 'Advertising & Marketing'),
-(4, 'Finance'),
-(4, 'Business News'),
-(4, 'Business Services'),
-(5, 'Computer Hardware'),
-(5, 'Consumer Electronics'),
-(5, 'Programming'),
-(5, 'News'),
-(6, 'Colleges & Universities'),
-(6, 'Employment'),
-(6, 'Primary & Secondary Schooling (K-12)'),
-(7, 'Cooking & Recipes'),
-(7, 'Restaurants'),
-(8, 'Gardening & Landscaping'),
-(8, 'Home Furnishings'),
-(8, 'Home Improvement'),
-(8, 'Real Estate Listings'),
-(9, 'Government'),
-(9, 'Legal'),
-(10, 'Books'),
-(10, 'Crafts'),
-(10, 'Games & Puzzles'),
-(10, 'Outdoors'),
-(11, 'Politics'),
-(11, 'Weather'),
-(11, 'Global News'),
-(12, 'Math'),
-(12, 'Physics'),
-(13, 'Apparel'),
-(13, 'Discount & Outlet Stores'),
-(13, 'Toys'),
-(14, 'College Sports'),
-(14, 'Extreme Sports'),
-(14, 'Fantasy Sports'),
-(14, 'Professional Sports'),
-(14, 'Sports News'),
-(15, 'Hotels & Transportation'),
-(15, 'Tourist Destinations'),
-(15, 'Travel Guides & Travelogues'),
-(16, 'Casual'),
-(16, 'Hardcore'),
-(16, 'Virtual Worlds');
 
 -- --------------------------------------------------------
 
