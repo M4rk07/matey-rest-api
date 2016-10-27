@@ -125,30 +125,63 @@ class RedisService
         ));
     }
 
-    public function pushInterestDepth0 ($user_id, $interest_0_id, $score) {
-
-        $this->redis->zincrby(self::KEY_INTEREST.":".self::SUBKEY_DEPTH_0.":".$user_id, $score, $interest_0_id);
-
-    }
-
-    public function pushInterestDepth1 ($user_id, $interest_0_id, $interest_1_id, $score) {
-
-        $this->redis->zincrby(self::KEY_INTEREST.":".self::SUBKEY_DEPTH_1.":".$user_id.":".$interest_0_id, $score, $interest_1_id);
-        $this->pushInterestDepth0($user_id, $interest_0_id, $score);
+    public function pushInterestDepth0 ($user_id, $interest_0_id, $incrBy) {
+        $this->redis->incrby(self::KEY_INTEREST.":".self::SUBKEY_DEPTH_0.":".$user_id.":".$interest_0_id, $incrBy);
+        $this->generateScore(self::KEY_INTEREST.":".self::SUBKEY_DEPTH_0.":".$user_id, $interest_0_id);
 
     }
 
-    public function pushInterestDepth2 ($user_id, $interest_0_id, $interest_1_id, $interest_2_id, $score) {
+    public function pushInterestDepth1 ($user_id, $interest_0_id, $interest_1_id, $incrBy) {
+        $this->redis->incrby(self::KEY_INTEREST.":".self::SUBKEY_DEPTH_1.":".$user_id.":".$interest_0_id.":".$interest_1_id, $incrBy);
+        $this->generateScore(self::KEY_INTEREST.":".self::SUBKEY_DEPTH_1.":".$user_id.":".$interest_0_id, $interest_1_id);
 
-        $this->redis->zincrby(self::KEY_INTEREST.":".self::SUBKEY_DEPTH_2.":".$user_id.":".$interest_0_id.":".$interest_1_id, $score, $interest_2_id);
-        $this->pushInterestDepth1($user_id, $interest_0_id, $interest_1_id, $score);
-
+        $this->pushInterestDepth0($user_id, $interest_0_id, $incrBy);
     }
 
-    public function pushInterestDepth3 ($user_id, $interest_0_id, $interest_1_id, $interest_2_id, $interest_3_id, $score) {
+    public function pushInterestDepth2 ($user_id, $interest_0_id=null, $interest_1_id, $interest_2_id, $incrBy) {
+        $this->redis->incrby(self::KEY_INTEREST.":".self::SUBKEY_DEPTH_2.":".$user_id.":".$interest_1_id.":".$interest_2_id, $incrBy);
+        $this->generateScore(self::KEY_INTEREST.":".self::SUBKEY_DEPTH_2.":".$user_id.":".$interest_1_id, $interest_2_id);
 
-        $this->redis->zincrby(self::KEY_INTEREST.":".self::SUBKEY_DEPTH_3.":".$user_id.":".$interest_0_id.":".$interest_1_id.":".$interest_2_id, $score, $interest_3_id);
-        $this->pushInterestDepth2($user_id, $interest_0_id, $interest_1_id, $interest_2_id, $score);
+        if($interest_0_id!=null)
+            $this->pushInterestDepth1($user_id, $interest_0_id, $interest_1_id, $incrBy);
+    }
+
+    public function pushInterestDepth3 ($user_id, $interest_0_id=null, $interest_1_id=null, $interest_2_id, $interest_3_id, $incrBy) {
+        $this->redis->incrby(self::KEY_INTEREST.":".self::SUBKEY_DEPTH_3.":".$user_id.":".$interest_2_id.":".$interest_3_id, $incrBy);
+        $this->generateScore(self::KEY_INTEREST.":".self::SUBKEY_DEPTH_3.":".$user_id.":".$interest_2_id, $interest_3_id);
+
+        if($interest_1_id!=null)
+            $this->pushInterestDepth2($user_id, $interest_0_id, $interest_1_id, $interest_2_id, $incrBy);
+    }
+
+    // --------------------------------------------------------------------
+    // GENERATORS
+
+    public function generateScore($key, $newInterest) {
+
+        $this->redis->zadd($key, array(
+            $newInterest => 1
+        ));
+        $interests = $this->redis->zrange($key, 0, -1);
+
+        $sum=0;
+        $interestsNumbers = [];
+
+        foreach($interests as $interest) {
+            $thisNumber = (float)($this->redis->get($key.":".$interest));
+            $sum += $thisNumber;
+            $intNum['interest'] = $interest;
+            $intNum['number'] = $thisNumber;
+            $interestsNumbers[] = $intNum;
+        }
+        foreach($interestsNumbers as $interest) {
+            $score = round((float)((float)($interest['number'])/$sum), 3);
+            $this->redis->zadd($key, array(
+                $interest['interest'] => $score
+            ));
+        }
+
+        return true;
 
     }
 
@@ -177,7 +210,7 @@ class RedisService
 
     public function getInterests ($user_id) {
 
-        return array();
+        return $this->redis->zrange(self::KEY_INTEREST.":".self::SUBKEY_DEPTH_0.":".$user_id, 0, -1, 'WITHSCORES');
 
     }
 

@@ -227,7 +227,8 @@ CREATE TABLE IF NOT EXISTS matey_user_interest (
 CREATE TABLE IF NOT EXISTS matey_interest_depth_0 (
   interest_0_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   interest varchar(50) NOT NULL,
-  PRIMARY KEY (interest_0_id)
+  PRIMARY KEY (interest_0_id),
+  UNIQUE KEY (interest)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -241,6 +242,7 @@ CREATE TABLE IF NOT EXISTS matey_interest_depth_1 (
   interest_0_id int(11) UNSIGNED NOT NULL,
   interest varchar(50) NOT NULL,
   PRIMARY KEY (interest_1_id),
+  UNIQUE KEY (interest),
   FOREIGN KEY (interest_0_id) REFERENCES matey_interest_depth_0(interest_0_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -255,6 +257,7 @@ CREATE TABLE IF NOT EXISTS matey_interest_depth_2 (
   interest_1_id int(11) UNSIGNED NOT NULL,
   interest varchar(50) NOT NULL,
   PRIMARY KEY (interest_2_id),
+  UNIQUE KEY (interest),
   FOREIGN KEY (interest_1_id) REFERENCES matey_interest_depth_1(interest_1_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -269,6 +272,7 @@ CREATE TABLE IF NOT EXISTS matey_interest_depth_3 (
   interest_2_id int(11) UNSIGNED NOT NULL,
   interest varchar(50) NOT NULL,
   PRIMARY KEY (interest_3_id),
+  UNIQUE KEY (interest),
   FOREIGN KEY (interest_2_id) REFERENCES matey_interest_depth_2(interest_2_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
