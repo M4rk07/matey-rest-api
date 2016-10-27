@@ -12,6 +12,7 @@ use App\Algos\ActivityWeights;
 use App\Security\IdGenerator;
 use App\Services\BaseService;
 use App\Services\FollowerService;
+use App\Services\InterestService;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
 use Mockery\CountValidator\Exception;
 use Predis\Client;
@@ -27,9 +28,9 @@ class PostController extends AbstractController
 
         $user_id = $request->request->get("user_id");
         $text = $request->request->get("text");
-        $subinterest_id = $request->request->get("interest_id");
+        $interest_id = $request->request->get("interest_id");
 
-        $this->validateNumericUnsigned($subinterest_id);
+        $this->validateNumericUnsigned($interest_id);
         $this->validate($text, [
             new NotBlank()
         ]);
@@ -37,12 +38,12 @@ class PostController extends AbstractController
         $time = $this->returnTime();
         $this->service->startTransaction();
         try {
-            $post_id = $this->service->createPost($subinterest_id, $user_id, $text);
+            $post_id = $this->service->createPost($interest_id, $user_id, $text);
                 $srl_data = serialize(array(
                     "post_id" => $post_id,
                     "text" => $text
                 ));
-            $activity_id = $this->service->createActivity($user_id, $post_id, BaseService::TYPE_POST, $subinterest_id, BaseService::TYPE_INTEREST, $srl_data);
+            $activity_id = $this->service->createActivity($user_id, $post_id, BaseService::TYPE_POST, $interest_id, BaseService::TYPE_INTEREST, $srl_data);
             $this->redisService->startRedisTransaction();
             try {
                 $this->redisService->pushToNewsFeeds($activity_id, $time, $user_id);

@@ -58,4 +58,10 @@ class InterestService extends BaseService
 
     }
 
+    public function findInterest($interest_id, $depth) {
+        $result = $this->db->fetchAll("SELECT interest FROM ".self::T_INTEREST_DEPTH_.$depth." WHERE interest_".$depth."_id = ?",
+            array($interest_id));
+        return $result[0];
+    }
+
 }

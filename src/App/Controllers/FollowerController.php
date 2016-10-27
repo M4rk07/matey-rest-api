@@ -51,6 +51,7 @@ class FollowerController extends AbstractController
         $this->redisService->incrUserNumOfFollowers($toUser, 1);
         $this->redisService->incrUserNumOfFollowing($fromUser, 1);
         $this->redisService->incrUserRelationship($fromUser, $toUser, ActivityWeights::FOLLOW_SCORE, $this->returnTime());
+        $this->redisService->pushNewConnection($fromUser, $toUser);
         /*
          * Push just followed user activities to following user newsfeed
          */
@@ -66,6 +67,7 @@ class FollowerController extends AbstractController
         // remove follow in redis
         $this->redisService->incrUserNumOfFollowers($toUser, -1);
         $this->redisService->incrUserNumOfFollowing($fromUser, -1);
+        $this->redisService->deleteConnection($fromUser, $toUser);
     }
 
 }

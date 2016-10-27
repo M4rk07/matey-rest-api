@@ -86,7 +86,26 @@ class InterestController extends AbstractController
     public function showInterestsAction(Request $request) {
 
         $user_id = $request->request->get('user_id');
-        return $this->returnOk($this->redisService->getInterests($user_id));
+        $result = $this->redisService->getInterests($user_id);
+
+        $interests = [];
+
+        foreach($result as $res) {
+            $res = explode(":", $res);
+
+            $int['interest']= $res[0];
+            $int['depth'] = $res[1];
+            $interests[] = $int;
+        }
+
+        $final = [];
+        foreach($interests as $interest) {
+
+            $final[] = $this->service->findInterest($interest['interest'], $interest['depth']);
+
+        }
+
+        return $this->returnOk($final);
 
     }
 

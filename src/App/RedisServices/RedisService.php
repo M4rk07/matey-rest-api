@@ -28,11 +28,12 @@ class RedisService
     const SUBKEY_LAST_RESPONSES = "last-responses";
     const SUBKEY_BOOKMARKS = "bookmarks";
     const SUBKEY_USER_ID = "user-id";
-    const SUBKEY_FOLLOWERS = "following";
+    const SUBKEY_CONNECTIONS = "connections";
     const SUBKEY_LOGIN_GCMS = "login-gcms";
     const SUBKEY_INTERESTS = "interests";
     const SUBKEY_SUBINTEREST_STATISTICS = "interest-statistics";
     const SUBKEY_RELATIONSHIP = "relationship";
+    const SUBKEY_MUTUAL = "mutual";
     const SUBKEY_DEPTH_0 = "depth-0";
     const SUBKEY_DEPTH_1 = "depth-1";
     const SUBKEY_DEPTH_2 = "depth-2";
@@ -111,8 +112,8 @@ class RedisService
         $this->redis->sadd(self::KEY_POST.":".self::SUBKEY_BOOKMARKS.":".$post_id, $user_id);
     }
 
-    public function pushNewFollowing ($user_id, $followed_user_id) {
-        $this->redis->sadd(self::KEY_USER.":".self::SUBKEY_FOLLOWERS.":".$user_id, $followed_user_id);
+    public function pushNewConnection ($user_id, $followed_user_id) {
+        $this->redis->sadd(self::KEY_USER.":".self::SUBKEY_CONNECTIONS.":".$user_id, $followed_user_id);
     }
 
     public function pushNewLoginGcm ($user_id, $gcm) {
@@ -250,9 +251,7 @@ class RedisService
     }
 
     public function getInterests ($user_id) {
-
         return $this->redis->zrevrange(self::KEY_INTEREST.":".self::SUBKEY_INTERESTS.":".$user_id, 0, -1);
-
     }
 
     // --------------------------------------------------------------------
@@ -306,8 +305,8 @@ class RedisService
         ));
     }
 
-    public function deleteFollowing ($user_id, $followed_user_id) {
-        $this->redis->srem(self::KEY_USER.":".self::SUBKEY_FOLLOWERS.":".$user_id, $followed_user_id);
+    public function deleteConnection($user_id, $followed_user_id) {
+        $this->redis->srem(self::KEY_USER.":".self::SUBKEY_CONNECTIONS.":".$user_id, $followed_user_id);
     }
 
     public function deleteLoginGcm ($user_id, $gcm) {

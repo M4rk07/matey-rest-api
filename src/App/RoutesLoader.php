@@ -8,7 +8,10 @@ use App\Controllers\LoginController;
 use App\Controllers\NewsFeedController;
 use App\Controllers\PostController;
 use App\Controllers\RegistrationController;
+use App\Controllers\SearchController;
 use App\Controllers\TestController;
+use App\Services\Redis\UserRedisService;
+use App\Services\Redis\UserService;
 use Silex\Application;
 
 class RoutesLoader
@@ -48,6 +51,10 @@ class RoutesLoader
             return new InterestController($this->app['interest.service'], $this->app['redis.service'], $this->app['validator']);
         });
 
+        $this->app['search.controller'] = $this->app->share(function () {
+            return new SearchController($this->app['search.service'], $this->app['redis.service'], $this->app['validator']);
+        });
+
         $this->app['test.controller'] = $this->app->share(function () {
             return new TestController($this->app['test.service'], $this->app['redis.service'], $this->app['validator']);
         });
@@ -81,6 +88,8 @@ class RoutesLoader
         $api->get('/interests', 'interest.controller:showInterestsAction');
 
         $api->get('/newsfeed', 'newsfeed.controller:getNewsFeedAction');
+
+        $api->get('/search/name', 'search.controller:searchUserByNameAction');
 
         $this->app->mount($this->app["api.endpoint"].'/'.$this->app["api.version"], $api);
     }
