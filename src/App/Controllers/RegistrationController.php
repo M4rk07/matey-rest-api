@@ -249,8 +249,8 @@ class RegistrationController extends AbstractController
         $fbId = $fbUser->getId();
         $firstName = $fbUser->getFirstName();
         $lastName = $fbUser->getLastName();
+        $fullName = $firstName." ".$lastName;
         $profilePicture = $fbUser->getPicture();
-        $fullName = $fbUser->getName();
         /*
          * Starting transaction.
          */

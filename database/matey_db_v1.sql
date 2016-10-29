@@ -319,7 +319,6 @@ CREATE TABLE IF NOT EXISTS oauth2_user (
   salt varchar(20) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (user_id),
   UNIQUE KEY (username),
-  FOREIGN KEY(user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY (username) REFERENCES matey_user(email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
