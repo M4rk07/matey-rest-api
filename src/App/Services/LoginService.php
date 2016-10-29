@@ -15,8 +15,9 @@ class LoginService extends BaseService
 
     public function storeLoginRecord ($deviceId, $user_id, $gcm) {
 
-        $userData = $this->db->fetchAll("SELECT m_user.*, f_user.fb_id FROM " . self::T_USER . " as m_user
-         JOIN ".self::T_FACEBOOK_INFO." as f_user USING(user_id) 
+        $userData = $this->db->fetchAll("SELECT m_user.*, f_user.fb_id 
+          FROM ".self::T_USER." as m_user
+         LEFT JOIN ".self::T_FACEBOOK_INFO." as f_user USING(user_id) 
          WHERE m_user.user_id = ? LIMIT 1",
             array($user_id));
 
