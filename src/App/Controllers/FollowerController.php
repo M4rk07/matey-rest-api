@@ -25,43 +25,7 @@ use Symfony\Component\Validator\Constraints\Type;
 class FollowerController extends AbstractController
 {
 
-    public function suggestFriendsActivity(Request $request) {
 
-        $user_id = $request->request->get("user_id");
-        $fbToken = $this->redisService->getFbToken($user_id);
-        $fbUserFriends = $this->fetchFacebookFriends($fbToken);
-
-        $friendsIds = [];
-
-        foreach($fbUserFriends as $friend) {
-            $friendsIds[] = $friend['id'];
-        }
-
-        $onMateyFriends = $this->service->findFriendsByFbId($friendsIds);
-
-        $finalResult['on_matey'] = $onMateyFriends;
-
-        return $this->returnOk($finalResult);
-
-    }
-
-    public function fetchFacebookFriends ($fbToken) {
-
-        $app_id = '1702025086719722';
-        $app_secret = 'd7f4251a562c52bfb45c9daf8354f35d';
-        $fb = new Facebook([
-            'app_id' => $app_id,
-            'app_secret' => $app_secret,
-            'default_graph_version' => 'v2.2',
-            'http_client_handler' => 'stream'
-        ]);
-
-        $response = $fb->get('/me/friends', $fbToken);
-        $fbUserFriends = $response->getGraphEdge()->asArray();
-
-        return $fbUserFriends;
-
-    }
 
     public function followerAction (Request $request, $action) {
 

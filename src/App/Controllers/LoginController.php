@@ -16,6 +16,7 @@ use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
 use AuthBucket\OAuth2\TokenType\BearerTokenTypeHandler;
 use AuthBucket\OAuth2\Validator\Constraints\Username;
+use Facebook\Facebook;
 use GuzzleHttp\Client;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -48,10 +49,51 @@ class LoginController extends AbstractController
             throw new ServerErrorException();
         }
 
+        if($userData['first_login'] == 0 && !empty($userData['fb_id'])) {
+            $userData['suggested_friends'] = $this->suggestFriendsActivity($user_id);
+        }
+
         return JsonResponse::create($userData, 200, [
             'Cache-Control' => 'no-store',
             'Pragma' => 'no-cache',
         ]);
+
+    }
+
+    public function suggestFriendsActivity($user_id) {
+
+        $fbToken = $this->redisService->getFbToken($user_id);
+        $fbUserFriends = $this->fetchFacebookFriends($fbToken);
+
+        $friendsIds = [];
+
+        foreach($fbUserFriends as $friend) {
+            $friendsIds[] = $friend['id'];
+        }
+
+        $onMateyFriends = $this->service->findFriendsByFbId($friendsIds);
+
+        $finalResult = $onMateyFriends;
+
+        return $finalResult;
+
+    }
+
+    public function fetchFacebookFriends ($fbToken) {
+
+        $app_id = '1702025086719722';
+        $app_secret = 'd7f4251a562c52bfb45c9daf8354f35d';
+        $fb = new Facebook([
+            'app_id' => $app_id,
+            'app_secret' => $app_secret,
+            'default_graph_version' => 'v2.2',
+            'http_client_handler' => 'stream'
+        ]);
+
+        $response = $fb->get('/me/friends', $fbToken);
+        $fbUserFriends = $response->getGraphEdge()->asArray();
+
+        return $fbUserFriends;
 
     }
 

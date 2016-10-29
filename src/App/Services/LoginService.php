@@ -15,7 +15,9 @@ class LoginService extends BaseService
 
     public function storeLoginRecord ($deviceId, $user_id, $gcm) {
 
-        $userData = $this->db->fetchAll("SELECT * FROM " . self::T_USER . " WHERE user_id = ? LIMIT 1",
+        $userData = $this->db->fetchAll("SELECT m_user.*, f_user.fb_id FROM " . self::T_USER . " as m_user
+         JOIN ".self::T_FACEBOOK_INFO." as f_user USING(user_id) 
+         WHERE m_user.user_id = ? LIMIT 1",
             array($user_id));
 
         if(empty($userData)) {
@@ -31,6 +33,20 @@ class LoginService extends BaseService
         $userData = $userData[0];
 
         return $userData;
+
+    }
+
+    public function findFriendsByFbId($fbIds) {
+
+        $stmt = $this->db->executeQuery("SELECT m_usr.user_id, m_usr.full_name, m_usr.profile_picture FROM ".self::T_FACEBOOK_INFO." as m_f_info
+        INNER JOIN ".self::T_USER." as m_usr USING(user_id)
+        WHERE m_f_info.fb_id IN(?)",
+            array($fbIds),
+            array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+        );
+
+        $stmt->execute();
+        return $stmt->fetchAll();
 
     }
 
