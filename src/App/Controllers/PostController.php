@@ -28,9 +28,7 @@ class PostController extends AbstractController
 
         $user_id = $request->request->get("user_id");
         $text = $request->request->get("text");
-        $interest_id = $request->request->get("interest_id");
 
-        $this->validateNumericUnsigned($interest_id);
         $this->validate($text, [
             new NotBlank()
         ]);
@@ -38,19 +36,19 @@ class PostController extends AbstractController
         $time = $this->returnTime();
         $this->service->startTransaction();
         try {
-            $post_id = $this->service->createPost($interest_id, $user_id, $text);
+            $post_id = $this->service->createPost('', $user_id, $text);
                 $srl_data = serialize(array(
                     "post_id" => $post_id,
                     "text" => $text
                 ));
-            $activity_id = $this->service->createActivity($user_id, $post_id, BaseService::TYPE_POST, $interest_id, BaseService::TYPE_INTEREST, $srl_data);
+
+            $activity_id = $this->service->createActivity($user_id, $post_id, BaseService::TYPE_POST, 1, BaseService::TYPE_GENERAL, $srl_data);
+
             $this->redisService->startRedisTransaction();
             try {
                 $this->redisService->pushToNewsFeeds($activity_id, $time, $user_id);
                 $this->redisService->incrUserNumOfPosts($user_id, 1);
                 $this->redisService->initializePostStatistics($post_id);
-                // evident user interest
-                // $this->redisService->incrUserSubinterestStatistic($user_id, $subinterest_id, ActivityWeights::POST_SCORE);
                 $this->redisService->commitRedisTransaction();
             } catch (\Exception $e) {
                 $this->redisService->rollbackRedisTransaction();

@@ -38,6 +38,7 @@ class RedisService
     const SUBKEY_DEPTH_1 = "depth-1";
     const SUBKEY_DEPTH_2 = "depth-2";
     const SUBKEY_DEPTH_3 = "depth-3";
+    const SUBKEY_FB_TOKEN = "fb-token";
 
     const FIELD_NUM_OF_POSTS = "num_of_posts";
     const FIELD_NUM_OF_GIVEN_RESPONSES = "num_of_responses";
@@ -168,6 +169,10 @@ class RedisService
             $this->pushInterestDepth2($user_id, $interest_0_id, $interest_1_id, $interest_2_id, $incrBy-1);
     }
 
+    public function pushFbAccessToken($user_id, $fb_token) {
+        $this->redis->set(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$user_id, $fb_token, 3600);
+    }
+
     // --------------------------------------------------------------------
     // GENERATORS
 
@@ -252,6 +257,10 @@ class RedisService
 
     public function getInterests ($user_id) {
         return $this->redis->zrevrange(self::KEY_INTEREST.":".self::SUBKEY_INTERESTS.":".$user_id, 0, -1);
+    }
+
+    public function getFbToken ($user_id) {
+        return $this->redis->get(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$user_id);
     }
 
     // --------------------------------------------------------------------

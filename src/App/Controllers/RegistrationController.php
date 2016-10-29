@@ -22,6 +22,7 @@ use AuthBucket\OAuth2\Validator\Constraints\UsernameValidator;
 use Facebook\Exceptions\FacebookResponseException;
 use Facebook\Exceptions\FacebookSDKException;
 use Facebook\Facebook;
+use Facebook\FacebookRequest;
 use GuzzleHttp\Client;
 use Mockery\Matcher\Not;
 use Silex\Application;
@@ -209,9 +210,14 @@ class RegistrationController extends AbstractController
         /*
          * Check facebook token validity.
          */
-        $fbUser = $this->checkFacebookToken($request);
-        $email = $fbUser->getEmail();
+        $fbToken = $request->request->get("access_token");
 
+        $this->validate($fbToken, [
+            new NotBlank()
+        ]);
+
+        $fbUser = $this->checkFacebookToken($fbToken);
+        $email = $fbUser->getEmail();
         /*
          * Check if email exists in the system
          */
@@ -239,12 +245,12 @@ class RegistrationController extends AbstractController
         /*
          * At this point, registration takes place.
          */
+
         $fbId = $fbUser->getId();
         $firstName = $fbUser->getFirstName();
         $lastName = $fbUser->getLastName();
         $profilePicture = $fbUser->getPicture();
         $fullName = $fbUser->getName();
-
         /*
          * Starting transaction.
          */
@@ -257,6 +263,7 @@ class RegistrationController extends AbstractController
             $this->service->storeFacebookData($newUserId, $fbId);
             $this->redisService->initializeUserStatistics($newUserId);
             $this->redisService->initializeUserIdByEmail($email, $newUserId);
+            $this->redisService->pushFbAccessToken($newUserId, $fbToken);
 
             $this->service->commitTransaction();
         } catch (\Exception $e) {
@@ -273,13 +280,7 @@ class RegistrationController extends AbstractController
 
     }
 
-    public function checkFacebookToken (Request $request) {
-
-        $fbToken = $request->request->get("access_token");
-
-        $this->validate($fbToken, [
-            new NotBlank()
-        ]);
+    public function checkFacebookToken ($fbToken) {
 
         $app_id = '1702025086719722';
         $app_secret = 'd7f4251a562c52bfb45c9daf8354f35d';
@@ -300,7 +301,7 @@ class RegistrationController extends AbstractController
 
         try {
             // Returns a `Facebook\FacebookResponse` object
-            $response = $fb->get('/me?fields=id,email,first_name,last_name', $fbToken);
+            $response = $fb->get('/me?fields=id,email,first_name,last_name,friends', $fbToken);
         } catch(FacebookResponseException $e) {
             throw new InvalidRequestException([
                 'error_description' => 'The request includes an invalid parameter value.',

@@ -45,7 +45,6 @@ class InterestController extends AbstractController
             ]);
         }
 
-
         /*
          * Storing data about user interest
          */
@@ -61,22 +60,22 @@ class InterestController extends AbstractController
             $this->service->createUserInterest($user_id, $interest->interest_id, $interest->depth);
 
             if ($interest->depth == 0) {
-                $this->redisService->pushInterestDepth0($user_id, $interest->interest_id, 4);
+                $this->redisService->pushInterestDepth0($user_id, $interest->interest_id, 10);
             } else if ($interest->depth == 1) {
                 $result = $this->service->findParentDepth_1($interest->interest_id);
                 if (empty($result['interest_0_id']))
                     throw new InvalidRequestException();
-                $this->redisService->pushInterestDepth1($user_id, $result['interest_0_id'], $interest->interest_id, 4);
+                $this->redisService->pushInterestDepth1($user_id, $result['interest_0_id'], $interest->interest_id, 10);
             } else if ($interest->depth == 2) {
                 $result = $this->service->findParentDepth_2($interest->interest_id);
                 if (empty($result['interest_0_id']) || empty($result['interest_1_id']))
                     throw new InvalidRequestException();
-                $this->redisService->pushInterestDepth2($user_id, $result['interest_0_id'], $result['interest_1_id'], $interest->interest_id, 4);
+                $this->redisService->pushInterestDepth2($user_id, $result['interest_0_id'], $result['interest_1_id'], $interest->interest_id, 10);
             } else if ($interest->depth == 3) {
                 $result = $this->service->findParentDepth_3($interest->interest_id);
                 if (empty($result['interest_0_id']) || empty($result['interest_1_id']) || empty($result['interest_2_id']))
                     throw new InvalidRequestException();
-                $this->redisService->pushInterestDepth3($user_id, $result['interest_0_id'], $result['interest_1_id'], $result['interest_2_id'], $interest->interest_id, 4);
+                $this->redisService->pushInterestDepth3($user_id, $result['interest_0_id'], $result['interest_1_id'], $result['interest_2_id'], $interest->interest_id, 10);
             }
 
         }

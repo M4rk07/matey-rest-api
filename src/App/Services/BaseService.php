@@ -41,6 +41,7 @@ class BaseService
 
     // ACTIVITY TYPES
     const TYPE_USER = "USER";
+    const TYPE_GENERAL = "GENERAL";
     const TYPE_INTEREST = "INTEREST";
     const TYPE_POST = "POST";
     const TYPE_FOLLOW = "FOLLOW";

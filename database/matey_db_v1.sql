@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS matey_login (
 CREATE TABLE IF NOT EXISTS matey_follower (
   from_user int(11) UNSIGNED NOT NULL,
   to_user int(11) UNSIGNED NOT NULL,
-  date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  date_started timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (from_user, to_user),
   FOREIGN KEY (from_user) REFERENCES matey_user(user_id),
   FOREIGN KEY (to_user) REFERENCES matey_user(user_id)
@@ -116,13 +116,27 @@ CREATE TABLE IF NOT EXISTS matey_post (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `matey_bookmark`
+-- Table structure for table `matey_share`
 --
 
-CREATE TABLE IF NOT EXISTS matey_bookmark (
-  post_id int(11) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS matey_share (
   user_id int(11) UNSIGNED NOT NULL,
-  clock timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  post_id int(11) UNSIGNED NOT NULL,
+  date_shared timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
+  FOREIGN KEY (post_id) REFERENCES matey_post(post_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_post_follow`
+--
+
+CREATE TABLE IF NOT EXISTS matey_post_follow (
+  user_id int(11) UNSIGNED NOT NULL,
+  post_id int(11) UNSIGNED NOT NULL,
+  date_started timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY (post_id) REFERENCES matey_post(post_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -138,7 +152,7 @@ CREATE TABLE IF NOT EXISTS matey_response (
   user_id int(11) UNSIGNED NOT NULL,
   post_id int(11) UNSIGNED NOT NULL,
   text varchar(7000) NOT NULL,
-  date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  date_respond timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (response_id),
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY (post_id) REFERENCES matey_post(post_id)
@@ -156,20 +170,6 @@ CREATE TABLE IF NOT EXISTS matey_approve (
   PRIMARY KEY (user_id, response_id),
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY (response_id) REFERENCES matey_response(response_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `matey_share`
---
-
-CREATE TABLE IF NOT EXISTS matey_share (
-  user_id int(11) UNSIGNED NOT NULL,
-  post_id int(11) UNSIGNED NOT NULL,
-  date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
-  FOREIGN KEY (post_id) REFERENCES matey_post(post_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -213,7 +213,7 @@ CREATE TABLE IF NOT EXISTS matey_activity (
 CREATE TABLE IF NOT EXISTS matey_user_interest (
   user_id int(11) UNSIGNED NOT NULL,
   interest_id int(11) UNSIGNED NOT NULL,
-  depth tinyint(1) UNSIGNED NOT NULL,
+  depth tinyint(1) NOT NULL,
   PRIMARY KEY (user_id, interest_id, depth),
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -279,6 +279,36 @@ CREATE TABLE IF NOT EXISTS matey_interest_depth_3 (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `matey_group`
+--
+
+CREATE TABLE IF NOT EXISTS matey_group (
+  group_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  group_name varchar(500) NOT NULL,
+  description varchar(5000),
+  interest_id int(11) UNSIGNED NOT NULL,
+  interest_depth tinyint(1) NOT NULL,
+  PRIMARY KEY (group_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_group_follow`
+--
+
+CREATE TABLE IF NOT EXISTS matey_group_follow (
+  group_id int(11) UNSIGNED NOT NULL,
+  user_id int(11) UNSIGNED NOT NULL,
+  date_started TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (group_id, user_id),
+  FOREIGN KEY(group_id) REFERENCES matey_group(group_id),
+  FOREIGN KEY(user_id) REFERENCES matey_user(user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `matey_user`
 --
 
@@ -289,6 +319,7 @@ CREATE TABLE IF NOT EXISTS oauth2_user (
   salt varchar(20) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (user_id),
   UNIQUE KEY (username),
+  FOREIGN KEY(user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY (username) REFERENCES matey_user(email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -410,7 +441,7 @@ INSERT INTO oauth2_client (app_name) VALUES ('Matey');
 
 INSERT INTO matey_activity_type (activity_type) VALUES
 ('INTEREST'), ('POST'), ('RESPONSE'),
-('FOLLOW'), ('SHARE');
+('FOLLOW'), ('SHARE'), ('GENERAL');
 
 -- --------------------------------------------------------
 

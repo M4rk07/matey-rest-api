@@ -78,6 +78,7 @@ class RoutesLoader
         // - follow
         // - unfollow
         $api->post('/follower/{action}', 'follower.controller:followerAction');
+        $api->get('/friends/suggested', 'follower.controller:suggestFriendsActivity');
 
         $api->post('/post/add', 'post.controller:addPostAction');
         $api->post('/post/remove', 'post.controller:deletePostAction');
