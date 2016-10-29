@@ -226,9 +226,12 @@ class RegistrationController extends AbstractController
                 * If exists, then checking if there is facebook id, in other words
                 * user have facebook account
                 */
-            if( !empty($user['fb_id']) ) return new JsonResponse(array(
-                "username" => $email,
-            ), 200);
+            if( !empty($user['fb_id']) ) {
+                $this->redisService->pushFbAccessToken($user['user_id'], $fbToken);
+                return new JsonResponse(array(
+                    "username" => $email,
+                ), 200);
+            }
                 /*
                  * If facebook id doesn't exists, but username does, than user have standard account.
                  * In this case asking for merge.
