@@ -170,7 +170,8 @@ class RedisService
     }
 
     public function pushFbAccessToken($user_id, $fb_token) {
-        $this->redis->set(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$user_id, $fb_token, 3600);
+        $this->redis->set(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$user_id, $fb_token);
+        $this->redis->expire(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$user_id, 3600);
     }
 
     // --------------------------------------------------------------------
