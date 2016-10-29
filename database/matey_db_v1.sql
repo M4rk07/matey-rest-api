@@ -287,8 +287,6 @@ CREATE TABLE IF NOT EXISTS matey_group (
   group_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   group_name varchar(500) NOT NULL,
   description varchar(5000),
-  interest_id int(11) UNSIGNED NOT NULL,
-  interest_depth tinyint(1) NOT NULL,
   PRIMARY KEY (group_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

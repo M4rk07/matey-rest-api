@@ -93,4 +93,32 @@ class TestController extends AbstractController
 
     }
 
+    public function fillGroups() {
+        $categoriesFile = fopen("/var/www/matey-api/Texts/interests.txt", "r");
+
+        if ($categoriesFile) {
+
+            $lastDepth0 = '';
+
+            while (($buffer = fgets($categoriesFile)) !== false) {
+
+                $rmCategory = str_replace('category::', '', $buffer);
+                $categories = explode('>', $rmCategory);
+                $categories[0] = trim(preg_replace('/\s\s+/', ' ', $categories[0]));
+                if (strcmp($categories[0], $lastDepth0) != 0) {
+                    $lastDepth0 = $categories[0];
+                    $this->service->makeGroup($categories[0]);
+                }
+
+
+            }
+            if (!feof($categoriesFile)) {
+                echo "Error: unexpected fgets() fail\n";
+            }
+            fclose($categoriesFile);
+        }
+
+        return $this->returnOk();
+    }
+
 }

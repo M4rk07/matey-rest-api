@@ -29,6 +29,7 @@ class BaseService
     const T_USER_INFO = "matey_user_info";
     const T_USER_INTEREST = "matey_user_interest";
     const T_INTEREST_DEPTH_ = "matey_interest_depth_";
+    const T_GROUP = "matey_group";
 
     // Database authorization table names
     const T_A_USER = "oauth2_user";

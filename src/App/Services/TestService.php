@@ -12,6 +12,11 @@ namespace App\Services;
 class TestService extends BaseService
 {
 
+    public function makeGroup($group_name) {
+        $this->db->executeUpdate("INSERT IGNORE INTO ".self::T_GROUP." (group_name) VALUES (?)",
+            array($group_name));
+    }
+
     public function insertDepth0 ($interest_0_id, $interest) {
 
         $this->db->executeUpdate("INSERT IGNORE INTO ".self::T_INTEREST_DEPTH_0." (interest_0_id, interest) VALUES (?, ?)",
