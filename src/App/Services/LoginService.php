@@ -37,6 +37,13 @@ class LoginService extends BaseService
 
     }
 
+    public function setUserFirstTimeLogged ($user_id) {
+
+        return $this->db->executeUpdate("UPDATE ".self::T_USER." SET first_login = 1 WHERE user_id = ?",
+            array($user_id));
+
+    }
+
     public function findFriendsByFbId($fbIds) {
 
         $stmt = $this->db->executeQuery("SELECT m_usr.user_id, m_usr.first_name, m_usr.last_name, m_usr.profile_picture FROM ".self::T_FACEBOOK_INFO." as m_f_info

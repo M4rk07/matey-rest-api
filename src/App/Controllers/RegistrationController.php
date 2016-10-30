@@ -306,7 +306,7 @@ class RegistrationController extends AbstractController
 
         try {
             // Returns a `Facebook\FacebookResponse` object
-            $response = $fb->get('/me?fields=id,email,first_name,last_name,friends,picture', $fbToken);
+            $response = $fb->get('/me?fields=id,email,first_name,last_name,friends,picture.type(large)', $fbToken);
         } catch(FacebookResponseException $e) {
             throw new InvalidRequestException([
                 'error_description' => 'The request includes an invalid parameter value.',

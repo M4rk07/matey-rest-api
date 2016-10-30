@@ -51,6 +51,7 @@ class LoginController extends AbstractController
 
         if($userData['first_login'] == 0 && !empty($userData['fb_id'])) {
             $userData['suggested_friends'] = $this->suggestFriendsActivity($user_id);
+            $this->service->setUserFirstTimeLogged($user_id);
         }
 
         return JsonResponse::create($userData, 200, [
