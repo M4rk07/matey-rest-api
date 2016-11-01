@@ -15,6 +15,9 @@ use Carbon\Carbon;
 // DISABLE SECURITY FOR TESTING
 require_once __DIR__.'/../resources/config/security.php';
 
+putenv('GOOGLE_APPLICATION_CREDENTIALS=/var/www/matey-api/app-files/matey-service.json');
+putenv('FACEBOOK_APPLICATION_CREDENTIALS=/var/www/matey-api/app-files/fb-credentials.json');
+
 $app['matey.timezone'] = 'Europe/Belgrade';
 
 date_default_timezone_set($app['matey.timezone']);

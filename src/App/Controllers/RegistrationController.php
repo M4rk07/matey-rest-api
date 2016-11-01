@@ -9,6 +9,7 @@
 namespace App\Controllers;
 
 
+use App\Handlers\ImageHandler;
 use App\Paths\Paths;
 use App\Security\SaltGenerator;
 use App\Security\SecretGenerator;
@@ -111,7 +112,7 @@ class RegistrationController extends AbstractController
         $this->service->startTransaction();
         try {
             // storing standard user data
-            $user_id = $this->service->storeUserData($email, $first_name, $last_name, $fullName);
+            $user_id = $this->service->storeUserData($email, $first_name, $last_name, $fullName, 1);
 
             // redis statistics and user id by email finding
             $this->redisService->initializeUserStatistics($user_id);
@@ -254,8 +255,9 @@ class RegistrationController extends AbstractController
         $lastName = $fbUser->getLastName();
         $fullName = $firstName." ".$lastName;
         $profilePicture = $fbUser->getPicture();
-        if(!$profilePicture->isSilhouette()) $profilePicture = $profilePicture->getUrl();
-        else $profilePicture = null;
+        $isSilhouette = 0;
+        if($profilePicture->isSilhouette()) $isSilhouette = 1;
+
         /*
          * Starting transaction.
          */
@@ -264,8 +266,17 @@ class RegistrationController extends AbstractController
             /*
              * Storing user and facebook data in database.
              */
-            $newUserId = $this->service->storeUserData($email, $firstName, $lastName, $fullName, $profilePicture);
+            $newUserId = $this->service->storeUserData($email, $firstName, $lastName, $fullName, $isSilhouette);
             $this->service->storeFacebookData($newUserId, $fbId);
+
+            /*
+             * Store facebook image to cloud storage
+             */
+            if($isSilhouette == 0) {
+                $imgHandler = new ImageHandler();
+                $imgHandler->handleFacebookImage($fbId, $newUserId);
+            }
+
             $this->redisService->initializeUserStatistics($newUserId);
             $this->redisService->initializeUserIdByEmail($email, $newUserId);
             $this->redisService->pushFbAccessToken($newUserId, $fbToken);
@@ -287,8 +298,11 @@ class RegistrationController extends AbstractController
 
     public function checkFacebookToken ($fbToken) {
 
-        $app_id = '1702025086719722';
-        $app_secret = 'd7f4251a562c52bfb45c9daf8354f35d';
+        $fbCredentials = file_get_contents(getenv("FACEBOOK_APPLICATION_CREDENTIALS"));
+        $fbCredentials = json_decode($fbCredentials);
+        $app_id = $fbCredentials->app_id;
+        $app_secret = $fbCredentials->app_secret;
+
         $fb = new Facebook([
             'app_id' => $app_id,
             'app_secret' => $app_secret,
@@ -306,7 +320,7 @@ class RegistrationController extends AbstractController
 
         try {
             // Returns a `Facebook\FacebookResponse` object
-            $response = $fb->get('/me?fields=id,email,first_name,last_name,friends,picture.type(large)', $fbToken);
+            $response = $fb->get('/me?fields=id,email,first_name,last_name,friends,picture', $fbToken);
         } catch(FacebookResponseException $e) {
             throw new InvalidRequestException([
                 'error_description' => 'The request includes an invalid parameter value.',

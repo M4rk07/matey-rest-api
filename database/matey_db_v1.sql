@@ -34,7 +34,8 @@ CREATE TABLE IF NOT EXISTS matey_user (
   first_name varchar(50) CHARACTER SET utf8 NOT NULL,
   last_name varchar(50) CHARACTER SET utf8 NOT NULL,
   full_name varchar(100) CHARACTER SET utf8 NOT NULL,
-  profile_picture VARCHAR(1000) NULL,
+  is_silhouette tinyint(1) NOT NULL DEFAULT 1,
+  is_facebook tinyint(1) NOT NULL DEFAULT 0,
   first_login tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY(user_id),
   UNIQUE KEY (email)

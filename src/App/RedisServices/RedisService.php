@@ -17,6 +17,7 @@ class RedisService
     protected $redis;
 
     // REDIS KEYS
+    const KEY_APP = "APP";
     const KEY_USER = "USER";
     const KEY_POST = "POST";
     const KEY_RESPONSE = "RESPONSE";
@@ -172,6 +173,14 @@ class RedisService
     public function pushFbAccessToken($user_id, $fb_token) {
         $this->redis->set(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$user_id, $fb_token);
         $this->redis->expire(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$user_id, 3600);
+    }
+
+    public function pushGoogleApiToken ($token) {
+        $this->redis->set(self::KEY_APP.":".self::SUBKEY_FB_TOKEN, $token);
+    }
+
+    public function getGoogleApiToken ($token) {
+        return $this->redis->get(self::KEY_APP.":".self::SUBKEY_FB_TOKEN, $token);
     }
 
     // --------------------------------------------------------------------
