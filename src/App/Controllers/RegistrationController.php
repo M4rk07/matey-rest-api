@@ -13,6 +13,7 @@ use App\Handlers\ImageHandler;
 use App\Paths\Paths;
 use App\Security\SaltGenerator;
 use App\Security\SecretGenerator;
+use App\Services\CloudStorageService;
 use App\Validators\FirstName;
 use App\Validators\Name;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
@@ -37,6 +38,16 @@ use Symfony\Component\Validator\Context\ExecutionContext;
 
 class RegistrationController extends AbstractController
 {
+
+    public function makeSignature (Request $request) {
+
+        $image = new CloudStorageService();
+
+        return new JsonResponse(array(
+            'signature' => $image->generateSignedURL('profile_pictures/100x100/45.jpg', 'GET', 30)
+        ), 200);
+
+    }
 
     public function registerStandardUserAction (Request $request) {
 

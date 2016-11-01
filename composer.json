@@ -27,7 +27,7 @@
 		"symfony/validator": "~2.8",
 		"guzzlehttp/guzzle": "~6.0",
 		"lib-openssl": "*",
-		"google/apiclient": "^2.0.0@RC"
+		"google/apiclient": "^2.0"
 
 	},
 	"require-dev": {

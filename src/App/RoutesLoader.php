@@ -66,6 +66,7 @@ class RoutesLoader
 
         $this->app->get('/test', 'test.controller:fillCategories');
         $this->app->get('/fillGroups', 'test.controller:fillGroups');
+        $this->app->get('/signature', 'registration.controller:makeSignature');
 
         $this->app->post('/register/user', 'registration.controller:registerStandardUserAction');
         $this->app->post('/register/device', 'registration.controller:registerDeviceAction');
