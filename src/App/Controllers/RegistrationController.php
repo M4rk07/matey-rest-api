@@ -50,7 +50,6 @@ class RegistrationController extends AbstractController
     }
 
     public function registerStandardUserAction (Request $request) {
-
         /*
          * fetch required data for registration from request
          */
@@ -124,7 +123,6 @@ class RegistrationController extends AbstractController
         try {
             // storing standard user data
             $user_id = $this->service->storeUserData($email, $first_name, $last_name, $fullName, 1);
-
             // redis statistics and user id by email finding
             $this->redisService->initializeUserStatistics($user_id);
             $this->redisService->initializeUserIdByEmail($email, $user_id);
@@ -285,7 +283,7 @@ class RegistrationController extends AbstractController
              */
             if($isSilhouette == 0) {
                 $imgHandler = new ImageHandler();
-                $imgHandler->handleFacebookImage($fbId, $newUserId);
+                $imgHandler->handleFacebookProfilePicture($fbId, $newUserId);
             }
 
             $this->redisService->initializeUserStatistics($newUserId);

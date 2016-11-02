@@ -16,4 +16,12 @@ class AccessTokenManager extends AbstractManager implements AccessTokenManagerIn
         parent::__construct(self::T_A_ACCESS_TOKEN, 'App\\OAuth2Models\\AccessToken', "access_token");
     }
 
+    public function updateToken ($accessToken) {
+        $this->db->update(self::T_A_ACCESS_TOKEN, array(
+            'expires' => (new \DateTime('+60 days'))->format('Y-m-d H:i:s')
+        ), array(
+            'access_token' => $accessToken
+        ));
+    }
+
 }

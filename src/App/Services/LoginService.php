@@ -46,7 +46,7 @@ class LoginService extends BaseService
 
     public function findFriendsByFbId($fbIds) {
 
-        $stmt = $this->db->executeQuery("SELECT m_usr.user_id, m_usr.first_name, m_usr.last_name, m_usr.profile_picture FROM ".self::T_FACEBOOK_INFO." as m_f_info
+        $stmt = $this->db->executeQuery("SELECT m_usr.user_id, m_usr.first_name, m_usr.last_name FROM ".self::T_FACEBOOK_INFO." as m_f_info
         INNER JOIN ".self::T_USER." as m_usr USING(user_id)
         WHERE m_f_info.fb_id IN(?)",
             array($fbIds),

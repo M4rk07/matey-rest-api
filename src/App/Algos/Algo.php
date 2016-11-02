@@ -1,5 +1,7 @@
 <?php
 namespace App\Algos;
+use App\Paths\Paths;
+
 /**
  * Created by PhpStorm.
  * User: marko
@@ -12,5 +14,4 @@ class Algo
     public function calculateActivityTimeScore($time) {
         return strtotime($time);
     }
-
 }

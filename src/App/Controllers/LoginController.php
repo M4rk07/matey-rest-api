@@ -9,7 +9,10 @@
 namespace App\Controllers;
 
 
+use App\Algos\Algo;
+use App\Paths\Paths;
 use App\Services\BaseService;
+use App\Services\CloudStorageService;
 use App\Services\LoginService;
 use AuthBucket\OAuth2\Controller\OAuth2Controller;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
@@ -33,6 +36,8 @@ class LoginController extends AbstractController
         // fetch data from request
         $user_id = $request->request->get("user_id");
         $deviceId = $request->request->get("device_id");
+        $profilePictureSize = $request->get('profilePicture');
+        if(!isset($profilePictureSize)) $profilePictureSize = 'small';
 
         $this->validateNumericUnsigned($deviceId);
 
@@ -49,9 +54,15 @@ class LoginController extends AbstractController
             throw new ServerErrorException();
         }
 
+        $cloudStorage = new CloudStorageService();
+        $userData['profile_picture'] = $cloudStorage->generateProfilePictureLink($user_id, $profilePictureSize);
+
         if($userData['first_login'] == 0 && !empty($userData['fb_id'])) {
             $userData['suggested_friends'] = $this->suggestFriendsActivity($user_id);
-            $this->service->setUserFirstTimeLogged($user_id);
+            foreach($userData['suggested_friends'] as $user) {
+                $user['profile_picture'] = $cloudStorage->generateProfilePictureLink($user_id, $profilePictureSize);
+            }
+            //$this->service->setUserFirstTimeLogged($user_id);
         }
 
         return JsonResponse::create($userData, 200, [

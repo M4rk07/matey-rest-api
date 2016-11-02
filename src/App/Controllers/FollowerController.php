@@ -25,26 +25,25 @@ use Symfony\Component\Validator\Constraints\Type;
 class FollowerController extends AbstractController
 {
 
-
-
     public function followerAction (Request $request, $action) {
 
         // fetch values from request
         $fromUser = $request->request->get("user_id");
-        $toUser = $request->request->get("to_user");
-
+        $usersToFollow = $request->getContent();
+        $usersToFollow = json_decode($usersToFollow);
         // validate values from request,
         // for user id it must be numeric string
         $this->validateNumericUnsigned($fromUser);
-        $this->validateNumericUnsigned($toUser);
 
-        if(strcasecmp($fromUser, $toUser) == 0) throw new InvalidRequestException();
-
-        if($action == "follow") $this->follow($fromUser,$toUser);
-        else if ($action == "unfollow") $this->unfollow($fromUser, $toUser);
-        else throw new InvalidRequestException([
-            'error_description' => 'The request includes an invalid parameter value.',
-        ]);
+        foreach ($usersToFollow as $user) {
+            $this->validateNumericUnsigned($user->user_id);
+            if(strcasecmp($fromUser, $user->user_id) == 0) throw new InvalidRequestException();
+            if($action == "follow") $this->follow($fromUser, $user->user_id);
+            else if ($action == "unfollow") $this->unfollow($fromUser, $user->user_id);
+            else throw new InvalidRequestException([
+                'error_description' => 'The request includes an invalid parameter value.',
+            ]);
+        }
 
         return $this->returnOk();
 

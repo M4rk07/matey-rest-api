@@ -10,6 +10,8 @@ use App\Controllers\PostController;
 use App\Controllers\RegistrationController;
 use App\Controllers\SearchController;
 use App\Controllers\TestController;
+use App\Controllers\UserProfileController;
+use App\Services\BaseService;
 use App\Services\Redis\UserRedisService;
 use App\Services\Redis\UserService;
 use Silex\Application;
@@ -55,6 +57,10 @@ class RoutesLoader
             return new SearchController($this->app['search.service'], $this->app['redis.service'], $this->app['validator']);
         });
 
+        $this->app['user_profile.controller'] = $this->app->share(function () {
+            return new UserProfileController(new BaseService(), $this->app['redis.service'], $this->app['validator']);
+        });
+
         $this->app['test.controller'] = $this->app->share(function () {
             return new TestController($this->app['test.service'], $this->app['redis.service'], $this->app['validator']);
         });
@@ -67,6 +73,8 @@ class RoutesLoader
         $this->app->get('/test', 'test.controller:fillCategories');
         $this->app->get('/fillGroups', 'test.controller:fillGroups');
         $this->app->get('/signature', 'registration.controller:makeSignature');
+
+        $api->get('/profile_picture/{user_id}', 'user_profile.controller:getProfilePictureAction');
 
         $this->app->post('/register/user', 'registration.controller:registerStandardUserAction');
         $this->app->post('/register/device', 'registration.controller:registerDeviceAction');

@@ -9,42 +9,29 @@
 namespace App\Services;
 
 
+use App\Paths\Paths;
+
 class CloudStorageService
 {
 
-    private $bucketName = 'matey-148023.appspot.com';
-
-    public function storeImageToCloud($imgPath, $imgName, $folder) {
-
-        $client = new \Google_Client();
-        $client->setScopes(\Google_Service_Storage::DEVSTORAGE_FULL_CONTROL);
-        $client->useApplicationDefaultCredentials();
-
-        /**
-         * Upload a file to google cloud storage
-         */
-        $storage = new \Google_Service_Storage($client);
-        $file_name = $folder.'/'.$imgName.".jpg";
-        $obj = new \Google_Service_Storage_StorageObject();
-        $obj->setName($file_name);
-
-
-        $storage->objects->insert(
-            "matey-148023.appspot.com",
-            $obj,
-            ['name' => $file_name, 'data' => file_get_contents($imgPath), 'uploadType' => 'media', 'predefinedAcl' => 'publicRead']
-        );
-
+    public function generateProfilePictureLink($userId, $size = 'small') {
+        $dimension = '100x100';
+        if($size != 'small' && in_array($size, array('medium', 'large', 'veryLarge'))) {
+            if($size == 'medium') $dimension = '200x200';
+            else if($size == 'large') $dimension = '480x480';
+            else if($size == 'veryLarge') $dimension = '720x720';
+        }
+        return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/profile_pictures/".$dimension."/".$userId.".jpg";
     }
 
-    function generateSignedURL($objectName, $method = 'GET', $duration = 1000 ) {
+    public function generateSignedURL($objectName, $method = 'GET', $duration = 1000 ) {
         $expires = time( ) + $duration;
         $content_type = ($method == 'PUT') ? 'application/x-www-form-urlencoded' : '';
         $to_sign = ($method . "\n" .
             /* Content-MD5 */ "\n" .
             $content_type . "\n" .
             $expires . "\n" .
-            '/'.$this->bucketName.'/' . $objectName);
+            '/'.Paths::BUCKET_MATEY.'/' . $objectName);
 
         $signature = '*Signature will go here*';
         $mateyService = file_get_contents(getenv("GOOGLE_APPLICATION_CREDENTIALS"));
@@ -56,7 +43,7 @@ class CloudStorageService
         } else {
             $signature = urlencode( base64_encode( $signature ) );
         }
-        return ('https://storage.googleapis.com/'.$this->bucketName.'/' .
+        return ('https://storage.googleapis.com/'.Paths::BUCKET_MATEY.'/' .
             $objectName .
             '?GoogleAccessId=' . $mateyService->client_email .
             '&Expires=' . $expires . '&Signature=' . $signature);

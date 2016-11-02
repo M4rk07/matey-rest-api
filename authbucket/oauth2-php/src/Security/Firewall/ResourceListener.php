@@ -11,6 +11,7 @@
 
 namespace AuthBucket\OAuth2\Security\Firewall;
 
+use App\OAuth2Models\AccessTokenManager;
 use App\OAuth2Models\UserManager;
 use App\Services\BackupService;
 use App\Services\Redis\RedisService;
@@ -120,6 +121,11 @@ class ResourceListener implements ListenerInterface
          */
         $redisService = new RedisService();
         $user_id = $redisService->getUserIdByEmail($tokenUsername);
+        /*
+         * Update token
+         */
+        $tokenManager = new AccessTokenManager();
+        $tokenManager->updateToken($token->getAccessToken());
         /*
          * If redis isn't available, trying backup system - from MySQL database
          */
