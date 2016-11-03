@@ -17,6 +17,7 @@ class Response
     protected $userId;
     protected $text;
     protected $dateTime;
+    protected $usersApproved = array();
     protected $numOfApproves;
 
     /**
@@ -102,6 +103,22 @@ class Response
     {
         $this->numOfApproves = $numOfApproves;
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getUsersApproved()
+    {
+        return $this->usersApproved;
+    }
+
+    /**
+     * @param array $usersApproved
+     */
+    public function setUsersApproved($usersApproved)
+    {
+        $this->usersApproved = $usersApproved;
     }
 
     /**

@@ -77,6 +77,7 @@ class LoginController extends AbstractController
 
         $cloudStorage = new CloudStorageService();
         $user->setProfilePicture( $cloudStorage->generateProfilePictureLink($user->getUserId(), $profilePictureSize) );
+        $suggestedFollowings = array();
 
         if($user->isFirstLogin() && $user->isFacebookAccount()) {
             $fbToken = $this->redisService->getFbToken($user->getUserId());
@@ -88,7 +89,7 @@ class LoginController extends AbstractController
                 $friendsIds[] = $friend['id'];
             }
 
-            $user = $userManager->getSuggestedFollowingsByFacebook($user, $friendsIds, $profilePictureSize);
+            $suggestedFollowings = $userManager->getSuggestedFollowingsByFacebook($user, $friendsIds, $profilePictureSize);
             //$this->service->setUserFirstTimeLogged($user_id);
         }
 
@@ -101,7 +102,7 @@ class LoginController extends AbstractController
             'first_login' => $user->isFirstLogin(),
             'profile_picture' => $user->getProfilePicture(),
             'is_silhouette' => $user->isSilhouette(),
-            'suggested_friends' => $user->getSuggestedFollowings()
+            'suggested_friends' => $suggestedFollowings
         ), 200, [
             'Cache-Control' => 'no-store',
             'Pragma' => 'no-cache',

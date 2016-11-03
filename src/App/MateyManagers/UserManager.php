@@ -218,6 +218,7 @@ class UserManager extends BaseService implements UserProviderInterface
         $suggestedFriends = array();
         $cloudStorage = new CloudStorageService();
 
+
         foreach($result as $res) {
             $suggestedFriends[] = array(
                 'user_id' => $res['user_id'],
@@ -227,9 +228,7 @@ class UserManager extends BaseService implements UserProviderInterface
             );
         }
 
-        $user->setSuggestedFollowings($suggestedFriends);
-
-        return $user;
+        return $suggestedFriends;
 
     }
 

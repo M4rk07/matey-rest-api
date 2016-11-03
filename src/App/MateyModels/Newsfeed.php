@@ -15,8 +15,8 @@ class Newsfeed
     protected $userId;
     protected $feedName;
     protected $dateTime;
-    protected $feedActivities;
-    protected $feedGroups;
+    protected $feedActivities = array();
+    protected $feedGroups = array();
 
     /**
      * @return mixed
@@ -80,7 +80,7 @@ class Newsfeed
     /**
      * @param mixed $feedActivities
      */
-    public function setFeedActivities($feedActivities)
+    public function setFeedActivities(array $feedActivities)
     {
         $this->feedActivities = $feedActivities;
         return $this;
@@ -97,7 +97,7 @@ class Newsfeed
     /**
      * @param mixed $feedGroups
      */
-    public function setFeedGroups($feedGroups)
+    public function setFeedGroups(array $feedGroups)
     {
         $this->feedGroups = $feedGroups;
         return $this;

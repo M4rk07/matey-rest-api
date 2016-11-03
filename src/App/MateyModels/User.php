@@ -29,7 +29,6 @@ class User implements UserInterface
     protected $fbId;
     protected $fbToken;
     protected $activities = array();
-    protected $suggested_followings = array();
     protected $newsfeeds = array();
 
     // STATISTICS
@@ -43,8 +42,6 @@ class User implements UserInterface
     protected $numOfBestResponses;
     protected $numOfProfileClicks;
     protected $numOfShares;
-
-
 
     /**
      * @return mixed
@@ -259,22 +256,6 @@ class User implements UserInterface
     {
         $this->firstLogin = $firstLogin;
         return $this;
-    }
-
-    /**
-     * @return array
-    */
-    public function getSuggestedFollowings()
-    {
-      return $this->suggested_followings;
-    }
-
-    /**
-    * @param array $suggested_followings
-    */
-    public function setSuggestedFollowings(array $suggested_followings)
-    {
-        $this->suggested_followings = $suggested_followings;
     }
 
     /**

@@ -15,8 +15,10 @@ class Post
     protected $postId;
     protected $userId;
     protected $text;
-    protected $responses = array();
     protected $dateTime;
+    protected $responses = array();
+    protected $bestResponse = array();
+    protected $lastThreeResponses = array();
     protected $numOfResponses;
     protected $numOfShares;
 
@@ -116,9 +118,43 @@ class Post
     /**
      * @param mixed $responses
      */
-    public function setResponses($responses)
+    public function setResponses(array $responses)
     {
         $this->responses = $responses;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBestResponse()
+    {
+        return $this->bestResponse;
+    }
+
+    /**
+     * @param array $bestResponse
+     */
+    public function setBestResponse($bestResponse)
+    {
+        $this->bestResponse = $bestResponse;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getLastThreeResponses()
+    {
+        return $this->lastThreeResponses;
+    }
+
+    /**
+     * @param array $lastThreeResponses
+     */
+    public function setLastThreeResponses(array $lastThreeResponses)
+    {
+        $this->lastThreeResponses = $lastThreeResponses;
         return $this;
     }
 
