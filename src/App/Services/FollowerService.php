@@ -10,6 +10,7 @@ namespace App\Services;
 
 
 use App\Algos\ActivityWeights;
+use App\Algos\Timer;
 use App\Controllers\AbstractController;
 use App\MateyManagers\UserManager;
 use App\MateyModels\User;
@@ -26,16 +27,16 @@ class FollowerService extends ActivityService
         $userManager = new UserManager();
         $userManager->incrUserNumOfFollowing($fromUser, 1);
         $userManager->incrUserNumOfFollowers($toUser, 1);
-        $this->incrUserRelationship($fromUser, $toUser, ActivityWeights::FOLLOW_SCORE, AbstractController::returnTime());
+        $this->incrUserRelationship($fromUser, $toUser, ActivityWeights::FOLLOW_SCORE);
         $this->createNewConnection($fromUser, $toUser);
 
     }
 
-    public function incrUserRelationship (User $fromUser, User $toUser, $score, $now_time) {
+    public function incrUserRelationship (User $fromUser, User $toUser, $score) {
         $this->redis->hincrby(self::KEY_POST.":".self::SUBKEY_RELATIONSHIP.":".$fromUser->getUserId().":".$toUser->getUserId(),
             self::FIELD_SCORE, $score);
         $this->redis->hset(self::KEY_POST.":".self::SUBKEY_RELATIONSHIP.":".$fromUser->getUserId().":".$toUser->getUserId(),
-            self::FIELD_TIME, $now_time);
+            self::FIELD_TIME, strtotime(Timer::returnTime()));
     }
 
     public function createNewConnection (User $user, User $connectedUser) {

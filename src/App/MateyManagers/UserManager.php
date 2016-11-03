@@ -130,6 +130,14 @@ class UserManager extends BaseService implements UserProviderInterface
         $this->redis->hincrby(self::KEY_USER.":".self::SUBKEY_STATISTICS.":".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWING, $incrby);
     }
 
+    public function incrUserNumOfPosts(User $user, $incrby) {
+        $this->redis->hincrby(self::KEY_USER.":".self::SUBKEY_STATISTICS.":".$user->getUserId(), self::FIELD_NUM_OF_POSTS, $incrby);
+    }
+
+    public function incrUserNumOfResponses(User $user, $incrby) {
+        $this->redis->hincrby(self::KEY_USER.":".self::SUBKEY_STATISTICS.":".$user->getUserId(), self::FIELD_NUM_OF_GIVEN_RESPONSES, $incrby);
+    }
+
     public function getUserActivities (User $user, $limit) {
         $result = $this->db->fetchAll("SELECT activity_id, activity_time FROM ".self::T_ACTIVITY." WHERE user_id = ? ORDER BY activity_id DESC LIMIT ".$limit,
             array($user->getUserId()));
@@ -162,6 +170,13 @@ class UserManager extends BaseService implements UserProviderInterface
             $activity->getActivityId() => $score
         ));
         $this->redis->zremrangebyrank(self::KEY_USER.":".self::SUBKEY_NEWSFEED.":".$user->getUserId(), 0, -301);
+    }
+
+    public function setUserFirstTimeLogged (User $user) {
+
+        return $this->db->executeUpdate("UPDATE ".self::T_USER." SET first_login = 1 WHERE user_id = ?",
+            array($user->getUserId()));
+
     }
 
 }

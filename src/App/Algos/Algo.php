@@ -11,7 +11,4 @@ use App\Paths\Paths;
 class Algo
 {
 
-    public function calculateActivityTimeScore($time) {
-        return strtotime($time);
-    }
 }

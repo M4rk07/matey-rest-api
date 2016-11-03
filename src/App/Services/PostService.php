@@ -9,65 +9,18 @@
 namespace App\Services;
 
 
+use App\MateyModels\Response;
+use App\MateyModels\User;
+
 class PostService extends ActivityService
 {
 
-    public function createPost($interest_id, $user_id, $text) {
+    public function approve(User $user, Response $response) {
 
-        $this->db->insert(self::T_POST, array(
-            'user_id' => $user_id,
-            'text' => $text
-        ));
-
-        return $this->db->lastInsertId();
-
-    }
-
-    public function deletePost($post_id, $user_id) {
-
-        $this->db->delete(self::T_POST, array(
-            'post_id' => $post_id
-        ));
-
-    }
-
-    public function bookmarkPost($post_id, $user_id) {
-
-        $this->db->insert(self::T_BOOKMARK, array(
-            'post_id' => $post_id,
-            'user_id' => $user_id
-        ));
-
-    }
-
-    public function createResponse($user_id, $post_id, $text) {
-
-        $this->db->insert(self::T_RESPONSE, array(
-            'user_id' => $user_id,
-            'post_id' => $post_id,
-            'text' => $text
-        ));
-
-        return $this->db->lastInsertId();
-
-    }
-
-    public function deleteResponse($response_id, $post_id, $user_id) {
-
-        $this->db->delete(self::T_RESPONSE, array(
-            'response_id' => $response_id,
-            'post_id' => $post_id,
-            'user_id' => $user_id
-        ));
-
-    }
-
-    public function approve($user_id, $response_id) {
-
-        $this->db->insert(self::T_APPROVE, array(
-            'response_id' => $response_id,
-            'user_id' => $user_id
-        ));
+        $result = $this->db->executeUpdate("INSERT IGNORE INTO ".self::T_APPROVE." (user_id, response_id) VALUES(?,?)",
+            array($user->getUserId(), $response->getResponseId()));
+        if($result <= 0) return false;
+        return true;
 
     }
 

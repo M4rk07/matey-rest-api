@@ -110,7 +110,8 @@ CREATE TABLE IF NOT EXISTS matey_post (
   post_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id int(11) UNSIGNED NOT NULL,
   text varchar(7000) NOT NULL,
-  date_added timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  date_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (post_id),
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -154,7 +155,8 @@ CREATE TABLE IF NOT EXISTS matey_response (
   user_id int(11) UNSIGNED NOT NULL,
   post_id int(11) UNSIGNED NOT NULL,
   text varchar(7000) NOT NULL,
-  date_respond timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  date_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (response_id),
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY (post_id) REFERENCES matey_post(post_id)
@@ -200,6 +202,7 @@ CREATE TABLE IF NOT EXISTS matey_activity (
   activity_type varchar(50) NOT NULL,
   activity_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   srl_data blob NOT NULL,
+  deleted tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (activity_id),
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY (activity_type) REFERENCES matey_activity_type(activity_type),

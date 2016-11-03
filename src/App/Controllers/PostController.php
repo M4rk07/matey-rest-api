@@ -9,6 +9,15 @@
 namespace App\Controllers;
 
 use App\Algos\ActivityWeights;
+use App\Algos\Timer;
+use App\MateyManagers\ActivityManager;
+use App\MateyManagers\PostManager;
+use App\MateyManagers\ResponseManager;
+use App\MateyManagers\UserManager;
+use App\MateyModels\Activity;
+use App\MateyModels\Post;
+use App\MateyModels\Response;
+use App\MateyModels\User;
 use App\Security\IdGenerator;
 use App\Services\BaseService;
 use App\Services\FollowerService;
@@ -33,34 +42,44 @@ class PostController extends AbstractController
             new NotBlank()
         ]);
 
-        $time = $this->returnTime();
+        $activity = new Activity();
+        $post = new Post();
+        $user = new User();
+
+        $postManager = new PostManager();
+        $activityManager = new ActivityManager();
+        $userManager = new UserManager();
+
+        $activity->setUserId($user_id)
+            ->setActivityType(BaseService::TYPE_POST)
+            ->setActivityTime(Timer::returnTime());
+        $post->setUserId($user_id)
+            ->setText($text)
+            ->setDateTime(Timer::returnTime());
+        $user->setUserId($user_id);
+
+
         $this->service->startTransaction();
         try {
-            $post_id = $this->service->createPost('', $user_id, $text);
-                $srl_data = serialize(array(
-                    "post_id" => $post_id,
-                    "text" => $text
-                ));
+            $post = $postManager->createPost($post);
 
-            $activity_id = $this->service->createActivity($user_id, $post_id, BaseService::TYPE_POST, 1, BaseService::TYPE_GENERAL, $srl_data);
+            $activity->setSourceId($post->getPostId())
+                ->setSrlData($post->serialize());
 
-            $this->redisService->startRedisTransaction();
-            try {
-                $this->redisService->pushToNewsFeeds($activity_id, $time, $user_id);
-                $this->redisService->incrUserNumOfPosts($user_id, 1);
-                $this->redisService->initializePostStatistics($post_id);
-                $this->redisService->commitRedisTransaction();
-            } catch (\Exception $e) {
-                $this->redisService->rollbackRedisTransaction();
-                throw new \Exception();
-            }
+            $activity = $activityManager->createActivity($activity);
+
+            $activityManager->pushToNewsFeeds($activity, $user);
+            $userManager->incrUserNumOfPosts($user, 1);
+
             $this->service->commitTransaction();
         } catch (\Exception $e) {
             $this->service->rollbackTransaction();
             throw new ServerErrorException();
         }
 
-        return $this->returnOk(array("post_id" => $post_id));
+        return $this->returnOk(array(
+            "post_id" => $post->getPostId()
+        ));
 
     }
 
@@ -70,33 +89,31 @@ class PostController extends AbstractController
 
         $this->validateNumericUnsigned($post_id);
 
+        $activity = new Activity();
+        $post = new Post();
+        $user = new User();
+
+        $postManager = new PostManager();
+        $activityManager = new ActivityManager();
+        $userManager = new UserManager();
+
+        $activity->setUserId($user_id)
+            ->setSourceId($post_id)
+            ->setActivityType(BaseService::TYPE_POST);
+        $post->setUserId($user_id)
+            ->setPostId($post_id);
+        $user->setUserId($user_id);
+
         $this->service->startTransaction();
         try {
-            $this->service->deletePost($post_id, $user_id);
-            $this->service->deleteActivity($post_id, BaseService::TYPE_POST);
-            $this->redisService->incrUserNumOfPosts($user_id, -1);
+            $postManager->deletePost($post);
+            $activityManager->deleteActivity($activity);
+            $userManager->incrUserNumOfPosts($user, -1);
             $this->service->commitTransaction();
         } catch (\Exception $e) {
             $this->service->rollbackTransaction();
             throw new ServerErrorException();
         }
-
-        try {
-            $this->redisService->deletePostStatistics($post_id);
-        } catch (\Exception $e) {}
-
-        return $this->returnOk();
-
-    }
-
-    public function bookmarkPostAction (Request $request) {
-        $user_id = $request->request->get("user_id");
-        $post_id = $request->request->get("post_id");
-
-        $this->validateNumericUnsigned($post_id);
-
-        $this->service->bookmarkPost($post_id, $user_id);
-        $this->redisService->pushPostBookmark($post_id, $user_id);
 
         return $this->returnOk();
 
@@ -114,41 +131,56 @@ class PostController extends AbstractController
             new NotBlank()
         ]);
 
-        $time = $this->returnTime();
+        $post = new Post();
+        $userPosted = new User();
+        $userRespond = new User();
+        $response = new Response();
+        $activity = new Activity();
+
+        $postManager = new PostManager();
+        $userManager = new UserManager();
+        $responseManager = new ResponseManager();
+        $activityManager = new ActivityManager();
+        $followerService = new FollowerService();
+
+        $post->setUserId($user_posted_id)
+            ->setPostId($post_id);
+        $userPosted->setUserId($user_posted_id);
+        $userRespond->setUserId($user_id);
+        $response->setUserId($userRespond->getUserId())
+            ->setText($text)
+            ->setPostId($post_id)
+            ->setDateTime(Timer::returnTime());
+        $activity->setUserId($userRespond->getUserId())
+            ->setActivityType(BaseService::TYPE_RESPONSE)
+            ->setParentType(BaseService::TYPE_POST)
+            ->setParentId($post->getPostId())
+            ->setActivityTime(Timer::returnTime());
+
         $this->service->startTransaction();
         try {
-            $response_id = $this->service->createResponse($user_id, $post_id, $text);
-                $srl_data = serialize(array(
-                    "response_id" => $response_id,
-                    "text" => $text
-                ));
-            $activity_id = $this->service->createActivity($user_id, $response_id, BaseService::TYPE_RESPONSE, $post_id, BaseService::TYPE_POST, $srl_data);
-            $this->redisService->startRedisTransaction();
-            try {
-                $this->redisService->pushToNewsFeeds($activity_id, $time, $user_id);
-                $this->redisService->initializeResponseStatistics($response_id);
-                $this->redisService->incrUserNumOfResponses($user_id, 1);
-                $this->redisService->pushLastResponseToPost($post_id, $user_id);
-                // evident user interest
-                // $this->redisService->incrUserSubinterestStatistic($user_id, $subinterest_id, ActivityWeights::RESPONSE_SCORE);
-                // evident users relationship
-                $this->redisService->incrUserRelationship($user_id, $user_posted_id, ActivityWeights::RESPONSE_SCORE, $time);
-                $this->redisService->commitRedisTransaction();
-            } catch (\Exception $e) {
-                $this->redisService->rollbackRedisTransaction();
-                throw new \Exception();
-            }
+            $response = $responseManager->createResponse($response);
+
+            $activity->setSourceId($response->getResponseId())
+                ->setSrlData($response->serialize());
+            $activity = $activityManager->createActivity($activity);
+
+            $activityManager->pushToNewsFeeds($activity, $userRespond);
+            $userManager->incrUserNumOfResponses($userRespond, 1);
+            $postManager->pushLastResponseToPost($post, $userRespond);
+
+            $followerService->incrUserRelationship($userRespond, $userPosted, ActivityWeights::RESPONSE_SCORE);
+            $postManager->incrPostNumOfResponses($post, 1);
+
             $this->service->commitTransaction();
         } catch (\Exception $e) {
             $this->service->rollbackTransaction();
             throw new ServerErrorException();
         }
 
-        try {
-            $this->redisService->incrPostNumOfResponses($post_id, 1);
-        } catch (\Exception $e) {}
-
-        return $this->returnOk(array("response_id" => $response_id));
+        return $this->returnOk(array(
+            "response_id" => $response->getResponseId()
+        ));
 
     }
 
@@ -161,21 +193,37 @@ class PostController extends AbstractController
         $this->validateNumericUnsigned($response_id);
         $this->validateNumericUnsigned($post_id);
 
+        $activity = new Activity();
+        $post = new Post();
+        $userRespond = new User();
+        $response = new Response();
+
+        $postManager = new PostManager();
+        $activityManager = new ActivityManager();
+        $userManager = new UserManager();
+        $responseManager = new ResponseManager();
+
+        $activity->setUserId($user_id)
+            ->setSourceId($post_id)
+            ->setActivityType(BaseService::TYPE_RESPONSE);
+        $post->setPostId($post_id);
+        $response->setResponseId($response_id)
+            ->setUserId($user_id)
+            ->setPostId($post_id);
+        $userRespond->setUserId($user_id);
+
+
         $this->service->startTransaction();
         try {
-            $this->service->deleteResponse($response_id, $post_id, $user_id);
-            $this->service->deleteActivity($response_id, BaseService::TYPE_RESPONSE);
-            $this->redisService->incrUserNumOfResponses($user_id, -1);
+            $responseManager->deleteResponse($response);
+            $activityManager->deleteActivity($activity);
+            $userManager->incrUserNumOfResponses($user_id, -1);
+            $postManager->incrPostNumOfResponses($post_id, -1);
             $this->service->commitTransaction();
         } catch (\Exception $e) {
             $this->service->rollbackTransaction();
             throw new ServerErrorException();
         }
-
-        try {
-            $this->redisService->incrPostNumOfResponses($post_id, -1);
-            $this->redisService->deleteResponseStatistics($response_id);
-        } catch (\Exception $e) {}
 
         return $this->returnOk();
 
@@ -189,12 +237,23 @@ class PostController extends AbstractController
 
         $this->validateNumericUnsigned($response_id);
 
-        $time = $this->returnTime();
+        $userApproves = new User();
+        $userOwner = new User();
+        $response = new Response();
+
+        $responseManager = new ResponseManager();
+        $followerService = new FollowerService();
+
+        $userApproves->setUserId($user_id);
+        $userOwner->setUserId($response_owner_id);
+        $response->setResponseId($response_id)
+            ->setUserId($response_owner_id);
+
         $this->service->startTransaction();
         try {
-            $this->service->approve($user_id, $response_id);
-            $this->redisService->incrResponseNumOfApproves($response_id, 1);
-            $this->redisService->incrUserRelationship($user_id, $response_owner_id, ActivityWeights::APPROVE_SCORE, $time);
+            $this->service->approve($userApproves, $response);
+            $responseManager->incrResponseNumOfApproves($response, 1);
+            $followerService->incrUserRelationship($userApproves, $userOwner, ActivityWeights::APPROVE_SCORE);
             $this->service->commitTransaction();
         } catch (\Exception $e) {
             $this->service->rollbackTransaction();

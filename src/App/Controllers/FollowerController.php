@@ -9,7 +9,10 @@
 namespace App\Controllers;
 
 use App\Algos\ActivityWeights;
+use App\Algos\Timer;
+use App\MateyManagers\FollowManager;
 use App\MateyManagers\UserManager;
+use App\MateyModels\Follow;
 use App\MateyModels\User;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
@@ -59,12 +62,19 @@ class FollowerController extends AbstractController
 
     public function follow (User $fromUser, User $toUser) {
         // create follow in database
-        $this->service->createFollow($fromUser, $toUser);
+        $follow = new Follow();
+        $follow->setUserFrom($fromUser->getUserId())
+            ->setUserTo($toUser->getUserId())
+            ->setDateTime(Timer::returnTime());
+        $followManager = new FollowManager();
+        $followManager->createFollow($follow);
 
+        $userManager = new UserManager();
+        $userManager->incrUserNumOfFollowing($fromUser, 1);
+        $userManager->incrUserNumOfFollowers($toUser, 1);
         /*
          * Push just followed user activities to following user newsfeed
          */
-        $userManager = new UserManager();
         $followedUserActivities = $userManager->getUserActivities($toUser, 30);
 
         if(!empty($followedUserActivities))
@@ -74,7 +84,15 @@ class FollowerController extends AbstractController
 
     public function unfollow (User $fromUser, User $toUser) {
         // remove follow in database
-        $this->service->deleteFollow($fromUser, $toUser);
+        $follow = new Follow();
+        $follow->setUserFrom($fromUser->getUserId())
+            ->setUserTo($toUser->getUserId());
+        $followManager = new FollowManager();
+        $followManager->deleteFollow($follow);
+
+        $userManager = new UserManager();
+        $userManager->incrUserNumOfFollowing($fromUser, -1);
+        $userManager->incrUserNumOfFollowers($toUser, -1);
     }
 
 }
