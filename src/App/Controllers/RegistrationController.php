@@ -42,76 +42,6 @@ use Symfony\Component\Validator\Context\ExecutionContext;
 class RegistrationController extends AbstractController
 {
 
-    public function makeSignature (Request $request) {
-
-        $image = new CloudStorageService();
-
-        return new JsonResponse(array(
-            'signature' => $image->generateSignedURL('profile_pictures/100x100/45.jpg', 'GET', 30)
-        ), 200);
-
-    }
-
-    public function mergeAccountsAction(Request $request, $action){
-
-        if($action == 'facebook') $this->mergeNewFacebookAccount($request);
-        else if($action == 'standard') $this->mergeNewStandardAccount($request);
-        else throw new InvalidRequestException();
-
-        return $this->returnOk();
-    }
-
-    public function mergeNewFacebookAccount (Request $request) {
-        $user_id = $request->request->get('user_id');
-        $fbToken = $request->request->get("fb_token");
-
-        $this->validate($fbToken, [
-            new NotBlank()
-        ]);
-
-        $fbUser = $this->checkFacebookToken($fbToken);
-        if(empty($fbUser)) throw new InvalidRequestException([
-            'error' => 'invalid_fb_token'
-        ]);
-
-        $user = new User();
-        $user->setUserId($user_id)
-            ->setFbId($fbUser->getId());
-
-        $userManager = new UserManager();
-        $userManager->createFacebookInfo($user);
-
-    }
-
-    public function mergeNewStandardAccount(Request $request) {
-
-        $user_id = $request->request->get('user_id');
-        $password = $request->request->get('password');
-
-        $this->validate($password, [
-            new NotBlank(),
-            new Password()
-        ]);
-
-        // generating random salt
-        $salt = (new SaltGenerator())->generateSalt();
-        // encoding password and salt
-        $passwordEncoder = new MessageDigestPasswordEncoder();
-        $encodedPassword = $passwordEncoder->encodePassword($password, $salt);
-
-        $userManager = new UserManager();
-        $user = new User();
-        $user->setUserId($user_id);
-
-        $user = $userManager->loadUserDataById($user_id);
-
-        $user->setPassword($encodedPassword)
-            ->setSalt($salt);
-
-        $userManager->createUserCredentials($user);
-
-    }
-
     public function registerStandardUserAction (Request $request) {
         /*
          * fetch required data for registration from request
@@ -148,39 +78,24 @@ class RegistrationController extends AbstractController
         $userManager = new UserManager();
         $user = $userManager->loadUserByUsername($email);
         if( !empty($user->getUserId()) ) {
-                /*
-                * If email is already registered, and facebook id is registered also,
-                * it means that user have facebook account, but not standard
-                */
+                // If email is already registered, and facebook id is registered also,
+                // it means that user have facebook account, but not standard
             if($user->isFacebookAccount() && !$user->isStandardAccount()) throw new InvalidRequestException([
                 'error' => 'merge_offer',
                 'error_description' => "Hey ".$user->getFirstName().", you are already with us! But we offer you to merge this account with existing account. Say OK and you're in!"
             ], 409);
-                /*
-                 * This shouldn't ever come true, but just in case.
-                 * In this case user will have to use another email to register
-                 */
-
+                //This shouldn't ever come true, but just in case.
+                //In this case user will have to use another email to register
             else if($user->isStandardAccount() && !$user->isFacebookAccount()) throw new InvalidRequestException([
                 'error_description' => 'Hey '.$user->getFirstName().', you are already with us!'
             ]);
-                /*
-                 * If this is reached, user is fully registered.
-                 * There is facebook account and standard account.
-                 */
+                //If this is reached, user is fully registered.
+                //There is facebook account and standard account.
             else if(!$user->isFacebookAccount() && !$user->isStandardAccount()) throw new InvalidRequestException([
                 'error_description' => 'Hey Mate, you are already with us!'
             ]);
             else throw new ServerErrorException();
         }
-
-        // generating random salt
-        $salt = (new SaltGenerator())->generateSalt();
-        // encoding password and salt
-        $passwordEncoder = new MessageDigestPasswordEncoder();
-        $encodedPassword = $passwordEncoder->encodePassword($password, $salt);
-
-        $fullName = $first_name . " " . $last_name;
         /*
          * Starting registration through transaction
          * If any of steps goes wrong, rolls back everything
@@ -188,17 +103,15 @@ class RegistrationController extends AbstractController
         $user->setUsername($email)
             ->setFirstName($first_name)
             ->setLastName($last_name)
-            ->setFullName($fullName)
-            ->setSilhouette(1)
-            ->setPassword($encodedPassword)
-            ->setSalt($salt);
+            ->setSilhouette(1);
+        $user = $userManager->setFullName($user);
 
         $this->service->startTransaction();
         try {
             // creating new user
             $user = $userManager->createModel($user);
             // storing credentials
-            $userManager->createUserCredentials($user);
+            $userManager->createUserCredentials($user, $password);
             // finally - COMMIT
             $this->service->commitTransaction();
         } catch (\Exception $e) {
@@ -214,77 +127,6 @@ class RegistrationController extends AbstractController
          * Everything went ok, user is REGISTERED!
          */
         return $this->returnOk();
-    }
-
-    public function registerDeviceAction (Request $request) {
-
-        /*
-         * fetch required data for device registration
-         */
-        $device_id = $request->request->get("device_id");
-        $gcm = $request->request->get("gcm");
-        $old_gcm = $request->request->get("old_gcm");
-
-        /*
-         * Validating gcm
-         */
-        $this->validate($gcm, [
-            new NotBlank()
-        ]);
-
-            /*
-            * If all parameters are here, then it is updating device operation
-            */
-        if(!empty($old_gcm) && !empty($device_id) && !empty($gcm)) return $this->updateDeviceGcm($device_id, $gcm, $old_gcm);
-            /*
-             * Else if only gcm token is here, then register new device
-             */
-        else if(!empty($gcm)) return $this->registerDevice($gcm);
-            /*
-             * In every other case, throw invalid request
-             */
-        else throw new InvalidRequestException();
-
-    }
-
-    public function updateDeviceGcm($device_id, $gcm, $old_gcm) {
-        /*
-         * Validating parameters
-         */
-        $this->validateNumericUnsigned($device_id);
-        $this->validate($old_gcm, [
-            new NotBlank()
-        ]);
-
-        $device = new Device();
-        $device->setGcm($gcm);
-        $device->setDeviceId($device_id);
-        $deviceManager = new DeviceManager();
-        if(!$deviceManager->updateDevice($device, $old_gcm)) throw new InvalidRequestException();
-
-        /*
-         * Device is successfully UPDATED!
-         */
-        return $this->returnOk();
-    }
-
-    public function registerDevice($gcm) {
-        // generating secret
-        $secretGenerator = new SecretGenerator();
-        $deviceSecret = $secretGenerator->generateDeviceSecret();
-        $device = new Device();
-        $device->setGcm($gcm);
-        $device->setDeviceSecret($deviceSecret);
-        $deviceManager = new DeviceManager();
-        $deviceManager->createDevice($device);
-
-        /*
-         * Return new device data, ID and SECRET, and device is REGISTERED!
-         */
-        return new JsonResponse(array(
-            'device_id' => $device->getDeviceId(),
-            'device_secret' => $device->getDeviceSecret()
-        ), 200);
     }
 
     public function authenticateSocialUserAction (Request $request) {
@@ -323,6 +165,7 @@ class RegistrationController extends AbstractController
                  */
             else if(!$user->isFacebookAccount() && $user->isStandardAccount()) throw new InvalidRequestException([
                 'error' => 'merge_offer',
+                'email' => $user->getUsername(),
                 'error_description' => "Hey ".$user->getFirstName().", you are already with us! But we offer you to merge this account with existing account. Say OK and you're in!"
             ], 409);
                 /*
@@ -334,8 +177,6 @@ class RegistrationController extends AbstractController
         /*
          * At this point, registration takes place.
          */
-
-        $fullName = $fbUser->getFirstName()." ".$fbUser->getLastName();
         $profilePicture = $fbUser->getPicture();
         $isSilhouette = 0;
         if($profilePicture->isSilhouette()) $isSilhouette = 1;
@@ -343,24 +184,19 @@ class RegistrationController extends AbstractController
         $user->setUsername($fbUser->getEmail())
             ->setFirstName($fbUser->getFirstName())
             ->setLastName($fbUser->getLastName())
-            ->setFullName($fullName)
             ->setSilhouette($isSilhouette)
             ->setFbId($fbUser->getId())
             ->setFbToken($fbToken);
-
+        $user = $userManager->setFullName($user);
         /*
          * Starting transaction.
          */
         $this->service->startTransaction();
         try {
-            /*
-             * Storing user and facebook data in database.
-             */
             // creating new user
             $user = $userManager->createModel($user);
             // storing credentials
             $userManager->createFacebookInfo($user);
-
             /*
              * Store facebook image to cloud storage
              */
@@ -368,7 +204,6 @@ class RegistrationController extends AbstractController
                 $imgHandler = new ImageHandler();
                 $imgHandler->handleFacebookProfilePicture($user);
             }
-
             $this->service->commitTransaction();
         } catch (\Exception $e) {
             $this->service->rollbackTransaction();
@@ -423,6 +258,123 @@ class RegistrationController extends AbstractController
 
         return $user;
 
+    }
+
+    public function mergeAccountsAction(Request $request, $action){
+
+        if($action == 'facebook') $this->mergeNewFacebookAccount($request);
+        else if($action == 'standard') $this->mergeNewStandardAccount($request);
+        else throw new InvalidRequestException();
+
+        return $this->returnOk();
+    }
+
+    public function mergeNewFacebookAccount (Request $request) {
+        $user_id = $request->request->get('user_id');
+        $fbToken = $request->request->get("fb_token");
+
+        $this->validate($fbToken, [
+            new NotBlank()
+        ]);
+
+        $fbUser = $this->checkFacebookToken($fbToken);
+        if(empty($fbUser)) throw new InvalidRequestException([
+            'error' => 'invalid_fb_token'
+        ]);
+
+        $user = new User();
+        $user->setUserId($user_id)
+            ->setFbId($fbUser->getId());
+
+        $userManager = new UserManager();
+        $userManager->createFacebookInfo($user);
+
+    }
+
+    public function mergeNewStandardAccount(Request $request) {
+
+        $user_id = $request->request->get('user_id');
+        $password = $request->request->get('password');
+
+        $this->validate($password, [
+            new NotBlank(),
+            new Password()
+        ]);
+
+        $userManager = new UserManager();
+        $user = $userManager->loadUserDataById($user_id);
+
+        $userManager->createUserCredentials($user, $password);
+
+    }
+
+    public function registerDeviceAction (Request $request) {
+        /*
+         * fetch required data for device registration
+         */
+        $device_id = $request->request->get("device_id");
+        $gcm = $request->request->get("gcm");
+        $old_gcm = $request->request->get("old_gcm");
+
+        /*
+         * Validating gcm
+         */
+        $this->validate($gcm, [
+            new NotBlank()
+        ]);
+
+        /*
+        * If all parameters are here, then it is updating device operation
+        */
+        if(!empty($old_gcm) && !empty($device_id) && !empty($gcm)) return $this->updateDeviceGcm($device_id, $gcm, $old_gcm);
+        /*
+         * Else if only gcm token is here, then register new device
+         */
+        else if(!empty($gcm)) return $this->registerDevice($gcm);
+        /*
+         * In every other case, throw invalid request
+         */
+        else throw new InvalidRequestException();
+
+    }
+
+    public function updateDeviceGcm($device_id, $gcm, $old_gcm) {
+        /*
+         * Validating parameters
+         */
+        $this->validateNumericUnsigned($device_id);
+        $this->validate($old_gcm, [
+            new NotBlank()
+        ]);
+
+        $device = new Device();
+        $device->setGcm($gcm);
+        $device->setDeviceId($device_id);
+        $deviceManager = new DeviceManager();
+        if(!$deviceManager->updateDevice($device, $old_gcm)) throw new InvalidRequestException();
+
+        /*
+         * Device is successfully UPDATED!
+         */
+        return $this->returnOk();
+    }
+
+    public function registerDevice($gcm) {
+        // generating secret
+        $secretGenerator = new SecretGenerator();
+        $deviceSecret = $secretGenerator->generateDeviceSecret();
+        $device = new Device();
+        $device->setGcm($gcm);
+        $device->setDeviceSecret($deviceSecret);
+        $deviceManager = new DeviceManager();
+        $deviceManager->createDevice($device);
+        /*
+         * Return new device data, ID and SECRET, and device is REGISTERED!
+         */
+        return new JsonResponse(array(
+            'device_id' => $device->getDeviceId(),
+            'device_secret' => $device->getDeviceSecret()
+        ), 200);
     }
 
 }

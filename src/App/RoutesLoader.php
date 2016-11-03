@@ -82,6 +82,9 @@ class RoutesLoader
         $this->app->post('/register/device', 'registration.controller:registerDeviceAction');
         $this->app->post('/authenticate/social', 'registration.controller:authenticateSocialUserAction');
 
+        // for "action" valid values are:
+        // - facebook
+        // - standard
         $api->post('/merge/{action}', 'registration.controller:mergeAccountsAction');
 
         // API ROUTES

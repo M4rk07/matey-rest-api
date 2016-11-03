@@ -4,9 +4,13 @@ namespace App\MateyManagers;
 use App\Algos\Algo;
 use App\MateyModels\Activity;
 use App\MateyModels\User;
+use App\Security\SaltGenerator;
 use App\Services\BaseService;
 use App\Services\CloudStorageService;
+use AuthBucket\OAuth2\Exception\InvalidRequestException;
+use AuthBucket\OAuth2\Exception\ServerErrorException;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -52,7 +56,15 @@ class UserManager extends BaseService implements UserProviderInterface
         $this->redis->set(self::KEY_USER.":".self::SUBKEY_USER_ID.":".$user->getUsername(), $user->getUserId());
     }
 
-    public function createUserCredentials (User $user) {
+    public function createUserCredentials (User $user, $password) {
+
+        // generating random salt
+        $salt = (new SaltGenerator())->generateSalt();
+        // encoding password and salt
+        $passwordEncoder = new MessageDigestPasswordEncoder();
+        $encodedPassword = $passwordEncoder->encodePassword($password, $salt);
+        $user->setPassword($encodedPassword);
+        $user->setSalt($salt);
 
         $this->db->executeUpdate("INSERT INTO ".self::T_A_USER." (user_id, username, password, salt) VALUES (?,?,?,?)",
             array($user->getUserId(), $user->getUsername(), $user->getPassword(), $user->getSalt()));
@@ -118,6 +130,11 @@ class UserManager extends BaseService implements UserProviderInterface
 
         return $user;
 
+    }
+
+    public function setFullName(User $user) {
+        $user->setFullName($user->getFirstName()." ".$user->getLastName());
+        return $user;
     }
 
     public function refreshUser(UserInterface $user)
@@ -215,6 +232,5 @@ class UserManager extends BaseService implements UserProviderInterface
         return $user;
 
     }
-
 
 }
