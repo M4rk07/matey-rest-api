@@ -57,6 +57,19 @@ CREATE TABLE IF NOT EXISTS matey_facebook_info (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `matey_newsfeed`
+--
+
+CREATE TABLE IF NOT EXISTS matey_newsfeed (
+  user_id int(11) UNSIGNED NOT NULL,
+  feed_name varchar(200) NOT NULL,
+  date_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, feed_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `matey_device`
 --
 

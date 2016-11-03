@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Services\BaseService;
 use Silex\Application;
 
 class ServicesLoader
@@ -15,6 +16,10 @@ class ServicesLoader
 
     public function bindServicesIntoContainer()
     {
+        $this->app['matey.service'] = $this->app->share(function () {
+            return new BaseService();
+        });
+
         $this->app['redis.service'] = $this->app->share(function () {
             return new Services\Redis\RedisService();
         });

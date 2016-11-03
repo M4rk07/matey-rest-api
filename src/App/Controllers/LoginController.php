@@ -60,7 +60,6 @@ class LoginController extends AbstractController
         $login->setUserId($user_id);
         $login->setDeviceId($deviceId);
 
-
         $device = $deviceManager->getDeviceGcm($device);
         $login->setGcm($device->getGcm());
         // store user login information
@@ -68,7 +67,6 @@ class LoginController extends AbstractController
         $this->service->startTransaction();
         try {
             $loginManager->createLogin($login);
-            $loginManager->setLoginGcmToRedis($login);
             $this->service->commitTransaction();
         } catch (\Exception $e) {
             $this->service->rollbackTransaction();

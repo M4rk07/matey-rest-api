@@ -15,13 +15,4 @@ use App\MateyModels\User;
 class PostService extends ActivityService
 {
 
-    public function approve(User $user, Response $response) {
-
-        $result = $this->db->executeUpdate("INSERT IGNORE INTO ".self::T_APPROVE." (user_id, response_id) VALUES(?,?)",
-            array($user->getUserId(), $response->getResponseId()));
-        if($result <= 0) return false;
-        return true;
-
-    }
-
 }

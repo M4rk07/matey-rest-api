@@ -176,23 +176,6 @@ class UserManager extends BaseService implements UserProviderInterface
         return $user;
     }
 
-    public function pushActivitiesToUserFeed($activities, User $user) {
-
-        foreach($activities as $activity) {
-            $this->pushActivityToFeed($activity, $user);
-        }
-
-    }
-
-    public function pushActivityToFeed(Activity $activity, User $user) {
-        $algo = new Algo();
-        $score = $algo->calculateActivityTimeScore($activity->getActivityTime());
-        $this->redis->zadd(self::KEY_USER.":".self::SUBKEY_NEWSFEED.":".$user->getUserId(), array(
-            $activity->getActivityId() => $score
-        ));
-        $this->redis->zremrangebyrank(self::KEY_USER.":".self::SUBKEY_NEWSFEED.":".$user->getUserId(), 0, -301);
-    }
-
     public function setUserFirstTimeLogged (User $user) {
 
         return $this->db->executeUpdate("UPDATE ".self::T_USER." SET first_login = 1 WHERE user_id = ?",
@@ -228,5 +211,6 @@ class UserManager extends BaseService implements UserProviderInterface
         return $user;
 
     }
+
 
 }

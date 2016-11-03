@@ -11,8 +11,10 @@ namespace App\Controllers;
 use App\Algos\ActivityWeights;
 use App\Algos\Timer;
 use App\MateyManagers\FollowManager;
+use App\MateyManagers\NewsfeedManager;
 use App\MateyManagers\UserManager;
 use App\MateyModels\Follow;
+use App\MateyModels\Newsfeed;
 use App\MateyModels\User;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
@@ -72,14 +74,19 @@ class FollowerController extends AbstractController
         $userManager = new UserManager();
         $userManager->incrUserNumOfFollowing($fromUser, 1);
         $userManager->incrUserNumOfFollowers($toUser, 1);
+
         /*
+        $newsfeedManager = new NewsfeedManager();
+        $newsfeed = new Newsfeed();
+        *
          * Push just followed user activities to following user newsfeed
-         */
+         *
         $followedUserActivities = $userManager->getUserActivities($toUser, 30);
 
         if(!empty($followedUserActivities))
             $userManager->pushActivitiesToUserFeed($followedUserActivities, $fromUser);
 
+        */
     }
 
     public function unfollow (User $fromUser, User $toUser) {

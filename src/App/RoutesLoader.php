@@ -8,6 +8,7 @@ use App\Controllers\LoginController;
 use App\Controllers\NewsFeedController;
 use App\Controllers\PostController;
 use App\Controllers\RegistrationController;
+use App\Controllers\ResponseController;
 use App\Controllers\SearchController;
 use App\Controllers\TestController;
 use App\Controllers\UserProfileController;
@@ -30,19 +31,23 @@ class RoutesLoader
     private function instantiateControllers()
     {
         $this->app['registration.controller'] = $this->app->share(function () {
-            return new RegistrationController($this->app['registration.service'], $this->app['redis.service'], $this->app['validator']);
+            return new RegistrationController($this->app['matey.service'], $this->app['redis.service'], $this->app['validator']);
         });
 
         $this->app['login.controller'] = $this->app->share(function () {
-            return new LoginController($this->app['login.service'], $this->app['redis.service'], $this->app['validator']);
+            return new LoginController($this->app['matey.service'], $this->app['redis.service'], $this->app['validator']);
         });
 
         $this->app['follower.controller'] = $this->app->share(function () {
-            return new FollowerController($this->app['follower.service'], $this->app['redis.service'], $this->app['validator']);
+            return new FollowerController($this->app['matey.service'], $this->app['redis.service'], $this->app['validator']);
         });
 
         $this->app['post.controller'] = $this->app->share(function () {
-            return new PostController($this->app['post.service'], $this->app['redis.service'], $this->app['validator']);
+            return new PostController($this->app['matey.service'], $this->app['redis.service'], $this->app['validator']);
+        });
+
+        $this->app['response.controller'] = $this->app->share(function () {
+            return new ResponseController($this->app['matey.service'], $this->app['redis.service'], $this->app['validator']);
         });
 
         $this->app['newsfeed.controller'] = $this->app->share(function () {
@@ -70,11 +75,8 @@ class RoutesLoader
     {
         $api = $this->app["controllers_factory"];
 
-        $this->app->get('/test', 'test.controller:fillCategories');
-        $this->app->get('/fillGroups', 'test.controller:fillGroups');
-        $this->app->get('/signature', 'registration.controller:makeSignature');
 
-        $api->get('/profile_picture/{user_id}', 'user_profile.controller:getProfilePictureAction');
+        // -------------------------------------------------------------------------------------
 
         $this->app->post('/register/user', 'registration.controller:registerStandardUserAction');
         $this->app->post('/register/device', 'registration.controller:registerDeviceAction');
@@ -88,13 +90,22 @@ class RoutesLoader
         // - follow
         // - unfollow
         $api->post('/follower/{action}', 'follower.controller:followerAction');
-        $api->get('/friends/suggested', 'follower.controller:suggestFriendsActivity');
 
         $api->post('/post/add', 'post.controller:addPostAction');
         $api->post('/post/remove', 'post.controller:deletePostAction');
-        $api->post('/post/response/add', 'post.controller:addResponseAction');
-        $api->post('/post/response/remove', 'post.controller:deleteResponseAction');
-        $api->post('/post/response/approve', 'post.controller:approveAction');
+        $api->post('/response/add', 'response.controller:addResponseAction');
+        $api->post('/response/remove', 'response.controller:deleteResponseAction');
+        $api->post('/response/approve', 'response.controller:approveAction');
+
+        $api->get('/profile_picture/{user_id}', 'user_profile.controller:getProfilePictureAction');
+
+        // -------------------------------------------------------------------------------------
+
+
+        $this->app->get('/test', 'test.controller:fillCategories');
+        $this->app->get('/fillGroups', 'test.controller:fillGroups');
+        $this->app->get('/signature', 'registration.controller:makeSignature');
+
         $api->post('/interests/add', 'interest.controller:addInterestsAction');
         $api->get('/interests', 'interest.controller:showInterestsAction');
 

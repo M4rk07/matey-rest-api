@@ -22,6 +22,8 @@ class LoginManager extends BaseService
             array($login->getUserId(), $login->getDeviceId(), $login->getGcm(), $login->getDateTime(),
                 $login->getUserId(), $login->getGcm(), $login->getDateTime()));
 
+        $this->setLoginGcmToRedis($login);
+
     }
 
     public function deleteLogin(Login $login) {

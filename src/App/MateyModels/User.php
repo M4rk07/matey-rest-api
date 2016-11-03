@@ -30,6 +30,7 @@ class User implements UserInterface
     protected $fbToken;
     protected $activities = array();
     protected $suggested_followings = array();
+    protected $newsfeeds = array();
 
     // STATISTICS
     protected $numOfFollowers;
@@ -343,6 +344,23 @@ class User implements UserInterface
     public function setFbToken($fbToken)
     {
         $this->fbToken = $fbToken;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getNewsfeeds()
+    {
+        return $this->newsfeeds;
+    }
+
+    /**
+     * @param array $newsfeeds
+     */
+    public function setNewsfeeds(array $newsfeeds)
+    {
+        $this->newsfeeds = $newsfeeds;
         return $this;
     }
 

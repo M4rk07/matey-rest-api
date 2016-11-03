@@ -10,6 +10,7 @@ namespace App\MateyManagers;
 
 
 use App\MateyModels\Response;
+use App\MateyModels\User;
 use App\Services\BaseService;
 
 class ResponseManager extends BaseService
@@ -49,6 +50,15 @@ class ResponseManager extends BaseService
 
     public function incrResponseNumOfApproves(Response $response, $incrby) {
         $this->redis->hincrby(self::KEY_RESPONSE.":".self::SUBKEY_STATISTICS.":".$response->getResponseId(), self::FIELD_NUM_OF_APPROVES, $incrby);
+    }
+
+    public function approve(User $user, Response $response) {
+
+        $result = $this->db->executeUpdate("INSERT IGNORE INTO ".self::T_APPROVE." (user_id, response_id) VALUES(?,?)",
+            array($user->getUserId(), $response->getResponseId()));
+        if($result <= 0) return false;
+        return true;
+
     }
 
 }
