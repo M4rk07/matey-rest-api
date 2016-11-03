@@ -5,6 +5,7 @@ use App\Algos\Algo;
 use App\MateyModels\Activity;
 use App\MateyModels\User;
 use App\Services\BaseService;
+use App\Services\CloudStorageService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -95,6 +96,26 @@ class UserManager extends BaseService implements UserProviderInterface
         return $user;
     }
 
+    public function loadUserDataById(User $user) {
+
+        $result = $this->db->fetchAll("SELECT m_user.*, f_user.fb_id 
+          FROM ".self::T_USER." as m_user
+         LEFT JOIN ".self::T_FACEBOOK_INFO." as f_user USING(user_id) 
+         WHERE m_user.user_id = ? LIMIT 1",
+            array($user->getUserId()));
+
+        $result = $result[0];
+        $user->setFirstName($result['first_name'])
+            ->setLastName($result['last_name'])
+            ->setFullName($result['full_name'])
+            ->setUsername($result['email'])
+            ->setFirstLogin($result['first_login'])
+            ->setSilhouette($result['is_silhouette']);
+
+        return $user;
+
+    }
+
     public function refreshUser(UserInterface $user)
     {
 
@@ -176,6 +197,35 @@ class UserManager extends BaseService implements UserProviderInterface
 
         return $this->db->executeUpdate("UPDATE ".self::T_USER." SET first_login = 1 WHERE user_id = ?",
             array($user->getUserId()));
+
+    }
+
+    public function getSuggestedFollowingsByFacebook(User $user, $fbIds, $pictureSize = 'small') {
+        $stmt = $this->db->executeQuery("SELECT m_usr.user_id, m_usr.first_name, m_usr.last_name FROM ".self::T_FACEBOOK_INFO." as m_f_info
+        INNER JOIN ".self::T_USER." as m_usr USING(user_id)
+        WHERE m_f_info.fb_id IN(?)",
+            array($fbIds),
+            array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+        );
+
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+
+        $suggestedFriends = array();
+        $cloudStorage = new CloudStorageService();
+
+        foreach($result as $res) {
+            $suggestedFriends[] = array(
+                'user_id' => $res['user_id'],
+                'first_name' => $res['first_name'],
+                'last_name' => $res['last_name'],
+                'profile_picture' => $cloudStorage->generateProfilePictureLink($res['user_id'], $pictureSize)
+            );
+        }
+
+        $user->setSuggestedFollowings($suggestedFriends);
+
+        return $user;
 
     }
 

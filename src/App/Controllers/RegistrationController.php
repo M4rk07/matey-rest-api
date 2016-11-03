@@ -238,7 +238,9 @@ class RegistrationController extends AbstractController
         ]);
 
         $fbUser = $this->checkFacebookToken($fbToken);
-
+        if(empty($fbUser)) throw new InvalidRequestException([
+            'error' => 'invalid_fb_token'
+        ]);
         /*
          * Check if email exists in the system
          */

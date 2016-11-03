@@ -10,6 +10,12 @@ namespace App\Controllers;
 
 
 use App\Algos\Algo;
+use App\MateyManagers\DeviceManager;
+use App\MateyManagers\LoginManager;
+use App\MateyManagers\UserManager;
+use App\MateyModels\Device;
+use App\MateyModels\Login;
+use App\MateyModels\User;
 use App\Paths\Paths;
 use App\Services\BaseService;
 use App\Services\CloudStorageService;
@@ -41,55 +47,67 @@ class LoginController extends AbstractController
 
         $this->validateNumericUnsigned($deviceId);
 
-        $gcm = $this->service->getDeviceGcm($deviceId);
+        $device = new Device();
+        $user = new User();
+        $login = new Login();
+
+        $deviceManager = new DeviceManager();
+        $userManager = new UserManager();
+        $loginManager = new LoginManager();
+
+        $device->setDeviceId($deviceId);
+        $user->setUserId($user_id);
+        $login->setUserId($user_id);
+        $login->setDeviceId($deviceId);
+
+
+        $device = $deviceManager->getDeviceGcm($device);
+        $login->setGcm($device->getGcm());
         // store user login information
         // on which device he is logging in
         $this->service->startTransaction();
         try {
-            $userData = $this->service->storeLoginRecord($deviceId, $user_id, $gcm);
-            $this->redisService->pushNewLoginGcm($userData['user_id'], $gcm);
+            $loginManager->createLogin($login);
+            $loginManager->setLoginGcmToRedis($login);
             $this->service->commitTransaction();
         } catch (\Exception $e) {
             $this->service->rollbackTransaction();
             throw new ServerErrorException();
         }
 
-        $cloudStorage = new CloudStorageService();
-        $userData['profile_picture'] = $cloudStorage->generateProfilePictureLink($user_id, $profilePictureSize);
+        $user = $userManager->loadUserDataById($user);
 
-        if($userData['first_login'] == 0 && !empty($userData['fb_id'])) {
-            $userData['suggested_friends'] = $this->suggestFriendsActivity($user_id);
-            $i=0;
-            foreach($userData['suggested_friends'] as $user) {
-                $user['profile_picture'] = $cloudStorage->generateProfilePictureLink($user['user_id'], $profilePictureSize);
-                $userData['suggested_friends'][$i++] = $user;
+        $cloudStorage = new CloudStorageService();
+        $user->setProfilePicture( $cloudStorage->generateProfilePictureLink($user->getUserId(), $profilePictureSize) );
+
+        if($user->isFirstLogin() && $user->isFacebookAccount()) {
+            $fbToken = $this->redisService->getFbToken($user->getUserId());
+            $fbUserFriends = $this->fetchFacebookFriends($fbToken);
+
+            $friendsIds = [];
+
+            foreach($fbUserFriends as $friend) {
+                $friendsIds[] = $friend['id'];
             }
+
+            $user = $userManager->getSuggestedFollowingsByFacebook($user, $friendsIds, $profilePictureSize);
             //$this->service->setUserFirstTimeLogged($user_id);
         }
 
-        return JsonResponse::create($userData, 200, [
+        return JsonResponse::create(array(
+            'user_id' => $user->getUserId(),
+            'email' => $user->getUsername(),
+            'first_name' => $user->getFirstName(),
+            'last_name' => $user->getLastName(),
+            'full_name' => $user->getFullName(),
+            'first_login' => $user->isFirstLogin(),
+            'profile_picture' => $user->getProfilePicture(),
+            'is_silhouette' => $user->isSilhouette(),
+            'suggested_friends' => $user->getSuggestedFollowings()
+        ), 200, [
             'Cache-Control' => 'no-store',
             'Pragma' => 'no-cache',
         ]);
-
-    }
-
-    public function suggestFriendsActivity($user_id) {
-
-        $fbToken = $this->redisService->getFbToken($user_id);
-        $fbUserFriends = $this->fetchFacebookFriends($fbToken);
-
-        $friendsIds = [];
-
-        foreach($fbUserFriends as $friend) {
-            $friendsIds[] = $friend['id'];
-        }
-
-        $onMateyFriends = $this->service->findFriendsByFbId($friendsIds);
-
-        $finalResult = $onMateyFriends;
-
-        return $finalResult;
 
     }
 

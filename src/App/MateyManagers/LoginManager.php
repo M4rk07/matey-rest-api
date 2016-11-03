@@ -29,4 +29,8 @@ class LoginManager extends BaseService
             array($login->getDeviceId(), $login->getUserId()));
     }
 
+    public function setLoginGcmToRedis (Login $login) {
+        $this->redis->sadd(self::KEY_USER.":".self::SUBKEY_LOGIN_GCMS.":".$login->getUserId(), $login->getGcm());
+    }
+
 }
