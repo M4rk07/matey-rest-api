@@ -52,7 +52,65 @@ class RegistrationController extends AbstractController
 
     }
 
+    public function mergeAccountsAction(Request $request, $action){
 
+        if($action == 'facebook') $this->mergeNewFacebookAccount($request);
+        else if($action == 'standard') $this->mergeNewStandardAccount($request);
+        else throw new InvalidRequestException();
+
+        return $this->returnOk();
+    }
+
+    public function mergeNewFacebookAccount (Request $request) {
+        $user_id = $request->request->get('user_id');
+        $fbToken = $request->request->get("fb_token");
+
+        $this->validate($fbToken, [
+            new NotBlank()
+        ]);
+
+        $fbUser = $this->checkFacebookToken($fbToken);
+        if(empty($fbUser)) throw new InvalidRequestException([
+            'error' => 'invalid_fb_token'
+        ]);
+
+        $user = new User();
+        $user->setUserId($user_id)
+            ->setFbId($fbUser->getId());
+
+        $userManager = new UserManager();
+        $userManager->createFacebookInfo($user);
+
+    }
+
+    public function mergeNewStandardAccount(Request $request) {
+
+        $user_id = $request->request->get('user_id');
+        $password = $request->request->get('password');
+
+        $this->validate($password, [
+            new NotBlank(),
+            new Password()
+        ]);
+
+        // generating random salt
+        $salt = (new SaltGenerator())->generateSalt();
+        // encoding password and salt
+        $passwordEncoder = new MessageDigestPasswordEncoder();
+        $encodedPassword = $passwordEncoder->encodePassword($password, $salt);
+
+        $userManager = new UserManager();
+        $user = new User();
+        $user->setUserId($user_id);
+
+        $user = $userManager->loadUserDataById($user_id);
+
+        $user->setPassword($encodedPassword)
+            ->setSalt($salt);
+
+        $userManager->createUserCredentials($user);
+
+    }
 
     public function registerStandardUserAction (Request $request) {
         /*

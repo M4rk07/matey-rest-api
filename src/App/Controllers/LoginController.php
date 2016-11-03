@@ -73,7 +73,7 @@ class LoginController extends AbstractController
             throw new ServerErrorException();
         }
 
-        $user = $userManager->loadUserDataById($user);
+        $user = $userManager->loadUserDataById($user_id);
 
         $cloudStorage = new CloudStorageService();
         $user->setProfilePicture( $cloudStorage->generateProfilePictureLink($user->getUserId(), $profilePictureSize) );

@@ -98,16 +98,18 @@ class UserManager extends BaseService implements UserProviderInterface
         return $user;
     }
 
-    public function loadUserDataById(User $user) {
+    public function loadUserDataById($user_id) {
 
         $result = $this->db->fetchAll("SELECT m_user.*, f_user.fb_id 
           FROM ".self::T_USER." as m_user
          LEFT JOIN ".self::T_FACEBOOK_INFO." as f_user USING(user_id) 
          WHERE m_user.user_id = ? LIMIT 1",
-            array($user->getUserId()));
+            array($user_id));
 
         $result = $result[0];
-        $user->setFirstName($result['first_name'])
+        $user = new User();
+        $user->setUserId($user_id)
+            ->setFirstName($result['first_name'])
             ->setLastName($result['last_name'])
             ->setFullName($result['full_name'])
             ->setUsername($result['email'])

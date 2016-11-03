@@ -82,6 +82,8 @@ class RoutesLoader
         $this->app->post('/register/device', 'registration.controller:registerDeviceAction');
         $this->app->post('/authenticate/social', 'registration.controller:authenticateSocialUserAction');
 
+        $api->post('/merge/{action}', 'registration.controller:mergeAccountsAction');
+
         // API ROUTES
         $api->post('/login', 'login.controller:loginAction');
         $api->post('/logout', 'login.controller:logoutAction');
