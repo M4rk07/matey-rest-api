@@ -96,8 +96,7 @@ class RegistrationController extends AbstractController
                 */
             if($user->isFacebookAccount() && !$user->isStandardAccount()) throw new InvalidRequestException([
                 'error' => 'merge_offer',
-                'error_description' => "Hey ".$user->getFirstName().", you are already with us! But we offer you to merge
-                this account with existing account. Say OK and you're in!"
+                'error_description' => "Hey ".$user->getFirstName().", you are already with us! But we offer you to merge this account with existing account. Say OK and you're in!"
             ]);
                 /*
                  * This shouldn't ever come true, but just in case.
@@ -266,8 +265,7 @@ class RegistrationController extends AbstractController
                  */
             else if(!$user->isFacebookAccount() && $user->isStandardAccount()) throw new InvalidRequestException([
                 'error' => 'merge_offer',
-                'error_description' => "Hey ".$user->getFirstName().", you are already with us! But we offer you to merge
-                this account with existing account. Say OK and you're in!"
+                'error_description' => "Hey ".$user->getFirstName().", you are already with us! But we offer you to merge this account with existing account. Say OK and you're in!"
             ]);
                 /*
                  * If there is not facebook id nor username, there is some server error.
