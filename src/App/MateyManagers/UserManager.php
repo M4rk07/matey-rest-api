@@ -77,7 +77,7 @@ class UserManager extends BaseService implements UserProviderInterface
     public function loadUserByUsername($username)
     {
 
-        $result = $this->db->fetchAll("SELECT m_user.user_id, o_user.username, o_user.password, o_user.salt, m_f_user.fb_id
+        $result = $this->db->fetchAll("SELECT m_user.user_id, m_user.first_name, m_user.last_name, o_user.username, o_user.password, o_user.salt, m_f_user.fb_id
         FROM ".self::T_USER." as m_user
         LEFT JOIN ".self::T_A_USER." as o_user USING(user_id)
         LEFT JOIN ".self::T_FACEBOOK_INFO." as m_f_user USING(user_id)
@@ -88,6 +88,8 @@ class UserManager extends BaseService implements UserProviderInterface
         if(empty($result)) return $user;
         $result = $result[0];
         $user->setUserId($result['user_id'])
+            ->setFirstName($result['first_name'])
+            ->setLastName($result['last_name'])
             ->setUsername($result['username'])
             ->setPassword($result['password'])
             ->setSalt($result['salt'])
