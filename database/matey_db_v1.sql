@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS matey_user (
   full_name varchar(100) CHARACTER SET utf8 NOT NULL,
   is_silhouette tinyint(1) NOT NULL DEFAULT 1,
   first_login tinyint(1) NOT NULL DEFAULT 0,
-  date_registered TIMESTAMP NOT NULL CURRENT_TIMESTAMP,
+  date_registered TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY(user_id),
   UNIQUE KEY (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

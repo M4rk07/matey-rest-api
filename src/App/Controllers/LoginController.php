@@ -59,8 +59,10 @@ class LoginController extends AbstractController
 
         if($userData['first_login'] == 0 && !empty($userData['fb_id'])) {
             $userData['suggested_friends'] = $this->suggestFriendsActivity($user_id);
+            $i=0;
             foreach($userData['suggested_friends'] as $user) {
-                $user['profile_picture'] = $cloudStorage->generateProfilePictureLink($user_id, $profilePictureSize);
+                $user['profile_picture'] = $cloudStorage->generateProfilePictureLink($user['user_id'], $profilePictureSize);
+                $userData['suggested_friends'][$i++] = $user;
             }
             //$this->service->setUserFirstTimeLogged($user_id);
         }

@@ -12,12 +12,10 @@ use App\Paths\Paths;
 class CloudStorageUpload
 {
 
-    public $imgPath;
-    public $imgName;
+    public $uploads;
 
-    public function __construct($imgPath, $imgName) {
-        $this->imgPath = $imgPath;
-        $this->imgName = $imgName;
+    public function __construct(array $uploads) {
+        $this->uploads = $uploads;
     }
 
     public function run() {
@@ -25,19 +23,27 @@ class CloudStorageUpload
         $client->setScopes(\Google_Service_Storage::DEVSTORAGE_FULL_CONTROL);
         $client->useApplicationDefaultCredentials();
 
+        $storage = new \Google_Service_Storage($client);
+
         /**
          * Upload a file to google cloud storage
          */
-        $storage = new \Google_Service_Storage($client);
-        $file_name = $this->imgName;
-        $obj = new \Google_Service_Storage_StorageObject();
-        $obj->setName($file_name);
 
-        $storage->objects->insert(
-            Paths::BUCKET_MATEY,
-            $obj,
-            ['name' => $file_name, 'data' => file_get_contents($this->imgPath), 'uploadType' => 'media', 'predefinedAcl' => 'publicRead']
-        );
+        foreach($this->uploads as $upload) {
+
+            $file_name = $upload['name'];
+            $obj = new \Google_Service_Storage_StorageObject();
+            $obj->setName($file_name);
+
+            $storage->objects->insert(
+                Paths::BUCKET_MATEY,
+                $obj,
+                ['name' => $file_name, 'data' => $upload['file'], 'uploadType' => 'media', 'predefinedAcl' => 'publicRead']
+            );
+
+
+        }
+
     }
 
 }

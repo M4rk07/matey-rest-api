@@ -60,7 +60,7 @@ class AuthBucketOAuth2ServiceProvider implements ServiceProviderInterface
         // (Optional) For using grant_type = password, override this parameter
         // with your own user provider, e.g. using InMemoryUserProvider or a
         // Doctrine ORM EntityRepository that implements UserProviderInterface.
-        $app['authbucket_oauth2.user_provider'] = new UserManager();
+        $app['authbucket_oauth2.user_provider'] = new \App\MateyManagers\UserManager();
 
         // Add default response type handler.
         $app['authbucket_oauth2.response_handler'] = [

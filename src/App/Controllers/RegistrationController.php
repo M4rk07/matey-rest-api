@@ -10,11 +10,14 @@ namespace App\Controllers;
 
 
 use App\Handlers\ImageHandler;
+use App\MateyManagers\DeviceManager;
+use App\MateyManagers\UserManager;
+use App\MateyModels\Device;
+use App\MateyModels\User;
 use App\Paths\Paths;
 use App\Security\SaltGenerator;
 use App\Security\SecretGenerator;
 use App\Services\CloudStorageService;
-use App\Validators\FirstName;
 use App\Validators\Name;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
@@ -78,16 +81,19 @@ class RegistrationController extends AbstractController
             new Name()
         ]);
 
+
         /*
          * Checking if user already exists in the system
          * If does, then respond that he is already facebook user and offer to merge accounts
          */
-        if( $user = $this->service->userExists($email) ) {
+        $userManager = new UserManager();
+        $user = $userManager->loadUserByUsername($email);
+        if( !empty($user->getUserId()) ) {
                 /*
                 * If email is already registered, and facebook id is registered also,
                 * it means that user have facebook account, but not standard
                 */
-            if(empty($user['username']) && !empty($user['fb_id'])) throw new InvalidRequestException([
+            if($user->isFacebookAccount() && !$user->isStandardAccount()) throw new InvalidRequestException([
                 'error' => 'fb_registered'
             ]);
                 /*
@@ -95,14 +101,14 @@ class RegistrationController extends AbstractController
                  * In this case user will have to use another email to register
                  */
 
-            else if(!empty($user['username']) && empty($user['fb_id'])) throw new InvalidRequestException([
+            else if($user->isStandardAccount() && !$user->isFacebookAccount()) throw new InvalidRequestException([
                 'error' => 'stnd_registered'
             ]);
                 /*
                  * If this is reached, user is fully registered.
                  * There is facebook account and standard account.
                  */
-            else if(!empty($user['username']) && !empty($user('fb_id'))) throw new InvalidRequestException([
+            else if(!$user->isFacebookAccount() && !$user->isStandardAccount()) throw new InvalidRequestException([
                 'error' => 'full_registered'
             ]);
             else throw new ServerErrorException();
@@ -119,16 +125,20 @@ class RegistrationController extends AbstractController
          * Starting registration through transaction
          * If any of steps goes wrong, rolls back everything
          */
+        $user->setUsername($email)
+            ->setFirstName($first_name)
+            ->setLastName($last_name)
+            ->setFullName($fullName)
+            ->setSilhouette(1)
+            ->setPassword($encodedPassword)
+            ->setSalt($salt);
+
         $this->service->startTransaction();
         try {
-            // storing standard user data
-            $user_id = $this->service->storeUserData($email, $first_name, $last_name, $fullName, 1);
-            // redis statistics and user id by email finding
-            $this->redisService->initializeUserStatistics($user_id);
-            $this->redisService->initializeUserIdByEmail($email, $user_id);
+            // creating new user
+            $user = $userManager->createModel($user);
             // storing credentials
-            $this->service->storeUserCredentialsData($user_id, $email, $encodedPassword, $salt);
-
+            $userManager->createUserCredentials($user);
             // finally - COMMIT
             $this->service->commitTransaction();
         } catch (\Exception $e) {
@@ -186,12 +196,12 @@ class RegistrationController extends AbstractController
             new NotBlank()
         ]);
 
-        /*
-         * Update device with new gcm token
-         */
-        $affectedRows = $this->service->updateDevice($device_id, $gcm, $old_gcm);
+        $device = new Device();
+        $device->setGcm($gcm);
+        $device->setDeviceId($device_id);
+        $deviceManager = new DeviceManager();
+        if(!$deviceManager->updateDevice($device, $old_gcm)) throw new InvalidRequestException();
 
-        if($affectedRows<=0) throw new InvalidRequestException();
         /*
          * Device is successfully UPDATED!
          */
@@ -202,17 +212,18 @@ class RegistrationController extends AbstractController
         // generating secret
         $secretGenerator = new SecretGenerator();
         $deviceSecret = $secretGenerator->generateDeviceSecret();
-        /*
-         * Register new device and return device id
-         */
-        $deviceId = $this->service->registerDevice($gcm, $deviceSecret);
+        $device = new Device();
+        $device->setGcm($gcm);
+        $device->setDeviceSecret($deviceSecret);
+        $deviceManager = new DeviceManager();
+        $deviceManager->createDevice($device);
 
         /*
          * Return new device data, ID and SECRET, and device is REGISTERED!
          */
         return new JsonResponse(array(
-            'device_id' => $deviceId,
-            'device_secret' => $deviceSecret
+            'device_id' => $device->getDeviceId(),
+            'device_secret' => $device->getDeviceSecret()
         ), 200);
     }
 
@@ -227,26 +238,28 @@ class RegistrationController extends AbstractController
         ]);
 
         $fbUser = $this->checkFacebookToken($fbToken);
-        $email = $fbUser->getEmail();
+
         /*
          * Check if email exists in the system
          */
-        if( ($user = $this->service->userExists($email)) ) {
+        $userManager = new UserManager();
+        $user = $userManager->loadUserByUsername($fbUser->getEmail());
+        if( !empty($user->getUserId()) ) {
                 /*
                 * If exists, then checking if there is facebook id, in other words
                 * user have facebook account
                 */
-            if( !empty($user['fb_id']) ) {
-                $this->redisService->pushFbAccessToken($user['user_id'], $fbToken);
+            if( $user->isFacebookAccount() ) {
+                $this->redisService->pushFbAccessToken($user->getUserId(), $fbToken);
                 return new JsonResponse(array(
-                    "username" => $email,
+                    "username" => $fbUser->getEmail(),
                 ), 200);
             }
                 /*
                  * If facebook id doesn't exists, but username does, than user have standard account.
                  * In this case asking for merge.
                  */
-            else if(empty($user['fb_id']) && !empty($user['username'])) throw new InvalidRequestException([
+            else if(!$user->isFacebookAccount() && $user->isStandardAccount()) throw new InvalidRequestException([
                 'error' => 'stnd_registered'
             ]);
                 /*
@@ -259,13 +272,18 @@ class RegistrationController extends AbstractController
          * At this point, registration takes place.
          */
 
-        $fbId = $fbUser->getId();
-        $firstName = $fbUser->getFirstName();
-        $lastName = $fbUser->getLastName();
-        $fullName = $firstName." ".$lastName;
+        $fullName = $fbUser->getFirstName()." ".$fbUser->getLastName();
         $profilePicture = $fbUser->getPicture();
         $isSilhouette = 0;
         if($profilePicture->isSilhouette()) $isSilhouette = 1;
+
+        $user->setUsername($fbUser->getEmail())
+            ->setFirstName($fbUser->getFirstName())
+            ->setLastName($fbUser->getLastName())
+            ->setFullName($fullName)
+            ->setSilhouette($isSilhouette)
+            ->setFbId($fbUser->getId())
+            ->setFbToken($fbToken);
 
         /*
          * Starting transaction.
@@ -275,20 +293,18 @@ class RegistrationController extends AbstractController
             /*
              * Storing user and facebook data in database.
              */
-            $newUserId = $this->service->storeUserData($email, $firstName, $lastName, $fullName, $isSilhouette);
-            $this->service->storeFacebookData($newUserId, $fbId);
+            // creating new user
+            $user = $userManager->createModel($user);
+            // storing credentials
+            $userManager->createFacebookInfo($user);
 
             /*
              * Store facebook image to cloud storage
              */
             if($isSilhouette == 0) {
                 $imgHandler = new ImageHandler();
-                $imgHandler->handleFacebookProfilePicture($fbId, $newUserId);
+                $imgHandler->handleFacebookProfilePicture($user);
             }
-
-            $this->redisService->initializeUserStatistics($newUserId);
-            $this->redisService->initializeUserIdByEmail($email, $newUserId);
-            $this->redisService->pushFbAccessToken($newUserId, $fbToken);
 
             $this->service->commitTransaction();
         } catch (\Exception $e) {
@@ -300,7 +316,7 @@ class RegistrationController extends AbstractController
          * Registration is over SUCCESSFULLY!
          */
         return new JsonResponse(array(
-            "username" => $email,
+            "username" => $user->getUsername(),
         ), 200);
 
     }
