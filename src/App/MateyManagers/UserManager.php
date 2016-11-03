@@ -1,6 +1,8 @@
 <?php
 
 namespace App\MateyManagers;
+use App\Algos\Algo;
+use App\MateyModels\Activity;
 use App\MateyModels\User;
 use App\Services\BaseService;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -118,6 +120,48 @@ class UserManager extends BaseService implements UserProviderInterface
     {
         return get_class($this) === $class
         || is_subclass_of($class, get_class($this));
+    }
+
+    public function incrUserNumOfFollowers(User $user, $incrby) {
+        $this->redis->hincrby(self::KEY_USER.":".self::SUBKEY_STATISTICS.":".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWERS, $incrby);
+    }
+
+    public function incrUserNumOfFollowing(User $user, $incrby) {
+        $this->redis->hincrby(self::KEY_USER.":".self::SUBKEY_STATISTICS.":".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWING, $incrby);
+    }
+
+    public function getUserActivities (User $user, $limit) {
+        $result = $this->db->fetchAll("SELECT activity_id, activity_time FROM ".self::T_ACTIVITY." WHERE user_id = ? ORDER BY activity_id DESC LIMIT ".$limit,
+            array($user->getUserId()));
+
+        $activities = array();
+        foreach($result as $res) {
+            $activity = new Activity();
+            $activity->setActivityId($res['activity_id'])
+                ->setActivityTime($res['activity_time']);
+            array_push($activities, $activity);
+        }
+
+        $user->setActivities($activities);
+
+        return $user;
+    }
+
+    public function pushActivitiesToUserFeed($activities, User $user) {
+
+        foreach($activities as $activity) {
+            $this->pushActivityToFeed($activity, $user);
+        }
+
+    }
+
+    public function pushActivityToFeed(Activity $activity, User $user) {
+        $algo = new Algo();
+        $score = $algo->calculateActivityTimeScore($activity->getActivityTime());
+        $this->redis->zadd(self::KEY_USER.":".self::SUBKEY_NEWSFEED.":".$user->getUserId(), array(
+            $activity->getActivityId() => $score
+        ));
+        $this->redis->zremrangebyrank(self::KEY_USER.":".self::SUBKEY_NEWSFEED.":".$user->getUserId(), 0, -301);
     }
 
 }

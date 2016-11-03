@@ -28,6 +28,7 @@ class User implements UserInterface
     protected $following;
     protected $fbId;
     protected $fbToken;
+    protected $activities = array();
 
     // STATISTICS
     protected $numOfFollowers;
@@ -221,6 +222,23 @@ class User implements UserInterface
     public function setSilhouette($silhouette)
     {
         $this->silhouette = $silhouette;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getActivities()
+    {
+        return $this->activities;
+    }
+
+    /**
+     * @param array $activities
+     */
+    public function setActivities($activities)
+    {
+        $this->activities = $activities;
         return $this;
     }
 

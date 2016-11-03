@@ -65,7 +65,7 @@ abstract class AbstractController
 
     }
 
-    public function returnTime() {
+    public static function returnTime() {
         $time = new \DateTime();
         return $time->format('Y-m-d H:i:s');
     }
