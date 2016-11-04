@@ -74,9 +74,10 @@ class LoginController extends AbstractController
         $cloudStorage = new CloudStorageService();
         $user->setProfilePicture( $cloudStorage->generateProfilePictureLink($user->getUserId(), $profilePictureSize) );
         $suggestedFollowings = array();
-
+        
         if($user->isFirstLogin() && $user->isFacebookAccount()) {
             $fbToken = $this->redisService->getFbToken($user->getUserId());
+
             $fbUserFriends = $this->fetchFacebookFriends($fbToken);
 
             $friendsIds = [];

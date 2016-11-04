@@ -126,7 +126,8 @@ class UserManager extends BaseService implements UserProviderInterface
             ->setFullName($result['full_name'])
             ->setUsername($result['email'])
             ->setFirstLogin($result['first_login'])
-            ->setSilhouette($result['is_silhouette']);
+            ->setSilhouette($result['is_silhouette'])
+            ->setFbId($result['fb_id']);
 
         return $user;
 

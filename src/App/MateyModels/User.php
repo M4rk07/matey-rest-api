@@ -249,7 +249,7 @@ class User extends MateyModel implements UserInterface
      */
     public function isFirstLogin()
     {
-        return $this->firstLogin;
+        return $this->firstLogin == 0 ? true : false;
     }
 
     /**
