@@ -32,10 +32,10 @@ class ActivityManager extends BaseService
         $followers = $user->getFollowers();
         $followers[] = $user;
 
-        $userManager = new UserManager();
+        $newsfeedManager = new NewsfeedManager();
 
         foreach($followers as $follower) {
-            $userManager->pushActivityToFeed($activity, $follower);
+            $newsfeedManager->pushActivityToFeed($activity, $follower);
         }
     }
 

@@ -47,20 +47,15 @@ class LoginController extends AbstractController
 
         $this->validateNumericUnsigned($deviceId);
 
-        $device = new Device();
-        $user = new User();
         $login = new Login();
 
         $deviceManager = new DeviceManager();
-        $userManager = new UserManager();
         $loginManager = new LoginManager();
 
-        $device->setDeviceId($deviceId);
-        $user->setUserId($user_id);
         $login->setUserId($user_id);
         $login->setDeviceId($deviceId);
 
-        $device = $deviceManager->getDeviceGcm($device);
+        $device = $deviceManager->getDeviceWithGcmById($deviceId);
         $login->setGcm($device->getGcm());
         // store user login information
         // on which device he is logging in
@@ -73,6 +68,7 @@ class LoginController extends AbstractController
             throw new ServerErrorException();
         }
 
+        $userManager = new UserManager();
         $user = $userManager->loadUserDataById($user_id);
 
         $cloudStorage = new CloudStorageService();
@@ -136,11 +132,21 @@ class LoginController extends AbstractController
 
         $this->validateNumericUnsigned($deviceId);
 
-        $gcm = $this->service->getDeviceGcm($deviceId);
+        $login = new Login();
+
+        $deviceManager = new DeviceManager();
+        $loginManager = new LoginManager();
+
+        $login->setUserId($user_id);
+        $login->setDeviceId($deviceId);
+
+        $device = $deviceManager->getDeviceWithGcmById($deviceId);
+        $login->setGcm($device->getGcm());
+        // store user login information
+        // on which device he is logging in
         $this->service->startTransaction();
         try {
-            $this->service->storeLogoutRecord($deviceId, $user_id);
-            $this->redisService->deleteLoginGcm($user_id, $gcm);
+            $loginManager->deleteLogin($login);
             $this->service->commitTransaction();
         } catch (\Exception $e) {
             $this->service->rollbackTransaction();

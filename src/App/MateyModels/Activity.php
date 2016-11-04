@@ -9,7 +9,7 @@
 namespace App\MateyModels;
 
 
-class Activity
+class Activity extends MateyModel
 {
 
     protected $activityId;

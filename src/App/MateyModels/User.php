@@ -9,7 +9,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * Date: 3.11.16.
  * Time: 00.02
  */
-class User implements UserInterface
+class User extends MateyModel implements UserInterface
 {
 
     protected $userId;
@@ -24,8 +24,8 @@ class User implements UserInterface
     protected $silhouette;
     protected $firstLogin;
     protected $dateRegistered;
-    protected $followers;
-    protected $following;
+    protected $followers = array();
+    protected $following = array();
     protected $fbId;
     protected $fbToken;
     protected $activities = array();
@@ -235,8 +235,11 @@ class User implements UserInterface
     /**
      * @param array $activities
      */
-    public function setActivities($activities)
+    public function setActivities(array $activities)
     {
+        foreach($activities as $activity) {
+            if(!($activity instanceof Activity)) return false;
+        }
         $this->activities = $activities;
         return $this;
     }
@@ -286,8 +289,11 @@ class User implements UserInterface
     /**
      * @param mixed $followers
      */
-    public function setFollowers($followers)
+    public function setFollowers(array $followers)
     {
+        foreach($followers as $user) {
+            if(!($user instanceof User)) return false;
+        }
         $this->followers = $followers;
         return $this;
     }
@@ -303,8 +309,11 @@ class User implements UserInterface
     /**
      * @param mixed $following
      */
-    public function setFollowing($following)
+    public function setFollowing(array $following)
     {
+        foreach($following as $user) {
+            if(!($user instanceof User)) return false;
+        }
         $this->following = $following;
         return $this;
     }
@@ -341,6 +350,9 @@ class User implements UserInterface
      */
     public function setNewsfeeds(array $newsfeeds)
     {
+        foreach($newsfeeds as $feed) {
+            if(!($feed instanceof Newsfeed)) return false;
+        }
         $this->newsfeeds = $newsfeeds;
         return $this;
     }
@@ -524,7 +536,6 @@ class User implements UserInterface
     public function isStandardAccount() {
         return empty($this->password) ? false : true;
     }
-
 
     public function eraseCredentials()
     {

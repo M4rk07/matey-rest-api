@@ -9,7 +9,7 @@
 namespace App\MateyModels;
 
 
-class Response
+class Response  extends MateyModel
 {
 
     protected $responseId;
@@ -118,7 +118,11 @@ class Response
      */
     public function setUsersApproved($usersApproved)
     {
+        foreach ($usersApproved as $user) {
+            if(!($user instanceof User)) return false;
+        }
         $this->usersApproved = $usersApproved;
+        return $this;
     }
 
     /**

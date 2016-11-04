@@ -9,7 +9,7 @@
 namespace App\MateyModels;
 
 
-class Post
+class Post  extends MateyModel
 {
 
     protected $postId;
@@ -17,7 +17,7 @@ class Post
     protected $text;
     protected $dateTime;
     protected $responses = array();
-    protected $bestResponse = array();
+    protected $bestResponse;
     protected $lastThreeResponses = array();
     protected $numOfResponses;
     protected $numOfShares;
@@ -178,9 +178,7 @@ class Post
         return serialize(array(
             'post_id' => $this->postId,
             'user_id' => $this->userId,
-            'text' => $this->text,
-            'num_of_responses' => $this->numOfResponses,
-            'num_of_shares' => $this->numOfShares
+            'text' => $this->text
         ));
     }
 
@@ -188,9 +186,7 @@ class Post
         $data = unserialize($data);
         $this->setPostId($data['post_id'])
             ->setUserId($data['user_id'])
-            ->setText($data['text'])
-            ->setNumOfResponses($data['num_of_responses'])
-            ->setNumOfShares($data['num_of_shares']);
+            ->setText($data['text']);
         return $this;
     }
 

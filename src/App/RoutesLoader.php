@@ -89,6 +89,7 @@ class RoutesLoader
 
         // API ROUTES
         $api->post('/login', 'login.controller:loginAction');
+        $api->post('/login/merge/{action}', 'registration.controller:mergeAccountsAction');
         $api->post('/logout', 'login.controller:logoutAction');
 
         // for "action" valid values are:

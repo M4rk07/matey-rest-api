@@ -9,7 +9,7 @@
 namespace App\MateyModels;
 
 
-class Newsfeed
+class Newsfeed extends MateyModel
 {
 
     protected $userId;
@@ -82,6 +82,9 @@ class Newsfeed
      */
     public function setFeedActivities(array $feedActivities)
     {
+        foreach($feedActivities as $activity) {
+            if(!($activity instanceof Activity)) return false;
+        }
         $this->feedActivities = $feedActivities;
         return $this;
     }

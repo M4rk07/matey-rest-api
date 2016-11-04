@@ -29,10 +29,16 @@ class LoginManager extends BaseService
     public function deleteLogin(Login $login) {
         $this->db->executeUpdate("UPDATE ".self::T_LOGIN." SET status = 0 WHERE device_id = ? AND user_id = ?",
             array($login->getDeviceId(), $login->getUserId()));
+
+        $this->deleteLoginGcmFromRedis($login);
     }
 
     public function setLoginGcmToRedis (Login $login) {
         $this->redis->sadd(self::KEY_USER.":".self::SUBKEY_LOGIN_GCMS.":".$login->getUserId(), $login->getGcm());
+    }
+
+    public function deleteLoginGcmFromRedis(Login $login) {
+        $this->redis->del(self::KEY_USER.":".self::SUBKEY_LOGIN_GCMS.":".$login->getUserId());
     }
 
 }

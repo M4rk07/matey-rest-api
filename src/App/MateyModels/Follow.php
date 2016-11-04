@@ -9,7 +9,7 @@
 namespace App\MateyModels;
 
 
-class Follow
+class Follow extends MateyModel
 {
 
     protected $userFrom;

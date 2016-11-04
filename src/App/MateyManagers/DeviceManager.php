@@ -32,12 +32,14 @@ class DeviceManager extends BaseService
         return false;
     }
 
-    public function getDeviceGcm(Device $device){
+    public function getDeviceWithGcmById($device_id){
 
         $result = $this->db->fetchAll("SELECT gcm FROM ".self::T_DEVICE." WHERE device_id = ? LIMIT 1",
-            array($device->getDeviceId()));
+            array($device_id));
 
-        $device->setGcm($result[0]['gcm']);
+        $device = new Device();
+        $device->setDeviceId($device_id)
+            ->setGcm($result[0]['gcm']);
 
         return $device;
 

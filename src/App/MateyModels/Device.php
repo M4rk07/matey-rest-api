@@ -9,7 +9,7 @@
 namespace App\MateyModels;
 
 
-class Device
+class Device extends MateyModel
 {
 
     protected $deviceId;
@@ -31,6 +31,7 @@ class Device
     public function setDeviceId($deviceId)
     {
         $this->deviceId = $deviceId;
+        return $this;
     }
 
     /**
@@ -47,6 +48,7 @@ class Device
     public function setDeviceSecret($deviceSecret)
     {
         $this->deviceSecret = $deviceSecret;
+        return $this;
     }
 
     /**
@@ -63,6 +65,7 @@ class Device
     public function setGcm($gcm)
     {
         $this->gcm = $gcm;
+        return $this;
     }
 
     /**
@@ -79,6 +82,7 @@ class Device
     public function setDateRegistered($dateRegistered)
     {
         $this->dateRegistered = $dateRegistered;
+        return $this;
     }
 
 }

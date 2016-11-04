@@ -260,13 +260,14 @@ class RegistrationController extends AbstractController
 
     }
 
-    public function mergeAccountsAction(Request $request, $action){
+    public function mergeAccountsAction(Request $request, Application $app, $action){
 
         if($action == 'facebook') $this->mergeNewFacebookAccount($request);
         else if($action == 'standard') $this->mergeNewStandardAccount($request);
         else throw new InvalidRequestException();
 
-        return $this->returnOk();
+        return $app['login.controller']->loginAction($request);
+
     }
 
     public function mergeNewFacebookAccount (Request $request) {
@@ -276,6 +277,7 @@ class RegistrationController extends AbstractController
         $this->validate($fbToken, [
             new NotBlank()
         ]);
+
 
         $fbUser = $this->checkFacebookToken($fbToken);
         if(empty($fbUser)) throw new InvalidRequestException([

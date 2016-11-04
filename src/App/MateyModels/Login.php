@@ -9,7 +9,7 @@
 namespace App\MateyModels;
 
 
-class Login
+class Login extends MateyModel
 {
 
     protected $deviceId;
