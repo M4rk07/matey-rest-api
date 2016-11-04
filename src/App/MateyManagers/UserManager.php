@@ -37,55 +37,6 @@ class UserManager extends BaseService implements UserProviderInterface
 
     }
 
-    public function initializeUserStatistics(User $user) {
-        $this->redis->hmset(self::KEY_USER.":".self::SUBKEY_STATISTICS.":".$user->getUserId(), array(
-            self::FIELD_NUM_OF_FOLLOWERS => 0,
-            self::FIELD_NUM_OF_FOLLOWING => 0,
-            self::FIELD_NUM_OF_POSTS => 0,
-            self::FIELD_NUM_OF_GIVEN_APPROVES => 0,
-            self::FIELD_NUM_OF_RECEIVED_APPROVES => 0,
-            self::FIELD_NUM_OF_GIVEN_RESPONSES => 0,
-            self::FIELD_NUM_OF_RECEIVED_RESPONSES => 0,
-            self::FIELD_NUM_OF_BEST_RESPONSES => 0,
-            self::FIELD_NUM_OF_PROFILE_CLICKS => 0,
-            self::FILED_NUM_OF_SHARES => 0
-        ));
-    }
-
-    public function initializeUserIdByEmail (User $user) {
-        $this->redis->set(self::KEY_USER.":".self::SUBKEY_USER_ID.":".$user->getUsername(), $user->getUserId());
-    }
-
-    public function createUserCredentials (User $user, $password) {
-
-        // generating random salt
-        $salt = (new SaltGenerator())->generateSalt();
-        // encoding password and salt
-        $passwordEncoder = new MessageDigestPasswordEncoder();
-        $encodedPassword = $passwordEncoder->encodePassword($password, $salt);
-        $user->setPassword($encodedPassword);
-        $user->setSalt($salt);
-
-        $this->db->executeUpdate("INSERT INTO ".self::T_A_USER." (user_id, username, password, salt) VALUES (?,?,?,?)",
-            array($user->getUserId(), $user->getUsername(), $user->getPassword(), $user->getSalt()));
-
-        return $user;
-    }
-
-    public function createFacebookInfo(User $user) {
-        $this->db->executeUpdate("INSERT INTO ".self::T_FACEBOOK_INFO." (user_id, fb_id) VALUES (?,?)",
-            array($user->getUserId(), $user->getFbId()));
-
-        $this->pushFbAccessToken($user);
-
-        return $user;
-    }
-
-    public function pushFbAccessToken(User $user) {
-        $this->redis->set(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$user->getUserId(), $user->getFbToken());
-        $this->redis->expire(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$user->getUserId(), 3600);
-    }
-
     public function loadUserByUsername($username)
     {
 
@@ -109,6 +60,34 @@ class UserManager extends BaseService implements UserProviderInterface
 
         return $user;
     }
+
+    public function createUserCredentials (User $user, $password) {
+
+        // generating random salt
+        $salt = (new SaltGenerator())->generateSalt();
+        // encoding password and salt
+        $passwordEncoder = new MessageDigestPasswordEncoder();
+        $encodedPassword = $passwordEncoder->encodePassword($password, $salt);
+        $user->setPassword($encodedPassword);
+        $user->setSalt($salt);
+
+        $this->db->executeUpdate("INSERT INTO ".self::T_A_USER." (user_id, username, password, salt) VALUES (?,?,?,?)",
+            array($user->getUserId(), $user->getUsername(), $user->getPassword(), $user->getSalt()));
+
+        return $user;
+    }
+
+    public function supportsClass($class)
+    {
+        return get_class($this) === $class
+        || is_subclass_of($class, get_class($this));
+    }
+    // **********************************************************************************************************
+    // **********************************************************************************************************
+    // **********************************************************************************************************
+
+
+
 
     public function loadUserDataById($user_id) {
 
@@ -157,12 +136,6 @@ class UserManager extends BaseService implements UserProviderInterface
             ->setFbId($result['fb_id']);
 
         return $user;
-    }
-
-    public function supportsClass($class)
-    {
-        return get_class($this) === $class
-        || is_subclass_of($class, get_class($this));
     }
 
     public function incrUserNumOfFollowers(User $user, $incrby) {
@@ -231,6 +204,41 @@ class UserManager extends BaseService implements UserProviderInterface
 
         return $suggestedFriends;
 
+    }
+
+    public function initializeUserStatistics(User $user) {
+        $this->redis->hmset(self::KEY_USER.":".self::SUBKEY_STATISTICS.":".$user->getUserId(), array(
+            self::FIELD_NUM_OF_FOLLOWERS => 0,
+            self::FIELD_NUM_OF_FOLLOWING => 0,
+            self::FIELD_NUM_OF_POSTS => 0,
+            self::FIELD_NUM_OF_GIVEN_APPROVES => 0,
+            self::FIELD_NUM_OF_RECEIVED_APPROVES => 0,
+            self::FIELD_NUM_OF_GIVEN_RESPONSES => 0,
+            self::FIELD_NUM_OF_RECEIVED_RESPONSES => 0,
+            self::FIELD_NUM_OF_BEST_RESPONSES => 0,
+            self::FIELD_NUM_OF_PROFILE_CLICKS => 0,
+            self::FILED_NUM_OF_SHARES => 0
+        ));
+    }
+
+    public function initializeUserIdByEmail (User $user) {
+        $this->redis->set(self::KEY_USER.":".self::SUBKEY_USER_ID.":".$user->getUsername(), $user->getUserId());
+    }
+
+
+
+    public function createFacebookInfo(User $user) {
+        $this->db->executeUpdate("INSERT INTO ".self::T_FACEBOOK_INFO." (user_id, fb_id) VALUES (?,?)",
+            array($user->getUserId(), $user->getFbId()));
+
+        $this->pushFbAccessToken($user);
+
+        return $user;
+    }
+
+    public function pushFbAccessToken(User $user) {
+        $this->redis->set(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$user->getUserId(), $user->getFbToken());
+        $this->redis->expire(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$user->getUserId(), 3600);
     }
 
 }

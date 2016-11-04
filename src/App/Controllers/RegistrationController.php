@@ -91,7 +91,8 @@ class RegistrationController extends AbstractController
             ]);
                 //If this is reached, user is fully registered.
                 //There is facebook account and standard account.
-            else if(!$user->isFacebookAccount() && !$user->isStandardAccount()) throw new InvalidRequestException([
+            else if($user->isFacebookAccount() && $user->isStandardAccount()) throw new InvalidRequestException([
+                'error' => 'full_reg',
                 'error_description' => 'Hey Mate, you are already with us!'
             ]);
             else throw new ServerErrorException();
