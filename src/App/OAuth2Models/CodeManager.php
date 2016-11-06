@@ -9,11 +9,12 @@
 namespace App\OAuth2Models;
 
 
+use App\MateyModels\AbstractManager;
 use AuthBucket\OAuth2\Model\CodeManagerInterface;
 
 class CodeManager extends AbstractManager implements CodeManagerInterface
 {
     public function __construct () {
-        parent::__construct(self::T_A_CODES, 'App\\OAuth2Models\\Code', "code");
+        parent::__construct(self::T_A_CODES, 'App\\OAuth2Models\\Code');
     }
 }

@@ -1,17 +1,19 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: M4rk0
- * Date: 8/16/2016
- * Time: 11:48 AM
+ * User: marko
+ * Date: 7.11.16.
+ * Time: 00.00
  */
 
-namespace App\OAuth2Models;
+namespace App\MateyModels;
+
 
 use AuthBucket\OAuth2\Model\ModelInterface;
 
 abstract class AbstractModel implements ModelInterface
 {
+
     protected $id;
     protected $dateFormat = 'Y-m-d H:i:s';
 
@@ -40,6 +42,6 @@ abstract class AbstractModel implements ModelInterface
     public abstract function setValuesFromArray ($values);
 
     // returns key => value array from protected class variables
-    public abstract function getValuesAsArray (ModelInterface $model);
+    public abstract function getValuesAsArray ();
 
 }

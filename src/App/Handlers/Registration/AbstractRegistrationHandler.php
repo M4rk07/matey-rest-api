@@ -6,44 +6,56 @@
  * Time: 16.26
  */
 
-namespace Matey\Handlers\Registration;
+namespace App\Handlers\Registration;
 
 
+use App\MateyModels\ModelManagerFactoryInterface;
+use App\MateyModels\UserManager;
+use App\MateyModels\UserManagerRedis;
 use App\MateyModels\User;
+use App\Validators\Name;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
-use AuthBucket\OAuth2\Model\ModelManagerFactoryInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class AbstractRegistrationHandler implements RegistrationHandlerInterface
+abstract class AbstractRegistrationHandler implements RegistrationHandlerInterface
 {
 
     protected $validator;
-    protected $encoderFactory;
     protected $modelManagerFactory;
-    protected $userProvider;
+    protected $userManager;
+    protected $userManagerRedis;
+    protected $facebookInfoManager;
+    protected $facebookInfoManagerRedis;
+    protected $oauth2UserManager;
+    protected $oauth2UserManagerRedis;
 
     public function __construct(
         ValidatorInterface $validator,
-        EncoderFactoryInterface $encoderFactory,
-        ModelManagerFactoryInterface $modelManagerFactory,
-        UserProviderInterface $userProvider
+        ModelManagerFactoryInterface $modelManagerFactory
     )
     {
-        $this->encoderFactory = $encoderFactory;
         $this->validator = $validator;
         $this->modelManagerFactory = $modelManagerFactory;
-        $this->userProvider = $userProvider;
+        $this->userManager = $modelManagerFactory->getModelManager('user', 'mysql');
+        $this->userManagerRedis = $modelManagerFactory->getModelManager('user', 'redis');
+        $this->facebookInfoManager = $modelManagerFactory->getModelManager('facebookInfo', 'mysql');
+        $this->facebookInfoManagerRedis = $modelManagerFactory->getModelManager('facebookInfo', 'redis');
+        $this->oauth2UserManager = $modelManagerFactory->getModelManager('oauth2User', 'mysql');
+        $this->oauth2UserManagerRedis = $modelManagerFactory->getModelManager('oauth2User', 'redis');
     }
 
     public function getUserCoreData ($username) {
 
         $errors = $this->validator->validate($username, [
-            new NotBlank()
+            new NotBlank(),
+            new Email()
         ]);
 
         if (count($errors) > 0) {
@@ -51,17 +63,8 @@ class AbstractRegistrationHandler implements RegistrationHandlerInterface
                 'error_description' => 'The request includes an invalid parameter value.',
             ]);
         }
-        $user = $this->userProvider->loadUserByUsername($username);
 
-        if(!empty((array)$user)) {
-            //If this is reached, user is fully registered.
-            //There is facebook account and standard account.
-            if ($user->isFacebookAccount() && $user->isStandardAccount()) throw new InvalidRequestException([
-                'error' => 'full_reg',
-                'error_description' => 'Hey Mate, you are already with us!'
-            ]);
-            else if(!$user->isFacebookAccount() && !$user->isStandardAccount()) throw new ServerErrorException();
-        }
+        $user = $this->userManager->loadUserByEmail($username);
 
         return $user;
 
@@ -69,7 +72,32 @@ class AbstractRegistrationHandler implements RegistrationHandlerInterface
 
     public function storeUserCoreData (User $user) {
 
-        $this->userProvider->createModel($user);
+        $errors = $this->validator->validate($user->getFirstName(), [
+            new NotBlank(),
+            new Name()
+        ]);
+        if (count($errors) > 0) {
+            throw new InvalidRequestException([
+                'error_description' => 'The request includes an invalid parameter value.',
+            ]);
+        }
+        $errors = $this->validator->validate($user->getLastName(), [
+            new NotBlank(),
+            new Name()
+        ]);
+        if (count($errors) > 0) {
+            throw new InvalidRequestException([
+                'error_description' => 'The request includes an invalid parameter value.',
+            ]);
+        }
+
+        $user->setFullName(
+            $user->getFirstName()." ".$user->getLastName()
+        );
+
+        $this->userManager->createModel($user);
+        $this->userManagerRedis->initializeUserStatistics($user);
+        $this->userManagerRedis->initializeUserIdByEmail($user);
 
     }
 

@@ -9,6 +9,7 @@
 namespace App\OAuth2Models;
 
 
+use App\MateyModels\AbstractModel;
 use AuthBucket\OAuth2\Model\ModelInterface;
 use AuthBucket\OAuth2\Model\RefreshTokenInterface;
 
@@ -120,15 +121,15 @@ class RefreshToken extends AbstractModel implements RefreshTokenInterface
         $this->scope = $this->createArrayFromString($values['scope']);
     }
 
-    public function getValuesAsArray(ModelInterface $model)
+    public function getValuesAsArray()
     {
-        $keyValues = array (
-            'refresh_token' => $model->getRefreshToken(),
-            'client_id' => $model->getClientId(),
-            'username' => $model->getUsername(),
-            'expires' => $model->getExpires()->format($this->dateFormat),
-            'scope' => $this->createStringFromArray($model->getScope())
-        );
+        $keyValues = array ();
+
+        empty($this->refreshToken) ? : $keyValues['refresh_token'] = $this->refreshToken;
+        empty($this->clientId) ? : $keyValues['client_id'] = $this->clientId;
+        empty($this->username) ? : $keyValues['username'] = $this->username;
+        empty($this->expires) ? : $keyValues['expires'] = $this->expires;
+        empty($this->scope) ? : $keyValues['scope'] =$this->scope;
 
         return $keyValues;
     }

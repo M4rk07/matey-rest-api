@@ -9,7 +9,10 @@
 namespace App\MateyModels;
 
 
-class Activity extends MateyModel
+use App\OAuth2Models\AbstractModel;
+use AuthBucket\OAuth2\Model\ModelInterface;
+
+class Activity extends AbstractModel
 {
 
     protected $activityId;
@@ -157,7 +160,33 @@ class Activity extends MateyModel
         return $this;
     }
 
+    public function setValuesFromArray($values)
+    {
+        $this->activityId = $values['activity_id'];
+        $this->userId = $values['user_id'];
+        $this->sourceId = $values['source_id'];
+        $this->parentId = $values['parent_id'];
+        $this->parentType = $values['parent_type'];
+        $this->activityType = $values['activity_type'];
+        $this->activityTime = $values['activity_time'];
+        $this->srlData = $values['srlData'];
+    }
 
+    public function getValuesAsArray(ModelInterface $model)
+    {
+        $keyValues = array ();
+
+        empty($this->activityId) ? : $keyValues['activity_id'] = $this->activityId;
+        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
+        empty($this->sourceId) ? : $keyValues['source_id'] = $this->sourceId;
+        empty($this->parentId) ? : $keyValues['parent_id'] = $this->parentId;
+        empty($this->parentType) ? : $keyValues['parent_type'] =$this->parentType;
+        empty($this->activityType) ? : $keyValues['activity_type'] = $this->activityType;
+        empty($this->activityTime) ? : $keyValues['activity_time'] = $this->activityTime;
+        empty($this->srlData) ? : $keyValues['srlData'] = $this->srlData;
+
+        return $keyValues;
+    }
 
 
 }

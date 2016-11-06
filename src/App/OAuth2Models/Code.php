@@ -9,6 +9,7 @@
 namespace App\OAuth2Models;
 
 
+use App\MateyModels\AbstractModel;
 use AuthBucket\OAuth2\Model\CodeInterface;
 use AuthBucket\OAuth2\Model\ModelInterface;
 
@@ -139,16 +140,16 @@ class Code extends AbstractModel implements CodeInterface
         $this->scope = $this->createArrayFromString($values['scope']);
     }
 
-    public function getValuesAsArray(ModelInterface $model)
+    public function getValuesAsArray()
     {
-        $keyValues = array (
-            'code' => $model->getCode(),
-            'client_id' => $model->getClientId(),
-            'username' => $model->getUsername(),
-            'redirect_uri' => $model->getRedirectUri(),
-            'expires' => $model->getExpires()->format($this->dateFormat),
-            'scope' => $this->createStringFromArray($model->getScope())
-        );
+        $keyValues = array ();
+
+        empty($this->code) ? : $keyValues['code'] = $this->code;
+        empty($this->clientId) ? : $keyValues['client_id'] = $this->clientId;
+        empty($this->username) ? : $keyValues['username'] = $this->username;
+        empty($this->redirectUri) ? : $keyValues['redirect_uri'] = $this->redirectUri;
+        empty($this->expires) ? : $keyValues['expires'] =$this->expires;
+        empty($this->scope) ? : $keyValues['scope'] = $this->scope;
 
         return $keyValues;
     }

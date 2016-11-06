@@ -6,7 +6,7 @@
  * Time: 15.00
  */
 
-namespace App\MateyManagers;
+namespace App\MateyModels;
 
 
 use App\Algos\ActivityWeights;
@@ -15,8 +15,12 @@ use App\MateyModels\Follow;
 use App\MateyModels\User;
 use App\Services\BaseService;
 
-class FollowManager extends BaseService
+class FollowManager extends AbstractManager
 {
+
+    public function __construct () {
+        parent::__construct(self::T_FOLLOWER, 'App\\MateyModels\\Follow');
+    }
 
     public function createFollow(Follow $follow) {
 

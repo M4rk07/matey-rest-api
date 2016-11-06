@@ -9,7 +9,10 @@
 namespace App\MateyModels;
 
 
-class Follow extends MateyModel
+use App\OAuth2Models\AbstractModel;
+use AuthBucket\OAuth2\Model\ModelInterface;
+
+class Follow extends AbstractModel
 {
 
     protected $userFrom;
@@ -67,6 +70,23 @@ class Follow extends MateyModel
         return $this;
     }
 
+    public function setValuesFromArray($values)
+    {
+        $this->userFrom = $values['from_user'];
+        $this->userTo = $values['to_user'];
+        $this->dateTime = $values['date_time'];
+    }
+
+    public function getValuesAsArray(ModelInterface $model)
+    {
+        $keyValues = array ();
+
+        empty($this->userFrom) ? : $keyValues['from_user'] = $this->userFrom;
+        empty($this->userTo) ? : $keyValues['to_user'] = $this->userTo;
+        empty($this->dateTime) ? : $keyValues['date_time'] = $this->dateTime;
+
+        return $keyValues;
+    }
 
 
 }

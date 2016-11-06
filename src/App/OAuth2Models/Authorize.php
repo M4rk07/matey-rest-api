@@ -9,6 +9,7 @@
 namespace App\OAuth2Models;
 
 
+use App\MateyModels\AbstractModel;
 use AuthBucket\OAuth2\Model\AuthorizeInterface;
 use AuthBucket\OAuth2\Model\ModelInterface;
 
@@ -80,13 +81,13 @@ class Authorize extends AbstractModel implements AuthorizeInterface
         $this->scope = $this->createArrayFromString($values['scope']);
     }
 
-    public function getValuesAsArray(ModelInterface $model)
+    public function getValuesAsArray()
     {
-        $keyValues = array (
-            'client_id' => $model->getClientId(),
-            'username' => $model->getUsername(),
-            'scope' => $this->createStringFromArray($model->getScope())
-        );
+        $keyValues = array ();
+
+        empty($this->clientId) ? : $keyValues['client_id'] = $this->clientId;
+        empty($this->username) ? : $keyValues['username'] = $this->username;
+        empty($this->scope) ? : $keyValues['scope'] = $this->scope;
 
         return $keyValues;
     }

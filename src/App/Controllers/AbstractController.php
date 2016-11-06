@@ -9,6 +9,7 @@
 namespace App\Controllers;
 
 
+use App\MateyModels\ModelManagerFactoryInterface;
 use App\Paths\Paths;
 use App\Services\BaseService;
 use App\Services\Redis\RedisService;
@@ -28,19 +29,16 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 abstract class AbstractController
 {
 
-    protected $service;
-    protected $redisService;
     protected $validator;
+    protected $modelManagerFactory;
 
     public function __construct(
-        BaseService $service,
-        RedisService $redisService,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
+        ModelManagerFactoryInterface $modelManagerFactory
     )
     {
-        $this->service = $service;
-        $this->redisService = $redisService;
         $this->validator = $validator;
+        $this->modelManagerFactory = $modelManagerFactory;
     }
 
     /**

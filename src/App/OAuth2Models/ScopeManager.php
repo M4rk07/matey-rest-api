@@ -9,11 +9,12 @@
 namespace App\OAuth2Models;
 
 
+use App\MateyModels\AbstractManager;
 use AuthBucket\OAuth2\Model\ScopeManagerInterface;
 
 class ScopeManager extends AbstractManager implements ScopeManagerInterface
 {
     public function __construct () {
-        parent::__construct(self::T_A_SCOPES, 'App\\OAuth2Models\\Scope', "scope");
+        parent::__construct(self::T_A_SCOPES, 'App\\OAuth2Models\\Scope');
     }
 }

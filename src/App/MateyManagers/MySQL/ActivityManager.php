@@ -6,15 +6,18 @@
  * Time: 13.13
  */
 
-namespace App\MateyManagers;
+namespace App\MateyModels;
 
 
 use App\MateyModels\Activity;
 use App\MateyModels\User;
 use App\Services\BaseService;
 
-class ActivityManager extends BaseService
+class ActivityManager extends AbstractManager
 {
+    public function __construct () {
+        parent::__construct(self::T_ACTIVITY, 'App\\MateyModels\\Activity');
+    }
 
     public function createActivity(Activity $activity) {
 

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\MateyModels;
+use AuthBucket\OAuth2\Model\ModelInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -9,14 +10,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * Date: 3.11.16.
  * Time: 00.02
  */
-class User extends MateyModel implements UserInterface
+class User extends AbstractModel
 {
 
     protected $userId;
-    protected $username;
-    protected $password;
-    protected $salt;
-    protected $roles = array();
+    protected $email;
     protected $firstName;
     protected $lastName;
     protected $fullName;
@@ -24,12 +22,6 @@ class User extends MateyModel implements UserInterface
     protected $silhouette;
     protected $firstLogin;
     protected $dateRegistered;
-    protected $followers = array();
-    protected $following = array();
-    protected $fbId;
-    protected $fbToken;
-    protected $activities = array();
-    protected $newsfeeds = array();
 
     // STATISTICS
     protected $numOfFollowers;
@@ -63,62 +55,17 @@ class User extends MateyModel implements UserInterface
     /**
      * @return mixed
      */
-    public function getUsername()
+    public function getEmail()
     {
-        return $this->username;
+        return $this->email;
     }
 
     /**
-     * @param mixed $username
+     * @param mixed $email
      */
-    public function setUsername($username)
+    public function setEmail($email)
     {
-        $this->username = $username;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPassword()
-    {
-        return $this->password;
-    }
-
-    /**
-     * @param mixed $password
-     */
-    public function setPassword($password)
-    {
-        $this->password = $password;
-        return $this;
-    }
-
-    public function getSalt()
-    {
-        return $this->salt;
-    }
-
-    public function setSalt($salt)
-    {
-        $this->salt = $salt;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getRoles()
-    {
-        return $this->roles;
-    }
-
-    /**
-     * @param mixed $roles
-     */
-    public function setRoles($roles)
-    {
-        $this->roles = $roles;
+        $this->email = $email;
         return $this;
     }
 
@@ -193,23 +140,6 @@ class User extends MateyModel implements UserInterface
     /**
      * @return mixed
      */
-    public function getFbId()
-    {
-        return $this->fbId;
-    }
-
-    /**
-     * @param mixed $fbId
-     */
-    public function setFbId($fbId)
-    {
-        $this->fbId = $fbId;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
     public function isSilhouette()
     {
         return $this->silhouette;
@@ -221,26 +151,6 @@ class User extends MateyModel implements UserInterface
     public function setSilhouette($silhouette)
     {
         $this->silhouette = $silhouette;
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getActivities()
-    {
-        return $this->activities;
-    }
-
-    /**
-     * @param array $activities
-     */
-    public function setActivities(array $activities)
-    {
-        foreach($activities as $activity) {
-            if(!($activity instanceof Activity)) return false;
-        }
-        $this->activities = $activities;
         return $this;
     }
 
@@ -277,87 +187,6 @@ class User extends MateyModel implements UserInterface
         $this->dateRegistered = $dateRegistered;
         return $this;
     }
-
-    /**
-     * @return mixed
-     */
-    public function getFollowers()
-    {
-        return $this->followers;
-    }
-
-    /**
-     * @param mixed $followers
-     */
-    public function setFollowers(array $followers)
-    {
-        foreach($followers as $user) {
-            if(!($user instanceof User)) return false;
-        }
-        $this->followers = $followers;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getFollowing()
-    {
-        return $this->following;
-    }
-
-    /**
-     * @param mixed $following
-     */
-    public function setFollowing(array $following)
-    {
-        foreach($following as $user) {
-            if(!($user instanceof User)) return false;
-        }
-        $this->following = $following;
-        return $this;
-    }
-
-
-
-    /**
-     * @return mixed
-     */
-    public function getFbToken()
-    {
-        return $this->fbToken;
-    }
-
-    /**
-     * @param mixed $fbToken
-     */
-    public function setFbToken($fbToken)
-    {
-        $this->fbToken = $fbToken;
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getNewsfeeds()
-    {
-        return $this->newsfeeds;
-    }
-
-    /**
-     * @param array $newsfeeds
-     */
-    public function setNewsfeeds(array $newsfeeds)
-    {
-        foreach($newsfeeds as $feed) {
-            if(!($feed instanceof Newsfeed)) return false;
-        }
-        $this->newsfeeds = $newsfeeds;
-        return $this;
-    }
-
-
 
     /**
      * @return mixed
@@ -529,17 +358,32 @@ class User extends MateyModel implements UserInterface
         return $this;
     }
 
-    public function isFacebookAccount() {
-        return empty($this->fbId) ? false : true;
-    }
-
-    public function isStandardAccount() {
-        return empty($this->password) ? false : true;
-    }
-
-    public function eraseCredentials()
+    public function setValuesFromArray($values)
     {
-        // TODO: Implement eraseCredentials() method.
+
+        $this->userId = $values['user_id'];
+        $this->email = $values['email'];
+        $this->firstName = $values['first_name'];
+        $this->lastName = $values['last_name'];
+        $this->fullName = $values['full_name'];
+        $this->silhouette = $values['is_silhouette'];
+        $this->dateRegistered = $values['date_registered'];
+
     }
+
+    public function getValuesAsArray()
+    {
+        $keyValues = array ();
+
+        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
+        empty($this->email) ? : $keyValues['email'] = $this->email;
+        empty($this->firstName) ? : $keyValues['first_name'] = $this->firstName;
+        empty($this->lastName) ? : $keyValues['last_name'] = $this->lastName;
+        empty($this->fullName) ? : $keyValues['full_name'] = $this->fullName;
+        empty($this->silhouette) ? : $keyValues['is_silhouette'] = $this->silhouette;
+
+        return $keyValues;
+    }
+
 
 }

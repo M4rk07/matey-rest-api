@@ -9,6 +9,7 @@
 
 namespace App\OAuth2Models;
 
+use App\MateyModels\AbstractModel;
 use AuthBucket\OAuth2\Model\AccessTokenInterface;
 use AuthBucket\OAuth2\Model\ModelInterface;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
@@ -140,16 +141,16 @@ class AccessToken extends AbstractModel implements AccessTokenInterface
     }
 
     // gets object values as array
-    public function getValuesAsArray (ModelInterface $model) {
+    public function getValuesAsArray () {
 
-        $keyValues = array (
-            'access_token' => $model->getAccessToken(),
-            'token_type' => $model->getTokenType(),
-            'client_id' => $model->getClientId(),
-            'username' => $model->getUsername(),
-            'expires' => $model->getExpires()->format($this->dateFormat),
-            'scope' => $this->createStringFromArray($model->getScope())
-        );
+        $keyValues = array ();
+
+        empty($this->accessToken) ? : $keyValues['access_token'] = $this->accessToken;
+        empty($this->tokenType) ? : $keyValues['token_type'] = $this->tokenType;
+        empty($this->clientId) ? : $keyValues['client_id'] = $this->clientId;
+        empty($this->username) ? : $keyValues['username'] = $this->username;
+        empty($this->expires) ? : $keyValues['expires'] =$this->expires;
+        empty($this->scope) ? : $keyValues['scope'] = $this->scope;
 
         return $keyValues;
 

@@ -9,6 +9,7 @@
 namespace App\OAuth2Models;
 
 
+use App\MateyModels\AbstractModel;
 use AuthBucket\OAuth2\Model\ClientInterface;
 use AuthBucket\OAuth2\Model\ModelInterface;
 
@@ -109,15 +110,15 @@ class Client extends AbstractModel implements ClientInterface
         $this->redirectUri = $values['redirect_uri'];
     }
 
-    public function getValuesAsArray(ModelInterface $model)
+    public function getValuesAsArray()
     {
-        $keyValues = array (
-            'client_id' => $model->getClientId(),
-            'client_secret' => $model->getClientSecret(),
-            'app_name' => $model->getAppName(),
-            'client_type' => $model->getClientType(),
-            'redirect_uri' => $model->getRedirectUri()
-        );
+        $keyValues = array ();
+
+        empty($this->clientId) ? : $keyValues['client_id'] = $this->clientId;
+        empty($this->clientSecret) ? : $keyValues['client_secret'] = $this->clientSecret;
+        empty($this->appName) ? : $keyValues['app_name'] = $this->appName;
+        empty($this->clientType) ? : $keyValues['client_type'] = $this->clientType;
+        empty($this->redirectUri) ? : $keyValues['redirect_uri'] =$this->redirectUri;
 
         return $keyValues;
     }

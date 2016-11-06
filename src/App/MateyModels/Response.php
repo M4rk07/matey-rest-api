@@ -9,7 +9,10 @@
 namespace App\MateyModels;
 
 
-class Response  extends MateyModel
+use App\OAuth2Models\AbstractModel;
+use AuthBucket\OAuth2\Model\ModelInterface;
+
+class Response  extends AbstractModel
 {
 
     protected $responseId;
@@ -142,7 +145,7 @@ class Response  extends MateyModel
     }
 
     public function serialize() {
-        return $this->serialize(array(
+        return serialize(array(
             'response_id' => $this->responseId,
             'post_id' => $this->postId,
             'user_id' => $this->userId,
@@ -150,5 +153,28 @@ class Response  extends MateyModel
             'date_time' => $this->dateTime
         ));
     }
+
+    public function setValuesFromArray($values)
+    {
+        $this->responseId = $values['response_id'];
+        $this->userId = $values['user_id'];
+        $this->postId = $values['post_id'];
+        $this->text = $values['text'];
+        $this->dateTime = $values['date_time'];
+    }
+
+    public function getValuesAsArray(ModelInterface $model)
+    {
+        $keyValues = array ();
+
+        empty($this->responseId) ? : $keyValues['response_id'] = $this->responseId;
+        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
+        empty($this->postId) ? : $keyValues['post_id'] = $this->postId;
+        empty($this->text) ? : $keyValues['text'] = $this->text;
+        empty($this->dateTime) ? : $keyValues['date_time'] =$this->dateTime;
+
+        return $keyValues;
+    }
+
 
 }

@@ -8,6 +8,7 @@
 
 namespace App\OAuth2Models;
 
+use App\MateyModels\AbstractManager;
 use AuthBucket\OAuth2\Model\AccessTokenManagerInterface;
 
 class AccessTokenManager extends AbstractManager implements AccessTokenManagerInterface

@@ -9,7 +9,10 @@
 namespace App\MateyModels;
 
 
-class Device extends MateyModel
+use App\OAuth2Models\AbstractModel;
+use AuthBucket\OAuth2\Model\ModelInterface;
+
+class Device extends AbstractModel
 {
 
     protected $deviceId;
@@ -84,5 +87,26 @@ class Device extends MateyModel
         $this->dateRegistered = $dateRegistered;
         return $this;
     }
+
+    public function setValuesFromArray($values)
+    {
+        $this->deviceId = $values['device_id'];
+        $this->deviceSecret = $values['device_secret'];
+        $this->gcm = $values['gcm'];
+        $this->dateRegistered = $values['date_registered'];
+    }
+
+    public function getValuesAsArray(ModelInterface $model)
+    {
+        $keyValues = array ();
+
+        empty($this->deviceId) ? : $keyValues['device_id'] = $this->deviceId;
+        empty($this->deviceSecret) ? : $keyValues['device_secret'] = $this->deviceSecret;
+        empty($this->gcm) ? : $keyValues['gcm'] = $this->gcm;
+        empty($this->dateRegistered) ? : $keyValues['date_registered'] = $this->dateRegistered;
+
+        return $keyValues;
+    }
+
 
 }

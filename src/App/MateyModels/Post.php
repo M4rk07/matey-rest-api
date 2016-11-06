@@ -9,13 +9,17 @@
 namespace App\MateyModels;
 
 
-class Post  extends MateyModel
+use App\OAuth2Models\AbstractModel;
+use AuthBucket\OAuth2\Model\ModelInterface;
+
+class Post  extends AbstractModel
 {
 
     protected $postId;
     protected $userId;
     protected $text;
     protected $dateTime;
+
     protected $responses = array();
     protected $bestResponse;
     protected $lastThreeResponses = array();
@@ -189,5 +193,26 @@ class Post  extends MateyModel
             ->setText($data['text']);
         return $this;
     }
+
+    public function setValuesFromArray($values)
+    {
+        $this->postId = $values['post_id'];
+        $this->userId = $values['user_id'];
+        $this->text = $values['text'];
+        $this->dateTime = $values['date_time'];
+    }
+
+    public function getValuesAsArray(ModelInterface $model)
+    {
+        $keyValues = array ();
+
+        empty($this->postId) ? : $keyValues['post_id'] = $this->postId;
+        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
+        empty($this->text) ? : $keyValues['text'] = $this->text;
+        empty($this->dateTime) ? : $keyValues['date_time'] = $this->dateTime;
+
+        return $keyValues;
+    }
+
 
 }

@@ -6,14 +6,17 @@
  * Time: 15.00
  */
 
-namespace App\MateyManagers;
+namespace App\MateyModels;
 
 
 use App\MateyModels\Login;
 use App\Services\BaseService;
 
-class LoginManager extends BaseService
+class LoginManager extends AbstractManager
 {
+    public function __construct () {
+        parent::__construct(self::T_LOGIN, 'App\\MateyModels\\Login');
+    }
 
     public function createLogin(Login $login) {
 

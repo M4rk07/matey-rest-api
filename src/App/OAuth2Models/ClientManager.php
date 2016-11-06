@@ -8,12 +8,13 @@
 
 namespace App\OAuth2Models;
 
+use App\MateyModels\AbstractManager;
 use AuthBucket\OAuth2\Model\ClientManagerInterface;
 
 class ClientManager extends AbstractManager implements ClientManagerInterface
 {
     public function __construct () {
-        parent::__construct(self::T_A_CLIENTS, 'App\\OAuth2Models\\Client', "client_id");
+        parent::__construct(self::T_A_CLIENTS, 'App\\OAuth2Models\\Client');
     }
 
 }

@@ -9,6 +9,8 @@
 namespace App\MateyModels;
 
 
+use AuthBucket\OAuth2\Model\ModelInterface;
+
 abstract class MateyModel
 {
 

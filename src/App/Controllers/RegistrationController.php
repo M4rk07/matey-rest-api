@@ -10,9 +10,8 @@ namespace App\Controllers;
 
 
 use App\Handlers\ImageHandler;
-use App\MateyManagers\DeviceManager;
-use App\MateyManagers\UserManager;
 use App\MateyModels\Device;
+use App\MateyModels\ModelManagerFactoryInterface;
 use App\MateyModels\User;
 use App\Paths\Paths;
 use App\Security\SaltGenerator;
@@ -29,6 +28,8 @@ use Facebook\Exceptions\FacebookSDKException;
 use Facebook\Facebook;
 use Facebook\FacebookRequest;
 use GuzzleHttp\Client;
+use App\Handlers\Registration\RegistrationHandlerFactoryInterface;
+use App\Handlers\Registration\RegistrationHandlerInterface;
 use Mockery\Matcher\Not;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -38,226 +39,27 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\EmailValidator;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Context\ExecutionContext;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class RegistrationController extends AbstractController
 {
 
-    public function registerStandardUserAction (Request $request) {
-        /*
-         * fetch required data for registration from request
-         */
-        $email = $request->request->get('email');
-        $password = $request->request->get('password');
-        $first_name = $request->request->get('first_name');
-        $last_name = $request->request->get('last_name');
+    protected $registrationHandlerFactory;
 
-        /*
-         * Validating every parameter
-         */
-        $this->validate($email, [
-            new NotBlank(),
-            new Email()
-        ]);
-        $this->validate($password, [
-            new NotBlank(),
-            new Password()
-        ]);
-        $this->validate($first_name, [
-            new NotBlank(),
-            new Name()
-        ]);
-        $this->validate($last_name, [
-            new NotBlank(),
-            new Name()
-        ]);
-
-        /*
-         * Checking if user already exists in the system
-         * If does, then respond that he is already facebook user and offer to merge accounts
-         */
-        $userManager = new UserManager();
-        $user = $userManager->loadUserByUsername($email);
-        if( !empty($user->getUserId()) ) {
-                // If email is already registered, and facebook id is registered also,
-                // it means that user have facebook account, but not standard
-            if($user->isFacebookAccount() && !$user->isStandardAccount()) throw new InvalidRequestException([
-                'error' => 'merge_offer',
-                'error_description' => "Hey ".$user->getFirstName().", you are already with us! But we offer you to merge this account with existing account. Say OK and you're in!"
-            ], 409);
-                //This shouldn't ever come true, but just in case.
-                //In this case user will have to use another email to register
-            else if($user->isStandardAccount() && !$user->isFacebookAccount()) throw new InvalidRequestException([
-                'error_description' => 'Hey '.$user->getFirstName().', you are already with us!'
-            ]);
-                //If this is reached, user is fully registered.
-                //There is facebook account and standard account.
-            else if($user->isFacebookAccount() && $user->isStandardAccount()) throw new InvalidRequestException([
-                'error' => 'full_reg',
-                'error_description' => 'Hey Mate, you are already with us!'
-            ]);
-            else throw new ServerErrorException();
-        }
-        /*
-         * Starting registration through transaction
-         * If any of steps goes wrong, rolls back everything
-         */
-        $user->setUsername($email)
-            ->setFirstName($first_name)
-            ->setLastName($last_name)
-            ->setSilhouette(1);
-        $user = $userManager->setFullName($user);
-
-        $this->service->startTransaction();
-        try {
-            // creating new user
-            $user = $userManager->createModel($user);
-            // storing credentials
-            $userManager->createUserCredentials($user, $password);
-            // finally - COMMIT
-            $this->service->commitTransaction();
-        } catch (\Exception $e) {
-            /*
-             * Something went wrong with storage.
-             * In this case rollback mysql query and throw server error.
-             */
-            $this->service->rollbackTransaction();
-            throw new ServerErrorException();
-        }
-
-        /*
-         * Everything went ok, user is REGISTERED!
-         */
-        return $this->returnOk();
+    public function __construct(
+        ValidatorInterface $validator,
+        ModelManagerFactoryInterface $modelManagerFactory,
+        RegistrationHandlerFactoryInterface $registrationHandlerFactory
+    ) {
+        parent::__construct($validator, $modelManagerFactory);
+        $this->registrationHandlerFactory = $registrationHandlerFactory;
     }
 
-    public function authenticateSocialUserAction (Request $request) {
-        /*
-         * Check facebook token validity.
-         */
-        $fbToken = $request->request->get("access_token");
+    public function registerUserAction (Request $request, $action) {
 
-        $this->validate($fbToken, [
-            new NotBlank()
-        ]);
-
-        $fbUser = $this->checkFacebookToken($fbToken);
-        if(empty($fbUser)) throw new InvalidRequestException([
-            'error' => 'invalid_fb_token'
-        ]);
-        /*
-         * Check if email exists in the system
-         */
-        $userManager = new UserManager();
-        $user = $userManager->loadUserByUsername($fbUser->getEmail());
-        if( !empty($user->getUserId()) ) {
-                /*
-                * If exists, then checking if there is facebook id, in other words
-                * user have facebook account
-                */
-            if( $user->isFacebookAccount() ) {
-                $this->redisService->pushFbAccessToken($user->getUserId(), $fbToken);
-                return new JsonResponse(array(
-                    "username" => $fbUser->getEmail(),
-                ), 200);
-            }
-                /*
-                 * If facebook id doesn't exists, but username does, than user have standard account.
-                 * In this case asking for merge.
-                 */
-            else if(!$user->isFacebookAccount() && $user->isStandardAccount()) throw new InvalidRequestException([
-                'error' => 'merge_offer',
-                'email' => $user->getUsername(),
-                'error_description' => "Hey ".$user->getFirstName().", you are already with us! But we offer you to merge this account with existing account. Say OK and you're in!"
-            ], 409);
-                /*
-                 * If there is not facebook id nor username, there is some server error.
-                 */
-            else throw new ServerErrorException();
-        }
-
-        /*
-         * At this point, registration takes place.
-         */
-        $profilePicture = $fbUser->getPicture();
-        $isSilhouette = 0;
-        if($profilePicture->isSilhouette()) $isSilhouette = 1;
-
-        $user->setUsername($fbUser->getEmail())
-            ->setFirstName($fbUser->getFirstName())
-            ->setLastName($fbUser->getLastName())
-            ->setSilhouette($isSilhouette)
-            ->setFbId($fbUser->getId())
-            ->setFbToken($fbToken);
-        $user = $userManager->setFullName($user);
-        /*
-         * Starting transaction.
-         */
-        $this->service->startTransaction();
-        try {
-            // creating new user
-            $user = $userManager->createModel($user);
-            // storing credentials
-            $userManager->createFacebookInfo($user);
-            /*
-             * Store facebook image to cloud storage
-             */
-            if($isSilhouette == 0) {
-                $imgHandler = new ImageHandler();
-                $imgHandler->handleFacebookProfilePicture($user);
-            }
-            $this->service->commitTransaction();
-        } catch (\Exception $e) {
-            $this->service->rollbackTransaction();
-            throw $e;
-        }
-
-        /*
-         * Registration is over SUCCESSFULLY!
-         */
-        return new JsonResponse(array(
-            "username" => $user->getUsername(),
-        ), 200);
-
-    }
-
-    public function checkFacebookToken ($fbToken) {
-
-        $fbCredentials = file_get_contents(getenv("FACEBOOK_APPLICATION_CREDENTIALS"));
-        $fbCredentials = json_decode($fbCredentials);
-        $app_id = $fbCredentials->app_id;
-        $app_secret = $fbCredentials->app_secret;
-
-        $fb = new Facebook([
-            'app_id' => $app_id,
-            'app_secret' => $app_secret,
-            'default_graph_version' => 'v2.2',
-            'http_client_handler' => 'stream'
-        ]);
-        $oAuth2Client = $fb->getOAuth2Client();
-        // Get the access token metadata from /debug_token
-        $tokenMetadata = $oAuth2Client->debugToken($fbToken);
-        // Validation (these will throw FacebookSDKException's when they fail)
-        $tokenMetadata->validateAppId($app_id);
-        // If you know the user ID this access token belongs to, you can validate it here
-        //$tokenMetadata->validateUserId($fbUserId);
-        $tokenMetadata->validateExpiration();
-
-        try {
-            // Returns a `Facebook\FacebookResponse` object
-            $response = $fb->get('/me?fields=id,email,first_name,last_name,friends,picture', $fbToken);
-        } catch(FacebookResponseException $e) {
-            throw new InvalidRequestException([
-                'error_description' => 'The request includes an invalid parameter value.',
-            ]);
-        } catch(FacebookSDKException $e) {
-            throw new InvalidRequestException([
-                'error_description' => 'The request includes an invalid parameter value.',
-            ]);
-        }
-        // TAKING THE USER
-        $user = $response->getGraphUser();
-
-        return $user;
+        return $this->registrationHandlerFactory
+            ->getRegistrationHandler($action)
+            ->handle($request);
 
     }
 

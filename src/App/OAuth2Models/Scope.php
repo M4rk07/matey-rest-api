@@ -9,6 +9,7 @@
 namespace App\OAuth2Models;
 
 
+use App\MateyModels\AbstractModel;
 use AuthBucket\OAuth2\Model\ModelInterface;
 use AuthBucket\OAuth2\Model\ScopeInterface;
 
@@ -42,11 +43,11 @@ class Scope extends AbstractModel implements ScopeInterface
         $this->scope = $values['scope'];
     }
 
-    public function getValuesAsArray(ModelInterface $model)
+    public function getValuesAsArray()
     {
-        $keyValues = array (
-            'scope' => $model->getScope()
-        );
+        $keyValues = array ();
+
+        empty($this->scope) ? : $keyValues['scope'] = $this->scope;
 
         return $keyValues;
     }

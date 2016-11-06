@@ -30,5 +30,5 @@ interface ModelManagerInterface
 
     public function updateModel(ModelInterface $model);
 
-    public function deleteModel(ModelInterface $model);
+    public function deleteModel(ModelInterface $model, $criteria = null);
 }

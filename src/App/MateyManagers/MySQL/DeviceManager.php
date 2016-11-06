@@ -6,14 +6,17 @@
  * Time: 01.15
  */
 
-namespace App\MateyManagers;
+namespace App\MateyModels;
 
 
 use App\MateyModels\Device;
 use App\Services\BaseService;
 
-class DeviceManager extends BaseService
+class DeviceManager extends AbstractManager
 {
+    public function __construct () {
+        parent::__construct(self::T_DEVICE, 'App\\MateyModels\\Device');
+    }
 
     public function createDevice(Device $device) {
         $this->db->executeUpdate("INSERT INTO ".self::T_DEVICE." (gcm, device_secret) VALUES (?,?)",

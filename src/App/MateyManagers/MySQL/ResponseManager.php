@@ -6,15 +6,19 @@
  * Time: 13.55
  */
 
-namespace App\MateyManagers;
+namespace App\MateyModels;
 
 
 use App\MateyModels\Response;
 use App\MateyModels\User;
 use App\Services\BaseService;
 
-class ResponseManager extends BaseService
+class ResponseManager extends AbstractManager
 {
+
+    public function __construct () {
+        parent::__construct(self::T_RESPONSE, 'App\\MateyModels\\Response');
+    }
 
     public function createResponse(Response $response) {
 

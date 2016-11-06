@@ -1,6 +1,6 @@
 <?php
 
-namespace Matey\Handlers\Registration;
+namespace App\Handlers\Registration;
 
 /**
  * Created by PhpStorm.
@@ -14,11 +14,11 @@ interface RegistrationHandlerFactoryInterface
      * @param string $type type if registration handler
      * @return RegistrationHandlerInterface
      */
-    public function getGrantTypeHandler($type = null);
+    public function getRegistrationHandler($type = null);
 
     /**
      * @return array supported registration handler
      */
-    public function getGrantTypeHandlers();
+    public function getRegistrationHandlers();
 
 }

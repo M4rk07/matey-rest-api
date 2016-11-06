@@ -1,6 +1,6 @@
 <?php
 
-namespace App\MateyManagers;
+namespace App\MateyModels;
 use App\Algos\Algo;
 use App\MateyModels\Activity;
 use App\MateyModels\User;
@@ -20,61 +20,23 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
  * Date: 3.11.16.
  * Time: 00.14
  */
-class UserManager extends BaseService implements UserProviderInterface
+class UserManager extends AbstractManager
 {
 
-    public function createModel(User $user) {
-
-        $this->db->executeUpdate("INSERT INTO ".self::T_USER." (email, first_name, last_name, full_name, is_silhouette) VALUES (?,?,?,?,?)",
-            array($user->getUsername(), $user->getFirstName(), $user->getLastName(), $user->getFullName(), $user->isSilhouette()));
-
-        $user->setUserId($this->db->lastInsertId());
-
-        $this->initializeUserStatistics($user);
-        $this->initializeUserIdByEmail($user);
-
-        return $user;
-
+    public function __construct () {
+        parent::__construct(self::T_USER, 'App\\MateyModels\\User');
     }
 
-    public function loadUserByUsername($username)
+    public function loadUserByEmail($email)
     {
-
-        $result = $this->db->fetchAll("SELECT m_user.user_id, m_user.first_name, m_user.last_name, o_user.username, o_user.password, o_user.salt, m_f_user.fb_id
-        FROM ".self::T_USER." as m_user
-        LEFT JOIN ".self::T_A_USER." as o_user USING(user_id)
-        LEFT JOIN ".self::T_FACEBOOK_INFO." as m_f_user USING(user_id)
+        $result = $this->db->fetchAll("SELECT user_id, email, first_name, last_name, full_name, is_silhouette, first_login
+        FROM ".self::T_USER."
         WHERE email = ? LIMIT 1",
-            array($username));
-        $user = new User();
+            array($email));
 
-        if(empty($result)) return $user;
-        $result = $result[0];
-        $user->setUserId($result['user_id'])
-            ->setFirstName($result['first_name'])
-            ->setLastName($result['last_name'])
-            ->setUsername($result['username'])
-            ->setPassword($result['password'])
-            ->setSalt($result['salt'])
-            ->setFbId($result['fb_id']);
+        $models = $this->makeObjects($result);
 
-        return $user;
-    }
-
-    public function createUserCredentials (User $user, $password) {
-
-        // generating random salt
-        $salt = (new SaltGenerator())->generateSalt();
-        // encoding password and salt
-        $passwordEncoder = new MessageDigestPasswordEncoder();
-        $encodedPassword = $passwordEncoder->encodePassword($password, $salt);
-        $user->setPassword($encodedPassword);
-        $user->setSalt($salt);
-
-        $this->db->executeUpdate("INSERT INTO ".self::T_A_USER." (user_id, username, password, salt) VALUES (?,?,?,?)",
-            array($user->getUserId(), $user->getUsername(), $user->getPassword(), $user->getSalt()));
-
-        return $user;
+        return is_array($models) ? reset($models) : $models;
     }
 
     public function supportsClass($class)
@@ -206,39 +168,6 @@ class UserManager extends BaseService implements UserProviderInterface
 
     }
 
-    public function initializeUserStatistics(User $user) {
-        $this->redis->hmset(self::KEY_USER.":".self::SUBKEY_STATISTICS.":".$user->getUserId(), array(
-            self::FIELD_NUM_OF_FOLLOWERS => 0,
-            self::FIELD_NUM_OF_FOLLOWING => 0,
-            self::FIELD_NUM_OF_POSTS => 0,
-            self::FIELD_NUM_OF_GIVEN_APPROVES => 0,
-            self::FIELD_NUM_OF_RECEIVED_APPROVES => 0,
-            self::FIELD_NUM_OF_GIVEN_RESPONSES => 0,
-            self::FIELD_NUM_OF_RECEIVED_RESPONSES => 0,
-            self::FIELD_NUM_OF_BEST_RESPONSES => 0,
-            self::FIELD_NUM_OF_PROFILE_CLICKS => 0,
-            self::FILED_NUM_OF_SHARES => 0
-        ));
-    }
 
-    public function initializeUserIdByEmail (User $user) {
-        $this->redis->set(self::KEY_USER.":".self::SUBKEY_USER_ID.":".$user->getUsername(), $user->getUserId());
-    }
-
-
-
-    public function createFacebookInfo(User $user) {
-        $this->db->executeUpdate("INSERT INTO ".self::T_FACEBOOK_INFO." (user_id, fb_id) VALUES (?,?)",
-            array($user->getUserId(), $user->getFbId()));
-
-        $this->pushFbAccessToken($user);
-
-        return $user;
-    }
-
-    public function pushFbAccessToken(User $user) {
-        $this->redis->set(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$user->getUserId(), $user->getFbToken());
-        $this->redis->expire(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$user->getUserId(), 3600);
-    }
 
 }

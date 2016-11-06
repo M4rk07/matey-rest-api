@@ -99,6 +99,7 @@ abstract class AbstractManager extends BaseService
 
         $prepared->execute();
         $all = $prepared->fetchAll();
+
         $models = $this->makeObjects($all);
 
         return $models ?: null;
@@ -114,7 +115,7 @@ abstract class AbstractManager extends BaseService
     public function updateModel(ModelInterface $model)
     {
 
-        $this->db->update($this->tableName, $model->getValuesAsArray($model), array($this->identifier => $model->getId()));
+        $this->db->update($this->tableName, $model->getValuesAsArray(), array($this->identifier => $model->getId()));
 
         return $model;
     }

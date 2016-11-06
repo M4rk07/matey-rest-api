@@ -9,7 +9,10 @@
 namespace App\MateyModels;
 
 
-class Login extends MateyModel
+use App\OAuth2Models\AbstractModel;
+use AuthBucket\OAuth2\Model\ModelInterface;
+
+class Login extends AbstractModel
 {
 
     protected $deviceId;
@@ -103,7 +106,27 @@ class Login extends MateyModel
         return $this;
     }
 
+    public function setValuesFromArray($values)
+    {
+        $this->deviceId = $values['device_id'];
+        $this->userId = $values['user_id'];
+        $this->dateTime = $values['date_time'];
+        $this->status = $values['status'];
+        $this->gcm = $values['gcm'];
+    }
 
+    public function getValuesAsArray(ModelInterface $model)
+    {
+        $keyValues = array ();
+
+        empty($this->deviceId) ? : $keyValues['device_id'] = $this->deviceId;
+        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
+        empty($this->dateTime) ? : $keyValues['date_time'] = $this->dateTime;
+        empty($this->status) ? : $keyValues['status'] = $this->status;
+        empty($this->gcm) ? : $keyValues['gcm'] = $this->gcm;
+
+        return $keyValues;
+    }
 
 
 }

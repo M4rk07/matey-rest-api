@@ -6,15 +6,19 @@
  * Time: 12.56
  */
 
-namespace App\MateyManagers;
+namespace App\MateyModels;
 
 
 use App\MateyModels\Post;
 use App\MateyModels\User;
 use App\Services\BaseService;
 
-class PostManager extends BaseService
+class PostManager extends AbstractManager
 {
+
+    public function __construct () {
+        parent::__construct(self::T_POST, 'App\\MateyModels\\Post');
+    }
 
     public function createPost(Post $post) {
 
