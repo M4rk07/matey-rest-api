@@ -78,7 +78,7 @@ class RoutesLoader
 
         // -------------------------------------------------------------------------------------
 
-        $this->app->post('register/{action}', 'matey.registration_controller:registerUserAction');
+        $this->app->post('/register/{action}', 'matey.registration_controller:registerUserAction');
 
         //$this->app->post('/register/user', 'registration.controller:registerStandardUserAction');
         //$this->app->post('/register/device', 'registration.controller:registerDeviceAction');

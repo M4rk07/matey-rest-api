@@ -54,8 +54,8 @@ class Approve extends AbstractModel
 
     public function setValuesFromArray($values)
     {
-        $this->userId = $values['user_id'];
-        $this->responseId = $values['response_id'];
+        $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
+        $this->responseId = isset($values['response_id']) ? $values['response_id'] : "";
 
     }
 

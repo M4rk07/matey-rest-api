@@ -149,7 +149,7 @@ class AccessToken extends AbstractModel implements AccessTokenInterface
         empty($this->tokenType) ? : $keyValues['token_type'] = $this->tokenType;
         empty($this->clientId) ? : $keyValues['client_id'] = $this->clientId;
         empty($this->username) ? : $keyValues['username'] = $this->username;
-        empty($this->expires) ? : $keyValues['expires'] =$this->expires;
+        empty($this->expires) ? : $keyValues['expires'] =($this->expires)->format($this->dateFormat);
         empty($this->scope) ? : $keyValues['scope'] = $this->scope;
 
         return $keyValues;

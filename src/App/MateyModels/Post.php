@@ -196,10 +196,10 @@ class Post  extends AbstractModel
 
     public function setValuesFromArray($values)
     {
-        $this->postId = $values['post_id'];
-        $this->userId = $values['user_id'];
-        $this->text = $values['text'];
-        $this->dateTime = $values['date_time'];
+        $this->postId = isset($values['post_id']) ? $values['post_id'] : "";
+        $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
+        $this->text = isset($values['text']) ? $values['text'] : "";
+        $this->dateTime = isset($values['date_time']) ? $values['date_time'] : "";
     }
 
     public function getValuesAsArray(ModelInterface $model)

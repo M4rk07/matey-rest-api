@@ -9,7 +9,6 @@
 namespace App\MateyModels;
 
 
-use App\OAuth2Models\AbstractModel;
 use AuthBucket\OAuth2\Model\ModelInterface;
 
 class FacebookInfo extends AbstractModel
@@ -72,11 +71,11 @@ class FacebookInfo extends AbstractModel
 
     public function setValuesFromArray($values)
     {
-        $this->userId = $values['user_id'];
-        $this->fbId = $values['fb_id'];
+        $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
+        $this->fbId = isset($values['fb_id']) ? $values['fb_id'] : "";
     }
 
-    public function getValuesAsArray(ModelInterface $model)
+    public function getValuesAsArray()
     {
         $keyValues = array ();
 

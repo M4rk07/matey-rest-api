@@ -29,7 +29,7 @@ class UserManager extends AbstractManager
 
     public function loadUserByEmail($email)
     {
-        $result = $this->db->fetchAll("SELECT user_id, email, first_name, last_name, full_name, is_silhouette, first_login
+        $result = $this->db->fetchAll("SELECT *
         FROM ".self::T_USER."
         WHERE email = ? LIMIT 1",
             array($email));

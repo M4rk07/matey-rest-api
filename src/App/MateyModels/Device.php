@@ -90,10 +90,10 @@ class Device extends AbstractModel
 
     public function setValuesFromArray($values)
     {
-        $this->deviceId = $values['device_id'];
-        $this->deviceSecret = $values['device_secret'];
-        $this->gcm = $values['gcm'];
-        $this->dateRegistered = $values['date_registered'];
+        $this->deviceId = isset($values['device_id']) ? $values['device_id'] : "";
+        $this->deviceSecret = isset($values['device_secret']) ? $values['device_secret'] : "";
+        $this->gcm = isset($values['gcm']) ? $values['gcm'] : "";
+        $this->dateRegistered = isset($values['date_registered']) ? $values['date_registered'] : "";
     }
 
     public function getValuesAsArray(ModelInterface $model)

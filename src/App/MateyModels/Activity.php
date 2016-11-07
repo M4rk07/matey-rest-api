@@ -162,14 +162,14 @@ class Activity extends AbstractModel
 
     public function setValuesFromArray($values)
     {
-        $this->activityId = $values['activity_id'];
-        $this->userId = $values['user_id'];
-        $this->sourceId = $values['source_id'];
-        $this->parentId = $values['parent_id'];
-        $this->parentType = $values['parent_type'];
-        $this->activityType = $values['activity_type'];
-        $this->activityTime = $values['activity_time'];
-        $this->srlData = $values['srlData'];
+        $this->activityId = isset($values['activity_id']) ? $values['activity_id'] : "";
+        $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
+        $this->sourceId = isset($values['source_id']) ? $values['source_id'] : "";
+        $this->parentId = isset($values['parent_id']) ? $values['parent_id'] : "";
+        $this->parentType = isset($values['parent_type']) ? $values['parent_type'] : "";
+        $this->activityType = isset($values['activity_type']) ? $values['activity_type'] : "";
+        $this->activityTime = isset($values['activity_time']) ? $values['activity_time'] : "";
+        $this->srlData = isset($values['srlData']) ? $values['srlData'] : "";
     }
 
     public function getValuesAsArray(ModelInterface $model)

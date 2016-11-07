@@ -436,7 +436,7 @@ CREATE TABLE IF NOT EXISTS oauth2_refresh_token (
 --
 
 CREATE TABLE IF NOT EXISTS oauth2_scope (
-  scope varchar(20) NOT NULL,
+  scope varchar(20) NOT NULL DEFAULT '',
   PRIMARY KEY (scope)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

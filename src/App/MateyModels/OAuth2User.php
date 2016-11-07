@@ -114,10 +114,10 @@ class OAuth2User extends \App\MateyModels\AbstractModel implements UserInterface
 
     public function setValuesFromArray($values)
     {
-        $this->userId = $values['user_id'];
-        $this->username = $values['username'];
-        $this->password = $values['password'];
-        $this->salt = $values['salt'];
+        $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
+        $this->username = isset($values['username']) ? $values['username'] : "";
+        $this->password = isset($values['password']) ? $values['password'] : "";
+        $this->salt = isset($values['salt']) ? $values['salt'] : "";
     }
 
     public function getValuesAsArray()

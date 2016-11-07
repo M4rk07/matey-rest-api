@@ -56,7 +56,8 @@ class FacebookRegistrationHandler extends AbstractRegistrationHandler
             * user have facebook account
             */
             if($facebookInfo) {
-                $this->userManagerRedis->pushFbAccessToken($user);
+                $facebookInfo->setFbToken($fbToken);
+                $this->facebookInfoManagerRedis->pushFbAccessToken($facebookInfo);
                 return new JsonResponse(array(
                     "username" => $user->getEmail(),
                 ), 200);
@@ -80,9 +81,12 @@ class FacebookRegistrationHandler extends AbstractRegistrationHandler
         $user->setUsername($fbUser->getEmail())
             ->setFirstName($fbUser->getFirstName())
             ->setLastName($fbUser->getLastName())
-            ->setSilhouette($isSilhouette)
-            ->setFbId($fbUser->getId())
-            ->setFbToken($fbToken);
+            ->fullName($fbUser->getFirstName()." ".$fbUser->getLastName())
+            ->setSilhouette($isSilhouette);
+        $facebookInfoClass = $this->facebookInfoManager->getClassName();
+        $facebookInfo = new $facebookInfoClass();
+        $facebookInfo->setFbToken($fbToken)
+                    ->setFbId($fbUser->getId());
 
         /*
          * Starting transaction.
@@ -92,8 +96,8 @@ class FacebookRegistrationHandler extends AbstractRegistrationHandler
             // creating new user
             $user = $this->storeUserCoreData($user);
             // storing credentials
-            $this->userManager->createFacebookInfo($user);
-            $this->userManagerRedis->pushFbAccessToken($user);
+            $this->face->createFacebookInfo($user);
+            $this->facebookInfoManagerRedis->pushFbAccessToken($facebookInfo);
             /*
              * Store facebook image to cloud storage
              */
@@ -111,7 +115,7 @@ class FacebookRegistrationHandler extends AbstractRegistrationHandler
          * Registration is over SUCCESSFULLY!
          */
         return new JsonResponse(array(
-            "username" => $user->getUsername()
+            "username" => $user->getEmail()
         ), 200);
 
     }

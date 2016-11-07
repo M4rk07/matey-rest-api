@@ -156,11 +156,11 @@ class Response  extends AbstractModel
 
     public function setValuesFromArray($values)
     {
-        $this->responseId = $values['response_id'];
-        $this->userId = $values['user_id'];
-        $this->postId = $values['post_id'];
-        $this->text = $values['text'];
-        $this->dateTime = $values['date_time'];
+        $this->responseId = isset($values['response_id']) ? $values['response_id'] : "";
+        $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
+        $this->postId = isset($values['post_id']) ? $values['post_id'] : "";
+        $this->text = isset($values['text']) ? $values['text'] : "";
+        $this->dateTime = isset($values['date_time']) ? $values['date_time'] : "";
     }
 
     public function getValuesAsArray(ModelInterface $model)

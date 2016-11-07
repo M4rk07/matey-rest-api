@@ -361,13 +361,13 @@ class User extends AbstractModel
     public function setValuesFromArray($values)
     {
 
-        $this->userId = $values['user_id'];
-        $this->email = $values['email'];
-        $this->firstName = $values['first_name'];
-        $this->lastName = $values['last_name'];
-        $this->fullName = $values['full_name'];
-        $this->silhouette = $values['is_silhouette'];
-        $this->dateRegistered = $values['date_registered'];
+        $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
+        $this->email = isset($values['email']) ? $values['email'] : "";
+        $this->firstName = isset($values['first_name']) ? $values['first_name'] : "";
+        $this->lastName = isset($values['last_name']) ? $values['last_name'] : "";
+        $this->fullName = isset($values['full_name']) ? $values['full_name'] : "";
+        $this->silhouette = isset($values['is_silhouette']) ? $values['is_silhouette'] : "";
+        $this->dateRegistered = isset($values['date_registered']) ? $values['date_registered'] : "";
 
     }
 

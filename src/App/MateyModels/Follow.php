@@ -72,9 +72,9 @@ class Follow extends AbstractModel
 
     public function setValuesFromArray($values)
     {
-        $this->userFrom = $values['from_user'];
-        $this->userTo = $values['to_user'];
-        $this->dateTime = $values['date_time'];
+        $this->userFrom = isset($values['from_user']) ? $values['from_user'] : "";
+        $this->userTo = isset($values['to_user']) ? $values['to_user'] : "";
+        $this->dateTime = isset($values['date_time']) ? $values['date_time'] : "";
     }
 
     public function getValuesAsArray(ModelInterface $model)

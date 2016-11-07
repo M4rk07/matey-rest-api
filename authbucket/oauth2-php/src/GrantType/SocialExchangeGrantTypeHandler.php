@@ -39,7 +39,7 @@ class SocialExchangeGrantTypeHandler extends AbstractGrantTypeHandler
         }
 
         $response = $this->authenticateSocialUser($request);
-        $response = json_decode($response->getContent());
+        $response = json_decode($response->getBody());
         $username = $response->username;
 
         // Check and set scope.
@@ -62,19 +62,15 @@ class SocialExchangeGrantTypeHandler extends AbstractGrantTypeHandler
 
     public function authenticateSocialUser (Request $request) {
 
-        /*
+
         $access_token = $request->request->get('access_token');
 
         $client = new Client();
-        return $client->request('POST', Paths::BASE_API_URL.'/authenticate/social', [
+        return $client->request('POST', Paths::BASE_API_URL.'/register/facebook', [
             'form_params'   => array(
                 'access_token' => $access_token
             ),
         ]);
-        */
-
-        $registrationController = new RegistrationController(new RegistrationService(), new RedisService(), $this->validator);
-        return $registrationController->authenticateSocialUserAction($request);
 
     }
 

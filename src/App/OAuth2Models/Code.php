@@ -148,7 +148,7 @@ class Code extends AbstractModel implements CodeInterface
         empty($this->clientId) ? : $keyValues['client_id'] = $this->clientId;
         empty($this->username) ? : $keyValues['username'] = $this->username;
         empty($this->redirectUri) ? : $keyValues['redirect_uri'] = $this->redirectUri;
-        empty($this->expires) ? : $keyValues['expires'] =$this->expires;
+        empty($this->expires) ? : $keyValues['expires'] =($this->expires)->format($this->dateFormat);
         empty($this->scope) ? : $keyValues['scope'] = $this->scope;
 
         return $keyValues;

@@ -108,11 +108,11 @@ class Login extends AbstractModel
 
     public function setValuesFromArray($values)
     {
-        $this->deviceId = $values['device_id'];
-        $this->userId = $values['user_id'];
-        $this->dateTime = $values['date_time'];
-        $this->status = $values['status'];
-        $this->gcm = $values['gcm'];
+        $this->deviceId = isset($values['device_id']) ? $values['device_id'] : "";
+        $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
+        $this->dateTime = isset($values['date_time']) ? $values['date_time'] : "";
+        $this->status = isset($values['status']) ? $values['status'] : "";
+        $this->gcm = isset($values['gcm']) ? $values['gcm'] : "";
     }
 
     public function getValuesAsArray(ModelInterface $model)
