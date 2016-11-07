@@ -1,10 +1,9 @@
 <?php
 namespace App\MateyModels;
-use App\Services\BaseService;
-use App\Services\BaseServiceRedis;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
 use AuthBucket\OAuth2\Model\ModelManagerInterface;
 use Doctrine\DBAL\Connection;
+use Predis\Client;
 
 /**
  * Created by PhpStorm.
@@ -17,25 +16,29 @@ class ModelManagerFactory implements ModelManagerFactoryInterface
     protected $managers;
     protected $managersRedis;
 
-    public function __construct(array $models = [], Connection $dbConnection)
+    public function __construct(array $models = [], Connection $dbConnection = null, Client $predisConnection = null)
     {
         $managers = [];
         $managersRedis = [];
 
         foreach ($models as $type => $model) {
-            $className = $model.'Manager';
-            $manager = new $className($dbConnection);
-            if (!$manager instanceof ModelManagerInterface) {
-                throw new ServerErrorException();
+            if($dbConnection != null) {
+                $className = $model . 'Manager';
+                $manager = new $className($dbConnection);
+                if (!$manager instanceof ModelManagerInterface) {
+                    throw new ServerErrorException();
+                }
+                $managers[$type] = $manager;
             }
-            $managers[$type] = $manager;
 
-            $className = $model.'ManagerRedis';
-            $manager = new $className();
-            if (!$manager instanceof BaseServiceRedis) {
-                throw new ServerErrorException();
+            if($predisConnection != null) {
+                $className = $model . 'ManagerRedis';
+                $manager = new $className($predisConnection);
+                if (!$manager instanceof ModelManagerRedisInterface) {
+                    throw new ServerErrorException();
+                }
+                $managersRedis[$type] = $manager;
             }
-            $managersRedis[$type] = $manager;
         }
 
         $this->managers = $managers;
@@ -50,7 +53,7 @@ class ModelManagerFactory implements ModelManagerFactoryInterface
             }
 
             return $this->managers[$type];
-        } else {
+        } else if($managerType == 'redis') {
             if (!isset($this->managersRedis[$type])) {
                 throw new ServerErrorException();
             }

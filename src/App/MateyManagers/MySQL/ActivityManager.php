@@ -15,9 +15,6 @@ use App\Services\BaseService;
 
 class ActivityManager extends AbstractManager
 {
-    public function __construct ($db) {
-        parent::__construct($db);
-    }
 
     /**
      * @return mixed

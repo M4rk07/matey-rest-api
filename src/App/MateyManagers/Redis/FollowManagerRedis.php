@@ -11,7 +11,17 @@ namespace App\MateyModels;
 
 use App\Services\BaseServiceRedis;
 
-class FollowManagerRedis extends BaseServiceRedis
+class FollowManagerRedis extends AbstractManagerRedis
 {
+
+    public function getKeyName()
+    {
+        return "FOLLOW";
+    }
+
+    public function getClassName()
+    {
+        return 'App\\MateyModels\\Follow';
+    }
 
 }

@@ -53,6 +53,21 @@ abstract class AbstractManager implements ModelManagerInterface
         $this->db = $db;
     }
 
+    public function startTransaction() {
+        if($this->db->isTransactionActive()) throw new ServerErrorException();
+        $this->db->beginTransaction();
+    }
+
+    public function commitTransaction() {
+        if($this->db->isTransactionActive())
+            $this->db->commit();
+    }
+
+    public function rollbackTransaction() {
+        if($this->db->isTransactionActive())
+            $this->db->rollBack();
+    }
+
     public function createModel(ModelInterface $model)
     {
 

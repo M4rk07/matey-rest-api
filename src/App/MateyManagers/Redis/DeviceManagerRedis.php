@@ -11,7 +11,17 @@ namespace App\MateyModels;
 
 use App\Services\BaseServiceRedis;
 
-class DeviceManagerRedis extends BaseServiceRedis
+class DeviceManagerRedis extends AbstractManagerRedis
 {
+
+    public function getKeyName()
+    {
+        return "DEVICE";
+    }
+
+    public function getClassName()
+    {
+        return 'App\\MateyModels\\Device';
+    }
 
 }

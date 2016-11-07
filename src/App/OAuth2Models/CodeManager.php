@@ -14,9 +14,6 @@ use AuthBucket\OAuth2\Model\CodeManagerInterface;
 
 class CodeManager extends AbstractManager implements CodeManagerInterface
 {
-    public function __construct ($db) {
-        parent::__construct($db);
-    }
 
     /**
      * @return mixed

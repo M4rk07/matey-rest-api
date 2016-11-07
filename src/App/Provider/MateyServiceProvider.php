@@ -35,7 +35,11 @@ class MateyServiceProvider implements ServiceProviderInterface
         ];
 
         $app['matey.model_manager.factory'] = $app->share(function ($app) {
-            return new ModelManagerFactory($app['matey.model'], $app['matey.db.connection']);
+            return new ModelManagerFactory(
+                $app['matey.model'],
+                $app['db'],
+                $app['predis']
+            );
         });
 
         $app['matey.handlers.registration'] = [
@@ -47,7 +51,6 @@ class MateyServiceProvider implements ServiceProviderInterface
            return new RegistrationHandlerFactory(
                 $app['validator'],
                 $app['matey.model_manager.factory'],
-                $app['matey.db.connection'],
                 $app['matey.handlers.registration']
            );
         });

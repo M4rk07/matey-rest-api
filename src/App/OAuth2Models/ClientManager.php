@@ -13,9 +13,6 @@ use AuthBucket\OAuth2\Model\ClientManagerInterface;
 
 class ClientManager extends AbstractManager implements ClientManagerInterface
 {
-    public function __construct ($db) {
-        parent::__construct($db);
-    }
 
     /**
      * @return mixed

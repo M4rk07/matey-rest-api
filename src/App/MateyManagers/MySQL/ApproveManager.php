@@ -12,10 +12,6 @@ namespace App\MateyModels;
 class ApproveManager extends AbstractManager
 {
 
-    public function __construct ($db) {
-        parent::__construct($db);
-    }
-
     /**
      * @return mixed
      */

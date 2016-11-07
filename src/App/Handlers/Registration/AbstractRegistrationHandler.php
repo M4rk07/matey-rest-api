@@ -30,17 +30,14 @@ abstract class AbstractRegistrationHandler implements RegistrationHandlerInterfa
 
     protected $validator;
     protected $modelManagerFactory;
-    protected $dbConnection;
 
     public function __construct(
         ValidatorInterface $validator,
-        ModelManagerFactoryInterface $modelManagerFactory,
-        Connection $dbConnection
+        ModelManagerFactoryInterface $modelManagerFactory
     )
     {
         $this->validator = $validator;
         $this->modelManagerFactory = $modelManagerFactory;
-        $this->dbConnection = $dbConnection;
     }
 
     public function getUserCoreData ($username) {

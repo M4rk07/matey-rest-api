@@ -10,8 +10,18 @@ use App\Services\BaseServiceRedis;
  * Date: 6.11.16.
  * Time: 15.45
  */
-class UserManagerRedis extends BaseServiceRedis
+class UserManagerRedis extends AbstractManagerRedis
 {
+
+    public function getKeyName()
+    {
+        return "USER";
+    }
+
+    public function getClassName()
+    {
+        return 'App\\MateyModels\\User';
+    }
 
     public function initializeUserStatistics(User $user) {
         $this->redis->hmset(self::KEY_USER.":".self::SUBKEY_STATISTICS.":".$user->getUserId(), array(

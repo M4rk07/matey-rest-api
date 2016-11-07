@@ -75,6 +75,16 @@ class RoutesLoader
     {
         $api = $this->app["controllers_factory"];
 
+        // OAuth 2.0 ROUTES
+        $this->app->get('/api/oauth2/authorize', 'authbucket_oauth2.oauth2_controller:authorizeAction')
+            ->bind('api_oauth2_authorize');
+
+        $this->app->post('/api/oauth2/token', 'authbucket_oauth2.oauth2_controller:tokenAction')
+            ->bind('api_oauth2_token');
+
+        $this->app->match('/api/oauth2/debug', 'authbucket_oauth2.oauth2_controller:debugAction')
+            ->bind('api_oauth2_debug');
+
 
         // -------------------------------------------------------------------------------------
 

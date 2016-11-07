@@ -14,9 +14,6 @@ use AuthBucket\OAuth2\Model\RefreshTokenManagerInterface;
 
 class RefreshTokenManager extends AbstractManager implements RefreshTokenManagerInterface
 {
-    public function __construct ($db) {
-        parent::__construct($db);
-    }
 
     /**
      * @return mixed

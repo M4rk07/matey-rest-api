@@ -93,15 +93,15 @@ class StandardRegistrationHandler extends AbstractRegistrationHandler
             ->setPassword($encodedPassword)
             ->setSalt($salt);
 
-        $this->dbConnection->beginTransaction();
+        $userManager->startTransaction();
         try {
             $user = $this->storeUserCoreData($user);
             $oauth2User->setUserId($user->getId());
             $oauth2UserManager->createModel($oauth2User);
 
-            $this->dbConnection->commit();
+            $userManager->commitTransaction();
         } catch (\Exception $e) {
-            $this->dbConnection->rollBack();
+            $userManager->rollbackTransaction();
             throw $e;
         }
         return new JsonResponse(array(), 200);

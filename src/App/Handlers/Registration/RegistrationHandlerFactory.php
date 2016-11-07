@@ -27,13 +27,11 @@ class RegistrationHandlerFactory implements RegistrationHandlerFactoryInterface
     public function __construct(
         ValidatorInterface $validator,
         ModelManagerFactoryInterface $modelManagerFactory,
-        Connection $dbConnection,
         array $classes = []
     )
     {
         $this->validator = $validator;
         $this->modelManagerFactory = $modelManagerFactory;
-        $this->dbConnection = $dbConnection;
 
         foreach ($classes as $class) {
             if (!class_exists($class)) {

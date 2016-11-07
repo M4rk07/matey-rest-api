@@ -16,10 +16,6 @@ use App\Services\BaseService;
 class ResponseManager extends AbstractManager
 {
 
-    public function __construct ($db) {
-        parent::__construct($db);
-    }
-
     /**
      * @return mixed
      */

@@ -11,7 +11,17 @@ namespace App\MateyModels;
 
 use App\Services\BaseServiceRedis;
 
-class OAuth2UserManagerRedis extends BaseServiceRedis
+class OAuth2UserManagerRedis extends AbstractManagerRedis
 {
+
+    public function getKeyName()
+    {
+        return "OAUTH2_USER";
+    }
+
+    public function getClassName()
+    {
+        return 'App\\MateyModels\\OAuth2User';
+    }
 
 }

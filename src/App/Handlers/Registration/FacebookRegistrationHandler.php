@@ -104,7 +104,7 @@ class FacebookRegistrationHandler extends AbstractRegistrationHandler
          * Starting transaction.
          */
 
-        $this->dbConnection->beginTransaction();
+        $userManager->startTransaction();
         try {
             // creating new user
             $user = $this->storeUserCoreData($user);
@@ -120,9 +120,9 @@ class FacebookRegistrationHandler extends AbstractRegistrationHandler
                 $imgHandler = new ImageHandler();
                 $imgHandler->handleFacebookProfilePicture($user);
             }*/
-            $this->dbConnection->commit();
+            $userManager->commitTransaction();
         } catch (\Exception $e) {
-            $this->dbConnection->rollBack();
+            $userManager->rollbackTransaction();
             throw new ServerErrorException();
         }
 

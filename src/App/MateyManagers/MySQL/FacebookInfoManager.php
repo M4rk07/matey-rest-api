@@ -11,9 +11,6 @@ namespace App\MateyModels;
 
 class FacebookInfoManager extends AbstractManager
 {
-    public function __construct ($db) {
-        parent::__construct($db);
-    }
 
     /**
      * @return mixed

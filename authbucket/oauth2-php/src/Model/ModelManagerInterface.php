@@ -22,6 +22,12 @@ interface ModelManagerInterface
 
     public function getTableName();
 
+    public function startTransaction();
+
+    public function commitTransaction();
+
+    public function rollbackTransaction();
+
     public function createModel(ModelInterface $model);
 
     public function readModelAll();

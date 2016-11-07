@@ -14,9 +14,6 @@ use AuthBucket\OAuth2\Model\ScopeManagerInterface;
 
 class ScopeManager extends AbstractManager implements ScopeManagerInterface
 {
-    public function __construct ($db) {
-        parent::__construct($db);
-    }
 
     /**
      * @return mixed

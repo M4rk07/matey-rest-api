@@ -16,9 +16,6 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class OAuth2UserManager extends AbstractManager implements UserProviderInterface
 {
-    public function __construct ($db) {
-        parent::__construct($db);
-    }
 
     /**
      * @return mixed

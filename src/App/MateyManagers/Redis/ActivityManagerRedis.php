@@ -11,7 +11,16 @@ namespace App\MateyModels;
 
 use App\Services\BaseServiceRedis;
 
-class ActivityManagerRedis extends BaseServiceRedis
+class ActivityManagerRedis extends AbstractManagerRedis
 {
+    public function getKeyName()
+    {
+        return "ACTIVITY";
+    }
+
+    public function getClassName()
+    {
+        return 'App\\MateyModels\\Activity';
+    }
 
 }

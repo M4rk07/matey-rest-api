@@ -23,10 +23,6 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class UserManager extends AbstractManager
 {
 
-    public function __construct ($db) {
-        parent::__construct($db);
-    }
-
     /**
      * @return mixed
      */

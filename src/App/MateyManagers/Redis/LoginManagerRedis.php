@@ -11,7 +11,17 @@ namespace App\MateyModels;
 
 use App\Services\BaseServiceRedis;
 
-class LoginManagerRedis extends BaseServiceRedis
+class LoginManagerRedis extends AbstractManagerRedis
 {
+
+    public function getKeyName()
+    {
+        return "LOGIN";
+    }
+
+    public function getClassName()
+    {
+        return 'App\\MateyModels\\Login';
+    }
 
 }

@@ -25,19 +25,31 @@ date_default_timezone_set($app['matey.timezone']);
 define("ROOT_PATH", __DIR__ . "/..");
 
 $app->register(new DoctrineServiceProvider(), array(
-    "db.options" => array(
-        "driver" => "pdo_mysql",
-        "dbname" => "matey_db_v1",
-        "host" => "localhost",
-        "user" => "root",
-        "password" => "maka",
-        "charset" => "utf8mb4"
-    ),
+    'db.options' => array(
+        'dbname' => 'matey_db_v1',
+        'user' => 'root',
+        'password' => 'maka',
+        'host' => 'localhost',
+        'driver' => 'pdo_mysql',
+        'charset' => 'utf8',
+        'driverOptions' => array(
+            1002=>'SET NAMES utf8'
+        )
+    )
 ));
 
+$app->register(new Predis\Silex\ClientServiceProvider(), [
+    'predis.parameters' => 'tcp://127.0.0.1:6379',
+    'predis.options'    => [
+        'prefix'  => 'silex:',
+        'profile' => '3.0',
+    ]
+]);
+
+/*
 $app['matey.db.connection'] = $app->share(function ($app) {
     return require_once __DIR__ . '/../resources/config/dbal_conn.php';
-});
+});*/
 
 # Register MUST have Silex providers for AuthBucketOAuth2ServiceProvider.
 $app->register(new MonologServiceProvider(), array(
@@ -45,9 +57,10 @@ $app->register(new MonologServiceProvider(), array(
     "monolog.level" => $app["log.level"],
     "monolog.name" => "application"
 ));
+
 $app->register(new Silex\Provider\SecurityServiceProvider());
+
 $app->register(new Silex\Provider\ValidatorServiceProvider());
-$app->register(new Predis\Silex\ClientServiceProvider());
 
 # Register AuthBucketOAuth2ServiceProvider.
 $app->register(new AuthBucket\OAuth2\Provider\AuthBucketOAuth2ServiceProvider());
@@ -121,15 +134,5 @@ $app['security.firewalls'] = [
         'oauth2_resource' => true,
     ],
 ];
-
-// OAuth 2.0 ROUTES
-$app->get('/api/oauth2/authorize', 'authbucket_oauth2.oauth2_controller:authorizeAction')
-    ->bind('api_oauth2_authorize');
-
-$app->post('/api/oauth2/token', 'authbucket_oauth2.oauth2_controller:tokenAction')
-    ->bind('api_oauth2_token');
-
-$app->match('/api/oauth2/debug', 'authbucket_oauth2.oauth2_controller:debugAction')
-    ->bind('api_oauth2_debug');
 
 return $app;

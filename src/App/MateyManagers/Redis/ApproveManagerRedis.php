@@ -11,7 +11,17 @@ namespace App\MateyModels;
 
 use App\Services\BaseServiceRedis;
 
-class ApproveManagerRedis extends BaseServiceRedis
+class ApproveManagerRedis extends AbstractManagerRedis
 {
+
+    public function getKeyName()
+    {
+        return "APPROVE";
+    }
+
+    public function getClassName()
+    {
+        return 'App\\MateyModels\\Approve';
+    }
 
 }

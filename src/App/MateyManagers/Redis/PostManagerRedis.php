@@ -11,7 +11,17 @@ namespace App\MateyModels;
 
 use App\Services\BaseServiceRedis;
 
-class PostManagerRedis extends BaseServiceRedis
+class PostManagerRedis extends AbstractManagerRedis
 {
+
+    public function getKeyName()
+    {
+        return "POST";
+    }
+
+    public function getClassName()
+    {
+        return 'App\\MateyModels\\Post';
+    }
 
 }
