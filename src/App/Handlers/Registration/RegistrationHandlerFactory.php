@@ -12,6 +12,7 @@ namespace App\Handlers\Registration;
 use App\MateyModels\ModelManagerFactoryInterface;
 use App\MateyModels\UserManager;
 use App\MateyModels\UserManagerRedis;
+use Doctrine\DBAL\Connection;
 use Matey\Exception\UnsupportedRegistration;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -21,15 +22,18 @@ class RegistrationHandlerFactory implements RegistrationHandlerFactoryInterface
     protected $classes;
     protected $validator;
     protected $modelManagerFactory;
+    protected $dbConnection;
 
     public function __construct(
         ValidatorInterface $validator,
         ModelManagerFactoryInterface $modelManagerFactory,
+        Connection $dbConnection,
         array $classes = []
     )
     {
         $this->validator = $validator;
         $this->modelManagerFactory = $modelManagerFactory;
+        $this->dbConnection = $dbConnection;
 
         foreach ($classes as $class) {
             if (!class_exists($class)) {
@@ -63,7 +67,8 @@ class RegistrationHandlerFactory implements RegistrationHandlerFactoryInterface
 
         return new $class(
             $this->validator,
-            $this->modelManagerFactory
+            $this->modelManagerFactory,
+            $this->dbConnection
         );
     }
 

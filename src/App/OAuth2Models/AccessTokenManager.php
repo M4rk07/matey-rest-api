@@ -13,8 +13,20 @@ use AuthBucket\OAuth2\Model\AccessTokenManagerInterface;
 
 class AccessTokenManager extends AbstractManager implements AccessTokenManagerInterface
 {
-    public function __construct () {
-        parent::__construct(self::T_A_ACCESS_TOKEN, 'App\\OAuth2Models\\AccessToken', "access_token");
+    public function __construct ($db) {
+        parent::__construct($db);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClassName()
+    {
+        return 'App\\OAuth2Models\\AccessToken';
+    }
+
+    public function getTableName() {
+        return self::T_A_ACCESS_TOKEN;
     }
 
     public function updateToken ($accessToken) {

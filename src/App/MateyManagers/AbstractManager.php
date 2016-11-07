@@ -13,28 +13,44 @@ use App\Services\BaseService;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
 use AuthBucket\OAuth2\Model\ModelInterface;
 use AuthBucket\OAuth2\Model\ModelManagerInterface;
+use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class AbstractManager extends BaseService implements ModelManagerInterface
+abstract class AbstractManager implements ModelManagerInterface
 {
+    // Database connection holder
+    protected $db;
 
-    // particular class properties
-    protected $tableName;
-    protected $className;
+    // Database resource table names
+    const T_USER = "matey_user";
+    const T_FACEBOOK_INFO = "matey_facebook_info";
+    const T_FOLLOWER = "matey_follower";
+    const T_POST = "matey_post";
+    const T_APPROVE = "matey_approve";
+    const T_RESPONSE = "matey_response";
+    const T_SHARE = "matey_share";
+    const T_ACTIVITY = "matey_activity";
+    const T_ACTIVITY_TYPE = "matey_activity_type";
+    const T_DEVICE = "matey_device";
+    const T_LOGIN = "matey_login";
+    const T_BOOKMARK = "matey_bookmark";
+    const T_USER_INFO = "matey_user_info";
+    const T_USER_INTEREST = "matey_user_interest";
+    const T_INTEREST_DEPTH_ = "matey_interest_depth_";
+    const T_GROUP = "matey_group";
 
-    public function __construct($tableName, $className)
+    // Database authorization table names
+    const T_A_USER = "oauth2_user";
+    const T_A_ACCESS_TOKEN = "oauth2_access_token";
+    const T_A_REFRESH_TOKEN = "oauth2_refresh_token";
+    const T_A_CLIENTS = "oauth2_client";
+    const T_A_CODES = "oauth2_code";
+    const T_A_AUTHORIZE = "oauth2_authorize";
+    const T_A_SCOPES = "oauth2_scope";
+
+    public function __construct(Connection $db)
     {
-        parent::__construct();
-        $this->tableName = $tableName;
-        $this->className = $className;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getClassName()
-    {
-        return $this->className;
+        $this->db = $db;
     }
 
     public function createModel(ModelInterface $model)
@@ -55,7 +71,7 @@ class AbstractManager extends BaseService implements ModelManagerInterface
         $qMarks = rtrim($qMarks, ",");
 
         // FINAL QUERY
-        $this->db->executeUpdate("INSERT INTO ".$this->tableName." (".$keys.") VALUES(".$qMarks.")",
+        $this->db->executeUpdate("INSERT INTO ".$this->getTableName()." (".$keys.") VALUES(".$qMarks.")",
             $values);
 
         $model->setId($this->db->lastInsertId());
@@ -66,7 +82,7 @@ class AbstractManager extends BaseService implements ModelManagerInterface
 
     public function readModelAll()
     {
-        $all = $this->db->fetchAll("SELECT * FROM " . $this->tableName);
+        $all = $this->db->fetchAll("SELECT * FROM " . $this->getTableName());
         return $this->makeObjects($all);
     }
 
@@ -86,7 +102,7 @@ class AbstractManager extends BaseService implements ModelManagerInterface
 
         empty($fieldsStr) ? $sql.="*" : $sql.=$fieldsStr;
 
-        $sql.= " FROM ".$this->tableName;
+        $sql.= " FROM ".$this->getTableName();
 
         // ------------------------------------------------------------ WHERE CLAUSE
         $whereStr = [];
@@ -169,7 +185,7 @@ class AbstractManager extends BaseService implements ModelManagerInterface
         }
 
         // FINAL QUERY
-        $this->db->executeUpdate("UPDATE ".$this->tableName." SET ".$setStr.$whereStr,
+        $this->db->executeUpdate("UPDATE ".$this->getTableName()." SET ".$setStr.$whereStr,
             $values);
 
         return $model;
@@ -187,7 +203,7 @@ class AbstractManager extends BaseService implements ModelManagerInterface
             $whereStr = preg_replace('/AND$/', '', $whereStr);
         }
 
-        $this->db->executeUpdate("DELETE FROM ".$this->tableName.$whereStr);
+        $this->db->executeUpdate("DELETE FROM ".$this->getTableName().$whereStr);
 
         return $model;
     }
@@ -197,7 +213,8 @@ class AbstractManager extends BaseService implements ModelManagerInterface
     {
         $modelObjects = [];
         foreach ($all as $modelArray) {
-            $object = new $this->className();
+            $className = $this->getClassName();
+            $object = new $className();
             $object->setValuesFromArray($modelArray);
             array_push($modelObjects, $object);
         }

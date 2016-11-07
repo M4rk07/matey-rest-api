@@ -16,8 +16,20 @@ use App\Services\BaseService;
 class PostManager extends AbstractManager
 {
 
-    public function __construct () {
-        parent::__construct(self::T_POST, 'App\\MateyModels\\Post');
+    public function __construct ($db) {
+        parent::__construct($db);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClassName()
+    {
+        return 'App\\MateyModels\\Post';
+    }
+
+    public function getTableName() {
+        return self::T_POST;
     }
 
     public function createPost(Post $post) {

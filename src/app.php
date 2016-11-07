@@ -24,6 +24,21 @@ date_default_timezone_set($app['matey.timezone']);
 
 define("ROOT_PATH", __DIR__ . "/..");
 
+$app->register(new DoctrineServiceProvider(), array(
+    "db.options" => array(
+        "driver" => "pdo_mysql",
+        "dbname" => "matey_db_v1",
+        "host" => "localhost",
+        "user" => "root",
+        "password" => "maka",
+        "charset" => "utf8mb4"
+    ),
+));
+
+$app['matey.db.connection'] = $app->share(function ($app) {
+    return require_once __DIR__ . '/../resources/config/dbal_conn.php';
+});
+
 # Register MUST have Silex providers for AuthBucketOAuth2ServiceProvider.
 $app->register(new MonologServiceProvider(), array(
     "monolog.logfile" => ROOT_PATH . "/storage/logs/" . Carbon::now($app['matey.timezone'])->format("Y-m-d") . ".log",
@@ -38,17 +53,6 @@ $app->register(new Predis\Silex\ClientServiceProvider());
 $app->register(new AuthBucket\OAuth2\Provider\AuthBucketOAuth2ServiceProvider());
 
 $app->register(new ServiceControllerServiceProvider());
-
-$app->register(new DoctrineServiceProvider(), array(
-    "db.options" => array(
-        "driver" => "pdo_mysql",
-        "dbname" => "matey_db_v1",
-        "host" => "localhost",
-        "user" => "root",
-        "password" => "maka",
-        "charset" => "utf8mb4"
-    ),
-));
 
 $app->register(new HttpCacheServiceProvider(), array("http_cache.cache_dir" => ROOT_PATH . "/storage/cache",));
 

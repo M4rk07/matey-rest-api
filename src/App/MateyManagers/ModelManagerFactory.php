@@ -4,6 +4,7 @@ use App\Services\BaseService;
 use App\Services\BaseServiceRedis;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
 use AuthBucket\OAuth2\Model\ModelManagerInterface;
+use Doctrine\DBAL\Connection;
 
 /**
  * Created by PhpStorm.
@@ -16,15 +17,15 @@ class ModelManagerFactory implements ModelManagerFactoryInterface
     protected $managers;
     protected $managersRedis;
 
-    public function __construct(array $models = [])
+    public function __construct(array $models = [], Connection $dbConnection)
     {
         $managers = [];
         $managersRedis = [];
 
         foreach ($models as $type => $model) {
             $className = $model.'Manager';
-            $manager = new $className();
-            if (!$manager instanceof BaseService) {
+            $manager = new $className($dbConnection);
+            if (!$manager instanceof ModelManagerInterface) {
                 throw new ServerErrorException();
             }
             $managers[$type] = $manager;

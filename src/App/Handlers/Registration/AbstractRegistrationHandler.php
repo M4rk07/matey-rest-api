@@ -16,6 +16,7 @@ use App\MateyModels\User;
 use App\Validators\Name;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
+use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -29,14 +30,17 @@ abstract class AbstractRegistrationHandler implements RegistrationHandlerInterfa
 
     protected $validator;
     protected $modelManagerFactory;
+    protected $dbConnection;
 
     public function __construct(
         ValidatorInterface $validator,
-        ModelManagerFactoryInterface $modelManagerFactory
+        ModelManagerFactoryInterface $modelManagerFactory,
+        Connection $dbConnection
     )
     {
         $this->validator = $validator;
         $this->modelManagerFactory = $modelManagerFactory;
+        $this->dbConnection = $dbConnection;
     }
 
     public function getUserCoreData ($username) {

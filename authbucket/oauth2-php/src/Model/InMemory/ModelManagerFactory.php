@@ -14,6 +14,7 @@ namespace AuthBucket\OAuth2\Model\InMemory;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
 use AuthBucket\OAuth2\Model\ModelManagerFactoryInterface;
 use AuthBucket\OAuth2\Model\ModelManagerInterface;
+use Doctrine\DBAL\Connection;
 
 /**
  * OAuth2 model manager factory in-memory implemention.
@@ -24,13 +25,13 @@ class ModelManagerFactory implements ModelManagerFactoryInterface
 {
     protected $managers;
 
-    public function __construct(array $models = [])
+    public function __construct(array $models = [], Connection $db)
     {
         $managers = [];
 
         foreach ($models as $type => $model) {
             $className = $model.'Manager';
-            $manager = new $className();
+            $manager = new $className($db);
             if (!$manager instanceof ModelManagerInterface) {
                 throw new ServerErrorException();
             }

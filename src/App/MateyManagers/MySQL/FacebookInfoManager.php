@@ -11,8 +11,20 @@ namespace App\MateyModels;
 
 class FacebookInfoManager extends AbstractManager
 {
-    public function __construct () {
-        parent::__construct(self::T_FACEBOOK_INFO, 'App\\MateyModels\\FacebookInfo');
+    public function __construct ($db) {
+        parent::__construct($db);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClassName()
+    {
+        return 'App\\MateyModels\\FacebookInfo';
+    }
+
+    public function getTableName() {
+        return self::T_FACEBOOK_INFO;
     }
 
 }

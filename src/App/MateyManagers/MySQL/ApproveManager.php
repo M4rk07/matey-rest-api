@@ -12,8 +12,20 @@ namespace App\MateyModels;
 class ApproveManager extends AbstractManager
 {
 
-    public function __construct () {
-        parent::__construct(self::T_APPROVE, 'App\\MateyModels\\Approve');
+    public function __construct ($db) {
+        parent::__construct($db);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClassName()
+    {
+        return 'App\\MateyModels\\Approve';
+    }
+
+    public function getTableName() {
+        return self::T_APPROVE;
     }
 
 }

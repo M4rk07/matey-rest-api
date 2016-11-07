@@ -11,9 +11,11 @@ namespace App\Handlers\Registration;
 
 use App\Handlers\ImageHandler;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
+use AuthBucket\OAuth2\Exception\ServerErrorException;
 use Facebook\Exceptions\FacebookResponseException;
 use Facebook\Exceptions\FacebookSDKException;
 use Facebook\Facebook;
+use MongoDB\Driver\Server;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -101,20 +103,28 @@ class FacebookRegistrationHandler extends AbstractRegistrationHandler
         /*
          * Starting transaction.
          */
-        // creating new user
-        $user = $this->storeUserCoreData($user);
-        $facebookInfo->setUserId($user->getId());
-        // storing credentials
-        $facebookInfoManager->createModel($facebookInfo);
-        $facebookInfoManagerRedis->pushFbAccessToken($facebookInfo);
-        /*
-         * Store facebook image to cloud storage
-         */
-        /*
-        if($isSilhouette == 0) {
-            $imgHandler = new ImageHandler();
-            $imgHandler->handleFacebookProfilePicture($user);
-        }*/
+
+        $this->dbConnection->beginTransaction();
+        try {
+            // creating new user
+            $user = $this->storeUserCoreData($user);
+            $facebookInfo->setUserId($user->getId());
+            // storing credentials
+            $facebookInfoManager->createModel($facebookInfo);
+            $facebookInfoManagerRedis->pushFbAccessToken($facebookInfo);
+            /*
+             * Store facebook image to cloud storage
+             */
+            /*
+            if($isSilhouette == 0) {
+                $imgHandler = new ImageHandler();
+                $imgHandler->handleFacebookProfilePicture($user);
+            }*/
+            $this->dbConnection->commit();
+        } catch (\Exception $e) {
+            $this->dbConnection->rollBack();
+            throw new ServerErrorException();
+        }
 
         /*
          * Registration is over SUCCESSFULLY!

@@ -14,8 +14,20 @@ use App\Services\BaseService;
 
 class DeviceManager extends AbstractManager
 {
-    public function __construct () {
-        parent::__construct(self::T_DEVICE, 'App\\MateyModels\\Device');
+    public function __construct ($db) {
+        parent::__construct($db);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClassName()
+    {
+        return 'App\\MateyModels\\Device';
+    }
+
+    public function getTableName() {
+        return self::T_DEVICE;
     }
 
     public function createDevice(Device $device) {

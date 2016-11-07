@@ -15,8 +15,20 @@ use App\Services\BaseService;
 
 class ActivityManager extends AbstractManager
 {
-    public function __construct () {
-        parent::__construct(self::T_ACTIVITY, 'App\\MateyModels\\Activity');
+    public function __construct ($db) {
+        parent::__construct($db);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClassName()
+    {
+        return 'App\\MateyModels\\Activity';
+    }
+
+    public function getTableName() {
+        return self::T_ACTIVITY;
     }
 
     public function createActivity(Activity $activity) {

@@ -20,6 +20,8 @@ interface ModelManagerInterface
 {
     public function getClassName();
 
+    public function getTableName();
+
     public function createModel(ModelInterface $model);
 
     public function readModelAll();

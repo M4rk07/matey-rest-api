@@ -27,6 +27,7 @@ class MateyServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
+
         $app['matey.model'] = [
             'user' => 'App\\MateyModels\\User',
             'facebookInfo' => 'App\\MateyModels\\FacebookInfo',
@@ -34,7 +35,7 @@ class MateyServiceProvider implements ServiceProviderInterface
         ];
 
         $app['matey.model_manager.factory'] = $app->share(function ($app) {
-            return new ModelManagerFactory($app['matey.model']);
+            return new ModelManagerFactory($app['matey.model'], $app['matey.db.connection']);
         });
 
         $app['matey.handlers.registration'] = [
@@ -46,6 +47,7 @@ class MateyServiceProvider implements ServiceProviderInterface
            return new RegistrationHandlerFactory(
                 $app['validator'],
                 $app['matey.model_manager.factory'],
+                $app['matey.db.connection'],
                 $app['matey.handlers.registration']
            );
         });

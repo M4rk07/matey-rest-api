@@ -18,8 +18,20 @@ use App\Services\BaseService;
 class FollowManager extends AbstractManager
 {
 
-    public function __construct () {
-        parent::__construct(self::T_FOLLOWER, 'App\\MateyModels\\Follow');
+    public function __construct ($db) {
+        parent::__construct($db);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClassName()
+    {
+        return 'App\\MateyModels\\Follow';
+    }
+
+    public function getTableName() {
+        return self::T_FOLLOWER;
     }
 
     public function createFollow(Follow $follow) {

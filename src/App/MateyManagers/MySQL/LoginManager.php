@@ -14,8 +14,20 @@ use App\Services\BaseService;
 
 class LoginManager extends AbstractManager
 {
-    public function __construct () {
-        parent::__construct(self::T_LOGIN, 'App\\MateyModels\\Login');
+    public function __construct ($db) {
+        parent::__construct($db);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClassName()
+    {
+        return 'App\\MateyModels\\Login';
+    }
+
+    public function getTableName() {
+        return self::T_LOGIN;
     }
 
     public function createLogin(Login $login) {

@@ -16,8 +16,20 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class OAuth2UserManager extends AbstractManager implements UserProviderInterface
 {
-    public function __construct () {
-        parent::__construct(self::T_A_USER, 'App\\MateyModels\\OAuth2User');
+    public function __construct ($db) {
+        parent::__construct($db);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClassName()
+    {
+        return 'App\\MateyModels\\OAuth2User';
+    }
+
+    public function getTableName() {
+        return self::T_A_USER;
     }
 
     public function loadUserByUsername($username)
