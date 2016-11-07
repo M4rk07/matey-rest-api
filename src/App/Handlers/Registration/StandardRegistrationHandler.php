@@ -29,10 +29,12 @@ class StandardRegistrationHandler extends AbstractRegistrationHandler
         $user = $this->getUserCoreData($username);
 
         if($user) {
-            $facebookInfo = $this->facebookInfoManager->readModelOneBy(array(
+            $facebookInfoManager = $this->modelManagerFactory->getModelManager('facebookInfo', 'mysql');
+            $facebookInfo = $facebookInfoManager->readModelOneBy(array(
                 'user_id' => $user->getUserId()
             ));
-            $oauth2User = $this->oauth2UserManager->readModelOneBy(array(
+            $oauth2UserManager = $this->modelManagerFactory->getModelManager('oauth2User', 'mysql');
+            $oauth2User = $oauth2UserManager->readModelOneBy(array(
                 'user_id' => $user->getUserId()
             ));
             if ($facebookInfo && $oauth2User) throw new InvalidRequestException([
@@ -50,6 +52,7 @@ class StandardRegistrationHandler extends AbstractRegistrationHandler
             else if($oauth2User) throw new InvalidRequestException([
                 'error_description' => 'Hey '.$user->getFirstName().', you are already with us!'
             ]);
+            else throw new ServerErrorException();
         }
 
         $password = $request->request->get('password');
@@ -72,22 +75,27 @@ class StandardRegistrationHandler extends AbstractRegistrationHandler
         $passwordEncoder = new MessageDigestPasswordEncoder();
         $encodedPassword = $passwordEncoder->encodePassword($password, $salt);
 
-        $user = new User();
-        $oauth2User = new OAuth2User();
+        $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
+        $oauth2UserManager = $this->modelManagerFactory->getModelManager('oauth2User', 'mysql');
+
+        $userClass = $userManager->getClassName();
+        $oauth2UserClass = $oauth2UserManager->getClassName();
+
+        $user = new $userClass();
+        $oauth2User = new $oauth2UserClass();
 
         $user->setEmail($username)
             ->setFirstName($firstName)
             ->setLastName($lastName)
-            ->setFullName($firstName." ".$lastName)
             ->setSilhouette(1);
 
         $oauth2User->setUsername($username)
             ->setPassword($encodedPassword)
             ->setSalt($salt);
 
-        $user = $this->userManager->createModel($user);
+        $user = $this->storeUserCoreData($user);
         $oauth2User->setUserId($user->getId());
-        $this->oauth2UserManager->createModel($oauth2User);
+        $oauth2UserManager->createModel($oauth2User);
 
         return new JsonResponse(array(), 200);
 

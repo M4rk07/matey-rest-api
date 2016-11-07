@@ -29,12 +29,6 @@ abstract class AbstractRegistrationHandler implements RegistrationHandlerInterfa
 
     protected $validator;
     protected $modelManagerFactory;
-    protected $userManager;
-    protected $userManagerRedis;
-    protected $facebookInfoManager;
-    protected $facebookInfoManagerRedis;
-    protected $oauth2UserManager;
-    protected $oauth2UserManagerRedis;
 
     public function __construct(
         ValidatorInterface $validator,
@@ -43,12 +37,6 @@ abstract class AbstractRegistrationHandler implements RegistrationHandlerInterfa
     {
         $this->validator = $validator;
         $this->modelManagerFactory = $modelManagerFactory;
-        $this->userManager = $modelManagerFactory->getModelManager('user', 'mysql');
-        $this->userManagerRedis = $modelManagerFactory->getModelManager('user', 'redis');
-        $this->facebookInfoManager = $modelManagerFactory->getModelManager('facebookInfo', 'mysql');
-        $this->facebookInfoManagerRedis = $modelManagerFactory->getModelManager('facebookInfo', 'redis');
-        $this->oauth2UserManager = $modelManagerFactory->getModelManager('oauth2User', 'mysql');
-        $this->oauth2UserManagerRedis = $modelManagerFactory->getModelManager('oauth2User', 'redis');
     }
 
     public function getUserCoreData ($username) {
@@ -64,7 +52,8 @@ abstract class AbstractRegistrationHandler implements RegistrationHandlerInterfa
             ]);
         }
 
-        $user = $this->userManager->loadUserByEmail($username);
+        $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
+        $user = $userManager->loadUserByEmail($username);
 
         return $user;
 
@@ -95,9 +84,13 @@ abstract class AbstractRegistrationHandler implements RegistrationHandlerInterfa
             $user->getFirstName()." ".$user->getLastName()
         );
 
-        $this->userManager->createModel($user);
-        $this->userManagerRedis->initializeUserStatistics($user);
-        $this->userManagerRedis->initializeUserIdByEmail($user);
+        $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
+        $userManagerRedis = $this->modelManagerFactory->getModelManager('user', 'redis');
+        $user = $userManager->createModel($user);
+        $userManagerRedis->initializeUserStatistics($user);
+        $userManagerRedis->initializeUserIdByEmail($user);
+
+        return $user;
 
     }
 

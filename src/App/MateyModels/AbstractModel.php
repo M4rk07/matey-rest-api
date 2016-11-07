@@ -38,10 +38,8 @@ abstract class AbstractModel implements ModelInterface
         return implode(" ", $array);
     }
 
-    // sets protected class variables from array values
-    public abstract function setValuesFromArray ($values);
+    abstract public function setValuesFromArray ($values);
 
-    // returns key => value array from protected class variables
-    public abstract function getValuesAsArray ();
+    abstract public function getValuesAsArray ();
 
 }

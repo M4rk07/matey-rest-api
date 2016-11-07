@@ -19,4 +19,5 @@ namespace AuthBucket\OAuth2\Model;
 interface ModelInterface
 {
     public function getId();
+
 }

@@ -29,7 +29,7 @@ class UserManagerRedis extends BaseServiceRedis
     }
 
     public function initializeUserIdByEmail (User $user) {
-        $this->redis->set(self::KEY_USER.":".self::SUBKEY_USER_ID.":".$user->getUsername(), $user->getUserId());
+        $this->redis->set(self::KEY_USER.":".self::SUBKEY_USER_ID.":".$user->getEmail(), $user->getUserId());
     }
 
 }

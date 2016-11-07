@@ -22,7 +22,7 @@ class OAuth2UserManager extends AbstractManager implements UserProviderInterface
 
     public function loadUserByUsername($username)
     {
-        $result = $this->db->fetchAll("SELECT user_id, username, password, salt
+        $result = $this->db->fetchAll("SELECT *
         FROM ".self::T_A_USER."
         WHERE username = ? LIMIT 1",
             array($username));

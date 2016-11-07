@@ -48,7 +48,8 @@ class FacebookRegistrationHandler extends AbstractRegistrationHandler
         $username = $fbUser->getEmail();
         $user = $this->getUserCoreData($username);
         if($user) {
-            $facebookInfo = $this->facebookInfoManager->readModelOneBy(array(
+            $facebookInfoManager = $this->modelManagerFactory->getModelManager('facebookInfo', 'mysql');
+            $facebookInfo = $facebookInfoManager->readModelOneBy(array(
                 'user_id' => $user->getUserId()
             ));
             /*
@@ -57,7 +58,8 @@ class FacebookRegistrationHandler extends AbstractRegistrationHandler
             */
             if($facebookInfo) {
                 $facebookInfo->setFbToken($fbToken);
-                $this->facebookInfoManagerRedis->pushFbAccessToken($facebookInfo);
+                $facebookInfoManagerRedis = $this->modelManagerFactory->getModelManager('facebookInfo', 'redis');
+                $facebookInfoManagerRedis->pushFbAccessToken($facebookInfo);
                 return new JsonResponse(array(
                     "username" => $user->getEmail(),
                 ), 200);
@@ -78,38 +80,41 @@ class FacebookRegistrationHandler extends AbstractRegistrationHandler
         $isSilhouette = 0;
         if($profilePicture->isSilhouette()) $isSilhouette = 1;
 
-        $user->setUsername($fbUser->getEmail())
+        $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
+        $facebookInfoManager = $this->modelManagerFactory->getModelManager('facebookInfo', 'mysql');
+        $facebookInfoManagerRedis = $this->modelManagerFactory->getModelManager('facebookInfo', 'redis');
+
+        $userClass = $userManager->getClassName();
+        $facebookInfoClass = $facebookInfoManager->getClassName();
+
+        $user = new $userClass();
+        $facebookInfo= new $facebookInfoClass();
+
+        $user->setEmail($fbUser->getEmail())
             ->setFirstName($fbUser->getFirstName())
             ->setLastName($fbUser->getLastName())
-            ->fullName($fbUser->getFirstName()." ".$fbUser->getLastName())
             ->setSilhouette($isSilhouette);
-        $facebookInfoClass = $this->facebookInfoManager->getClassName();
-        $facebookInfo = new $facebookInfoClass();
+
         $facebookInfo->setFbToken($fbToken)
                     ->setFbId($fbUser->getId());
 
         /*
          * Starting transaction.
          */
-        $this->userManager->startTransaction();
-        try {
-            // creating new user
-            $user = $this->storeUserCoreData($user);
-            // storing credentials
-            $this->face->createFacebookInfo($user);
-            $this->facebookInfoManagerRedis->pushFbAccessToken($facebookInfo);
-            /*
-             * Store facebook image to cloud storage
-             */
-            if($isSilhouette == 0) {
-                $imgHandler = new ImageHandler();
-                $imgHandler->handleFacebookProfilePicture($user);
-            }
-            $this->userManager->commitTransaction();
-        } catch (\Exception $e) {
-            $this->userManager->rollbackTransaction();
-            throw $e;
-        }
+        // creating new user
+        $user = $this->storeUserCoreData($user);
+        $facebookInfo->setUserId($user->getId());
+        // storing credentials
+        $facebookInfoManager->createModel($facebookInfo);
+        $facebookInfoManagerRedis->pushFbAccessToken($facebookInfo);
+        /*
+         * Store facebook image to cloud storage
+         */
+        /*
+        if($isSilhouette == 0) {
+            $imgHandler = new ImageHandler();
+            $imgHandler->handleFacebookProfilePicture($user);
+        }*/
 
         /*
          * Registration is over SUCCESSFULLY!
