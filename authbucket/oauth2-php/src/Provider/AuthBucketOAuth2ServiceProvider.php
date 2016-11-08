@@ -185,7 +185,8 @@ class AuthBucketOAuth2ServiceProvider implements ServiceProviderInterface
                     $app['security.authentication_manager'],
                     $app['validator'],
                     $app['logger'],
-                    $app['authbucket_oauth2.token_handler.factory']
+                    $app['authbucket_oauth2.token_handler.factory'],
+                    $app['matey.model_manager.factory']
                 );
             });
         });

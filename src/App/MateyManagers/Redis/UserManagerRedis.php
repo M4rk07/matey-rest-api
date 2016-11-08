@@ -39,7 +39,11 @@ class UserManagerRedis extends AbstractManagerRedis
     }
 
     public function initializeUserIdByEmail (User $user) {
-        $this->redis->set(self::KEY_USER.":".self::SUBKEY_USER_ID.":".$user->getEmail(), $user->getUserId());
+        $this->redis->set(self::KEY_USER.":".self::SUBKEY_USER_ID.":".$user->getEmail(), $user->getId());
+    }
+
+    public function getUserIdByEmail ($email) {
+        return $this->redis->get(self::KEY_USER.":".self::SUBKEY_USER_ID.":".$email);
     }
 
 }

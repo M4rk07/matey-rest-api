@@ -2,17 +2,16 @@
 /**
  * Created by PhpStorm.
  * User: marko
- * Date: 4.11.16.
- * Time: 16.25
+ * Date: 8.11.16.
+ * Time: 17.01
  */
 
-namespace App\Handlers\Registration;
+namespace App\Handlers\Account;
 
 
-use App\MateyModels\OAuth2User;
-use App\MateyModels\User;
+use App\Exception\AlreadyRegisteredException;
 use App\Security\SaltGenerator;
-use App\Validators\Name;
+use App\Validators\UserId;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
 use AuthBucket\OAuth2\Validator\Constraints\Password;
@@ -21,12 +20,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class StandardRegistrationHandler extends AbstractRegistrationHandler
+class StandardAccountHandler extends AbstractAccountHandler
 {
-    public function handle(Request $request) {
 
-        $username = $request->request->get('email');
-        $user = $this->getUserCoreData($username);
+    public function createAccount(Request $request)
+    {
+        $email = $request->request->get('email');
+        $user = $this->getAccountByEmail($email);
 
         if($user) {
             $facebookInfoManager = $this->modelManagerFactory->getModelManager('facebookInfo', 'mysql');
@@ -37,43 +37,22 @@ class StandardRegistrationHandler extends AbstractRegistrationHandler
             $oauth2User = $oauth2UserManager->readModelOneBy(array(
                 'user_id' => $user->getUserId()
             ));
-            if ($facebookInfo && $oauth2User) throw new InvalidRequestException([
-                'error' => 'full_reg',
-                'error_description' => 'Hey Mate, you are already with us!'
-            ]);
-            // If email is already registered, and facebook id is registered also,
-            // it means that user have facebook account, but not standard
-            else if($facebookInfo && !$oauth2User) throw new InvalidRequestException([
-                'error' => 'merge_offer',
+
+            if($facebookInfo && !$oauth2User) throw new AlreadyRegisteredException(true, [
+                'email' => $user->getEmail(),
                 'error_description' => "Hey ".$user->getFirstName().", you are already with us! But we offer you to merge this account with existing account. Say OK and you're in!"
-            ], 409);
-            //This shouldn't ever come true, but just in case.
-            //In this case user will have to use another email to register
-            else if($oauth2User) throw new InvalidRequestException([
-                'error_description' => 'Hey '.$user->getFirstName().', you are already with us!'
             ]);
-            else throw new ServerErrorException();
+
+            else throw new AlreadyRegisteredException();
         }
 
         $password = $request->request->get('password');
         $firstName = $request->request->get('first_name');
         $lastName = $request->request->get('last_name');
 
-        $errors = $this->validator->validate($password, [
-            new NotBlank(),
-            new Password()
-        ]);
-        if (count($errors) > 0) {
-            throw new InvalidRequestException([
-                'error_description' => 'The request includes an invalid parameter value.',
-            ]);
-        }
 
-        // generating random salt
         $salt = (new SaltGenerator())->generateSalt();
-        // encoding password and salt
-        $passwordEncoder = new MessageDigestPasswordEncoder();
-        $encodedPassword = $passwordEncoder->encodePassword($password, $salt);
+        $encodedPassword = $this->encodePassword($password, $salt);
 
         $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
         $oauth2UserManager = $this->modelManagerFactory->getModelManager('oauth2User', 'mysql');
@@ -84,27 +63,73 @@ class StandardRegistrationHandler extends AbstractRegistrationHandler
         $user = new $userClass();
         $oauth2User = new $oauth2UserClass();
 
-        $user->setEmail($username)
+        $user->setEmail($email)
             ->setFirstName($firstName)
             ->setLastName($lastName)
+            ->setFullName($firstName." ".$lastName)
             ->setSilhouette(1);
 
-        $oauth2User->setUsername($username)
+        $oauth2User->setUsername($email)
             ->setPassword($encodedPassword)
             ->setSalt($salt);
 
         $userManager->startTransaction();
         try {
-            $user = $this->storeUserCoreData($user);
+            $user = $this->storeUserData($user);
             $oauth2User->setUserId($user->getId());
             $oauth2UserManager->createModel($oauth2User);
 
             $userManager->commitTransaction();
         } catch (\Exception $e) {
             $userManager->rollbackTransaction();
-            throw $e;
+            throw new ServerErrorException();
         }
+
+        return new JsonResponse(array(), 200);
+    }
+
+    public function mergeAccount(Request $request)
+    {
+        $userId = $request->request->get('user_id');
+        $user = $this->getAccountById($userId);
+
+        if(!$user) return new InvalidRequestException();
+
+        $password = $request->request->get('password');
+
+        $salt = (new SaltGenerator())->generateSalt();
+        $encodedPassword = $this->encodePassword($password, $salt);
+
+        $oauth2UserManager = $this->modelManagerFactory->getModelManager('oauth2User', 'mysql');
+        $oauth2UserClass = $oauth2UserManager->getClassName();
+        $oauth2User = new $oauth2UserClass();
+
+        $oauth2User->setUserId($user->getUserId())
+            ->setUsername($user->getEmail())
+            ->setPassword($encodedPassword)
+            ->setSalt($salt);
+
+        $oauth2UserManager->createModel($oauth2User);
+
         return new JsonResponse(array(), 200);
 
     }
+
+    public function encodePassword($password, $salt) {
+        $errors = $this->validator->validate($password, [
+            new NotBlank(),
+            new Password()
+        ]);
+
+        if (count($errors) > 0) {
+            throw new InvalidRequestException([
+                'error_description' => 'The request includes an invalid parameter value.',
+            ]);
+        }
+
+        // encoding password and salt
+        $passwordEncoder = new MessageDigestPasswordEncoder();
+        return $passwordEncoder->encodePassword($password, $salt);
+    }
+
 }

@@ -88,6 +88,9 @@ class RoutesLoader
 
         // -------------------------------------------------------------------------------------
 
+        $this->app->post('/account/create/{accountType}', 'matey.account_controller:createAccountAction');
+        $api->post('/account/merge/{accountType}', 'matey.account_controller:mergeAccountAction');
+
         $this->app->post('/register/{action}', 'matey.registration_controller:registerUserAction');
 
         //$this->app->post('/register/user', 'registration.controller:registerStandardUserAction');

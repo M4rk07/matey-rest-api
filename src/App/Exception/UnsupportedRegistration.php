@@ -1,6 +1,6 @@
 <?php
 
-namespace Matey\Exception;
+namespace App\Exception;
 use AuthBucket\OAuth2\Exception\ExceptionInterface;
 
 /**

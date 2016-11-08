@@ -25,9 +25,9 @@ class FacebookInfoManagerRedis extends AbstractManagerRedis
         return 'App\\MateyModels\\FacebookInfo';
     }
 
-    public function pushFbAccessToken(ModelInterface $user) {
-        $this->redis->set(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$user->getUserId(), $user->getFbToken());
-        $this->redis->expire(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$user->getUserId(), 3600);
+    public function pushFbAccessToken(ModelInterface $facebookInfo) {
+        $this->redis->set(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$facebookInfo->getUserId(), $facebookInfo->getFbToken());
+        $this->redis->expire(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$facebookInfo->getUserId(), 3600);
     }
 
 }

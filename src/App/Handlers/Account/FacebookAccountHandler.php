@@ -2,29 +2,28 @@
 /**
  * Created by PhpStorm.
  * User: marko
- * Date: 6.11.16.
- * Time: 15.27
+ * Date: 8.11.16.
+ * Time: 17.02
  */
 
-namespace App\Handlers\Registration;
+namespace App\Handlers\Account;
 
 
-use App\Handlers\ImageHandler;
+use App\Exception\AlreadyRegisteredException;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
 use Facebook\Exceptions\FacebookResponseException;
 use Facebook\Exceptions\FacebookSDKException;
 use Facebook\Facebook;
-use MongoDB\Driver\Server;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class FacebookRegistrationHandler extends AbstractRegistrationHandler
+class FacebookAccountHandler extends AbstractAccountHandler
 {
 
-    public function handle(Request $request) {
-
+    public function createAccount(Request $request)
+    {
         $fbToken = $request->request->get("access_token");
         $this->validator->validate($fbToken, [
             new NotBlank()
@@ -47,17 +46,14 @@ class FacebookRegistrationHandler extends AbstractRegistrationHandler
             'error' => 'invalid_fb_token'
         ]);
 
-        $username = $fbUser->getEmail();
-        $user = $this->getUserCoreData($username);
+        $email = $fbUser->getEmail();
+        $user = $this->getAccountByEmail($email);
         if($user) {
             $facebookInfoManager = $this->modelManagerFactory->getModelManager('facebookInfo', 'mysql');
             $facebookInfo = $facebookInfoManager->readModelOneBy(array(
                 'user_id' => $user->getUserId()
             ));
-            /*
-            * If exists, then checking if there is facebook id, in other words
-            * user have facebook account
-            */
+
             if($facebookInfo) {
                 $facebookInfo->setFbToken($fbToken);
                 $facebookInfoManagerRedis = $this->modelManagerFactory->getModelManager('facebookInfo', 'redis');
@@ -66,15 +62,11 @@ class FacebookRegistrationHandler extends AbstractRegistrationHandler
                     "username" => $user->getEmail(),
                 ), 200);
             }
-            /*
-             * If facebook id doesn't exists, but username does, than user have standard account.
-             * In this case asking for merge.
-             */
-            throw new InvalidRequestException([
-                'error' => 'merge_offer',
+
+            throw new AlreadyRegisteredException(true, [
                 'email' => $user->getEmail(),
                 'error_description' => "Hey ".$user->getFirstName().", you are already with us! But we offer you to merge this account with existing account. Say OK and you're in!"
-            ], 409);
+            ]);
         }
 
         $fbUser = $this->fetchFacebookData($fbToken, $fb);
@@ -98,7 +90,7 @@ class FacebookRegistrationHandler extends AbstractRegistrationHandler
             ->setSilhouette($isSilhouette);
 
         $facebookInfo->setFbToken($fbToken)
-                    ->setFbId($fbUser->getId());
+            ->setFbId($fbUser->getId());
 
         /*
          * Starting transaction.
@@ -107,9 +99,9 @@ class FacebookRegistrationHandler extends AbstractRegistrationHandler
         $userManager->startTransaction();
         try {
             // creating new user
-            $user = $this->storeUserCoreData($user);
+            $user = $this->storeUserData($user);
+
             $facebookInfo->setUserId($user->getId());
-            // storing credentials
             $facebookInfoManager->createModel($facebookInfo);
             $facebookInfoManagerRedis->pushFbAccessToken($facebookInfo);
             /*
@@ -132,6 +124,43 @@ class FacebookRegistrationHandler extends AbstractRegistrationHandler
         return new JsonResponse(array(
             "username" => $user->getEmail()
         ), 200);
+    }
+
+    public function mergeAccount(Request $request)
+    {
+        $userId = $request->request->get('user_id');
+        $user = $this->getAccountById($userId);
+
+        if(!$user) return new InvalidRequestException();
+
+        $fbToken = $request->request->get("fb_token");
+
+        $fbCredentials = file_get_contents(getenv("FACEBOOK_APPLICATION_CREDENTIALS"));
+        $fbCredentials = json_decode($fbCredentials);
+        $app_id = $fbCredentials->app_id;
+        $app_secret = $fbCredentials->app_secret;
+        $fb = new Facebook([
+            'app_id' => $app_id,
+            'app_secret' => $app_secret,
+            'default_graph_version' => 'v2.2',
+            'http_client_handler' => 'stream'
+        ]);
+
+        $fbUser = $this->checkFacebookToken($fbToken, $fb, $app_id);
+
+        $facebookInfoManager = $this->modelManagerFactory->getModelManager('facebookInfo', 'mysql');
+        $facebookInfoManagerRedis = $this->modelManagerFactory->getModelManager('facebookInfo', 'redis');
+        $facebookInfoClass = $facebookInfoManager->getClassName();
+        $facebookInfo= new $facebookInfoClass();
+
+        $facebookInfo->setUserId($user->getUserId())
+            ->setFbToken($fbToken)
+            ->setFbId($fbUser->getId());
+
+        $facebookInfoManager->createModel($facebookInfo);
+        $facebookInfoManagerRedis->pushFbAccessToken($facebookInfo);
+
+        return new JsonResponse(array(), 200);
 
     }
 

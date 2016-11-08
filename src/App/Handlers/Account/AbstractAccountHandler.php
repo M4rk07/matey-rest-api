@@ -2,30 +2,23 @@
 /**
  * Created by PhpStorm.
  * User: marko
- * Date: 4.11.16.
- * Time: 16.26
+ * Date: 8.11.16.
+ * Time: 16.41
  */
 
-namespace App\Handlers\Registration;
+namespace App\Handlers\Account;
 
 
 use App\MateyModels\ModelManagerFactoryInterface;
-use App\MateyModels\UserManager;
-use App\MateyModels\UserManagerRedis;
 use App\MateyModels\User;
 use App\Validators\Name;
+use App\Validators\UserId;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
-use AuthBucket\OAuth2\Exception\ServerErrorException;
-use Doctrine\DBAL\Connection;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-abstract class AbstractRegistrationHandler implements RegistrationHandlerInterface
+abstract class AbstractAccountHandler implements AccountHandlerInterface
 {
 
     protected $validator;
@@ -40,9 +33,32 @@ abstract class AbstractRegistrationHandler implements RegistrationHandlerInterfa
         $this->modelManagerFactory = $modelManagerFactory;
     }
 
-    public function getUserCoreData ($username) {
+    public function getAccountById($userId)
+    {
+        $errors = $this->validator->validate($userId, [
+            new NotBlank(),
+            new UserId()
+        ]);
 
-        $errors = $this->validator->validate($username, [
+        if (count($errors) > 0) {
+            throw new InvalidRequestException([
+                'error_description' => 'The request includes an invalid parameter value.',
+            ]);
+        }
+
+        $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
+        $user = $userManager->readModelOneBy(array(
+            'user_id' => $userId
+        ));
+
+        return $user;
+    }
+
+    public function getAccountByEmail($email)
+    {
+        $email = trim($email, " \t\n\r\0\x0B");
+
+        $errors = $this->validator->validate($email, [
             new NotBlank(),
             new Email()
         ]);
@@ -54,14 +70,14 @@ abstract class AbstractRegistrationHandler implements RegistrationHandlerInterfa
         }
 
         $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
-        $user = $userManager->loadUserByEmail($username);
+        $user = $userManager->readModelOneBy(array(
+            'email' => $email
+        ));
 
         return $user;
-
     }
 
-    public function storeUserCoreData (User $user) {
-
+    public function storeUserData(User $user) {
         $errors = $this->validator->validate($user->getFirstName(), [
             new NotBlank(),
             new Name()
@@ -92,7 +108,6 @@ abstract class AbstractRegistrationHandler implements RegistrationHandlerInterfa
         $userManagerRedis->initializeUserIdByEmail($user);
 
         return $user;
-
     }
 
 }

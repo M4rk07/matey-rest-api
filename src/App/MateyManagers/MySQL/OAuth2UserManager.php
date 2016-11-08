@@ -31,12 +31,9 @@ class OAuth2UserManager extends AbstractManager implements UserProviderInterface
 
     public function loadUserByUsername($username)
     {
-        $result = $this->db->fetchAll("SELECT *
-        FROM ".self::T_A_USER."
-        WHERE username = ? LIMIT 1",
-            array($username));
-
-        $models = $this->makeObjects($result);
+        $models = $this->readModelOneBy(array(
+            'username' => $username
+        ));
 
         return is_array($models) ? reset($models) : $models;
     }

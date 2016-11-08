@@ -11,8 +11,9 @@
 
 namespace AuthBucket\OAuth2\Security\Firewall;
 
+use App\MateyModels\ModelManagerFactoryInterface;
 use App\OAuth2Models\AccessTokenManager;
-use App\OAuth2Models\UserManager;
+use App\MateyModels\UserManager;
 use App\Services\BackupService;
 use App\Services\Redis\RedisService;
 use AuthBucket\OAuth2\Exception\ExceptionInterface;
@@ -43,6 +44,7 @@ class ResourceListener implements ListenerInterface
     protected $validator;
     protected $logger;
     protected $tokenTypeHandlerFactory;
+    protected $modelManagerFactory;
 
     public function __construct(
         $providerKey,
@@ -50,7 +52,8 @@ class ResourceListener implements ListenerInterface
         AuthenticationManagerInterface $authenticationManager,
         ValidatorInterface $validator,
         LoggerInterface $logger,
-        TokenTypeHandlerFactoryInterface $tokenTypeHandlerFactory
+        TokenTypeHandlerFactoryInterface $tokenTypeHandlerFactory,
+        ModelManagerFactoryInterface $modelManagerFactory
     ) {
         $this->providerKey = $providerKey;
         $this->tokenStorage = $tokenStorage;
@@ -58,6 +61,7 @@ class ResourceListener implements ListenerInterface
         $this->validator = $validator;
         $this->logger = $logger;
         $this->tokenTypeHandlerFactory = $tokenTypeHandlerFactory;
+        $this->modelManagerFactory = $modelManagerFactory;
     }
 
     public function handle(GetResponseEvent $event)
@@ -119,39 +123,9 @@ class ResourceListener implements ListenerInterface
         /*
          * Fetching user id from redis storage
          */
-        $redisService = new RedisService();
-        $user_id = $redisService->getUserIdByEmail($tokenUsername);
-        /*
-         * Update token
-         */
-        $tokenManager = new AccessTokenManager();
-        $tokenManager->updateToken($token->getAccessToken());
-        /*
-         * If redis isn't available, trying backup system - from MySQL database
-         */
-        if(empty($user_id)) {
-            $userManager = new BackupService();
-            $user = $userManager->loadUserIdByUsername($tokenUsername);
-            /*
-             * If there is nothing in database, throw server error
-             */
-            if(empty($user['user_id'])) throw new ServerErrorException();
-            // Set user id
-            $user_id = $user['user_id'];
-            /*
-             * Try to push to redis storage now
-             */
-            try {
-                $redisService->initializeUserIdByEmail($tokenUsername, $user_id);
-            } catch (\Exception $e) {
-                /*
-                 * Redis couldn't store it, ok never mind
-                 */
-            }
-        }
-        /*
-         * Push user id to request
-         */
+        $userManagerRedis = $this->modelManagerFactory->getModelManager('user', 'redis');
+        $user_id = $userManagerRedis->getUserIdByEmail($tokenUsername);
+
         $request->request->set("user_id", $user_id);
 
     }

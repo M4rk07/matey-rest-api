@@ -1,7 +1,10 @@
 <?php
 
 namespace App\Provider;
+use App\Controllers\API\AccountController;
 use App\Controllers\RegistrationController;
+use App\Handlers\Account\AccountHandlerFactory;
+use App\Handlers\MergeAccount\MergeAccountHandlerFactory;
 use App\MateyModels\ModelManagerFactory;
 use App\RoutesLoader;
 use App\ServicesLoader;
@@ -42,24 +45,24 @@ class MateyServiceProvider implements ServiceProviderInterface
             );
         });
 
-        $app['matey.handlers.registration'] = [
-            'standard' => 'App\\Handlers\\Registration\\StandardRegistrationHandler',
-            'facebook' => 'App\\Handlers\\Registration\\FacebookRegistrationHandler'
+        $app['matey.handlers.account'] = [
+            'standard' => 'App\\Handlers\\Account\\StandardAccountHandler',
+            'facebook' => 'App\\Handlers\\Account\\FacebookAccountHandler'
         ];
 
-        $app['matey.registration_handler.factory'] = $app->share(function($app) {
-           return new RegistrationHandlerFactory(
+        $app['matey.account_handler.factory'] = $app->share(function($app) {
+           return new AccountHandlerFactory(
                 $app['validator'],
                 $app['matey.model_manager.factory'],
-                $app['matey.handlers.registration']
+                $app['matey.handlers.account']
            );
         });
 
-        $app['matey.registration_controller'] = $app->share(function () use ($app) {
-            return new RegistrationController(
+        $app['matey.account_controller'] = $app->share(function () use ($app) {
+            return new AccountController(
                 $app['validator'],
                 $app['matey.model_manager.factory'],
-                $app['matey.registration_handler.factory']
+                $app['matey.account_handler.factory']
             );
         });
 
