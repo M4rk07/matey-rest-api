@@ -8,8 +8,6 @@
 
 namespace App\MateyModels;
 
-
-use App\OAuth2Models\AbstractModel;
 use AuthBucket\OAuth2\Model\ModelInterface;
 
 class Device extends AbstractModel
@@ -96,7 +94,7 @@ class Device extends AbstractModel
         $this->dateRegistered = isset($values['date_registered']) ? $values['date_registered'] : "";
     }
 
-    public function getValuesAsArray(ModelInterface $model)
+    public function getValuesAsArray()
     {
         $keyValues = array ();
 

@@ -9,7 +9,7 @@
 namespace App\MateyModels;
 
 
-use App\OAuth2Models\AbstractModel;
+
 use AuthBucket\OAuth2\Model\ModelInterface;
 
 class Login extends AbstractModel
@@ -115,7 +115,7 @@ class Login extends AbstractModel
         $this->gcm = isset($values['gcm']) ? $values['gcm'] : "";
     }
 
-    public function getValuesAsArray(ModelInterface $model)
+    public function getValuesAsArray()
     {
         $keyValues = array ();
 

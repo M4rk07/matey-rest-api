@@ -14,6 +14,7 @@ use App\MateyModels\User;
 use App\Validators\Name;
 use App\Validators\UserId;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
+use Silex\Application;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Validator\ValidatorInterface;

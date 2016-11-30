@@ -193,10 +193,11 @@ abstract class AbstractManager implements ModelManagerInterface
         if($criteria != null) {
             $whereStr = " WHERE ";
             foreach($criteria as $key => $value) {
-                $whereStr.=$key."=".$value." AND ";
+                $whereStr.=$key."=? AND ";
+                $values[] = $value;
             }
-            rtrim($whereStr);
-            $whereStr = preg_replace('/AND$/', '', $whereStr);
+            $whereStr = rtrim($whereStr);
+            $whereStr = preg_replace('/ AND$/', '', $whereStr);
         }
 
         // FINAL QUERY

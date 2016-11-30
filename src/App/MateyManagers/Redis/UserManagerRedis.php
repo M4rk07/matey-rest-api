@@ -24,7 +24,7 @@ class UserManagerRedis extends AbstractManagerRedis
     }
 
     public function initializeUserStatistics(User $user) {
-        $this->redis->hmset(self::KEY_USER.":".self::SUBKEY_STATISTICS.":".$user->getUserId(), array(
+        $this->redis->hmset(self::KEY_USER.":".self::SUBKEY_STATISTICS.":".$user->getId(), array(
             self::FIELD_NUM_OF_FOLLOWERS => 0,
             self::FIELD_NUM_OF_FOLLOWING => 0,
             self::FIELD_NUM_OF_POSTS => 0,
@@ -44,6 +44,16 @@ class UserManagerRedis extends AbstractManagerRedis
 
     public function getUserIdByEmail ($email) {
         return $this->redis->get(self::KEY_USER.":".self::SUBKEY_USER_ID.":".$email);
+    }
+
+    public function getUserStatistics (User $user) {
+
+        $userStatistics = $this->redis->hgetall(self::KEY_USER.":".self::SUBKEY_STATISTICS.":".$user->getId());
+
+        $user->setValuesFromArray($userStatistics);
+
+        return $user;
+
     }
 
 }

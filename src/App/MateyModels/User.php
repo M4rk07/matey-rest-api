@@ -1,6 +1,7 @@
 <?php
 
 namespace App\MateyModels;
+use App\Paths\Paths;
 use AuthBucket\OAuth2\Model\ModelInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -18,7 +19,6 @@ class User extends AbstractModel
     protected $firstName;
     protected $lastName;
     protected $fullName;
-    protected $profilePicture;
     protected $silhouette;
     protected $firstLogin;
     protected $dateRegistered;
@@ -123,18 +123,16 @@ class User extends AbstractModel
     /**
      * @return mixed
      */
-    public function getProfilePicture()
+    public function getProfilePicture($size = 'small')
     {
-        return $this->profilePicture;
-    }
-
-    /**
-     * @param mixed $profilePicture
-     */
-    public function setProfilePicture($profilePicture)
-    {
-        $this->profilePicture = $profilePicture;
-        return $this;
+        $dimension = '100x100';
+        if($size != 'small' && in_array($size, array('medium', 'large', 'veryLarge'))) {
+            if($size == 'medium') $dimension = '200x200';
+            else if($size == 'large') $dimension = '480x480';
+            else if($size == 'veryLarge') $dimension = '720x720';
+        }
+        if($this->silhouette == 1) return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/profile_pictures/".$dimension."/silhouette.jpg";
+        return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/profile_pictures/".$dimension."/".$this->userId.".jpg";
     }
 
     /**
@@ -361,13 +359,16 @@ class User extends AbstractModel
     public function setValuesFromArray($values)
     {
 
-        $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
-        $this->email = isset($values['email']) ? $values['email'] : "";
-        $this->firstName = isset($values['first_name']) ? $values['first_name'] : "";
-        $this->lastName = isset($values['last_name']) ? $values['last_name'] : "";
-        $this->fullName = isset($values['full_name']) ? $values['full_name'] : "";
-        $this->silhouette = isset($values['is_silhouette']) ? $values['is_silhouette'] : "";
-        $this->dateRegistered = isset($values['date_registered']) ? $values['date_registered'] : "";
+        $this->id = isset($values['user_id']) ? $values['user_id'] : $this->id;
+        $this->userId = isset($values['user_id']) ? $values['user_id'] : $this->userId;
+        $this->email = isset($values['email']) ? $values['email'] : $this->email;
+        $this->firstName = isset($values['first_name']) ? $values['first_name'] : $this->firstName;
+        $this->lastName = isset($values['last_name']) ? $values['last_name'] : $this->lastName;
+        $this->fullName = isset($values['full_name']) ? $values['full_name'] : $this->fullName;
+        $this->silhouette = isset($values['is_silhouette']) ? $values['is_silhouette'] : $this->silhouette;
+        $this->dateRegistered = isset($values['date_registered']) ? $values['date_registered'] : $this->dateRegistered;
+        $this->numOfFollowers = isset($values['num_of_followers']) ? $values['num_of_followers'] : $this->numOfFollowers;
+        $this->numOfFollowing = isset($values['num_of_following']) ? $values['num_of_following'] : $this->numOfFollowing;
 
     }
 
@@ -380,7 +381,18 @@ class User extends AbstractModel
         empty($this->firstName) ? : $keyValues['first_name'] = $this->firstName;
         empty($this->lastName) ? : $keyValues['last_name'] = $this->lastName;
         empty($this->fullName) ? : $keyValues['full_name'] = $this->fullName;
-        empty($this->silhouette) ? : $keyValues['is_silhouette'] = $this->silhouette;
+        empty($this->silhouette) && $this->silhouette != 0 ? : $keyValues['picture']['is_silhouette'] = $this->silhouette;
+
+        return $keyValues;
+    }
+
+    public function getAllValuesAsArray() {
+
+        $keyValues = $this->getValuesAsArray();
+
+        $keyValues['picture']['url'] = $this->getProfilePicture();
+        empty($this->numOfFollowers) && $this->numOfFollowers != 0 ? : $keyValues['statistics']['num_of_followers'] = $this->numOfFollowers;
+        empty($this->numOfFollowing) && $this->numOfFollowing != 0 ? : $keyValues['statistics']['num_of_following'] = $this->numOfFollowing;
 
         return $keyValues;
     }

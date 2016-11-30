@@ -1,0 +1,146 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: marko
+ * Date: 9.11.16.
+ * Time: 10.14
+ */
+
+namespace App\Handlers\Device;
+
+
+use App\Security\SecretGenerator;
+use App\Validators\DeviceId;
+use AuthBucket\OAuth2\Exception\InvalidRequestException;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\Constraints\NotBlank;
+
+class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDeviceInterface
+{
+    public function createDevice(Request $request)
+    {
+        $gcm = $request->request->get("gcm");
+        $errors = $this->validator->validate($gcm, [
+            new NotBlank()
+        ]);
+        if (count($errors) > 0) {
+            throw new InvalidRequestException([
+                'error_description' => 'The request includes an invalid parameter value.',
+            ]);
+        }
+
+        $secretGenerator = new SecretGenerator();
+        $deviceSecret = $secretGenerator->generateDeviceSecret();
+
+        $deviceManager = $this->modelManagerFactory->getModelManager('device', 'mysql');
+        $deviceClass = $deviceManager->getClassName();
+        $device = new $deviceClass();
+
+        $device->setDeviceSecret($deviceSecret)
+            ->setGcm($gcm);
+
+        $device = $deviceManager->createModel($device);
+
+        return new JsonResponse($device->getValuesAsArray(), 200);
+    }
+
+    public function updateDevice(Request $request)
+    {
+        $deviceId = $request->request->get("device_id");
+        $oldGcm = $request->request->get("old_gcm");
+        $gcm = $request->request->get("gcm");
+
+        $errors = $this->validator->validate($deviceId, [
+            new NotBlank(),
+            new DeviceId()
+        ]);
+        if (count($errors) > 0) {
+            throw new InvalidRequestException([
+                'error_description' => 'The request includes an invalid parameter value.',
+            ]);
+        }
+
+        $device = $this->updateGcmById($deviceId, $gcm, $oldGcm);
+
+        return new JsonResponse($device->getValuesAsArray(), 200);
+    }
+
+    public function loginOnDevice(Request $request)
+    {
+        $userId = $request->request->get("user_id");
+        $deviceId = $request->request->get("device_id");
+
+        $device = $this->getGcmById($deviceId);
+
+        $loginManager = $this->modelManagerFactory->getModelManager('login', 'mysql');
+        $loginClass = $loginManager->getClassName();
+        $login = new $loginClass();
+
+        $login->setUserId($userId)
+            ->setDeviceId($deviceId);
+
+        $loginManager->createModel($login);
+
+        $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
+        $user = $userManager->readModelOneBy(array(
+            'user_id' => $userId
+        ));
+
+        return new JsonResponse($user->getValuesAsArray(), 200);
+    }
+
+    public function getGcmById($deviceId)
+    {
+        $errors = $this->validator->validate($deviceId, [
+            new NotBlank()
+        ]);
+        if (count($errors) > 0) {
+            throw new InvalidRequestException([
+                'error_description' => 'The request includes an invalid parameter value.',
+            ]);
+        }
+
+        $deviceManager = $this->modelManagerFactory->getModelManager('device', 'mysql');
+
+        $device = $deviceManager->readModelOneBy(array(
+            'device_id' => $deviceId
+        ));
+
+        return $device;
+    }
+
+    public function updateGcmById($deviceId, $gcm, $oldGcm)
+    {
+        $errors = $this->validator->validate($oldGcm, [
+            new NotBlank()
+        ]);
+        if (count($errors) > 0) {
+            throw new InvalidRequestException([
+                'error_description' => 'The request includes an invalid parameter value.',
+            ]);
+        }
+        $errors = $this->validator->validate($gcm, [
+            new NotBlank()
+        ]);
+        if (count($errors) > 0) {
+            throw new InvalidRequestException([
+                'error_description' => 'The request includes an invalid parameter value.',
+            ]);
+        }
+
+        $deviceManager = $this->modelManagerFactory->getModelManager('device', 'mysql');
+        $deviceClass = $deviceManager->getClassName();
+        $device = new $deviceClass();
+
+        $device->setDeviceId($deviceId)
+            ->setGcm($gcm);
+
+        $deviceManager->updateModel($device, array(
+            'gcm' => $oldGcm
+        ));
+
+        return $device;
+    }
+
+}
