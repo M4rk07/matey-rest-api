@@ -111,7 +111,7 @@ class Device extends AbstractModel
     {
         $keyValues = array ();
 
-        empty($this->deviceId) ? : $keyValues['device_id'] = $this->deviceId;
+        empty($this->id) ? : $keyValues['device_id'] = $this->id;
         empty($this->deviceSecret) ? : $keyValues['device_secret'] = $this->deviceSecret;
         empty($this->gcm) ? : $keyValues['gcm'] = $this->gcm;
         empty($this->dateRegistered) ? : $keyValues['date_registered'] = $this->dateRegistered;
