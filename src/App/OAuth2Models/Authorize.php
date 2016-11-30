@@ -81,6 +81,16 @@ class Authorize extends AbstractModel implements AuthorizeInterface
         $this->scope = $this->createArrayFromString($values['scope']);
     }
 
+    public function getMysqlValues () {
+        $keyValues = array ();
+
+        empty($this->clientId) ? : $keyValues['client_id'] = $this->clientId;
+        empty($this->username) ? : $keyValues['username'] = $this->username;
+        empty($this->scope) ? : $keyValues['scope'] = $this->scope;
+
+        return $keyValues;
+    }
+
     public function getValuesAsArray()
     {
         $keyValues = array ();

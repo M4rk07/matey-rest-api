@@ -115,6 +115,19 @@ class Login extends AbstractModel
         $this->gcm = isset($values['gcm']) ? $values['gcm'] : "";
     }
 
+    public function getMysqlValues()
+    {
+        $keyValues = array ();
+
+        empty($this->deviceId) ? : $keyValues['device_id'] = $this->deviceId;
+        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
+        empty($this->dateTime) ? : $keyValues['date_time'] = $this->dateTime;
+        empty($this->status) ? : $keyValues['status'] = $this->status;
+        empty($this->gcm) ? : $keyValues['gcm'] = $this->gcm;
+
+        return $keyValues;
+    }
+
     public function getValuesAsArray()
     {
         $keyValues = array ();

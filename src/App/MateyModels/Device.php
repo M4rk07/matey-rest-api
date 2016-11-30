@@ -94,6 +94,19 @@ class Device extends AbstractModel
         $this->dateRegistered = isset($values['date_registered']) ? $values['date_registered'] : "";
     }
 
+    public function getMysqlValues()
+    {
+        $keyValues = array ();
+
+        empty($this->deviceId) ? : $keyValues['device_id'] = $this->deviceId;
+        empty($this->deviceSecret) ? : $keyValues['device_secret'] = $this->deviceSecret;
+        empty($this->gcm) ? : $keyValues['gcm'] = $this->gcm;
+        empty($this->dateRegistered) ? : $keyValues['date_registered'] = $this->dateRegistered;
+
+        return $keyValues;
+    }
+
+
     public function getValuesAsArray()
     {
         $keyValues = array ();

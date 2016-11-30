@@ -42,7 +42,7 @@ class UserHandler extends AbstractUserHandler
         $userMangerRedis = $this->modelManagerFactory->getModelManager('user', 'redis');
         $user = $userMangerRedis->getUserStatistics($user);
 
-        return new JsonResponse($user->getAllValuesAsArray(), 200);
+        return new JsonResponse($user->getValuesAsArray(), 200);
     }
 
 }

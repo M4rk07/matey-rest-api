@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Handlers\Device;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -16,7 +17,7 @@ interface DeviceHandlerInterface
 
     public function updateDevice(Request $request);
 
-    public function loginOnDevice(Request $request);
+    public function loginOnDevice(Application $app, Request $request);
 
     public function logoutOfDevice(Request $request);
 

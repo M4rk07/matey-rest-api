@@ -110,6 +110,18 @@ class Client extends AbstractModel implements ClientInterface
         $this->redirectUri = $values['redirect_uri'];
     }
 
+    public function getMysqlValues () {
+        $keyValues = array ();
+
+        empty($this->clientId) ? : $keyValues['client_id'] = $this->clientId;
+        empty($this->clientSecret) ? : $keyValues['client_secret'] = $this->clientSecret;
+        empty($this->appName) ? : $keyValues['app_name'] = $this->appName;
+        empty($this->clientType) ? : $keyValues['client_type'] = $this->clientType;
+        empty($this->redirectUri) ? : $keyValues['redirect_uri'] =$this->redirectUri;
+
+        return $keyValues;
+    }
+
     public function getValuesAsArray()
     {
         $keyValues = array ();

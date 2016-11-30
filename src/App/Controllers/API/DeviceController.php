@@ -12,6 +12,7 @@ namespace App\Controllers\API;
 use App\Controllers\AbstractController;
 use App\Handlers\Device\DeviceHandlerFactoryInterface;
 use App\MateyModels\ModelManagerFactoryInterface;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -45,11 +46,11 @@ class DeviceController extends AbstractController
 
     }
 
-    public function loginOnDeviceAction (Request $request, $deviceType) {
+    public function loginOnDeviceAction (Application $app, Request $request, $deviceType) {
 
         return $this->deviceHandlerFactory
             ->getDeviceHandler($deviceType)
-            ->loginOnDevice($request);
+            ->loginOnDevice($app, $request);
 
     }
 

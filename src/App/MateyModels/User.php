@@ -372,6 +372,19 @@ class User extends AbstractModel
 
     }
 
+    public function getMysqlValues () {
+        $keyValues = array ();
+
+        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
+        empty($this->email) ? : $keyValues['email'] = $this->email;
+        empty($this->firstName) ? : $keyValues['first_name'] = $this->firstName;
+        empty($this->lastName) ? : $keyValues['last_name'] = $this->lastName;
+        empty($this->fullName) ? : $keyValues['full_name'] = $this->fullName;
+        empty($this->silhouette) && $this->silhouette != 0 ? : $keyValues['is_silhouette'] = $this->silhouette;
+
+        return $keyValues;
+    }
+
     public function getValuesAsArray()
     {
         $keyValues = array ();
@@ -382,14 +395,6 @@ class User extends AbstractModel
         empty($this->lastName) ? : $keyValues['last_name'] = $this->lastName;
         empty($this->fullName) ? : $keyValues['full_name'] = $this->fullName;
         empty($this->silhouette) && $this->silhouette != 0 ? : $keyValues['picture']['is_silhouette'] = $this->silhouette;
-
-        return $keyValues;
-    }
-
-    public function getAllValuesAsArray() {
-
-        $keyValues = $this->getValuesAsArray();
-
         $keyValues['picture']['url'] = $this->getProfilePicture();
         empty($this->numOfFollowers) && $this->numOfFollowers != 0 ? : $keyValues['statistics']['num_of_followers'] = $this->numOfFollowers;
         empty($this->numOfFollowing) && $this->numOfFollowing != 0 ? : $keyValues['statistics']['num_of_following'] = $this->numOfFollowing;

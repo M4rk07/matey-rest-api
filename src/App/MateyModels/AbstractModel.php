@@ -40,6 +40,8 @@ abstract class AbstractModel implements ModelInterface
 
     abstract public function setValuesFromArray ($values);
 
+    abstract public function getMysqlValues ();
+
     abstract public function getValuesAsArray ();
 
 }

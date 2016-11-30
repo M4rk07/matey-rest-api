@@ -43,6 +43,14 @@ class Scope extends AbstractModel implements ScopeInterface
         $this->scope = $values['scope'];
     }
 
+    public function getMysqlValues () {
+        $keyValues = array ();
+
+        empty($this->scope) ? : $keyValues['scope'] = $this->scope;
+
+        return $keyValues;
+    }
+
     public function getValuesAsArray()
     {
         $keyValues = array ();

@@ -120,6 +120,18 @@ class OAuth2User extends \App\MateyModels\AbstractModel implements UserInterface
         $this->salt = isset($values['salt']) ? $values['salt'] : "";
     }
 
+    public function getMysqlValues()
+    {
+        $keyValues = array ();
+
+        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
+        empty($this->username) ? : $keyValues['username'] = $this->username;
+        empty($this->password) ? : $keyValues['password'] = $this->password;
+        empty($this->salt) ? : $keyValues['salt'] = $this->salt;
+
+        return $keyValues;
+    }
+
     public function getValuesAsArray()
     {
         $keyValues = array ();

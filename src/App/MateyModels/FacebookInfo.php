@@ -75,6 +75,16 @@ class FacebookInfo extends AbstractModel
         $this->fbId = isset($values['fb_id']) ? $values['fb_id'] : "";
     }
 
+    public function getMysqlValues()
+    {
+        $keyValues = array ();
+
+        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
+        empty($this->fbId) ? : $keyValues['fb_id'] = $this->fbId;
+
+        return $keyValues;
+    }
+
     public function getValuesAsArray()
     {
         $keyValues = array ();

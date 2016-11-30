@@ -12,6 +12,7 @@ namespace App\Handlers\Device;
 use App\Security\SecretGenerator;
 use App\Validators\DeviceId;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -66,7 +67,7 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
         return new JsonResponse($device->getValuesAsArray(), 200);
     }
 
-    public function loginOnDevice(Request $request)
+    public function loginOnDevice(Application $app, Request $request)
     {
         $userId = $request->request->get("user_id");
         $deviceId = $request->request->get("device_id");
@@ -80,14 +81,9 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
         $login->setUserId($userId)
             ->setDeviceId($deviceId);
 
-        $loginManager->createModel($login);
+        $loginManager->createModel($login, true);
 
-        $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
-        $user = $userManager->readModelOneBy(array(
-            'user_id' => $userId
-        ));
-
-        return new JsonResponse($user->getValuesAsArray(), 200);
+        return $app['matey.user_controller']->getUserAction($request, $userId);
     }
 
     public function getGcmById($deviceId)

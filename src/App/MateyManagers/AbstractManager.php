@@ -68,10 +68,10 @@ abstract class AbstractManager implements ModelManagerInterface
             $this->db->rollBack();
     }
 
-    public function createModel(ModelInterface $model)
+    public function createModel(ModelInterface $model, $ignore = false)
     {
 
-        $fields = $model->getValuesAsArray();
+        $fields = $model->getMysqlValues();
 
         $keys = "";
         $values = [];
@@ -86,7 +86,7 @@ abstract class AbstractManager implements ModelManagerInterface
         $qMarks = rtrim($qMarks, ",");
 
         // FINAL QUERY
-        $this->db->executeUpdate("INSERT INTO ".$this->getTableName()." (".$keys.") VALUES(".$qMarks.")",
+        $this->db->executeUpdate("INSERT ". ($ignore ? "IGNORE" : "") ." INTO ".$this->getTableName()." (".$keys.") VALUES(".$qMarks.")",
             $values);
 
         $model->setId($this->db->lastInsertId());
@@ -178,7 +178,7 @@ abstract class AbstractManager implements ModelManagerInterface
 
     public function updateModel(ModelInterface $model, array $criteria = null)
     {
-        $fields = $model->getValuesAsArray();
+        $fields = $model->getMysqlValues();
 
         $setStr = "";
         $values = [];

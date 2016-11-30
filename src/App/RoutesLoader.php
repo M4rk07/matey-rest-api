@@ -88,21 +88,21 @@ class RoutesLoader
 
         // -------------------------------------------------------------------------------------
 
-        $this->app->post('/account/{accountType}/create', 'matey.account_controller:createAccountAction');
-        $api->post('/account/{accountType}/merge', 'matey.account_controller:mergeAccountAction');
+        $this->app->post('/account/create/{accountType}', 'matey.account_controller:createAccountAction');
+        $api->post('/account/merge/{accountType}', 'matey.account_controller:mergeAccountAction');
 
-        $this->app->post('/device/{deviceType}/create', 'matey.device_controller:createDeviceAction');
-        $this->app->post('/device/{deviceType}/update', 'matey.device_controller:updateDeviceAction');
-        $api->post('/device/{deviceType}/login', 'matey.device_controller:loginOnDeviceAction');
-
-        $this->app->post('/register/{action}', 'matey.registration_controller:registerUserAction');
+        $this->app->post('/device/create/{deviceType}', 'matey.device_controller:createDeviceAction');
+        $this->app->post('/device/update/{deviceType}', 'matey.device_controller:updateDeviceAction');
+        $api->post('/device/login/{deviceType}', 'matey.device_controller:loginOnDeviceAction');
 
         $api->get('/user/{id}', 'matey.user_controller:getUserAction');
+
 
         //$this->app->post('/register/user', 'registration.controller:registerStandardUserAction');
         //$this->app->post('/register/device', 'registration.controller:registerDeviceAction');
         $this->app->post('/authenticate/social', 'registration.controller:authenticateSocialUserAction');
 
+        $this->app->post('/register/{action}', 'matey.registration_controller:registerUserAction');
         // for "action" valid values are:
         // - facebook
         // - standard

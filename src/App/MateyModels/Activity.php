@@ -9,7 +9,6 @@
 namespace App\MateyModels;
 
 
-use App\OAuth2Models\AbstractModel;
 use AuthBucket\OAuth2\Model\ModelInterface;
 
 class Activity extends AbstractModel
