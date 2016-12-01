@@ -127,7 +127,10 @@ class RefreshToken extends AbstractModel implements RefreshTokenInterface
         empty($this->refreshToken) ? : $keyValues['refresh_token'] = $this->refreshToken;
         empty($this->clientId) ? : $keyValues['client_id'] = $this->clientId;
         empty($this->username) ? : $keyValues['username'] = $this->username;
-        empty($this->expires) ? : $keyValues['expires'] = ($this->expires)->format($this->dateFormat);
+        if(!empty($this->expires)) {
+            $expires = $this->expires;
+            $keyValues['expires'] = $expires->format($this->dateFormat);
+        }
         empty($this->scope) ? : $keyValues['scope'] =$this->scope;
 
         return $keyValues;
@@ -140,7 +143,10 @@ class RefreshToken extends AbstractModel implements RefreshTokenInterface
         empty($this->refreshToken) ? : $keyValues['refresh_token'] = $this->refreshToken;
         empty($this->clientId) ? : $keyValues['client_id'] = $this->clientId;
         empty($this->username) ? : $keyValues['username'] = $this->username;
-        empty($this->expires) ? : $keyValues['expires'] = ($this->expires)->format($this->dateFormat);
+        if(!empty($this->expires)) {
+            $expires = $this->expires;
+            $keyValues['expires'] = $expires->format($this->dateFormat);
+        }
         empty($this->scope) ? : $keyValues['scope'] =$this->scope;
 
         return $keyValues;

@@ -30,10 +30,10 @@ class UserController extends AbstractController
         $this->userHandlerFactory = $userHandlerFactory;
     }
 
-    public function getUserAction(Request $request, $id) {
+    public function getUserAction(Request $request, $userId) {
         return $this->userHandlerFactory
             ->getUserHandler('user')
-            ->getUser($request, $id);
+            ->getUser($request, $userId);
     }
 
 }

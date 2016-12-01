@@ -30,7 +30,10 @@ class DeviceController extends AbstractController
         $this->deviceHandlerFactory = $deviceHandlerFactory;
     }
 
-    public function createDeviceAction (Request $request, $deviceType) {
+    public function createDeviceAction (Request $request) {
+
+        $deviceType = $request->request->get('type');
+        $deviceType = !empty($deviceType) ? : "android";
 
         return $this->deviceHandlerFactory
             ->getDeviceHandler($deviceType)
@@ -38,19 +41,25 @@ class DeviceController extends AbstractController
 
     }
 
-    public function updateDeviceAction (Request $request, $deviceType) {
+    public function updateDeviceAction (Request $request, $deviceId) {
+
+        $deviceType = $request->request->get('type');
+        $deviceType = !empty($deviceType) ? : "android";
 
         return $this->deviceHandlerFactory
             ->getDeviceHandler($deviceType)
-            ->updateDevice($request);
+            ->updateDevice($request, $deviceId);
 
     }
 
-    public function loginOnDeviceAction (Application $app, Request $request, $deviceType) {
+    public function loginOnDeviceAction (Application $app, Request $request, $deviceId) {
+
+        $deviceType = $request->request->get('type');
+        $deviceType = !empty($deviceType) ? : "android";
 
         return $this->deviceHandlerFactory
             ->getDeviceHandler($deviceType)
-            ->loginOnDevice($app, $request);
+            ->loginOnDevice($app, $request, $deviceId);
 
     }
 

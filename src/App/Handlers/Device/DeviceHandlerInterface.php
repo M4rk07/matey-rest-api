@@ -15,9 +15,9 @@ interface DeviceHandlerInterface
 
     public function createDevice(Request $request);
 
-    public function updateDevice(Request $request);
+    public function updateDevice(Request $request, $deviceId);
 
-    public function loginOnDevice(Application $app, Request $request);
+    public function loginOnDevice(Application $app, Request $request, $deviceId);
 
     public function logoutOfDevice(Request $request);
 

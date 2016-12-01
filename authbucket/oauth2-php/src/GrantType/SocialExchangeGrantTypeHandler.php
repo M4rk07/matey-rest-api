@@ -66,9 +66,10 @@ class SocialExchangeGrantTypeHandler extends AbstractGrantTypeHandler
         $access_token = $request->request->get('access_token');
 
         $client = new Client();
-        return $client->request('POST', Paths::BASE_API_URL.'/account/create/facebook', [
+        return $client->request('POST', Paths::BASE_API_URL.'/users/accounts', [
             'form_params'   => array(
-                'access_token' => $access_token
+                'access_token' => $access_token,
+                'type' => 'facebook'
             ),
         ]);
 

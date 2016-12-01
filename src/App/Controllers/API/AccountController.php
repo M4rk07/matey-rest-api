@@ -30,7 +30,10 @@ class AccountController extends AbstractController
         $this->accountHandlerFactory = $accountHandlerFactory;
     }
 
-    public function createAccountAction(Request $request, $accountType) {
+    public function createAccountAction(Request $request) {
+
+        $accountType = $request->request->get('type');
+        $accountType = !empty($accountType) ? : "standard";
 
         return $this->accountHandlerFactory
             ->getAccountHandler($accountType)
@@ -38,7 +41,10 @@ class AccountController extends AbstractController
 
     }
 
-    public function mergeAccountAction(Request $request, $accountType) {
+    public function mergeAccountAction(Request $request) {
+
+        $accountType = $request->request->get('type');
+        $accountType = !empty($accountType) ? : "standard";
 
         return $this->accountHandlerFactory
             ->getAccountHandler($accountType)

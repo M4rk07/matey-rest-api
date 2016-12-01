@@ -85,17 +85,16 @@ class RoutesLoader
         $this->app->match('/api/oauth2/debug', 'authbucket_oauth2.oauth2_controller:debugAction')
             ->bind('api_oauth2_debug');
 
-
         // -------------------------------------------------------------------------------------
 
-        $this->app->post('/account/create/{accountType}', 'matey.account_controller:createAccountAction');
-        $api->post('/account/merge/{accountType}', 'matey.account_controller:mergeAccountAction');
 
-        $this->app->post('/device/create/{deviceType}', 'matey.device_controller:createDeviceAction');
-        $this->app->post('/device/update/{deviceType}', 'matey.device_controller:updateDeviceAction');
-        $api->post('/device/login/{deviceType}', 'matey.device_controller:loginOnDeviceAction');
+        $this->app->post('/devices', 'matey.device_controller:createDeviceAction');
+        $this->app->put('/devices/{deviceId}', 'matey.device_controller:updateDeviceAction');
 
-        $api->get('/user/{id}', 'matey.user_controller:getUserAction');
+        $this->app->post('/users/accounts', 'matey.account_controller:createAccountAction');
+        $api->post('/users/me/accounts', 'matey.account_controller:mergeAccountAction');
+        $api->put('/users/me/devices/{deviceId}', 'matey.device_controller:loginOnDeviceAction');
+        $api->get('/users/{userId}', 'matey.user_controller:getUserAction');
 
 
         //$this->app->post('/register/user', 'registration.controller:registerStandardUserAction');

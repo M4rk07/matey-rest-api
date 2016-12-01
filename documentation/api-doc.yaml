@@ -13,9 +13,64 @@
         "application/json"
     ],
     "paths": {
-        "/register/user": {
+        "/devices": {
             "post": {
-                "description": "Endpoint for user registration.\n",
+                "description": "Ruta za registraciju uredjaja.",
+                "parameters": [
+                    {
+                        "name": "gcm",
+                        "in": "formData",
+                        "description": "Device GCM key.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Object with device id information.",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/Device"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/:deviceId": {
+            "put": {
+                "description": "Ruta za update uredjaja.",
+                "parameters": [
+                    {
+                        "name": "gcm",
+                        "in": "formData",
+                        "description": "Device GCM key.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "old_gcm",
+                        "in": "formData",
+                        "description": "Device old GCM key",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Object with device id information.",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/Device"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/accounts": {
+            "post": {
+                "description": "Ruta za registraciju korisnika.",
                 "parameters": [
                     {
                         "name": "email",
@@ -53,42 +108,42 @@
                 }
             }
         },
-        "/register/device": {
+        "/api/v1/users/me/accounts": {
             "post": {
-                "description": "Endpoint for device registration.",
+                "description": "Ruta za dodavanje novog accounta, odnosno merge u prevodu.",
                 "parameters": [
                     {
-                        "name": "gcm",
+                        "name": "type",
                         "in": "formData",
-                        "description": "Device GCM key.",
+                        "description": "Tip novog account-a koji korisnik zeli da napravi i spoji sa starim. Moguce vrednosti 'standard' i 'facebook'. Podrazumevana vrednost ovog polja je 'standard'.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "password",
+                        "in": "formData",
+                        "description": "Ukoliko je novi account standardni, onda korisnik mora da obezbedi sifru koju zeli da koristi na tom nalogu.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "fb_token",
+                        "in": "formData",
+                        "description": "Ukoliko je novi account facebook, onda korisnik mora da obezbedi facebook-ov access token.",
                         "required": true,
                         "type": "string"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Object with device id information.",
-                        "schema": {
-                            "items": {
-                                "$ref": "#/definitions/Device"
-                            }
-                        }
+                        "description": "Successful registration."
                     }
                 }
             }
         },
-        "/api/v1/login": {
-            "post": {
-                "description": "Endpoint for user login with access token and device id.",
-                "parameters": [
-                    {
-                        "name": "device_id",
-                        "in": "formData",
-                        "description": "Device id user is trying to log in.",
-                        "required": true,
-                        "type": "integer"
-                    }
-                ],
+        "/api/v1/users/me/devices/:deviceId": {
+            "put": {
+                "description": "Ruta za ulogovanje korisnika.",
                 "responses": {
                     "200": {
                         "description": "Object with user information.",
@@ -99,159 +154,27 @@
                         }
                     }
                 }
-            }
-        },
-        "/api/v1/follower/ACTION": {
-            "post": {
-                "description": "Endpoint for following new user. ACTION can be \"follow\" or \"unfollow\".",
-                "parameters": [
-                    {
-                        "name": "to_user",
-                        "in": "formData",
-                        "description": "ID of user that have been followed or removing follow.",
-                        "required": true,
-                        "type": "integer"
-                    }
-                ],
+            },
+            "delete": {
+                "description": "Ruta za logout korisnika.",
                 "responses": {
                     "200": {
-                        "description": "OK."
+                        "description": "Successful logout."
                     }
                 }
             }
         },
-        "/api/v1/post/add": {
-            "post": {
-                "description": "Endpoint for posting.",
-                "parameters": [
-                    {
-                        "name": "interest_id",
-                        "in": "formData",
-                        "description": "ID of interest.",
-                        "required": true,
-                        "type": "integer"
-                    },
-                    {
-                        "name": "text",
-                        "in": "formData",
-                        "description": "Text of the post.",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
+        "/api/v1/users/:userId": {
+            "get": {
+                "description": "Ruta za izvlacenje podataka o korisniku.",
                 "responses": {
                     "200": {
                         "description": "OK.",
                         "schema": {
                             "items": {
-                                "$ref": "#/definitions/PostId"
+                                "$ref": "#/definitions/User"
                             }
                         }
-                    }
-                }
-            }
-        },
-        "/api/v1/post/remove": {
-            "post": {
-                "description": "Endpoint for removing post.",
-                "parameters": [
-                    {
-                        "name": "post_id",
-                        "in": "formData",
-                        "description": "ID of the post.",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK."
-                    }
-                }
-            }
-        },
-        "/api/v1/post/response/add": {
-            "post": {
-                "description": "Endpoint for removing post.",
-                "parameters": [
-                    {
-                        "name": "post_id",
-                        "in": "formData",
-                        "description": "ID of the post.",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "text",
-                        "in": "formData",
-                        "description": "Text of the post.",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK.",
-                        "schema": {
-                            "items": {
-                                "$ref": "#/definitions/ResponseId"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/post/response/remove": {
-            "post": {
-                "description": "Endpoint for removing post.",
-                "parameters": [
-                    {
-                        "name": "post_id",
-                        "in": "formData",
-                        "description": "ID of the post.",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "response_id",
-                        "in": "formData",
-                        "description": "ID of the response.",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK."
-                    }
-                }
-            }
-        },
-        "/api/v1/post/response/approve": {
-            "post": {
-                "description": "Endpoint for approving response.",
-                "parameters": [
-                    {
-                        "name": "response_id",
-                        "in": "formData",
-                        "description": "ID of the response.",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK."
-                    }
-                }
-            }
-        },
-        "/api/v1/newsfeed": {
-            "post": {
-                "description": "Endpoint for fetching news feed.",
-                "responses": {
-                    "200": {
-                        "description": "OK."
                     }
                 }
             }
@@ -263,6 +186,12 @@
             "properties": {
                 "device_id": {
                     "type": "string"
+                },
+                "device_secret": {
+                    "type": "string"
+                },
+                "gcm": {
+                    "type": "string"
                 }
             }
         },
@@ -272,32 +201,37 @@
                 "user_id": {
                     "type": "integer"
                 },
+                "email": {
+                    "type": "integer"
+                },
                 "first_name": {
                     "type": "string"
                 },
                 "last_name": {
                     "type": "string"
                 },
-                "birth_year": {
+                "full_name": {
+                    "type": "string"
+                },
+                "verified": {
+                    "type": "boolean"
+                },
+                "first_login": {
+                    "type": "boolean"
+                },
+                "picture_url": {
+                    "type": "string"
+                },
+                "cover_url": {
+                    "type": "string"
+                },
+                "num_of_followers": {
+                    "type": "integer"
+                },
+                "num_of_following": {
                     "type": "integer"
                 }
             }
         },
-        "PostId": {
-            "type": "object",
-            "properties": {
-                "post_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "ResponseId": {
-            "type": "object",
-            "properties": {
-                "response_id": {
-                    "type": "string"
-                }
-            }
-        }
     }
 }

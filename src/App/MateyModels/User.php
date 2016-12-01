@@ -22,6 +22,7 @@ class User extends AbstractModel
     protected $silhouette;
     protected $firstLogin;
     protected $dateRegistered;
+    protected $verified;
 
     // STATISTICS
     protected $numOfFollowers;
@@ -48,7 +49,7 @@ class User extends AbstractModel
      */
     public function setUserId($userId)
     {
-        $this->userId = $userId;
+        $this->userId = (int)$userId;
         return $this;
     }
 
@@ -148,7 +149,7 @@ class User extends AbstractModel
      */
     public function setSilhouette($silhouette)
     {
-        $this->silhouette = $silhouette;
+        $this->silhouette = (bool)$silhouette;
         return $this;
     }
 
@@ -157,7 +158,7 @@ class User extends AbstractModel
      */
     public function isFirstLogin()
     {
-        return $this->firstLogin == 0 ? true : false;
+        return $this->firstLogin;
     }
 
     /**
@@ -165,7 +166,7 @@ class User extends AbstractModel
      */
     public function setFirstLogin($firstLogin)
     {
-        $this->firstLogin = $firstLogin;
+        $this->firstLogin = (bool)$firstLogin;
         return $this;
     }
 
@@ -189,6 +190,23 @@ class User extends AbstractModel
     /**
      * @return mixed
      */
+    public function getVerified()
+    {
+        return $this->verified;
+    }
+
+    /**
+     * @param mixed $verified
+     */
+    public function setVerified($verified)
+    {
+        $this->verified = (bool)$verified;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getNumOfFollowers()
     {
         return $this->numOfFollowers;
@@ -199,7 +217,7 @@ class User extends AbstractModel
      */
     public function setNumOfFollowers($numOfFollowers)
     {
-        $this->numOfFollowers = $numOfFollowers;
+        $this->numOfFollowers = (int)$numOfFollowers;
         return $this;
     }
 
@@ -216,7 +234,7 @@ class User extends AbstractModel
      */
     public function setNumOfFollowing($numOfFollowing)
     {
-        $this->numOfFollowing = $numOfFollowing;
+        $this->numOfFollowing = (int)$numOfFollowing;
         return $this;
     }
 
@@ -233,7 +251,7 @@ class User extends AbstractModel
      */
     public function setNumOfPosts($numOfPosts)
     {
-        $this->numOfPosts = $numOfPosts;
+        $this->numOfPosts = (int)$numOfPosts;
         return $this;
     }
 
@@ -250,7 +268,7 @@ class User extends AbstractModel
      */
     public function setNumOfGivenApproves($numOfGivenApproves)
     {
-        $this->numOfGivenApproves = $numOfGivenApproves;
+        $this->numOfGivenApproves = (int)$numOfGivenApproves;
         return $this;
     }
 
@@ -267,7 +285,7 @@ class User extends AbstractModel
      */
     public function setNumOfReceivedApproves($numOfReceivedApproves)
     {
-        $this->numOfReceivedApproves = $numOfReceivedApproves;
+        $this->numOfReceivedApproves = (int)$numOfReceivedApproves;
         return $this;
     }
 
@@ -284,7 +302,7 @@ class User extends AbstractModel
      */
     public function setNumOfGivenResponses($numOfGivenResponses)
     {
-        $this->numOfGivenResponses = $numOfGivenResponses;
+        $this->numOfGivenResponses = (int)$numOfGivenResponses;
         return $this;
     }
 
@@ -301,7 +319,7 @@ class User extends AbstractModel
      */
     public function setNumOfReceivedResponses($numOfReceivedResponses)
     {
-        $this->numOfReceivedResponses = $numOfReceivedResponses;
+        $this->numOfReceivedResponses = (int)$numOfReceivedResponses;
         return $this;
     }
 
@@ -318,7 +336,7 @@ class User extends AbstractModel
      */
     public function setNumOfBestResponses($numOfBestResponses)
     {
-        $this->numOfBestResponses = $numOfBestResponses;
+        $this->numOfBestResponses = (int)$numOfBestResponses;
         return $this;
     }
 
@@ -335,7 +353,7 @@ class User extends AbstractModel
      */
     public function setNumOfProfileClicks($numOfProfileClicks)
     {
-        $this->numOfProfileClicks = $numOfProfileClicks;
+        $this->numOfProfileClicks = (int)$numOfProfileClicks;
         return $this;
     }
 
@@ -352,23 +370,27 @@ class User extends AbstractModel
      */
     public function setNumOfShares($numOfShares)
     {
-        $this->numOfShares = $numOfShares;
+        $this->numOfShares = (int)$numOfShares;
         return $this;
     }
 
     public function setValuesFromArray($values)
     {
 
-        $this->id = isset($values['user_id']) ? $values['user_id'] : $this->id;
-        $this->userId = isset($values['user_id']) ? $values['user_id'] : $this->userId;
-        $this->email = isset($values['email']) ? $values['email'] : $this->email;
-        $this->firstName = isset($values['first_name']) ? $values['first_name'] : $this->firstName;
-        $this->lastName = isset($values['last_name']) ? $values['last_name'] : $this->lastName;
-        $this->fullName = isset($values['full_name']) ? $values['full_name'] : $this->fullName;
-        $this->silhouette = isset($values['is_silhouette']) ? $values['is_silhouette'] : $this->silhouette;
-        $this->dateRegistered = isset($values['date_registered']) ? $values['date_registered'] : $this->dateRegistered;
-        $this->numOfFollowers = isset($values['num_of_followers']) ? $values['num_of_followers'] : $this->numOfFollowers;
-        $this->numOfFollowing = isset($values['num_of_following']) ? $values['num_of_following'] : $this->numOfFollowing;
+        if(isset($values['user_id'])) {
+            $this->setId($values['user_id']);
+            $this->setUserId($values['user_id']);
+        }
+        if(isset($values['email'])) $this->setEmail($values['email']);
+        if(isset($values['first_name'])) $this->setFirstName($values['first_name']);
+        if(isset($values['last_name'])) $this->setLastName($values['last_name']);
+        if(isset($values['full_name'])) $this->setFullName($values['full_name']);
+        if(isset($values['first_login'])) $this->setFirstLogin($values['first_login']);
+        if(isset($values['is_silhouette'])) $this->setSilhouette($values['is_silhouette']);
+        if(isset($values['verified'])) $this->setVerified($values['verified']);
+        if(isset($values['date_registered'])) $this->setDateRegistered($values['date_registered']);
+        if(isset($values['num_of_followers'])) $this->setNumOfFollowers($values['num_of_followers']);
+        if(isset($values['num_of_following'])) $this->setNumOfFollowing($values['num_of_following']);
 
     }
 
@@ -380,7 +402,7 @@ class User extends AbstractModel
         empty($this->firstName) ? : $keyValues['first_name'] = $this->firstName;
         empty($this->lastName) ? : $keyValues['last_name'] = $this->lastName;
         empty($this->fullName) ? : $keyValues['full_name'] = $this->fullName;
-        empty($this->silhouette) && $this->silhouette != 0 ? : $keyValues['is_silhouette'] = $this->silhouette;
+        empty($this->silhouette) && $this->silhouette != false ? : $keyValues['is_silhouette'] = $this->silhouette;
 
         return $keyValues;
     }
@@ -394,10 +416,13 @@ class User extends AbstractModel
         empty($this->firstName) ? : $keyValues['first_name'] = $this->firstName;
         empty($this->lastName) ? : $keyValues['last_name'] = $this->lastName;
         empty($this->fullName) ? : $keyValues['full_name'] = $this->fullName;
-        empty($this->silhouette) && $this->silhouette != 0 ? : $keyValues['picture']['is_silhouette'] = $this->silhouette;
-        $keyValues['picture']['url'] = $this->getProfilePicture();
-        empty($this->numOfFollowers) && $this->numOfFollowers != 0 ? : $keyValues['statistics']['num_of_followers'] = $this->numOfFollowers;
-        empty($this->numOfFollowing) && $this->numOfFollowing != 0 ? : $keyValues['statistics']['num_of_following'] = $this->numOfFollowing;
+        empty($this->verified) && $this->verified != false ? : $keyValues['verified'] = $this->verified;
+        empty($this->firstLogin) && $this->firstLogin != false ? : $keyValues['first_login'] = $this->firstLogin;
+        //$keyValues['profile_picture'] = $this->getProfilePicture();
+        $keyValues['picture_url'] = "https://tctechcrunch2011.files.wordpress.com/2010/10/pirate.jpg";
+        $keyValues['cover_url'] = "http://vignette2.wikia.nocookie.net/angrybirds/images/c/cf/Heikki_wallpaper3_medium.jpg/revision/latest?cb=20120626123135";
+        empty($this->numOfFollowers) && $this->numOfFollowers != 0 ? : $keyValues['num_of_followers'] = $this->numOfFollowers;
+        empty($this->numOfFollowing) && $this->numOfFollowing != 0 ? : $keyValues['num_of_following'] = $this->numOfFollowing;
 
         return $keyValues;
     }
