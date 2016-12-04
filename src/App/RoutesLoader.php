@@ -84,7 +84,6 @@ class RoutesLoader
 
         $this->app->match('/api/oauth2/debug', 'authbucket_oauth2.oauth2_controller:debugAction')
             ->bind('api_oauth2_debug');
-
         // -------------------------------------------------------------------------------------
 
 
@@ -95,49 +94,7 @@ class RoutesLoader
         $api->post('/users/me/accounts', 'matey.account_controller:mergeAccountAction');
         $api->put('/users/me/devices/{deviceId}/login', 'matey.device_controller:loginOnDeviceAction');
         $api->get('/users/{userId}/profile', 'matey.user_controller:getUserAction');
-
-
-        //$this->app->post('/register/user', 'registration.controller:registerStandardUserAction');
-        //$this->app->post('/register/device', 'registration.controller:registerDeviceAction');
-        $this->app->post('/authenticate/social', 'registration.controller:authenticateSocialUserAction');
-
-        $this->app->post('/register/{action}', 'matey.registration_controller:registerUserAction');
-        // for "action" valid values are:
-        // - facebook
-        // - standard
-        $api->post('/merge/{action}', 'registration.controller:mergeAccountsAction');
-
-        // API ROUTES
-        $api->post('/login', 'login.controller:loginAction');
-        $api->post('/login/merge/{action}', 'registration.controller:mergeAccountsAction');
-        $api->post('/logout', 'login.controller:logoutAction');
-
-        // for "action" valid values are:
-        // - follow
-        // - unfollow
-        $api->post('/follower/{action}', 'follower.controller:followerAction');
-
-        $api->post('/post/add', 'post.controller:addPostAction');
-        $api->post('/post/remove', 'post.controller:deletePostAction');
-        $api->post('/response/add', 'response.controller:addResponseAction');
-        $api->post('/response/remove', 'response.controller:deleteResponseAction');
-        $api->post('/response/approve', 'response.controller:approveAction');
-
-        $api->get('/profile_picture/{user_id}', 'user_profile.controller:getProfilePictureAction');
-
-        // -------------------------------------------------------------------------------------
-
-
-        $this->app->get('/test', 'test.controller:fillCategories');
-        $this->app->get('/fillGroups', 'test.controller:fillGroups');
-        $this->app->get('/signature', 'registration.controller:makeSignature');
-
-        $api->post('/interests/add', 'interest.controller:addInterestsAction');
-        $api->get('/interests', 'interest.controller:showInterestsAction');
-
-        $api->get('/newsfeed', 'newsfeed.controller:getNewsFeedAction');
-
-        $api->get('/search/name', 'search.controller:searchUserByNameAction');
+        $api->post('/users/me/users/{id}/{action}', 'matey.user_controller:followAction');
 
         $this->app->mount($this->app["api.endpoint"].'/'.$this->app["api.version"], $api);
     }

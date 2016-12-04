@@ -169,9 +169,9 @@ abstract class AbstractManager implements ModelManagerInterface
         return is_array($models) ? reset($models) : $models;
     }
 
-    public function readModelOneBy(array $criteria, array $orderBy = null)
+    public function readModelOneBy(array $criteria, array $orderBy = null, array $fields = null)
     {
-        $models = $this->readModelBy($criteria, $orderBy, 1, 0);
+        $models = $this->readModelBy($criteria, $orderBy, 1, 0, $fields);
 
         return is_array($models) ? reset($models) : $models;
     }

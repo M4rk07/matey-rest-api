@@ -364,7 +364,7 @@ class User extends AbstractModel
         return $keyValues;
     }
 
-    public function getValuesAsArray()
+    public function getValuesAsArray($fields = null)
     {
         $keyValues = array ();
 

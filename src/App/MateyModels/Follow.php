@@ -9,7 +9,6 @@
 namespace App\MateyModels;
 
 
-use App\OAuth2Models\AbstractModel;
 use AuthBucket\OAuth2\Model\ModelInterface;
 
 class Follow extends AbstractModel
@@ -77,7 +76,18 @@ class Follow extends AbstractModel
         $this->dateTime = isset($values['date_time']) ? $values['date_time'] : "";
     }
 
-    public function getValuesAsArray(ModelInterface $model)
+    public function getMysqlValues()
+    {
+        $keyValues = array ();
+
+        empty($this->userFrom) ? : $keyValues['from_user'] = $this->userFrom;
+        empty($this->userTo) ? : $keyValues['to_user'] = $this->userTo;
+        empty($this->dateTime) ? : $keyValues['date_time'] = $this->dateTime;
+
+        return $keyValues;
+    }
+
+    public function getValuesAsArray()
     {
         $keyValues = array ();
 

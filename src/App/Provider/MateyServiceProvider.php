@@ -42,7 +42,8 @@ class MateyServiceProvider implements ServiceProviderInterface
             'facebookInfo' => 'App\\MateyModels\\FacebookInfo',
             'oauth2User' => 'App\\MateyModels\\OAuth2User',
             'device' => 'App\\MateyModels\\Device',
-            'login' => 'App\\MateyModels\\Login'
+            'login' => 'App\\MateyModels\\Login',
+            'follow' => 'App\\MateyModels\\Follow'
         ];
 
         $app['matey.model_manager.factory'] = $app->share(function ($app) {
