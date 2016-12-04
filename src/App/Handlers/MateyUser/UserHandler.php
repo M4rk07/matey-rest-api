@@ -76,7 +76,10 @@ class UserHandler extends AbstractUserHandler
         $follow->setUserFrom($userId)
             ->setUserTo($id);
 
-        $followManager->createModel($follow);
+        $method = $request->getMethod();
+
+        if($method == "POST") $followManager->createModel($follow);
+        else if ($method == "DELETE") $followManager->deleteModel($follow);
 
         return new JsonResponse(array(), 200);
 

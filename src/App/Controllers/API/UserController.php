@@ -36,7 +36,7 @@ class UserController extends AbstractController
             ->getUser($request, $userId);
     }
 
-    public function followAction(Request $request, $id, $action) {
+    public function followAction(Request $request, $id) {
         return $this->userHandlerFactory
             ->getUserHandler('user')
             ->follow($request, $id);

@@ -94,7 +94,8 @@ class RoutesLoader
         $api->post('/users/me/accounts', 'matey.account_controller:mergeAccountAction');
         $api->put('/users/me/devices/{deviceId}/login', 'matey.device_controller:loginOnDeviceAction');
         $api->get('/users/{userId}/profile', 'matey.user_controller:getUserAction');
-        $api->post('/users/me/users/{id}/{action}', 'matey.user_controller:followAction');
+        $api->post('/users/me/users/{id}/follow', 'matey.user_controller:followAction');
+        $api->delete('/users/me/users/{id}/follow', 'matey.user_controller:followAction');
 
         $this->app->mount($this->app["api.endpoint"].'/'.$this->app["api.version"], $api);
     }

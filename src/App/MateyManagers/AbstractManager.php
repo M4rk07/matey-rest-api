@@ -209,6 +209,8 @@ abstract class AbstractManager implements ModelManagerInterface
 
     public function deleteModel(ModelInterface $model, $criteria = null)
     {
+        $criteria = $model->getMysqlValues();
+
         $whereStr = "";
         if($criteria != null) {
             $whereStr = " WHERE ";
