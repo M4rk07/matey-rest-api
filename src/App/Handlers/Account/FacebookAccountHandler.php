@@ -51,7 +51,7 @@ class FacebookAccountHandler extends AbstractAccountHandler
         if($user) {
             $facebookInfoManager = $this->modelManagerFactory->getModelManager('facebookInfo', 'mysql');
             $facebookInfo = $facebookInfoManager->readModelOneBy(array(
-                'user_id' => $user->getUserId()
+                'user_id' => $user->getId()
             ));
 
             if($facebookInfo) {
@@ -101,7 +101,7 @@ class FacebookAccountHandler extends AbstractAccountHandler
             // creating new user
             $user = $this->storeUserData($user);
 
-            $facebookInfo->setUserId($user->getId());
+            $facebookInfo->setId($user->getId());
             $facebookInfoManager->createModel($facebookInfo);
             $facebookInfoManagerRedis->pushFbAccessToken($facebookInfo);
             /*
@@ -153,7 +153,7 @@ class FacebookAccountHandler extends AbstractAccountHandler
         $facebookInfoClass = $facebookInfoManager->getClassName();
         $facebookInfo= new $facebookInfoClass();
 
-        $facebookInfo->setUserId($user->getUserId())
+        $facebookInfo->setId($user->getId())
             ->setFbToken($fbToken)
             ->setFbId($fbUser->getId());
 

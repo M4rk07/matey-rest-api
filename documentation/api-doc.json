@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "title": "Matey Resource API",
-        "description": "Resource API for Android application Matey.",
+        "description": "Resource API for Android application Matey. Korsiti se metodama GET, POST, PUT, DELETE, OPTIONS. Vraca standardne status kodove gde su moguci.",
         "version": "1.0"
     },
     "host": "api.uber.com",
@@ -20,14 +20,14 @@
                     {
                         "name": "gcm",
                         "in": "formData",
-                        "description": "Device GCM key.",
+                        "description": "GCM key uredjaja.",
                         "required": true,
                         "type": "string"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Object with device id information.",
+                        "description": "JSON objekat sa podacima o kreiranom uredjaju.",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/Device"
@@ -44,21 +44,21 @@
                     {
                         "name": "gcm",
                         "in": "formData",
-                        "description": "Device GCM key.",
+                        "description": "GCM key uredjaja.",
                         "required": true,
                         "type": "string"
                     },
                     {
                         "name": "old_gcm",
                         "in": "formData",
-                        "description": "Device old GCM key",
+                        "description": "Stari GCM uredjaja.",
                         "required": true,
                         "type": "string"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Object with device id information.",
+                        "description": "JSON objekat sa podacima o update-ovanom uredjaju.",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/Device"
@@ -75,35 +75,35 @@
                     {
                         "name": "email",
                         "in": "formData",
-                        "description": "User's email.",
+                        "description": "Email korisnika.",
                         "required": true,
                         "type": "string"
                     },
                     {
                         "name": "password",
                         "in": "formData",
-                        "description": "User's password. Must be at least 5 characters long.",
+                        "description": "Sifra korisnika, najmanje 5 karaktera.",
                         "required": true,
                         "type": "string"
                     },
                     {
                         "name": "first_name",
                         "in": "formData",
-                        "description": "User's first name.",
+                        "description": "Ime korisnika.",
                         "required": true,
                         "type": "string"
                     },
                     {
                         "name": "last_name",
                         "in": "formData",
-                        "description": "User's last name.",
+                        "description": "Prezime korisnika.",
                         "required": true,
                         "type": "string"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful registration."
+                        "description": "Uspesna registracija."
                     }
                 }
             }
@@ -136,17 +136,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful registration."
+                        "description": "Uspesna registracija."
                     }
                 }
             }
         },
-        "/api/v1/users/me/devices/:deviceId": {
+        "/api/v1/users/me/devices/:deviceId/login": {
             "put": {
                 "description": "Ruta za ulogovanje korisnika.",
                 "responses": {
                     "200": {
-                        "description": "Object with user information.",
+                        "description": "JSON objekat sa podacima o korisniku.",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/User"
@@ -159,14 +159,29 @@
                 "description": "Ruta za logout korisnika.",
                 "responses": {
                     "200": {
-                        "description": "Successful logout."
+                        "description": "Uspesno izlogovan."
                     }
                 }
             }
         },
         "/api/v1/users/:userId": {
             "get": {
-                "description": "Ruta za izvlacenje podataka o korisniku.",
+                "description": "Ruta za izvlacenje podataka o korisniku. Bice omoguceno da se doda query parametar 'fields' i da se navedu polja koja korisnik API-ja zeli da izvuce.",
+                "responses": {
+                    "200": {
+                        "description": "OK.",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/User"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/:userId/profile": {
+            "get": {
+                "description": "Modifikacija prethodne rute, izvlacenje samo onih polja koja su neophodna za iscitavanje na profilu. Predstavlja samo brzi nacin.",
                 "responses": {
                     "200": {
                         "description": "OK.",
@@ -199,7 +214,7 @@
             "type": "object",
             "properties": {
                 "user_id": {
-                    "type": "integer"
+                    "type": "integer",
                 },
                 "email": {
                     "type": "integer"

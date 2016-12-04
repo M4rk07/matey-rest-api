@@ -43,9 +43,9 @@ abstract class AbstractManagerRedis implements ModelManagerRedisInterface
     const SUBKEY_FB_TOKEN = "fb-token";
 
     const FIELD_NUM_OF_POSTS = "num_of_posts";
-    const FIELD_NUM_OF_GIVEN_RESPONSES = "num_of_responses";
+    const FIELD_NUM_OF_GIVEN_RESPONSES = "num_of_given_responses";
     const FIELD_NUM_OF_RECEIVED_APPROVES = "num_of_received_approves";
-    const FIELD_NUM_OF_APPROVES = "num_of_approves";
+    const FIELD_NUM_OF_APPROVES = "num_of_given_approves";
     const FIELD_NUM_OF_GIVEN_APPROVES = "num_of_given_approves";
     const FIELD_NUM_OF_FOLLOWING = "num_of_following";
     const FIELD_NUM_OF_FOLLOWERS = "num_of_followers";
@@ -53,7 +53,6 @@ abstract class AbstractManagerRedis implements ModelManagerRedisInterface
     const FIELD_NUM_OF_BEST_RESPONSES = "num_of_best_responses";
     const FIELD_NUM_OF_RECEIVED_RESPONSES = "num_of_received_responses";
     const FIELD_NUM_OF_PROFILE_CLICKS = "num_of_profile_clicks";
-    const FILED_NUM_OF_SHARES = "num_of_shares";
     const FIELD_SCORE = "score";
     const FIELD_TIME = "time";
 

@@ -29,14 +29,15 @@ SET GLOBAL time_zone = "+01:00";
 CREATE TABLE IF NOT EXISTS matey_user (
   user_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   email varchar(50) CHARACTER SET utf8 NOT NULL,
-  verified tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
-  is_active tinyint(1) UNSIGNED NOT NULL DEFAULT 1,
+  verified boolean NOT NULL DEFAULT 0,
   first_name varchar(50) CHARACTER SET utf8 NOT NULL,
   last_name varchar(50) CHARACTER SET utf8 NOT NULL,
   full_name varchar(100) CHARACTER SET utf8 NOT NULL,
-  is_silhouette tinyint(1) NOT NULL DEFAULT 1,
-  first_login tinyint(1) NOT NULL DEFAULT 0,
+  is_silhouette boolean NOT NULL DEFAULT 1,
   date_registered TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  location varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  state varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  birthday DATE,
   PRIMARY KEY(user_id),
   UNIQUE KEY (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

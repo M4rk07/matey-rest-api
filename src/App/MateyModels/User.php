@@ -2,8 +2,16 @@
 
 namespace App\MateyModels;
 use App\Paths\Paths;
+use App\Validators\Name;
+use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Model\ModelInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints\DateTime;
+use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Created by PhpStorm.
@@ -13,14 +21,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class User extends AbstractModel
 {
-
-    protected $userId;
     protected $email;
     protected $firstName;
     protected $lastName;
     protected $fullName;
     protected $silhouette;
-    protected $firstLogin;
     protected $dateRegistered;
     protected $verified;
 
@@ -33,25 +38,7 @@ class User extends AbstractModel
     protected $numOfGivenResponses;
     protected $numOfReceivedResponses;
     protected $numOfBestResponses;
-    protected $numOfProfileClicks;
     protected $numOfShares;
-
-    /**
-     * @return mixed
-     */
-    public function getUserId()
-    {
-        return $this->userId;
-    }
-
-    /**
-     * @param mixed $userId
-     */
-    public function setUserId($userId)
-    {
-        $this->userId = (int)$userId;
-        return $this;
-    }
 
     /**
      * @return mixed
@@ -133,7 +120,7 @@ class User extends AbstractModel
             else if($size == 'veryLarge') $dimension = '720x720';
         }
         if($this->silhouette == 1) return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/profile_pictures/".$dimension."/silhouette.jpg";
-        return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/profile_pictures/".$dimension."/".$this->userId.".jpg";
+        return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/profile_pictures/".$dimension."/".$this->getId().".jpg";
     }
 
     /**
@@ -156,23 +143,6 @@ class User extends AbstractModel
     /**
      * @return mixed
      */
-    public function isFirstLogin()
-    {
-        return $this->firstLogin;
-    }
-
-    /**
-     * @param mixed $firstLogin
-     */
-    public function setFirstLogin($firstLogin)
-    {
-        $this->firstLogin = (bool)$firstLogin;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getDateRegistered()
     {
         return $this->dateRegistered;
@@ -183,7 +153,7 @@ class User extends AbstractModel
      */
     public function setDateRegistered($dateRegistered)
     {
-        $this->dateRegistered = $dateRegistered;
+        $this->dateRegistered = $this->createDateTimeFromString($dateRegistered);
         return $this;
     }
 
@@ -343,23 +313,6 @@ class User extends AbstractModel
     /**
      * @return mixed
      */
-    public function getNumOfProfileClicks()
-    {
-        return $this->numOfProfileClicks;
-    }
-
-    /**
-     * @param mixed $numOfProfileClicks
-     */
-    public function setNumOfProfileClicks($numOfProfileClicks)
-    {
-        $this->numOfProfileClicks = (int)$numOfProfileClicks;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getNumOfShares()
     {
         return $this->numOfShares;
@@ -377,32 +330,36 @@ class User extends AbstractModel
     public function setValuesFromArray($values)
     {
 
-        if(isset($values['user_id'])) {
-            $this->setId($values['user_id']);
-            $this->setUserId($values['user_id']);
-        }
+        if(isset($values['user_id'])) $this->setId($values['user_id']);
         if(isset($values['email'])) $this->setEmail($values['email']);
         if(isset($values['first_name'])) $this->setFirstName($values['first_name']);
         if(isset($values['last_name'])) $this->setLastName($values['last_name']);
         if(isset($values['full_name'])) $this->setFullName($values['full_name']);
-        if(isset($values['first_login'])) $this->setFirstLogin($values['first_login']);
         if(isset($values['is_silhouette'])) $this->setSilhouette($values['is_silhouette']);
         if(isset($values['verified'])) $this->setVerified($values['verified']);
         if(isset($values['date_registered'])) $this->setDateRegistered($values['date_registered']);
         if(isset($values['num_of_followers'])) $this->setNumOfFollowers($values['num_of_followers']);
         if(isset($values['num_of_following'])) $this->setNumOfFollowing($values['num_of_following']);
+        if(isset($values['num_of_posts'])) $this->setNumOfPosts($values['num_of_posts']);
+        if(isset($values['num_of_given_approves'])) $this->setNumOfGivenApproves($values['num_of_given_approves']);
+        if(isset($values['num_of_received_approves'])) $this->setNumOfReceivedApproves($values['num_of_received_approves']);
+        if(isset($values['num_of_given_responses'])) $this->setNumOfGivenResponses($values['num_of_given_responses']);
+        if(isset($values['num_of_received_responses'])) $this->setNumOfReceivedResponses($values['num_of_received_responses']);
+        if(isset($values['num_of_best_responses'])) $this->setNumOfBestResponses($values['num_of_best_responses']);
+        if(isset($values['num_of_shares'])) $this->setNumOfShares($values['num_of_shares']);
 
     }
 
     public function getMysqlValues () {
         $keyValues = array ();
 
-        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
+        empty($this->id) ? : $keyValues['user_id'] = $this->id;
         empty($this->email) ? : $keyValues['email'] = $this->email;
         empty($this->firstName) ? : $keyValues['first_name'] = $this->firstName;
         empty($this->lastName) ? : $keyValues['last_name'] = $this->lastName;
         empty($this->fullName) ? : $keyValues['full_name'] = $this->fullName;
         empty($this->silhouette) && $this->silhouette != false ? : $keyValues['is_silhouette'] = $this->silhouette;
+        empty($this->verified) ? : $keyValues['verified'] = $this->verified;
 
         return $keyValues;
     }
@@ -411,18 +368,24 @@ class User extends AbstractModel
     {
         $keyValues = array ();
 
-        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
+        empty($this->id) ? : $keyValues['user_id'] = $this->id;
         empty($this->email) ? : $keyValues['email'] = $this->email;
         empty($this->firstName) ? : $keyValues['first_name'] = $this->firstName;
         empty($this->lastName) ? : $keyValues['last_name'] = $this->lastName;
         empty($this->fullName) ? : $keyValues['full_name'] = $this->fullName;
         empty($this->verified) && $this->verified != false ? : $keyValues['verified'] = $this->verified;
-        empty($this->firstLogin) && $this->firstLogin != false ? : $keyValues['first_login'] = $this->firstLogin;
         //$keyValues['profile_picture'] = $this->getProfilePicture();
         $keyValues['picture_url'] = "https://tctechcrunch2011.files.wordpress.com/2010/10/pirate.jpg";
         $keyValues['cover_url'] = "http://vignette2.wikia.nocookie.net/angrybirds/images/c/cf/Heikki_wallpaper3_medium.jpg/revision/latest?cb=20120626123135";
         empty($this->numOfFollowers) && $this->numOfFollowers != 0 ? : $keyValues['num_of_followers'] = $this->numOfFollowers;
         empty($this->numOfFollowing) && $this->numOfFollowing != 0 ? : $keyValues['num_of_following'] = $this->numOfFollowing;
+        empty($this->numOfPosts) && $this->numOfPosts != 0 ? : $keyValues['num_of_posts'] = $this->numOfPosts;
+        empty($this->numOfGivenApproves) && $this->numOfGivenApproves != 0 ? : $keyValues['num_of_given_approves'] = $this->numOfGivenApproves;
+        empty($this->numOfReceivedApproves) && $this->numOfReceivedApproves != 0 ? : $keyValues['num_of_received_approves'] = $this->numOfReceivedApproves;
+        empty($this->numOfGivenResponses) && $this->numOfGivenResponses != 0 ? : $keyValues['num_of_given_responses'] = $this->numOfGivenResponses;
+        empty($this->numOfReceivedResponses) && $this->numOfReceivedResponses != 0 ? : $keyValues['num_of_received_responses'] = $this->numOfReceivedResponses;
+        empty($this->numOfBestResponses) && $this->numOfBestResponses != 0 ? : $keyValues['num_of_best_responses'] = $this->numOfBestResponses;
+        empty($this->numOfShares) && $this->numOfShares != 0 ? : $keyValues['num_of_shares'] = $this->numOfShares;
 
         return $keyValues;
     }

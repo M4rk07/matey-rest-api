@@ -79,28 +79,28 @@ abstract class AbstractAccountHandler implements AccountHandlerInterface
     }
 
     public function storeUserData(User $user) {
+
         $errors = $this->validator->validate($user->getFirstName(), [
             new NotBlank(),
             new Name()
         ]);
-        if (count($errors) > 0) {
-            throw new InvalidRequestException([
-                'error_description' => 'The request includes an invalid parameter value.',
-            ]);
-        }
-        $errors = $this->validator->validate($user->getLastName(), [
-            new NotBlank(),
-            new Name()
-        ]);
+
         if (count($errors) > 0) {
             throw new InvalidRequestException([
                 'error_description' => 'The request includes an invalid parameter value.',
             ]);
         }
 
-        $user->setFullName(
-            $user->getFirstName()." ".$user->getLastName()
-        );
+        $errors = $this->validator->validate($user->getLastName(), [
+            new NotBlank(),
+            new Name()
+        ]);
+
+        if (count($errors) > 0) {
+            throw new InvalidRequestException([
+                'error_description' => 'The request includes an invalid parameter value.',
+            ]);
+        }
 
         $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
         $userManagerRedis = $this->modelManagerFactory->getModelManager('user', 'redis');

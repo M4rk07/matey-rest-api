@@ -31,11 +31,11 @@ class StandardAccountHandler extends AbstractAccountHandler
         if($user) {
             $facebookInfoManager = $this->modelManagerFactory->getModelManager('facebookInfo', 'mysql');
             $facebookInfo = $facebookInfoManager->readModelOneBy(array(
-                'user_id' => $user->getUserId()
+                'user_id' => $user->getId()
             ));
             $oauth2UserManager = $this->modelManagerFactory->getModelManager('oauth2User', 'mysql');
             $oauth2User = $oauth2UserManager->readModelOneBy(array(
-                'user_id' => $user->getUserId()
+                'user_id' => $user->getId()
             ));
 
             if($facebookInfo && !$oauth2User) throw new AlreadyRegisteredException(true, [
@@ -49,7 +49,6 @@ class StandardAccountHandler extends AbstractAccountHandler
         $password = $request->request->get('password');
         $firstName = $request->request->get('first_name');
         $lastName = $request->request->get('last_name');
-
 
         $salt = (new SaltGenerator())->generateSalt();
         $encodedPassword = $this->encodePassword($password, $salt);
@@ -67,7 +66,7 @@ class StandardAccountHandler extends AbstractAccountHandler
             ->setFirstName($firstName)
             ->setLastName($lastName)
             ->setFullName($firstName." ".$lastName)
-            ->setSilhouette(1);
+            ->setSilhouette(true);
 
         $oauth2User->setUsername($email)
             ->setPassword($encodedPassword)
@@ -76,7 +75,7 @@ class StandardAccountHandler extends AbstractAccountHandler
         $userManager->startTransaction();
         try {
             $user = $this->storeUserData($user);
-            $oauth2User->setUserId($user->getId());
+            $oauth2User->setId($user->getId());
             $oauth2UserManager->createModel($oauth2User);
 
             $userManager->commitTransaction();
@@ -104,7 +103,7 @@ class StandardAccountHandler extends AbstractAccountHandler
         $oauth2UserClass = $oauth2UserManager->getClassName();
         $oauth2User = new $oauth2UserClass();
 
-        $oauth2User->setUserId($user->getUserId())
+        $oauth2User->setId($user->getId())
             ->setUsername($user->getEmail())
             ->setPassword($encodedPassword)
             ->setSalt($salt);

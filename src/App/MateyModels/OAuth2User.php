@@ -16,28 +16,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class OAuth2User extends \App\MateyModels\AbstractModel implements UserInterface
 {
 
-    protected $userId;
     protected $username;
     protected $password;
     protected $salt;
     protected $roles = array();
-
-    /**
-     * @return mixed
-     */
-    public function getUserId()
-    {
-        return $this->userId;
-    }
-
-    /**
-     * @param mixed $userId
-     */
-    public function setUserId($userId)
-    {
-        $this->userId = $userId;
-        return $this;
-    }
 
     /**
      * @return mixed
@@ -114,7 +96,7 @@ class OAuth2User extends \App\MateyModels\AbstractModel implements UserInterface
 
     public function setValuesFromArray($values)
     {
-        $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
+        $this->id = isset($values['user_id']) ? $values['user_id'] : "";
         $this->username = isset($values['username']) ? $values['username'] : "";
         $this->password = isset($values['password']) ? $values['password'] : "";
         $this->salt = isset($values['salt']) ? $values['salt'] : "";
@@ -124,7 +106,7 @@ class OAuth2User extends \App\MateyModels\AbstractModel implements UserInterface
     {
         $keyValues = array ();
 
-        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
+        empty($this->id) ? : $keyValues['user_id'] = $this->id;
         empty($this->username) ? : $keyValues['username'] = $this->username;
         empty($this->password) ? : $keyValues['password'] = $this->password;
         empty($this->salt) ? : $keyValues['salt'] = $this->salt;
@@ -136,7 +118,7 @@ class OAuth2User extends \App\MateyModels\AbstractModel implements UserInterface
     {
         $keyValues = array ();
 
-        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
+        empty($this->id) ? : $keyValues['user_id'] = $this->id;
         empty($this->username) ? : $keyValues['username'] = $this->username;
         empty($this->password) ? : $keyValues['password'] = $this->password;
         empty($this->salt) ? : $keyValues['salt'] = $this->salt;

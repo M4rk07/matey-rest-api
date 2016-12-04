@@ -14,7 +14,6 @@ use AuthBucket\OAuth2\Model\ModelInterface;
 class FacebookInfo extends AbstractModel
 {
 
-    protected $userId;
     protected $fbId;
     protected $fbToken;
 
@@ -71,7 +70,7 @@ class FacebookInfo extends AbstractModel
 
     public function setValuesFromArray($values)
     {
-        $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
+        $this->id = isset($values['user_id']) ? $values['user_id'] : "";
         $this->fbId = isset($values['fb_id']) ? $values['fb_id'] : "";
     }
 
@@ -79,7 +78,7 @@ class FacebookInfo extends AbstractModel
     {
         $keyValues = array ();
 
-        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
+        empty($this->id) ? : $keyValues['user_id'] = $this->userId;
         empty($this->fbId) ? : $keyValues['fb_id'] = $this->fbId;
 
         return $keyValues;
@@ -89,7 +88,7 @@ class FacebookInfo extends AbstractModel
     {
         $keyValues = array ();
 
-        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
+        empty($this->id) ? : $keyValues['user_id'] = $this->id;
         empty($this->fbId) ? : $keyValues['fb_id'] = $this->fbId;
 
         return $keyValues;

@@ -93,8 +93,8 @@ class RoutesLoader
 
         $this->app->post('/users/accounts', 'matey.account_controller:createAccountAction');
         $api->post('/users/me/accounts', 'matey.account_controller:mergeAccountAction');
-        $api->put('/users/me/devices/{deviceId}', 'matey.device_controller:loginOnDeviceAction');
-        $api->get('/users/{userId}', 'matey.user_controller:getUserAction');
+        $api->put('/users/me/devices/{deviceId}/login', 'matey.device_controller:loginOnDeviceAction');
+        $api->get('/users/{userId}/profile', 'matey.user_controller:getUserAction');
 
 
         //$this->app->post('/register/user', 'registration.controller:registerStandardUserAction');
