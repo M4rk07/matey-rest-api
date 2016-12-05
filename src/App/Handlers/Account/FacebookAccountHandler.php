@@ -49,15 +49,14 @@ class FacebookAccountHandler extends AbstractAccountHandler
         $email = $fbUser->getEmail();
         $user = $this->getAccountByEmail($email);
         if($user) {
-            $facebookInfoManager = $this->modelManagerFactory->getModelManager('facebookInfo', 'mysql');
+            $facebookInfoManager = $this->modelManagerFactory->getModelManager('facebookInfo');
             $facebookInfo = $facebookInfoManager->readModelOneBy(array(
                 'user_id' => $user->getId()
             ));
 
             if($facebookInfo) {
                 $facebookInfo->setFbToken($fbToken);
-                $facebookInfoManagerRedis = $this->modelManagerFactory->getModelManager('facebookInfo', 'redis');
-                $facebookInfoManagerRedis->pushFbAccessToken($facebookInfo);
+                $facebookInfoManager->pushFbAccessToken($facebookInfo);
                 return new JsonResponse(array(
                     "username" => $user->getEmail(),
                 ), 200);
@@ -74,9 +73,8 @@ class FacebookAccountHandler extends AbstractAccountHandler
         $isSilhouette = 0;
         if($profilePicture->isSilhouette()) $isSilhouette = 1;
 
-        $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
-        $facebookInfoManager = $this->modelManagerFactory->getModelManager('facebookInfo', 'mysql');
-        $facebookInfoManagerRedis = $this->modelManagerFactory->getModelManager('facebookInfo', 'redis');
+        $userManager = $this->modelManagerFactory->getModelManager('user');
+        $facebookInfoManager = $this->modelManagerFactory->getModelManager('facebookInfo');
 
         $userClass = $userManager->getClassName();
         $facebookInfoClass = $facebookInfoManager->getClassName();
@@ -103,7 +101,7 @@ class FacebookAccountHandler extends AbstractAccountHandler
 
             $facebookInfo->setId($user->getId());
             $facebookInfoManager->createModel($facebookInfo);
-            $facebookInfoManagerRedis->pushFbAccessToken($facebookInfo);
+            $facebookInfoManager->pushFbAccessToken($facebookInfo);
             /*
              * Store facebook image to cloud storage
              */
@@ -149,7 +147,6 @@ class FacebookAccountHandler extends AbstractAccountHandler
         $fbUser = $this->checkFacebookToken($fbToken, $fb, $app_id);
 
         $facebookInfoManager = $this->modelManagerFactory->getModelManager('facebookInfo', 'mysql');
-        $facebookInfoManagerRedis = $this->modelManagerFactory->getModelManager('facebookInfo', 'redis');
         $facebookInfoClass = $facebookInfoManager->getClassName();
         $facebookInfo= new $facebookInfoClass();
 
@@ -158,7 +155,7 @@ class FacebookAccountHandler extends AbstractAccountHandler
             ->setFbId($fbUser->getId());
 
         $facebookInfoManager->createModel($facebookInfo);
-        $facebookInfoManagerRedis->pushFbAccessToken($facebookInfo);
+        $facebookInfoManager->pushFbAccessToken($facebookInfo);
 
         return new JsonResponse(array(), 200);
 

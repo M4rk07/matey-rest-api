@@ -42,4 +42,17 @@ class UserController extends AbstractController
             ->follow($request, $id);
     }
 
+    public function getFollowersAction(Request $request, $userId) {
+        return $this->userHandlerFactory
+            ->getUserHandler('user')
+            ->getFollowers($request, $userId);
+    }
+
+    public function getFollowingAction(Request $request, $userId) {
+        return $this->userHandlerFactory
+            ->getUserHandler('user')
+            ->getFollowing($request, $userId);
+    }
+
+
 }

@@ -45,7 +45,6 @@ abstract class AbstractManagerRedis implements ModelManagerRedisInterface
     const FIELD_NUM_OF_POSTS = "num_of_posts";
     const FIELD_NUM_OF_GIVEN_RESPONSES = "num_of_given_responses";
     const FIELD_NUM_OF_RECEIVED_APPROVES = "num_of_received_approves";
-    const FIELD_NUM_OF_APPROVES = "num_of_given_approves";
     const FIELD_NUM_OF_GIVEN_APPROVES = "num_of_given_approves";
     const FIELD_NUM_OF_FOLLOWING = "num_of_following";
     const FIELD_NUM_OF_FOLLOWERS = "num_of_followers";

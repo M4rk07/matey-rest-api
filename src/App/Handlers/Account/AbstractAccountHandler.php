@@ -47,7 +47,7 @@ abstract class AbstractAccountHandler implements AccountHandlerInterface
             ]);
         }
 
-        $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
+        $userManager = $this->modelManagerFactory->getModelManager('user');
         $user = $userManager->readModelOneBy(array(
             'user_id' => $userId
         ));
@@ -70,7 +70,7 @@ abstract class AbstractAccountHandler implements AccountHandlerInterface
             ]);
         }
 
-        $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
+        $userManager = $this->modelManagerFactory->getModelManager('user');
         $user = $userManager->readModelOneBy(array(
             'email' => $email
         ));
@@ -102,11 +102,10 @@ abstract class AbstractAccountHandler implements AccountHandlerInterface
             ]);
         }
 
-        $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
-        $userManagerRedis = $this->modelManagerFactory->getModelManager('user', 'redis');
+        $userManager = $this->modelManagerFactory->getModelManager('user');
         $user = $userManager->createModel($user);
-        $userManagerRedis->initializeUserStatistics($user);
-        $userManagerRedis->initializeUserIdByEmail($user);
+        $userManager->initializeUserStatistics($user);
+        $userManager->initializeUserIdByEmail($user);
 
         return $user;
     }

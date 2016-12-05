@@ -24,58 +24,13 @@ class RoutesLoader
     public function __construct(Application $app)
     {
         $this->app = $app;
-        $this->instantiateControllers();
-
-    }
-
-    private function instantiateControllers()
-    {
-        $this->app['registration.controller'] = $this->app->share(function () {
-            return new RegistrationController($this->app['matey.service'], $this->app['redis.service'], $this->app['validator']);
-        });
-
-        $this->app['login.controller'] = $this->app->share(function () {
-            return new LoginController($this->app['matey.service'], $this->app['redis.service'], $this->app['validator']);
-        });
-
-        $this->app['follower.controller'] = $this->app->share(function () {
-            return new FollowerController($this->app['matey.service'], $this->app['redis.service'], $this->app['validator']);
-        });
-
-        $this->app['post.controller'] = $this->app->share(function () {
-            return new PostController($this->app['matey.service'], $this->app['redis.service'], $this->app['validator']);
-        });
-
-        $this->app['response.controller'] = $this->app->share(function () {
-            return new ResponseController($this->app['matey.service'], $this->app['redis.service'], $this->app['validator']);
-        });
-
-        $this->app['newsfeed.controller'] = $this->app->share(function () {
-            return new NewsFeedController($this->app['newsfeed.service'], $this->app['redis.service'], $this->app['validator']);
-        });
-
-        $this->app['interest.controller'] = $this->app->share(function () {
-            return new InterestController($this->app['interest.service'], $this->app['redis.service'], $this->app['validator']);
-        });
-
-        $this->app['search.controller'] = $this->app->share(function () {
-            return new SearchController($this->app['search.service'], $this->app['redis.service'], $this->app['validator']);
-        });
-
-        $this->app['user_profile.controller'] = $this->app->share(function () {
-            return new UserProfileController(new BaseService(), $this->app['redis.service'], $this->app['validator']);
-        });
-
-        $this->app['test.controller'] = $this->app->share(function () {
-            return new TestController($this->app['test.service'], $this->app['redis.service'], $this->app['validator']);
-        });
     }
 
     public function bindRoutesToControllers()
     {
         $api = $this->app["controllers_factory"];
 
-        // OAuth 2.0 ROUTES
+        // OAuth 2.0 controllers
         $this->app->get('/api/oauth2/authorize', 'authbucket_oauth2.oauth2_controller:authorizeAction')
             ->bind('api_oauth2_authorize');
 
@@ -86,16 +41,24 @@ class RoutesLoader
             ->bind('api_oauth2_debug');
         // -------------------------------------------------------------------------------------
 
-
+        // Matey API controllers
         $this->app->post('/devices', 'matey.device_controller:createDeviceAction');
         $this->app->put('/devices/{deviceId}', 'matey.device_controller:updateDeviceAction');
 
         $this->app->post('/users/accounts', 'matey.account_controller:createAccountAction');
-        $api->post('/users/me/accounts', 'matey.account_controller:mergeAccountAction');
+        $api->post('/users/me/accounts', 'matey.account_controller:createNewAccountAction');
+
         $api->put('/users/me/devices/{deviceId}/login', 'matey.device_controller:loginOnDeviceAction');
+        $api->delete('/users/me/devices/{deviceId}/login', 'matey.device_controller:logoutOfDeviceAction');
+
+        $api->get('/users/{userId}', 'matey.user_controller:getUserAction');
         $api->get('/users/{userId}/profile', 'matey.user_controller:getUserAction');
-        $api->post('/users/me/users/{id}/follow', 'matey.user_controller:followAction');
-        $api->delete('/users/me/users/{id}/follow', 'matey.user_controller:followAction');
+        $api->post('/users/me/users/{id}/follow', 'matey.user_controller:followAction'); // deprecated
+        $api->delete('/users/me/users/{id}/follow', 'matey.user_controller:followAction'); // deprecated
+        $api->post('/users/me/following/{id}', 'matey.user_controller:followAction');
+        $api->delete('/users/me/following/{id}', 'matey.user_controller:followAction');
+        $api->get('/users/{userId}/followers', 'matey.user_controller:getFollowersAction');
+        $api->get('/users/{userId}/following', 'matey.user_controller:getFollowingAction');
 
         $this->app->mount($this->app["api.endpoint"].'/'.$this->app["api.version"], $api);
     }

@@ -35,8 +35,8 @@ CREATE TABLE IF NOT EXISTS matey_user (
   full_name varchar(100) CHARACTER SET utf8 NOT NULL,
   is_silhouette boolean NOT NULL DEFAULT 1,
   date_registered TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  location varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  state varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  location varchar(100) CHARACTER SET utf8,
+  state varchar(100) CHARACTER SET utf8,
   birthday DATE,
   PRIMARY KEY(user_id),
   UNIQUE KEY (email)

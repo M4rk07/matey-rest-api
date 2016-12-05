@@ -25,5 +25,5 @@ interface ModelManagerFactoryInterface
      *
      * @throw ServerErrorException If supplied model not found.
      */
-    public function getModelManager($type, $managerType);
+    public function getModelManager($type);
 }

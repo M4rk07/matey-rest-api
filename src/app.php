@@ -107,10 +107,6 @@ $app['security.encoder.digest'] = $app->share(function ($app) {
     return new Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder();
 });
 
-//load services
-$servicesLoader = new ServicesLoader($app);
-$servicesLoader->bindServicesIntoContainer();
-
 //load routes
 $routesLoader = new RoutesLoader($app);
 $routesLoader->bindRoutesToControllers();

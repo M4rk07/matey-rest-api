@@ -14,12 +14,14 @@ use AuthBucket\OAuth2\Exception\ServerErrorException;
 use AuthBucket\OAuth2\Model\ModelInterface;
 use AuthBucket\OAuth2\Model\ModelManagerInterface;
 use Doctrine\DBAL\Connection;
+use Predis\Client;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 abstract class AbstractManager implements ModelManagerInterface
 {
     // Database connection holder
     protected $db;
+    protected $redis;
 
     // Database resource table names
     const T_USER = "matey_user";
@@ -48,9 +50,19 @@ abstract class AbstractManager implements ModelManagerInterface
     const T_A_AUTHORIZE = "oauth2_authorize";
     const T_A_SCOPES = "oauth2_scope";
 
-    public function __construct(Connection $db)
+    // REDIS KEYS
+    const KEY_APP = "APP";
+    const KEY_USER = "USER";
+    const KEY_POST = "POST";
+    const KEY_RESPONSE = "RESPONSE";
+    const KEY_INTEREST = "INTEREST";
+
+    const SUBKEY_STATISTICS = "statistics";
+
+    public function __construct(Connection $db, Client $redis = null)
     {
         $this->db = $db;
+        $this->redis = $redis;
     }
 
     public function startTransaction() {

@@ -34,7 +34,7 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
         $secretGenerator = new SecretGenerator();
         $deviceSecret = $secretGenerator->generateDeviceSecret();
 
-        $deviceManager = $this->modelManagerFactory->getModelManager('device', 'mysql');
+        $deviceManager = $this->modelManagerFactory->getModelManager('device');
         $deviceClass = $deviceManager->getClassName();
         $device = new $deviceClass();
 
@@ -74,7 +74,7 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
 
         if(!$device) throw new InvalidRequestException();
 
-        $loginManager = $this->modelManagerFactory->getModelManager('login', 'mysql');
+        $loginManager = $this->modelManagerFactory->getModelManager('login');
         $loginClass = $loginManager->getClassName();
         $login = new $loginClass();
 
@@ -97,7 +97,7 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
             ]);
         }
 
-        $deviceManager = $this->modelManagerFactory->getModelManager('device', 'mysql');
+        $deviceManager = $this->modelManagerFactory->getModelManager('device');
 
         $device = $deviceManager->readModelOneBy(array(
             'device_id' => $deviceId
@@ -125,7 +125,7 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
             ]);
         }
 
-        $deviceManager = $this->modelManagerFactory->getModelManager('device', 'mysql');
+        $deviceManager = $this->modelManagerFactory->getModelManager('device');
         $deviceClass = $deviceManager->getClassName();
         $device = new $deviceClass();
 

@@ -40,7 +40,7 @@ class UserHandler extends AbstractUserHandler
             }
         }
 
-        $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
+        $userManager = $this->modelManagerFactory->getModelManager('user');
 
         $user = $userManager->readModelOneBy(array(
             'user_id' => $id
@@ -48,8 +48,7 @@ class UserHandler extends AbstractUserHandler
 
         if(!$user) throw new ResourceNotFoundException();
 
-        $userMangerRedis = $this->modelManagerFactory->getModelManager('user', 'redis');
-        $user = $userMangerRedis->getUserStatistics($user);
+        $user = $userManager->getUserStatistics($user);
 
         return new JsonResponse($user->getValuesAsArray(), 200);
     }
@@ -82,6 +81,91 @@ class UserHandler extends AbstractUserHandler
         else if ($method == "DELETE") $followManager->deleteModel($follow);
 
         return new JsonResponse(array(), 200);
+
+    }
+
+    public function getFollowers(Request $request, $id)
+    {
+
+        $userId = $request->request->get('user_id');
+
+        $errors = $this->validator->validate($id, [
+            new NotBlank(),
+            new UserId()
+        ]);
+        if (count($errors) > 0) {
+            throw new InvalidRequestException([
+                'error_description' => 'The request includes an invalid parameter value.',
+            ]);
+        }
+
+        $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
+        $users = $userManager->getFollowers($id);
+
+        $followers['users'] = array();
+
+        if(is_array($users)) {
+            foreach ($users as $user) {
+                $userVals = $user->getValuesAsArray();
+                $userVals ['is_following'] = $this->isFollowing($id, $user->getId());
+                $followers['users'][] = $userVals;
+            }
+        } else if($users) {
+            $userVals = $users->getValuesAsArray();
+            $userVals ['following'] = $this->isFollowing($id, $users->getId());
+            $followers['users'][] = $userVals;
+        }
+
+        return new JsonResponse($followers, 200);
+
+    }
+
+    public function getFollowing(Request $request, $id)
+    {
+
+        $userId = $request->request->get('user_id');
+
+        $errors = $this->validator->validate($id, [
+            new NotBlank(),
+            new UserId()
+        ]);
+        if (count($errors) > 0) {
+            throw new InvalidRequestException([
+                'error_description' => 'The request includes an invalid parameter value.',
+            ]);
+        }
+
+        $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
+        $users = $userManager->getFollowing($id);
+
+        $followers['users'] = array();
+
+        if(is_array($users)) {
+            foreach ($users as $user) {
+                $userVals = $user->getValuesAsArray();
+                $userVals ['is_following'] = $this->isFollowing($id, $user->getId());
+                $followers['users'][] = $userVals;
+            }
+        } else if($users) {
+            $userVals = $users->getValuesAsArray();
+            $userVals ['following'] = $this->isFollowing($id, $users->getId());
+            $followers['users'][] = $userVals;
+        }
+
+        return new JsonResponse($followers, 200);
+
+    }
+
+    public function isFollowing($userId, $followingId) {
+
+        $followManager = $this->modelManagerFactory->getModelManager('follow', 'mysql');
+        $follow = $followManager->readModelOneBy(array(
+            'from_user' => $userId,
+            'to_user' => $followingId
+        ));
+
+        if($follow) return true;
+        return false;
 
     }
 

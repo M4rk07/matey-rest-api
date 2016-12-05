@@ -16,7 +16,6 @@ abstract class AbstractModel implements ModelInterface
 
     protected $id;
     protected $dateFormat = 'Y-m-d H:i:s';
-    protected $validator;
 
     public function getId(){
         return $this->id;

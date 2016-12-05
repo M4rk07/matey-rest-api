@@ -53,8 +53,8 @@ class StandardAccountHandler extends AbstractAccountHandler
         $salt = (new SaltGenerator())->generateSalt();
         $encodedPassword = $this->encodePassword($password, $salt);
 
-        $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
-        $oauth2UserManager = $this->modelManagerFactory->getModelManager('oauth2User', 'mysql');
+        $userManager = $this->modelManagerFactory->getModelManager('user');
+        $oauth2UserManager = $this->modelManagerFactory->getModelManager('oauth2User');
 
         $userClass = $userManager->getClassName();
         $oauth2UserClass = $oauth2UserManager->getClassName();

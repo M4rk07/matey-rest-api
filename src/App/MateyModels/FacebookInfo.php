@@ -20,23 +20,6 @@ class FacebookInfo extends AbstractModel
     /**
      * @return mixed
      */
-    public function getUserId()
-    {
-        return $this->userId;
-    }
-
-    /**
-     * @param mixed $userId
-     */
-    public function setUserId($userId)
-    {
-        $this->userId = $userId;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getFbId()
     {
         return $this->fbId;
@@ -78,7 +61,7 @@ class FacebookInfo extends AbstractModel
     {
         $keyValues = array ();
 
-        empty($this->id) ? : $keyValues['user_id'] = $this->userId;
+        empty($this->id) ? : $keyValues['user_id'] = $this->id;
         empty($this->fbId) ? : $keyValues['fb_id'] = $this->fbId;
 
         return $keyValues;

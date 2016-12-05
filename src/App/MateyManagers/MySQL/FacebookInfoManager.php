@@ -9,8 +9,11 @@
 namespace App\MateyModels;
 
 
+use AuthBucket\OAuth2\Model\ModelInterface;
+
 class FacebookInfoManager extends AbstractManager
 {
+    const SUBKEY_FB_TOKEN = "fb-token";
 
     /**
      * @return mixed
@@ -22,6 +25,11 @@ class FacebookInfoManager extends AbstractManager
 
     public function getTableName() {
         return self::T_FACEBOOK_INFO;
+    }
+
+    public function pushFbAccessToken(ModelInterface $facebookInfo) {
+        $this->redis->set(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$facebookInfo->getId(), $facebookInfo->getFbToken());
+        $this->redis->expire(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$facebookInfo->getId(), 3600);
     }
 
 }

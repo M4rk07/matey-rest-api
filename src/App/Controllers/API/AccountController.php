@@ -41,7 +41,7 @@ class AccountController extends AbstractController
 
     }
 
-    public function mergeAccountAction(Request $request) {
+    public function createNewAccountAction(Request $request) {
 
         $accountType = $request->request->get('type');
         $accountType = !empty($accountType) ? : "standard";

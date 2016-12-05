@@ -2,11 +2,13 @@
 
 namespace App\Provider;
 use App\Controllers\API\AccountController;
+use App\Controllers\API\ConnectionController;
 use App\Controllers\API\DeviceController;
 use App\Controllers\API\ProfileController;
 use App\Controllers\API\UserController;
 use App\Controllers\RegistrationController;
 use App\Handlers\Account\AccountHandlerFactory;
+use App\Handlers\Connections\ConnectionHandlerFactory;
 use App\Handlers\Device\DeviceHandlerFactory;
 use App\Handlers\MateyUser\UserHandlerFactory;
 use App\Handlers\MergeAccount\MergeAccountHandlerFactory;
@@ -54,6 +56,8 @@ class MateyServiceProvider implements ServiceProviderInterface
             );
         });
 
+                    // HANDLERS //
+
         $app['matey.handlers.account'] = [
             'standard' => 'App\\Handlers\\Account\\StandardAccountHandler',
             'facebook' => 'App\\Handlers\\Account\\FacebookAccountHandler'
@@ -66,6 +70,8 @@ class MateyServiceProvider implements ServiceProviderInterface
         $app['matey.handlers.user'] = [
             'user' => 'App\\Handlers\\MateyUser\\UserHandler'
         ];
+
+                    // HANDLERS FACTORIES //
 
         $app['matey.account_handler.factory'] = $app->share(function($app) {
            return new AccountHandlerFactory(
@@ -90,6 +96,8 @@ class MateyServiceProvider implements ServiceProviderInterface
                 $app['matey.handlers.user']
             );
         });
+
+                    // CONTROLLERS //
 
         $app['matey.account_controller'] = $app->share(function () use ($app) {
             return new AccountController(

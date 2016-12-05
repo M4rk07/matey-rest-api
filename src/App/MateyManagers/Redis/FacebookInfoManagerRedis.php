@@ -15,6 +15,8 @@ use AuthBucket\OAuth2\Model\ModelInterface;
 class FacebookInfoManagerRedis extends AbstractManagerRedis
 {
 
+
+
     public function getKeyName()
     {
         return "FACEBOOK_INFO";

@@ -26,8 +26,8 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "JSON objekat sa podacima o kreiranom uredjaju.",
+                    "201": {
+                        "description": "Created.",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/Device"
@@ -37,10 +37,17 @@
                 }
             }
         },
-        "/devices/:deviceId": {
+        "/devices/{deviceId}": {
             "put": {
                 "description": "Ruta za update uredjaja.",
                 "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "description": "ID uredjaja koji treba da se update-uje.",
+                        "required": true,
+                        "type": "integer"
+                    },
                     {
                         "name": "gcm",
                         "in": "formData",
@@ -102,8 +109,8 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "Uspesna registracija."
+                    "201": {
+                        "description": "Created."
                     }
                 }
             }
@@ -135,18 +142,27 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "Uspesna registracija."
+                    "201": {
+                        "description": "Created."
                     }
                 }
             }
         },
-        "/api/v1/users/me/devices/:deviceId/login": {
+        "/api/v1/users/me/devices/{deviceId}/login": {
             "put": {
                 "description": "Ruta za ulogovanje korisnika.",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "description": "ID uredjaja na koji korisnik zeli da se uloguje.",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "JSON objekat sa podacima o korisniku.",
+                        "description": "Ok.",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/User"
@@ -157,19 +173,37 @@
             },
             "delete": {
                 "description": "Ruta za logout korisnika.",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "description": "ID uredjaja sa kojeg korisnik zeli da se izloguje.",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
                 "responses": {
-                    "200": {
-                        "description": "Uspesno izlogovan."
+                    "204": {
+                        "description": "Ok. No content."
                     }
                 }
             }
         },
-        "/api/v1/users/:userId": {
+        "/api/v1/users/{userId}": {
             "get": {
                 "description": "Ruta za izvlacenje podataka o korisniku. Bice omoguceno da se doda query parametar 'fields' i da se navedu polja koja korisnik API-ja zeli da izvuce.",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "ID korisnika za kojeg se zahtevaju svi podaci.",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK.",
+                        "description": "Ok.",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/User"
@@ -179,15 +213,146 @@
                 }
             }
         },
-        "/api/v1/users/:userId/profile": {
+        "/api/v1/users/{userId}/profile": {
             "get": {
                 "description": "Modifikacija prethodne rute, izvlacenje samo onih polja koja su neophodna za iscitavanje na profilu. Predstavlja samo brzi nacin.",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "ID korisnika za kojeg se zahtevaju profil podaci.",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK.",
+                        "description": "Ok.",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/User"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/me/users/following/{userId}": {
+            "post": {
+                "description": "Ruta da se zaprati trazeni korisnik.",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "ID korisnika kojeg korisnik zeli da zaprati.",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created.",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/User"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Ruta preko koje se trazeni korisnik izbacuje iz liste zapracenih.",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "ID korisnika kojeg korisnik zeli da izbaci iz zapracenih.",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "OK. No content.",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/User"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/{userId}/followers": {
+            "get": {
+                "description": "Ruta za izlistavanje pratioca.",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "ID korisnika za kojeg se trazi lista pratioca.",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Koliko korisnika da se posalje u odgovoru.",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Koliko rastojanje od prvog korisnika u listi.",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok.",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/Followers List"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/{userId}/following": {
+            "get": {
+                "description": "Ruta za izlistavanje zapracenih korisnika.",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "ID korisnika kojeg se trazi lista zapracenih.",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Koliko korisnika da se posalje u odgovoru.",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Koliko rastojanje od prvog korisnika u listi.",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok.",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/Followers List"
                             }
                         }
                     }
@@ -231,13 +396,19 @@
                 "verified": {
                     "type": "boolean"
                 },
-                "first_login": {
-                    "type": "boolean"
-                },
                 "picture_url": {
                     "type": "string"
                 },
                 "cover_url": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "birthday": {
                     "type": "string"
                 },
                 "num_of_followers": {
@@ -245,8 +416,78 @@
                 },
                 "num_of_following": {
                     "type": "integer"
+                },
+                "num_of_posts": {
+                    "type": "integer"
+                },
+                "num_of_given_approves": {
+                    "type": "integer"
+                },
+                "num_of_received_approves": {
+                    "type": "integer"
+                },
+                "num_of_given_responses": {
+                    "type": "integer"
+                },
+                "num_of_received_responses": {
+                    "type": "integer"
+                },
+                "num_of_best_responses": {
+                    "type": "integer"
+                },
+                "num_of_shares": {
+                    "type": "integer"
                 }
-            }
+            },
+
         },
+        "Followers List": {
+            "type": "object",
+            "properties": {
+                "_links": {
+                    "type": "object",
+                    "properties": {
+                        "next": {
+                            "type": "string"
+                        },
+                        "prev": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "user_id": {
+                                "type": "integer",
+                            },
+                            "first_name": {
+                                "type": "string"
+                            },
+                            "last_name": {
+                                "type": "string"
+                            },
+                            "full_name": {
+                                "type": "string"
+                            },
+                            "picture_url": {
+                                "type": "string"
+                            },
+                            "location": {
+                                "type": "string"
+                            },
+                            "state": {
+                                "type": "string"
+                            },
+                            "following": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            },
+        }
     }
 }
