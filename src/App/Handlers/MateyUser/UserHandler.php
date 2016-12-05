@@ -27,10 +27,6 @@ class UserHandler extends AbstractUserHandler
 
     public function getUser(Request $request, $id)
     {
-        $fields = $request->get('fields');
-        if(!empty($fields)) {
-            $fields = explode(",", $fields);
-        }
 
         if($id == "me") $id = $request->request->get('user_id');
         else {
@@ -96,6 +92,8 @@ class UserHandler extends AbstractUserHandler
         $limit = $request->get('limit');
         $offset = $request->get('offset');
 
+        if($id == "me") $id = $request->request->get('user_id');
+
         if(empty($limit)) $limit = 30;
         if(empty($offset) && $offset !== '0') $offset = 0;
 
@@ -126,7 +124,7 @@ class UserHandler extends AbstractUserHandler
             foreach ($users as $user) {
                 $response['data'][] = $this->addFollowUserToResponse($user, $userId);
             }
-        } else if($users) $response['data'][] = $this->addFollowUserToResponse($users, $userId);
+        } else if ($users) $response['data'][] = $this->addFollowUserToResponse($users, $userId);
 
         // GENERATING PAGINATION DETAILS
 

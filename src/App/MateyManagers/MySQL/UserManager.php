@@ -71,9 +71,7 @@ class UserManager extends AbstractManager
         WHERE m_follower.to_user = ? LIMIT ".$limit." OFFSET ".$offset,
             array($id));
 
-        $models = $this->makeObjects($all);
-
-        return is_array($models) ? reset($models) : $models;
+        return $this->makeObjects($all);
     }
 
     public function getFollowing($id, $limit, $offset) {
@@ -83,9 +81,7 @@ class UserManager extends AbstractManager
         WHERE m_follower.from_user = ? LIMIT ".$limit." OFFSET ".$offset,
             array($id));
 
-        $models = $this->makeObjects($all);
-
-        return is_array($models) ? reset($models) : $models;
+        return $this->makeObjects($all);
     }
 
     public function initializeUserStatistics(User $user) {
