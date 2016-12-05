@@ -95,7 +95,7 @@ class UserHandler extends AbstractUserHandler
         if($id == "me") $id = $request->request->get('user_id');
 
         if(empty($limit)) $limit = 30;
-        if(empty($offset) && $offset !== '0') $offset = 0;
+        if(empty($offset) && $offset !== '0') throw new InvalidRequestException();
 
         if( (!is_numeric($limit) || (int)$limit<1) ||
             (!is_numeric($offset) || (int)$offset<0) ) throw new InvalidRequestException();
