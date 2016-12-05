@@ -10,12 +10,15 @@ namespace App\Handlers\MateyUser;
 
 
 use App\MateyModels\Follow;
+use App\MateyModels\User;
 use App\Validators\UserId;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 class UserHandler extends AbstractUserHandler
 {
@@ -84,10 +87,35 @@ class UserHandler extends AbstractUserHandler
 
     }
 
-    public function getFollowers(Request $request, $id)
+    public function getConnections(Application $app, Request $request, $id, $type)
     {
 
         $userId = $request->request->get('user_id');
+        $limit = $request->get('limit');
+        $offset = $request->get('offset');
+
+        $errors = $this->validator->validate($limit, [
+            new NotBlank(),
+            new Type(array(
+                'type' => 'numeric'
+            ))
+        ]);
+        if (count($errors) > 0) {
+            throw new InvalidRequestException([
+                'error_description' => 'The request includes an invalid parameter value.',
+            ]);
+        }
+        $errors = $this->validator->validate($offset, [
+            new NotBlank(),
+            new Type(array(
+                'type' => 'numeric'
+            ))
+        ]);
+        if (count($errors) > 0) {
+            throw new InvalidRequestException([
+                'error_description' => 'The request includes an invalid parameter value.',
+            ]);
+        }
 
         $errors = $this->validator->validate($id, [
             new NotBlank(),
@@ -100,65 +128,43 @@ class UserHandler extends AbstractUserHandler
         }
 
         $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
-        $users = $userManager->getFollowers($id);
+        if($type == "followers") {
+            $users = $userManager->getFollowers($id, $limit, $offset);
+        } else $users = $userManager->getFollowing($id, $limit, $offset);
 
-        $followers['users'] = array();
+        $response['data'] = array();
 
         if(is_array($users)) {
             foreach ($users as $user) {
-                $userVals = $user->getValuesAsArray();
-                $userVals ['is_following'] = $this->isFollowing($id, $user->getId());
-                $followers['users'][] = $userVals;
+                $response['data'][] = $this->addFollowUserToResponse($user, $userId);
             }
         } else if($users) {
-            $userVals = $users->getValuesAsArray();
-            $userVals ['following'] = $this->isFollowing($id, $users->getId());
-            $followers['users'][] = $userVals;
+            $response['data'][] = $this->addFollowUserToResponse($users, $userId);
         }
 
-        return new JsonResponse($followers, 200);
+        $response['_links']['next'] =
+            $app['api.endpoint'].'/'.$app['api.version'].'/users/'.$id.'/'.$type.
+            '?limit='.$limit.'&offset='.((int)$offset+(int)$limit);
+        $response['_links']['prev'] =
+            $app['api.endpoint'].'/'.$app['api.version'].'/users/'.$id.'/'.$type.
+            '?limit='.$limit.'&offset='.((int)$offset-(int)$limit);
+
+        return new JsonResponse($response, 200);
 
     }
 
-    public function getFollowing(Request $request, $id)
-    {
-
-        $userId = $request->request->get('user_id');
-
-        $errors = $this->validator->validate($id, [
-            new NotBlank(),
-            new UserId()
-        ]);
-        if (count($errors) > 0) {
-            throw new InvalidRequestException([
-                'error_description' => 'The request includes an invalid parameter value.',
-            ]);
+    public function addFollowUserToResponse (User $user, $userId) {
+        $userVals = array();
+        if($user) {
+            $userVals = $user->getValuesAsArray();
+            $userVals ['following'] = $this->isFollowing($userId, $user->getId());
         }
-
-        $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
-        $users = $userManager->getFollowing($id);
-
-        $followers['users'] = array();
-
-        if(is_array($users)) {
-            foreach ($users as $user) {
-                $userVals = $user->getValuesAsArray();
-                $userVals ['is_following'] = $this->isFollowing($id, $user->getId());
-                $followers['users'][] = $userVals;
-            }
-        } else if($users) {
-            $userVals = $users->getValuesAsArray();
-            $userVals ['following'] = $this->isFollowing($id, $users->getId());
-            $followers['users'][] = $userVals;
-        }
-
-        return new JsonResponse($followers, 200);
-
+        return $userVals;
     }
 
     public function isFollowing($userId, $followingId) {
 
-        $followManager = $this->modelManagerFactory->getModelManager('follow', 'mysql');
+        $followManager = $this->modelManagerFactory->getModelManager('follow');
         $follow = $followManager->readModelOneBy(array(
             'from_user' => $userId,
             'to_user' => $followingId

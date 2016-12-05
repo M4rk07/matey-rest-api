@@ -1,6 +1,7 @@
 <?php
 namespace App\Handlers\MateyUser;
 use App\MateyModels\ModelManagerFactoryInterface;
+use Silex\Application;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**

@@ -13,6 +13,7 @@ use App\Controllers\AbstractController;
 use App\Handlers\MateyUser\UserHandlerFactoryInterface;
 use App\Handlers\Profile\ProfileHandlerFactoryInterface;
 use App\MateyModels\ModelManagerFactoryInterface;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -42,16 +43,16 @@ class UserController extends AbstractController
             ->follow($request, $id);
     }
 
-    public function getFollowersAction(Request $request, $userId) {
+    public function getFollowersAction(Application $app, Request $request, $userId) {
         return $this->userHandlerFactory
             ->getUserHandler('user')
-            ->getFollowers($request, $userId);
+            ->getConnections($app, $request, $userId, 'followers');
     }
 
-    public function getFollowingAction(Request $request, $userId) {
+    public function getFollowingAction(Application $app, Request $request, $userId) {
         return $this->userHandlerFactory
             ->getUserHandler('user')
-            ->getFollowing($request, $userId);
+            ->getConnections($app, $request, $userId, 'following');
     }
 
 

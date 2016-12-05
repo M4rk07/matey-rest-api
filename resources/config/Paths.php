@@ -1,5 +1,6 @@
 <?php
 namespace App\Paths;
+
 /**
  * Created by PhpStorm.
  * User: marko

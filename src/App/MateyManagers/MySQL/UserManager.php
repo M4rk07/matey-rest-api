@@ -64,11 +64,11 @@ class UserManager extends AbstractManager
         return is_array($models) ? reset($models) : $models;
     }
 
-    public function getFollowers($id) {
-        $all = $this->db->fetchAll("SELECT m_user.* 
+    public function getFollowers($id, $limit, $offset) {
+        $all = $this->db->fetchAll("SELECT m_user.user_id, m_user.first_name, m_user.last_name, m_user.full_name, m_user.location, m_user.state 
         FROM ".self::T_FOLLOWER." as m_follower 
         JOIN ".self::T_USER." as m_user ON (m_follower.from_user = m_user.user_id) 
-        WHERE m_follower.to_user = ?",
+        WHERE m_follower.to_user = ? LIMIT ".$limit." OFFSET ".$offset,
             array($id));
 
         $models = $this->makeObjects($all);
@@ -76,11 +76,11 @@ class UserManager extends AbstractManager
         return is_array($models) ? reset($models) : $models;
     }
 
-    public function getFollowing($id) {
-        $all = $this->db->fetchAll("SELECT m_user.* 
+    public function getFollowing($id, $limit, $offset) {
+        $all = $this->db->fetchAll("SELECT m_user.user_id, m_user.first_name, m_user.last_name, m_user.full_name, m_user.location, m_user.state 
         FROM ".self::T_FOLLOWER." as m_follower 
         JOIN ".self::T_USER." as m_user ON (m_follower.to_user = m_user.user_id) 
-        WHERE m_follower.from_user = ?",
+        WHERE m_follower.from_user = ? LIMIT ".$limit." OFFSET ".$offset,
             array($id));
 
         $models = $this->makeObjects($all);

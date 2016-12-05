@@ -2,19 +2,9 @@
 
 namespace App;
 
-use App\Controllers\FollowerController;
-use App\Controllers\InterestController;
-use App\Controllers\LoginController;
-use App\Controllers\NewsFeedController;
-use App\Controllers\PostController;
-use App\Controllers\RegistrationController;
-use App\Controllers\ResponseController;
-use App\Controllers\SearchController;
-use App\Controllers\TestController;
-use App\Controllers\UserProfileController;
+
 use App\Services\BaseService;
 use App\Services\Redis\UserRedisService;
-use App\Services\Redis\UserService;
 use Silex\Application;
 
 class RoutesLoader
