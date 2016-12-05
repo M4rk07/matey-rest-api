@@ -11,6 +11,8 @@ namespace App\Handlers\MateyUser;
 
 use App\MateyModels\Follow;
 use App\MateyModels\User;
+use App\Paths\Paths;
+use App\Validators\UnsignedInteger;
 use App\Validators\UserId;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use Silex\Application;
@@ -94,28 +96,14 @@ class UserHandler extends AbstractUserHandler
         $limit = $request->get('limit');
         $offset = $request->get('offset');
 
-        $errors = $this->validator->validate($limit, [
-            new NotBlank(),
-            new Type(array(
-                'type' => 'numeric'
-            ))
-        ]);
-        if (count($errors) > 0) {
-            throw new InvalidRequestException([
-                'error_description' => 'The request includes an invalid parameter value.',
-            ]);
-        }
-        $errors = $this->validator->validate($offset, [
-            new NotBlank(),
-            new Type(array(
-                'type' => 'numeric'
-            ))
-        ]);
-        if (count($errors) > 0) {
-            throw new InvalidRequestException([
-                'error_description' => 'The request includes an invalid parameter value.',
-            ]);
-        }
+        if(empty($limit)) $limit = 30;
+        if(empty($offset) && $offset !== '0') $offset = 0;
+
+        if( (!is_numeric($limit) || (int)$limit<1) ||
+            (!is_numeric($offset) || (int)$offset<0) ) throw new InvalidRequestException();
+
+        $limit = (int) $limit;
+        $offset = (int) $offset;
 
         $errors = $this->validator->validate($id, [
             new NotBlank(),
@@ -127,7 +115,7 @@ class UserHandler extends AbstractUserHandler
             ]);
         }
 
-        $userManager = $this->modelManagerFactory->getModelManager('user', 'mysql');
+        $userManager = $this->modelManagerFactory->getModelManager('user');
         if($type == "followers") {
             $users = $userManager->getFollowers($id, $limit, $offset);
         } else $users = $userManager->getFollowing($id, $limit, $offset);
@@ -138,16 +126,23 @@ class UserHandler extends AbstractUserHandler
             foreach ($users as $user) {
                 $response['data'][] = $this->addFollowUserToResponse($user, $userId);
             }
-        } else if($users) {
-            $response['data'][] = $this->addFollowUserToResponse($users, $userId);
-        }
+        } else if($users) $response['data'][] = $this->addFollowUserToResponse($users, $userId);
 
+        // GENERATING PAGINATION DETAILS
+
+        $response['size'] = count($response['data']);
+        $response['offset'] = $offset;
+        $response['limit'] = $limit;
+
+        $response['_links']['base'] = Paths::BASE_API_URL;
+        if($response['size'] == $response['limit'])
         $response['_links']['next'] =
             $app['api.endpoint'].'/'.$app['api.version'].'/users/'.$id.'/'.$type.
             '?limit='.$limit.'&offset='.((int)$offset+(int)$limit);
+        if($response['offset'] != 0)
         $response['_links']['prev'] =
             $app['api.endpoint'].'/'.$app['api.version'].'/users/'.$id.'/'.$type.
-            '?limit='.$limit.'&offset='.((int)$offset-(int)$limit);
+            '?limit='.$limit.'&offset='.( ((int)$offset-(int)$limit) < 0 ? 0 : ((int)$offset-(int)$limit) );
 
         return new JsonResponse($response, 200);
 
