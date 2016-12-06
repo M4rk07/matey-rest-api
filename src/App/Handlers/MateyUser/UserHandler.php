@@ -71,7 +71,7 @@ class UserHandler extends AbstractUserHandler
 
         if($userId == $id) throw new InvalidRequestException();
 
-        $followManager = $this->modelManagerFactory->getModelManager('follow', 'mysql');
+        $followManager = $this->modelManagerFactory->getModelManager('follow');
         $follow = new Follow();
 
         $follow->setUserFrom($userId)
@@ -132,6 +132,8 @@ class UserHandler extends AbstractUserHandler
         }
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
+        $followManager = $this->modelManagerFactory->getModelManager('follow');
+
         if($type == "followers") {
             $users = $userManager->getFollowers($id, $limit, $offset);
         } else $users = $userManager->getFollowing($id, $limit, $offset);

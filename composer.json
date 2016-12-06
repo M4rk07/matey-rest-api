@@ -12,7 +12,7 @@
 		"email": "alessandro@arnodo.net"
 	}],
 	"require": {
-		"php": ">=5.5.12",
+		"php": ">=7.0.1",
 		"silex/silex": "~1.1",
 		"monolog/monolog": "~1.6",
 		"doctrine/dbal": "~2.4",

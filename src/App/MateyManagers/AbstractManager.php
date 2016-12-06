@@ -135,7 +135,18 @@ abstract class AbstractManager implements ModelManagerInterface
         $whereStr = [];
         foreach($criteria as $key => $value) {
             $key = $this->makeColumnName($key);
-            $whereStr[] = $key . " LIKE :" . $key;
+
+            if(is_array($value)) {
+                $inString = $key . " IN (" . $key;
+                foreach($value as $keyy => $valuee) {
+                    $inString .= "?,";
+                }
+                $inString = rtrim($inString,',');
+                $inString .= ")";
+                $whereStr[] = $inString;
+            }
+
+            else $whereStr[] = $key . " LIKE :" . $key;
         }
         if ($whereStr) {
             $whereStr = implode(" AND ", $whereStr);
@@ -167,10 +178,17 @@ abstract class AbstractManager implements ModelManagerInterface
 
         $prepared = $this->db->prepare($sql);
 
+        $i = 1;
         // bind WHERE criteria values
         foreach($criteria as $key => $value) {
             $key = $this->makeColumnName($key);
-            $prepared->bindValue(':'.$key, $value);
+
+            if(is_array($value)) {
+                foreach($value as $keyy => $valuee) {
+                    $prepared->bindValue($i++, $valuee);
+                }
+            }
+            else $prepared->bindValue(':'.$key, $value);
         }
 
         $prepared->execute();
