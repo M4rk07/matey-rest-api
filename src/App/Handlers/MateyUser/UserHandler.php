@@ -12,6 +12,7 @@ namespace App\Handlers\MateyUser;
 use App\MateyModels\Follow;
 use App\MateyModels\User;
 use App\Paths\Paths;
+use App\Validators\PositiveInteger;
 use App\Validators\UnsignedInteger;
 use App\Validators\UserId;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
@@ -91,17 +92,34 @@ class UserHandler extends AbstractUserHandler
         $userId = $request->request->get('user_id');
         $limit = $request->get('limit');
         $offset = $request->get('offset');
+        $me = false;
 
-        if($id == "me") $id = $request->request->get('user_id');
+        if($id == "me") {
+            $id = $userId;
+            $me = true;
+        }
 
         if(empty($limit)) $limit = 30;
-        if(empty($offset) && $offset !== '0') throw new InvalidRequestException();
 
-        if( (!is_numeric($limit) || (int)$limit<1) ||
-            (!is_numeric($offset) || (int)$offset<0) ) throw new InvalidRequestException();
+        $errors = $this->validator->validate($limit, [
+            new NotBlank(),
+            new UnsignedInteger()
+        ]);
+        if (count($errors) > 0) {
+            throw new InvalidRequestException([
+                'error_description' => 'The request includes an invalid parameter value.',
+            ]);
+        }
 
-        $limit = (int) $limit;
-        $offset = (int) $offset;
+        $errors = $this->validator->validate($offset, [
+            new NotBlank(),
+            new PositiveInteger()
+        ]);
+        if (count($errors) > 0) {
+            throw new InvalidRequestException([
+                'error_description' => 'The request includes an invalid parameter value.',
+            ]);
+        }
 
         $errors = $this->validator->validate($id, [
             new NotBlank(),
@@ -122,15 +140,15 @@ class UserHandler extends AbstractUserHandler
 
         if(is_array($users)) {
             foreach ($users as $user) {
-                $response['data'][] = $this->addFollowUserToResponse($user, $userId);
+                $response['data'][] = $this->addFollowUserToResponse($user, $userId, $me, $type);
             }
-        } else if ($users) $response['data'][] = $this->addFollowUserToResponse($users, $userId);
+        } else if ($users) $response['data'][] = $this->addFollowUserToResponse($users, $userId, $me, $type);
 
         // GENERATING PAGINATION DETAILS
 
         $response['size'] = count($response['data']);
-        $response['offset'] = $offset;
-        $response['limit'] = $limit;
+        $response['offset'] = (int)$offset;
+        $response['limit'] = (int)$limit;
 
         $response['_links']['base'] = Paths::BASE_API_URL;
         if($response['size'] == $response['limit'])
@@ -146,11 +164,11 @@ class UserHandler extends AbstractUserHandler
 
     }
 
-    public function addFollowUserToResponse (User $user, $userId) {
+    public function addFollowUserToResponse (User $user, $userId, $me, $type) {
         $userVals = array();
         if($user) {
             $userVals = $user->getValuesAsArray();
-            $userVals ['following'] = $this->isFollowing($userId, $user->getId());
+            $userVals ['following'] = $me && $type == 'following' ? true : $this->isFollowing($userId, $user->getId());
         }
         return $userVals;
     }

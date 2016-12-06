@@ -336,7 +336,7 @@
                         "name": "limit",
                         "in": "query",
                         "description": "Koliko korisnika da se posalje u odgovoru.",
-                        "required": true,
+                        "required": false,
                         "type": "integer"
                     },
                     {
@@ -444,17 +444,6 @@
         "Followers List": {
             "type": "object",
             "properties": {
-                "_links": {
-                    "type": "object",
-                    "properties": {
-                        "next": {
-                            "type": "string"
-                        },
-                        "prev": {
-                            "type": "string"
-                        }
-                    }
-                },
                 "data": {
                     "type": "array",
                     "items": {
@@ -486,6 +475,29 @@
                             }
                         }
                     }
+                },
+                "_links": {
+                    "type": "object",
+                    "properties": {
+                        "base": {
+                            "type": "string"
+                        },
+                        "next": {
+                            "type": "string"
+                        },
+                        "prev": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
                 }
             },
         }
