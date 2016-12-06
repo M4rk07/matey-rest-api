@@ -5,6 +5,7 @@ use App\Controllers\API\AccountController;
 use App\Controllers\API\ConnectionController;
 use App\Controllers\API\DeviceController;
 use App\Controllers\API\ProfileController;
+use App\Controllers\API\TestDataController;
 use App\Controllers\API\UserController;
 use App\Controllers\RegistrationController;
 use App\Handlers\Account\AccountHandlerFactory;
@@ -13,6 +14,7 @@ use App\Handlers\Device\DeviceHandlerFactory;
 use App\Handlers\MateyUser\UserHandlerFactory;
 use App\Handlers\MergeAccount\MergeAccountHandlerFactory;
 use App\Handlers\Profile\ProfileHandlerFactory;
+use App\Handlers\TestingData\TestingDataHandler;
 use App\MateyModels\ModelManagerFactory;
 use App\RoutesLoader;
 use App\ServicesLoader;
@@ -97,6 +99,14 @@ class MateyServiceProvider implements ServiceProviderInterface
             );
         });
 
+        $app['matey.testingdata_handler'] = $app->share(function($app) {
+            return new TestingDataHandler(
+                $app['validator'],
+                $app['matey.model_manager.factory'],
+                $app['db']
+            );
+        });
+
                     // CONTROLLERS //
 
         $app['matey.account_controller'] = $app->share(function () use ($app) {
@@ -120,6 +130,14 @@ class MateyServiceProvider implements ServiceProviderInterface
                 $app['validator'],
                 $app['matey.model_manager.factory'],
                 $app['matey.user_handler.factory']
+            );
+        });
+
+        $app['matey.testingdata_controller'] = $app->share(function () use ($app) {
+            return new \App\Controllers\TEST\TestDataController(
+                $app['validator'],
+                $app['matey.model_manager.factory'],
+                $app['matey.testingdata_handler']
             );
         });
 

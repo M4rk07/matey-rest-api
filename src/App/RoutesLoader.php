@@ -50,6 +50,8 @@ class RoutesLoader
         $api->get('/users/{userId}/followers', 'matey.user_controller:getFollowersAction');
         $api->get('/users/{userId}/following', 'matey.user_controller:getFollowingAction');
 
+        $this->app->get('/tests/data', 'matey.testingdata_controller:makeData');
+
         $this->app->mount($this->app["api.endpoint"].'/'.$this->app["api.version"], $api);
     }
 

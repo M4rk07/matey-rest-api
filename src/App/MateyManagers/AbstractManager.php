@@ -107,9 +107,9 @@ abstract class AbstractManager implements ModelManagerInterface
 
     }
 
-    public function readModelAll()
+    public function readModelAll($limit = null)
     {
-        $all = $this->db->fetchAll("SELECT * FROM " . $this->getTableName());
+        $all = $this->db->fetchAll("SELECT * FROM " . $this->getTableName() . ($limit == null ? : " LIMIT ".$limit));
         return $this->makeObjects($all);
     }
 
