@@ -110,6 +110,8 @@ class TestingDataHandler implements TestingDataHandlerInterface
             $oauth2User->setId($user->getId());
 
             $oauth2UserManager->createModel($oauth2User);
+            $userManager->initializeUserStatistics($user);
+            $userManager->initializeUserIdByEmail($user);
         }
 
     }
