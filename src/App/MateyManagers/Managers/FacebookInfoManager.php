@@ -27,6 +27,19 @@ class FacebookInfoManager extends AbstractManager
         return self::T_FACEBOOK_INFO;
     }
 
+    public function getKeyName()
+    {
+        return "FACEBOOK_INFO";
+    }
+
+    public function createModel(ModelInterface $model, $ignore = false)
+    {
+        $model = parent::createModel($model, $ignore);
+        $this->pushFbAccessToken($model);
+
+        return $model;
+    }
+
     public function pushFbAccessToken(ModelInterface $facebookInfo) {
         $this->redis->set(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$facebookInfo->getId(), $facebookInfo->getFbToken());
         $this->redis->expire(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$facebookInfo->getId(), 3600);

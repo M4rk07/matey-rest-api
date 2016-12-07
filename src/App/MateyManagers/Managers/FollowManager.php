@@ -3,17 +3,19 @@
  * Created by PhpStorm.
  * User: marko
  * Date: 3.11.16.
- * Time: 12.56
+ * Time: 15.00
  */
 
 namespace App\MateyModels;
 
 
-use App\MateyModels\Post;
+use App\Algos\ActivityWeights;
+use App\Algos\Timer;
+use App\MateyModels\Follow;
 use App\MateyModels\User;
 use App\Services\BaseService;
 
-class PostManager extends AbstractManager
+class FollowManager extends AbstractManager
 {
 
     /**
@@ -21,11 +23,15 @@ class PostManager extends AbstractManager
      */
     public function getClassName()
     {
-        return 'App\\MateyModels\\Post';
+        return 'App\\MateyModels\\Follow';
     }
 
     public function getTableName() {
-        return self::T_POST;
+        return self::T_FOLLOWER;
     }
 
+    public function getKeyName()
+    {
+        return "FOLLOW";
+    }
 }

@@ -134,9 +134,30 @@ class UserHandler extends AbstractUserHandler
         $userManager = $this->modelManagerFactory->getModelManager('user');
         $followManager = $this->modelManagerFactory->getModelManager('follow');
 
+        $connectionsArray = array();
+
         if($type == "followers") {
-            $users = $userManager->getFollowers($id, $limit, $offset);
-        } else $users = $userManager->getFollowing($id, $limit, $offset);
+            $followers = $followManager->readModelBy(array(
+                'to_user' => $id
+            ), null, $limit, $offset);
+            foreach($followers as $follower) {
+                $connectionsArray[] = $follower->getUserFrom();
+            }
+
+        } else {
+            $followers = $followManager->readModelBy(array(
+                'from_user' => $id
+            ), null, $limit, $offset);
+            foreach($followers as $follower) {
+                $connectionsArray[] = $follower->getUserTo();
+            }
+        }
+
+        $users = $userManager->readModelBy(array(
+            'user_id' => $connectionsArray
+        ), null, $limit, null, array(
+            'user_id', 'first_name', 'last_name', 'full_name', 'location', 'state'
+        ));
 
         $response['data'] = array();
 

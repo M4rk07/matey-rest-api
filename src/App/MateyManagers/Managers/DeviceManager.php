@@ -3,16 +3,16 @@
  * Created by PhpStorm.
  * User: marko
  * Date: 3.11.16.
- * Time: 15.00
+ * Time: 01.15
  */
 
 namespace App\MateyModels;
 
 
-use App\MateyModels\Login;
+use App\MateyModels\Device;
 use App\Services\BaseService;
 
-class LoginManager extends AbstractManager
+class DeviceManager extends AbstractManager
 {
 
     /**
@@ -20,11 +20,16 @@ class LoginManager extends AbstractManager
      */
     public function getClassName()
     {
-        return 'App\\MateyModels\\Login';
+        return 'App\\MateyModels\\Device';
     }
 
     public function getTableName() {
-        return self::T_LOGIN;
+        return self::T_DEVICE;
+    }
+
+    public function getKeyName()
+    {
+        return "DEVICE";
     }
 
 }

@@ -101,7 +101,6 @@ class FacebookAccountHandler extends AbstractAccountHandler
 
             $facebookInfo->setId($user->getId());
             $facebookInfoManager->createModel($facebookInfo);
-            $facebookInfoManager->pushFbAccessToken($facebookInfo);
             /*
              * Store facebook image to cloud storage
              */

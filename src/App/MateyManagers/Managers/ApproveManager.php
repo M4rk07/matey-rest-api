@@ -24,4 +24,9 @@ class ApproveManager extends AbstractManager
         return self::T_APPROVE;
     }
 
+    public function getKeyName()
+    {
+        return "APPROVE";
+    }
+
 }

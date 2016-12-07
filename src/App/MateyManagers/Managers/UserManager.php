@@ -9,6 +9,7 @@ use App\Services\BaseService;
 use App\Services\CloudStorageService;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
+use AuthBucket\OAuth2\Model\ModelInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -64,24 +65,14 @@ class UserManager extends AbstractManager
         return is_array($models) ? reset($models) : $models;
     }
 
-    public function getFollowers($id, $limit, $offset) {
-        $all = $this->db->fetchAll("SELECT m_user.user_id, m_user.first_name, m_user.last_name, m_user.full_name, m_user.location, m_user.state 
-        FROM ".self::T_FOLLOWER." as m_follower 
-        JOIN ".self::T_USER." as m_user ON (m_follower.from_user = m_user.user_id) 
-        WHERE m_follower.to_user = ? LIMIT ".$limit." OFFSET ".$offset,
-            array($id));
+    public function createModel(ModelInterface $model, $ignore = false)
+    {
+        $model = parent::createModel($model, $ignore);
 
-        return $this->makeObjects($all);
-    }
+        $this->initializeUserStatistics($model);
+        $this->initializeUserIdByEmail($model);
 
-    public function getFollowing($id, $limit, $offset) {
-        $all = $this->db->fetchAll("SELECT m_user.user_id, m_user.first_name, m_user.last_name, m_user.full_name, m_user.location, m_user.state 
-        FROM ".self::T_FOLLOWER." as m_follower 
-        JOIN ".self::T_USER." as m_user ON (m_follower.to_user = m_user.user_id) 
-        WHERE m_follower.from_user = ? LIMIT ".$limit." OFFSET ".$offset,
-            array($id));
-
-        return $this->makeObjects($all);
+        return $model;
     }
 
     public function initializeUserStatistics(User $user) {

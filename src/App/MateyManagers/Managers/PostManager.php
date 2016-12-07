@@ -3,16 +3,17 @@
  * Created by PhpStorm.
  * User: marko
  * Date: 3.11.16.
- * Time: 01.15
+ * Time: 12.56
  */
 
 namespace App\MateyModels;
 
 
-use App\MateyModels\Device;
+use App\MateyModels\Post;
+use App\MateyModels\User;
 use App\Services\BaseService;
 
-class DeviceManager extends AbstractManager
+class PostManager extends AbstractManager
 {
 
     /**
@@ -20,11 +21,16 @@ class DeviceManager extends AbstractManager
      */
     public function getClassName()
     {
-        return 'App\\MateyModels\\Device';
+        return 'App\\MateyModels\\Post';
     }
 
     public function getTableName() {
-        return self::T_DEVICE;
+        return self::T_POST;
+    }
+
+    public function getKeyName()
+    {
+        return "POST";
     }
 
 }

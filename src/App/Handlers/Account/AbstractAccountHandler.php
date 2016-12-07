@@ -104,8 +104,6 @@ abstract class AbstractAccountHandler implements AccountHandlerInterface
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
         $user = $userManager->createModel($user);
-        $userManager->initializeUserStatistics($user);
-        $userManager->initializeUserIdByEmail($user);
 
         return $user;
     }

@@ -3,17 +3,17 @@
  * Created by PhpStorm.
  * User: marko
  * Date: 3.11.16.
- * Time: 13.55
+ * Time: 13.13
  */
 
 namespace App\MateyModels;
 
 
-use App\MateyModels\Response;
+use App\MateyModels\Activity;
 use App\MateyModels\User;
 use App\Services\BaseService;
 
-class ResponseManager extends AbstractManager
+class ActivityManager extends AbstractManager
 {
 
     /**
@@ -21,11 +21,16 @@ class ResponseManager extends AbstractManager
      */
     public function getClassName()
     {
-        return 'App\\MateyModels\\Response';
+        return 'App\\MateyModels\\Activity';
     }
 
     public function getTableName() {
-        return self::T_RESPONSE;
+        return self::T_ACTIVITY;
+    }
+
+    public function getKeyName()
+    {
+        return "ACTIVITY";
     }
 
 }

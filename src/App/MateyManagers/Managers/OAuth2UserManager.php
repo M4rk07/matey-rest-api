@@ -29,6 +29,11 @@ class OAuth2UserManager extends AbstractManager implements UserProviderInterface
         return self::T_A_USER;
     }
 
+    public function getKeyName()
+    {
+        return "OAUTH2_USER";
+    }
+
     public function loadUserByUsername($username)
     {
         $models = $this->readModelOneBy(array(

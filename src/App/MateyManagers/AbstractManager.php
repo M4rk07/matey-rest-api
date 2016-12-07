@@ -137,15 +137,14 @@ abstract class AbstractManager implements ModelManagerInterface
             $key = $this->makeColumnName($key);
 
             if(is_array($value)) {
-                $inString = $key . " IN (" . $key;
-                foreach($value as $keyy => $valuee) {
+                $inString = $key . " IN (";
+                foreach($value as $valuee) {
                     $inString .= "?,";
                 }
                 $inString = rtrim($inString,',');
                 $inString .= ")";
                 $whereStr[] = $inString;
             }
-
             else $whereStr[] = $key . " LIKE :" . $key;
         }
         if ($whereStr) {
@@ -196,7 +195,7 @@ abstract class AbstractManager implements ModelManagerInterface
 
         $models = $this->makeObjects($all);
 
-        return is_array($models) ? reset($models) : $models;
+        return $models;
     }
 
     public function readModelOneBy(array $criteria, array $orderBy = null, array $fields = null)
@@ -257,13 +256,15 @@ abstract class AbstractManager implements ModelManagerInterface
     }
 
     // making objects form array
-    public function makeObjects(array $all)
+    public function makeObjects(array $result)
     {
-        $modelObjects = [];
-        foreach ($all as $modelArray) {
+        $modelObjects = array();
+
+        foreach ($result as $modelValues) {
             $className = $this->getClassName();
             $object = new $className();
-            $object->setValuesFromArray($modelArray);
+            $object->setValuesFromArray($modelValues);
+
             array_push($modelObjects, $object);
         }
 
