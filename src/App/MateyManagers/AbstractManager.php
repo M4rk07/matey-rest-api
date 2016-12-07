@@ -57,7 +57,6 @@ abstract class AbstractManager implements ModelManagerInterface
     const KEY_RESPONSE = "RESPONSE";
     const KEY_INTEREST = "INTEREST";
 
-    const SUBKEY_STATISTICS = "statistics";
 
     public function __construct(Connection $db, Client $redis = null)
     {

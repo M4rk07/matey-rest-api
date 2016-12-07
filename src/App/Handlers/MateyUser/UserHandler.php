@@ -50,8 +50,6 @@ class UserHandler extends AbstractUserHandler
 
         if(!$user) throw new ResourceNotFoundException();
 
-        $user = $userManager->getUserStatistics($user);
-
         return new JsonResponse($user->getValuesAsArray(), 200);
     }
 
@@ -163,9 +161,9 @@ class UserHandler extends AbstractUserHandler
 
         if(is_array($users)) {
             foreach ($users as $user) {
-                $response['data'][] = $this->addFollowUserToResponse($user, $userId, $me, $type);
+                $response['data'][] = $this->addConnectionUserToResponse($user, $userId, $me, $type);
             }
-        } else if ($users) $response['data'][] = $this->addFollowUserToResponse($users, $userId, $me, $type);
+        } else if ($users) $response['data'][] = $this->addConnectionUserToResponse($users, $userId, $me, $type);
 
         // GENERATING PAGINATION DETAILS
 
@@ -187,7 +185,7 @@ class UserHandler extends AbstractUserHandler
 
     }
 
-    public function addFollowUserToResponse (User $user, $userId, $me, $type) {
+    public function addConnectionUserToResponse (User $user, $userId, $me, $type) {
         $userVals = array();
         if($user) {
             $userVals = $user->getValuesAsArray();

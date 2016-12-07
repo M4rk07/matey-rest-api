@@ -116,6 +116,12 @@ class ResourceListener implements ListenerInterface
         $tokenAuthenticated = $this->authenticationManager->authenticate($token);
         $this->tokenStorage->setToken($tokenAuthenticated);
 
+        $user = $this->getTokenOwnerId($tokenAuthenticated);
+        $request->request->set("user_id", $user->getId());
+
+    }
+
+    public function getTokenOwnerId ($tokenAuthenticated) {
         /*
          * Checking username against token username
          */
@@ -123,10 +129,12 @@ class ResourceListener implements ListenerInterface
         /*
          * Fetching user id from redis storage
          */
-        $userManagerRedis = $this->modelManagerFactory->getModelManager('user', 'redis');
-        $user_id = $userManagerRedis->getUserIdByEmail($tokenUsername);
+        $userManager = $this->modelManagerFactory->getModelManager('user');
+        $user = $userManager->readModelOneBy(array(
+            'email' => $tokenUsername
+        ), null, array('user_id'));
 
-        $request->request->set("user_id", $user_id);
+        return $user;
 
     }
 
