@@ -12,16 +12,18 @@ use App\Paths\Paths;
 class CloudStorageUpload
 {
 
-    public $uploads;
+    private $uploads;
 
     public function __construct(array $uploads) {
         $this->uploads = $uploads;
     }
 
-    public function run() {
+    public function upload() {
         $client = new \Google_Client();
         $client->setScopes(\Google_Service_Storage::DEVSTORAGE_FULL_CONTROL);
         $client->useApplicationDefaultCredentials();
+
+
 
         $storage = new \Google_Service_Storage($client);
 
@@ -38,9 +40,8 @@ class CloudStorageUpload
             $storage->objects->insert(
                 Paths::BUCKET_MATEY,
                 $obj,
-                ['name' => $file_name, 'data' => $upload['file'], 'uploadType' => 'media', 'predefinedAcl' => 'publicRead']
+                ['name' => $file_name, 'data' => $upload['file'], 'uploadType' => 'multipart', 'predefinedAcl' => 'publicRead']
             );
-
 
         }
 

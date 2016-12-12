@@ -39,7 +39,7 @@ class RoutesLoader
         $api->post('/users/me/accounts', 'matey.account_controller:createNewAccountAction');
 
         $api->put('/users/me/devices/{deviceId}/login', 'matey.device_controller:loginOnDeviceAction');
-        $api->delete('/users/me/devices/{deviceId}/login', 'matey.device_controller:logoutOfDeviceAction');
+        $api->delete('/users/me/devices/{deviceId}/login', 'matey.device_controller:loginOnDeviceAction');
 
         $api->get('/users/{userId}', 'matey.user_controller:getUserAction');
         $api->get('/users/{userId}/profile', 'matey.user_controller:getUserAction');
@@ -49,6 +49,7 @@ class RoutesLoader
         $api->delete('/users/me/following/{id}', 'matey.user_controller:followAction');
         $api->get('/users/{userId}/followers', 'matey.user_controller:getFollowersAction');
         $api->get('/users/{userId}/following', 'matey.user_controller:getFollowingAction');
+        $api->post('/users/me/profiles/pictures', 'matey.file_controller:uploadProfilePictureAction');
 
         $this->app->get('/tests/data', 'matey.testingdata_controller:makeData');
 

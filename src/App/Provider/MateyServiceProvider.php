@@ -4,16 +4,20 @@ namespace App\Provider;
 use App\Controllers\API\AccountController;
 use App\Controllers\API\ConnectionController;
 use App\Controllers\API\DeviceController;
+use App\Controllers\API\FileController;
 use App\Controllers\API\ProfileController;
+use App\Controllers\API\ProfilePictureController;
 use App\Controllers\API\TestDataController;
 use App\Controllers\API\UserController;
 use App\Controllers\RegistrationController;
 use App\Handlers\Account\AccountHandlerFactory;
 use App\Handlers\Connections\ConnectionHandlerFactory;
 use App\Handlers\Device\DeviceHandlerFactory;
+use App\Handlers\File\FileHandlerFactory;
 use App\Handlers\MateyUser\UserHandlerFactory;
 use App\Handlers\MergeAccount\MergeAccountHandlerFactory;
 use App\Handlers\Profile\ProfileHandlerFactory;
+use App\Handlers\ProfilePicture\ProfilePictureHandler;
 use App\Handlers\TestingData\TestingDataHandler;
 use App\MateyModels\ModelManagerFactory;
 use App\RoutesLoader;
@@ -73,6 +77,10 @@ class MateyServiceProvider implements ServiceProviderInterface
             'user' => 'App\\Handlers\\MateyUser\\UserHandler'
         ];
 
+        $app['matey.handlers.file'] = [
+            'profile_picture' => 'App\\Handlers\\File\\ProfilePictureHandler'
+        ];
+
                     // HANDLERS FACTORIES //
 
         $app['matey.account_handler.factory'] = $app->share(function($app) {
@@ -96,6 +104,14 @@ class MateyServiceProvider implements ServiceProviderInterface
                 $app['validator'],
                 $app['matey.model_manager.factory'],
                 $app['matey.handlers.user']
+            );
+        });
+
+        $app['matey.file_handler.factory'] = $app->share(function($app) {
+            return new FileHandlerFactory(
+                $app['validator'],
+                $app['matey.model_manager.factory'],
+                $app['matey.handlers.file']
             );
         });
 
@@ -130,6 +146,14 @@ class MateyServiceProvider implements ServiceProviderInterface
                 $app['validator'],
                 $app['matey.model_manager.factory'],
                 $app['matey.user_handler.factory']
+            );
+        });
+
+        $app['matey.file_controller'] = $app->share(function () use ($app) {
+            return new FileController(
+                $app['validator'],
+                $app['matey.model_manager.factory'],
+                $app['matey.file_handler.factory']
             );
         });
 

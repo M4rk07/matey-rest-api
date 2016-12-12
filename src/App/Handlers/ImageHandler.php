@@ -43,7 +43,7 @@ class ImageHandler
         );
 
         $cloudStorage1 = new CloudStorageUpload($uploads);
-        $cloudStorage1->run();
+        $cloudStorage1->upload();
 
     }
 
