@@ -17,6 +17,7 @@ use AuthBucket\OAuth2\Exception\ServerErrorException;
 use AuthBucket\OAuth2\Validator\Constraints\Password;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -25,31 +26,52 @@ class StandardAccountHandler extends AbstractAccountHandler
 
     public function createAccount(Request $request)
     {
+        /*
+         * First, check if user is already registered
+         */
         $email = $request->request->get('email');
         $user = $this->getAccountByEmail($email);
 
-        if($user) {
+        /*
+         * If user haven't been found, variable will be empty array
+         */
+        if(!empty($user)) {
+            /*
+             * Fetch user facebook data
+             */
             $facebookInfoManager = $this->modelManagerFactory->getModelManager('facebookInfo', 'mysql');
             $facebookInfo = $facebookInfoManager->readModelOneBy(array(
                 'user_id' => $user->getId()
             ));
+            /*
+             * Fetch user oauth2 data
+             */
             $oauth2UserManager = $this->modelManagerFactory->getModelManager('oauth2User', 'mysql');
             $oauth2User = $oauth2UserManager->readModelOneBy(array(
                 'user_id' => $user->getId()
             ));
-
-            if($facebookInfo && !$oauth2User) throw new AlreadyRegisteredException(true, [
-                'email' => $user->getEmail(),
-                'error_description' => "Hey ".$user->getFirstName().", you are already with us! But we offer you to merge this account with existing account. Say OK and you're in!"
-            ]);
-
-            else throw new AlreadyRegisteredException();
+                /*
+                 * If there is facebook account only
+                 * offering merge
+                 */
+                if($facebookInfo && !$oauth2User) throw new AlreadyRegisteredException(true, [
+                    'email' => $user->getEmail(),
+                    'error_description' => "Hey ".$user->getFirstName().", you are already with us! But we offer you to merge this account with existing account. Say OK and you're in!"
+                ]);
+                /*
+                 * If there is both accounts,
+                 * than user is full registered already
+                 */
+                else throw new AlreadyRegisteredException();
         }
 
         $password = $request->request->get('password');
         $firstName = $request->request->get('first_name');
         $lastName = $request->request->get('last_name');
 
+        /*
+         * Prepare salt and encoded password for new user
+         */
         $salt = (new SaltGenerator())->generateSalt();
         $encodedPassword = $this->encodePassword($password, $salt);
 
@@ -72,6 +94,9 @@ class StandardAccountHandler extends AbstractAccountHandler
             ->setPassword($encodedPassword)
             ->setSalt($salt);
 
+        /*
+         * Insert data into the database
+         */
         $userManager->startTransaction();
         try {
             $user = $this->storeUserData($user);
@@ -84,16 +109,22 @@ class StandardAccountHandler extends AbstractAccountHandler
             throw new ServerErrorException();
         }
 
-        return new JsonResponse(array(), 200);
+        return new JsonResponse(null, 200);
     }
 
     public function mergeAccount(Request $request)
     {
+        /*
+         * Check if user is really registered
+         */
         $userId = $request->request->get('user_id');
         $user = $this->getAccountById($userId);
 
-        if(!$user) return new InvalidRequestException();
+        if(empty($user)) return new ResourceNotFoundException();
 
+        /*
+         * Prepare password and salt
+         */
         $password = $request->request->get('password');
 
         $salt = (new SaltGenerator())->generateSalt();
@@ -108,13 +139,17 @@ class StandardAccountHandler extends AbstractAccountHandler
             ->setPassword($encodedPassword)
             ->setSalt($salt);
 
+        /*
+         * Create oauth2 account credentials
+         */
         $oauth2UserManager->createModel($oauth2User);
 
-        return new JsonResponse(array(), 200);
+        return new JsonResponse(null, 200);
 
     }
 
     public function encodePassword($password, $salt) {
+
         $errors = $this->validator->validate($password, [
             new NotBlank(),
             new Password()

@@ -28,9 +28,4 @@ abstract class AbstractDeviceHandler implements DeviceHandlerInterface
         $this->modelManagerFactory = $modelManagerFactory;
     }
 
-    public function logoutOfDevice(Request $request)
-    {
-        // TODO: Implement logoutOfDevice() method.
-    }
-
 }

@@ -15,6 +15,7 @@ use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDeviceInterface
@@ -27,7 +28,7 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
         ]);
         if (count($errors) > 0) {
             throw new InvalidRequestException([
-                'error_description' => 'The request includes an invalid parameter value.',
+                'error_description' => $errors->get(0)->getMessage(),
             ]);
         }
 
@@ -41,6 +42,9 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
         $device->setDeviceSecret($deviceSecret)
             ->setGcm($gcm);
 
+        /*
+         * Creating new device
+         */
         $device = $deviceManager->createModel($device);
 
         return new JsonResponse($device->getValuesAsArray(), 200);
@@ -72,16 +76,30 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
 
         $device = $this->getGcmById($deviceId);
 
-        if(!$device) throw new InvalidRequestException();
+        if(empty($device)) throw new ResourceNotFoundException();
 
         $loginManager = $this->modelManagerFactory->getModelManager('login');
         $loginClass = $loginManager->getClassName();
         $login = new $loginClass();
 
-        $login->setUserId($userId)
-            ->setDeviceId($deviceId);
+            if($request->getMethod() == "PUT") {
 
-        $loginManager->createModel($login, true);
+                $login->setUserId($userId)
+                    ->setDeviceId($deviceId)
+                    ->setStatus(1);
+                $loginManager->createModel($login, true);
+
+            }
+
+            else if($request->getMethod() == "DELETE") {
+
+                $login->setStatus(0);
+                $loginManager->updateModel($login, array(
+                    'device_id' => $deviceId,
+                    'user_id' => $userId
+                ));
+
+            }
 
         return $app['matey.user_controller']->getUserAction($request, $userId);
     }

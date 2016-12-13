@@ -19,6 +19,4 @@ interface DeviceHandlerInterface
 
     public function loginOnDevice(Application $app, Request $request, $deviceId);
 
-    public function logoutOfDevice(Request $request);
-
 }

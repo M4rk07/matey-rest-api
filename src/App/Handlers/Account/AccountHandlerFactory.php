@@ -3,6 +3,7 @@
 namespace App\Handlers\Account;
 use App\Exception\UnsupportedRegistration;
 use App\MateyModels\ModelManagerFactoryInterface;
+use AuthBucket\OAuth2\Exception\ServerErrorException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -29,12 +30,12 @@ class AccountHandlerFactory implements AccountHandlerFactoryInterface
 
         foreach ($classes as $class) {
             if (!class_exists($class)) {
-                throw new UnsupportedRegistration();
+                throw new ServerErrorException();
             }
 
             $reflection = new \ReflectionClass($class);
             if (!$reflection->implementsInterface('App\\Handlers\\Account\\AccountHandlerInterface')) {
-                throw new UnsupportedRegistration();
+                throw new ServerErrorException();
             }
         }
 
@@ -46,7 +47,7 @@ class AccountHandlerFactory implements AccountHandlerFactoryInterface
         $type = $type ?: current(array_keys($this->classes));
 
         if (!isset($this->classes[$type]) || !class_exists($this->classes[$type])) {
-            throw new UnsupportedRegistration();
+            throw new ServerErrorException();
         }
 
         $class = $this->classes[$type];

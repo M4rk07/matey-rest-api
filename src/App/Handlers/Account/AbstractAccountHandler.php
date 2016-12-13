@@ -34,7 +34,7 @@ abstract class AbstractAccountHandler implements AccountHandlerInterface
         $this->modelManagerFactory = $modelManagerFactory;
     }
 
-    public function getAccountById($userId)
+    protected function getAccountById($userId)
     {
         $errors = $this->validator->validate($userId, [
             new NotBlank(),
@@ -55,7 +55,7 @@ abstract class AbstractAccountHandler implements AccountHandlerInterface
         return $user;
     }
 
-    public function getAccountByEmail($email)
+    protected function getAccountByEmail($email)
     {
         $email = trim($email, " \t\n\r\0\x0B");
 
@@ -78,7 +78,7 @@ abstract class AbstractAccountHandler implements AccountHandlerInterface
         return $user;
     }
 
-    public function storeUserData(User $user) {
+    protected function storeUserData(User $user) {
 
         $errors = $this->validator->validate($user->getFirstName(), [
             new NotBlank(),

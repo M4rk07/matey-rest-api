@@ -12,12 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 interface AccountHandlerInterface
 {
 
-    public function getAccountById($userId);
+    function createAccount(Request $request);
 
-    public function getAccountByEmail($email);
-
-    public function createAccount(Request $request);
-
-    public function mergeAccount(Request $request);
+    function mergeAccount(Request $request);
 
 }

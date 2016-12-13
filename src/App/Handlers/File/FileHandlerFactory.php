@@ -11,6 +11,7 @@ namespace App\Handlers\File;
 
 use App\Exception\UnsupportedRegistration;
 use App\MateyModels\ModelManagerFactoryInterface;
+use AuthBucket\OAuth2\Exception\ServerErrorException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class FileHandlerFactory implements FileHandlerFactoryInterface
@@ -30,12 +31,12 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
 
         foreach ($classes as $class) {
             if (!class_exists($class)) {
-                throw new UnsupportedRegistration();
+                throw new ServerErrorException();
             }
 
             $reflection = new \ReflectionClass($class);
             if (!$reflection->implementsInterface('App\\Handlers\\File\\FileHandlerInterface')) {
-                throw new UnsupportedRegistration();
+                throw new ServerErrorException();
             }
         }
 
@@ -47,7 +48,7 @@ class FileHandlerFactory implements FileHandlerFactoryInterface
         $type = $type ?: current(array_keys($this->classes));
 
         if (!isset($this->classes[$type]) || !class_exists($this->classes[$type])) {
-            throw new UnsupportedRegistration();
+            throw new ServerErrorException();
         }
 
         $class = $this->classes[$type];

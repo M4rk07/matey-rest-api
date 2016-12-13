@@ -17,6 +17,7 @@ use Facebook\Exceptions\FacebookSDKException;
 use Facebook\Facebook;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class FacebookAccountHandler extends AbstractAccountHandler
@@ -24,11 +25,17 @@ class FacebookAccountHandler extends AbstractAccountHandler
 
     public function createAccount(Request $request)
     {
+        /*
+         * Get facebook access token
+         */
         $fbToken = $request->request->get("access_token");
         $this->validator->validate($fbToken, [
             new NotBlank()
         ]);
 
+        /*
+         * Get facebook api client credentials
+         */
         $fbCredentials = file_get_contents(getenv("FACEBOOK_APPLICATION_CREDENTIALS"));
         $fbCredentials = json_decode($fbCredentials);
         $app_id = $fbCredentials->app_id;
@@ -41,6 +48,9 @@ class FacebookAccountHandler extends AbstractAccountHandler
             'http_client_handler' => 'stream'
         ]);
 
+        /*
+         * Check provided facebook token and fetch owner data
+         */
         $fbUser = $this->checkFacebookToken($fbToken, $fb, $app_id);
         if(empty($fbUser)) throw new InvalidRequestException([
             'error' => 'invalid_fb_token'
@@ -48,30 +58,41 @@ class FacebookAccountHandler extends AbstractAccountHandler
 
         $email = $fbUser->getEmail();
         $user = $this->getAccountByEmail($email);
-        if($user) {
+        if(!empty($user)) {
+            /*
+             * Fetch facebook data of user
+             */
             $facebookInfoManager = $this->modelManagerFactory->getModelManager('facebookInfo');
             $facebookInfo = $facebookInfoManager->readModelOneBy(array(
                 'user_id' => $user->getId()
             ));
 
-            if($facebookInfo) {
-                $facebookInfo->setFbToken($fbToken);
-                $facebookInfoManager->pushFbAccessToken($facebookInfo);
-                return new JsonResponse(array(
-                    "username" => $user->getEmail(),
-                ), 200);
-            }
+                /*
+                 * If already registered with facebook,
+                 * return username
+                 */
+                if($facebookInfo) {
+                    $facebookInfo->setFbToken($fbToken);
+                    $facebookInfoManager->pushFbAccessToken($facebookInfo);
+                    return new JsonResponse(array(
+                        "username" => $user->getEmail(),
+                    ), 200);
+                }
 
-            throw new AlreadyRegisteredException(true, [
-                'email' => $user->getEmail(),
-                'error_description' => "Hey ".$user->getFirstName().", you are already with us! But we offer you to merge this account with existing account. Say OK and you're in!"
-            ]);
+                /*
+                 * If there is no facebook account,
+                 * at this point it means there is oauth2 credentials provided earlier
+                 */
+                throw new AlreadyRegisteredException(true, [
+                    'email' => $user->getEmail(),
+                    'error_description' => "Hey ".$user->getFirstName().", you are already with us! But we offer you to merge this account with existing account. Say OK and you're in!"
+                ]);
         }
 
         $fbUser = $this->fetchFacebookData($fbToken, $fb);
         $profilePicture = $fbUser->getPicture();
-        $isSilhouette = 0;
-        if($profilePicture->isSilhouette()) $isSilhouette = 1;
+        $isSilhouette = false;
+        if($profilePicture->isSilhouette()) $isSilhouette = true;
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
         $facebookInfoManager = $this->modelManagerFactory->getModelManager('facebookInfo');
@@ -91,9 +112,8 @@ class FacebookAccountHandler extends AbstractAccountHandler
             ->setFbId($fbUser->getId());
 
         /*
-         * Starting transaction.
+         * Storing necessary data about facebook user.
          */
-
         $userManager->startTransaction();
         try {
             // creating new user
@@ -128,7 +148,7 @@ class FacebookAccountHandler extends AbstractAccountHandler
         $userId = $request->request->get('user_id');
         $user = $this->getAccountById($userId);
 
-        if(!$user) return new InvalidRequestException();
+        if(empty($user)) return new ResourceNotFoundException();
 
         $fbToken = $request->request->get("fb_token");
 
@@ -153,8 +173,10 @@ class FacebookAccountHandler extends AbstractAccountHandler
             ->setFbToken($fbToken)
             ->setFbId($fbUser->getId());
 
+        /*
+         * Create facebook info in database.
+         */
         $facebookInfoManager->createModel($facebookInfo);
-        $facebookInfoManager->pushFbAccessToken($facebookInfo);
 
         return new JsonResponse(array(), 200);
 
