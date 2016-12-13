@@ -41,8 +41,6 @@ class ProfilePictureHandler extends AbstractFileHandler
             ]);
         }
 
-        $file = tmpfile();
-        var_dump($file);
         $originalPicture = $picture->getRealPath();
 
             ob_start(); // start a new output buffer
@@ -77,10 +75,10 @@ class ProfilePictureHandler extends AbstractFileHandler
             ),
         );
 
-        //$cloudStorage = new CloudStorageUpload($uploads);
-        //$cloudStorage->upload();
+        $cloudStorage = new CloudStorageUpload($uploads);
+        $cloudStorage->upload();
 
-        return new JsonResponse(array(), 200);
+        return new JsonResponse(null, 200);
     }
 
     function resizeImage($file, $w, $h, $crop=FALSE) {

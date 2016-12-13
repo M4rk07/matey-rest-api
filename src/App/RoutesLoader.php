@@ -50,6 +50,7 @@ class RoutesLoader
         $api->get('/users/{userId}/followers', 'matey.user_controller:getFollowersAction');
         $api->get('/users/{userId}/following', 'matey.user_controller:getFollowingAction');
         $api->post('/users/me/profiles/pictures', 'matey.file_controller:uploadProfilePictureAction');
+        $api->post('/users/me/profiles/covers', 'matey.file_controller:uploadCoverPictureAction');
 
         $this->app->get('/tests/data', 'matey.testingdata_controller:makeData');
 

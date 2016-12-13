@@ -37,4 +37,10 @@ class FileController extends AbstractController
             ->upload($app, $request);
     }
 
+    public function uploadCoverPictureAction (Application $app, Request $request) {
+        return $this->fileHandler
+            ->getFileHandler('cover_picture')
+            ->upload($app, $request);
+    }
+
 }

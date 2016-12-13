@@ -14,6 +14,7 @@ use App\Handlers\Account\AccountHandlerFactory;
 use App\Handlers\Connections\ConnectionHandlerFactory;
 use App\Handlers\Device\DeviceHandlerFactory;
 use App\Handlers\File\FileHandlerFactory;
+use App\Handlers\Group\GroupHandlerFactory;
 use App\Handlers\MateyUser\UserHandlerFactory;
 use App\Handlers\MergeAccount\MergeAccountHandlerFactory;
 use App\Handlers\Profile\ProfileHandlerFactory;
@@ -51,7 +52,8 @@ class MateyServiceProvider implements ServiceProviderInterface
             'oauth2User' => 'App\\MateyModels\\OAuth2User',
             'device' => 'App\\MateyModels\\Device',
             'login' => 'App\\MateyModels\\Login',
-            'follow' => 'App\\MateyModels\\Follow'
+            'follow' => 'App\\MateyModels\\Follow',
+            'group' => 'App\\MateyModels\\Group'
         ];
 
         $app['matey.model_manager.factory'] = $app->share(function ($app) {
@@ -78,7 +80,12 @@ class MateyServiceProvider implements ServiceProviderInterface
         ];
 
         $app['matey.handlers.file'] = [
-            'profile_picture' => 'App\\Handlers\\File\\ProfilePictureHandler'
+            'profile_picture' => 'App\\Handlers\\File\\ProfilePictureHandler',
+            'cover_picture' => 'App\\Handlers\\File\\CoverPictureHandler'
+        ];
+
+        $app['matey.handlers.group'] = [
+            'standard' => 'App\\Handlers\\Group\\StandardGroupHandler'
         ];
 
                     // HANDLERS FACTORIES //
@@ -112,6 +119,14 @@ class MateyServiceProvider implements ServiceProviderInterface
                 $app['validator'],
                 $app['matey.model_manager.factory'],
                 $app['matey.handlers.file']
+            );
+        });
+
+        $app['matey.group_handler.factory'] = $app->share(function($app) {
+            return new GroupHandlerFactory(
+                $app['validator'],
+                $app['matey.model_manager.factory'],
+                $app['matey.handlers.group']
             );
         });
 

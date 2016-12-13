@@ -29,15 +29,16 @@ SET GLOBAL time_zone = "+01:00";
 CREATE TABLE IF NOT EXISTS matey_user (
   user_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   email varchar(50) CHARACTER SET utf8 NOT NULL,
-  verified boolean NOT NULL DEFAULT 0,
   first_name varchar(50) CHARACTER SET utf8 NOT NULL,
   last_name varchar(50) CHARACTER SET utf8 NOT NULL,
   full_name varchar(100) CHARACTER SET utf8 NOT NULL,
-  is_silhouette boolean NOT NULL DEFAULT 1,
-  date_registered TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  country varchar(100) CHARACTER SET utf8,
   location varchar(100) CHARACTER SET utf8,
-  state varchar(100) CHARACTER SET utf8,
   birthday DATE,
+  phone_number varchar(20) CHARACTER SET utf8,
+  is_silhouette boolean NOT NULL DEFAULT 1,
+  verified boolean NOT NULL DEFAULT 0,
+  date_registered TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY(user_id),
   UNIQUE KEY (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -53,19 +54,6 @@ CREATE TABLE IF NOT EXISTS matey_facebook_info (
   fb_id bigint(64) UNSIGNED NOT NULL,
   PRIMARY KEY(user_id),
   FOREIGN KEY(user_id) REFERENCES matey_user(user_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `matey_newsfeed`
---
-
-CREATE TABLE IF NOT EXISTS matey_newsfeed (
-  user_id int(11) UNSIGNED NOT NULL,
-  feed_name varchar(200) NOT NULL,
-  date_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (user_id, feed_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -94,7 +82,7 @@ CREATE TABLE IF NOT EXISTS matey_login (
   time_logged TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   status int(11) NOT NULL DEFAULT 1,
   gcm varchar(500) NOT NULL,
-  PRIMARY KEY (device_id),
+  PRIMARY KEY (user_id, device_id),
   FOREIGN KEY(user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY(device_id) REFERENCES matey_device(device_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -136,7 +124,7 @@ CREATE TABLE IF NOT EXISTS matey_post (
 -- Table structure for table `matey_share`
 --
 
-CREATE TABLE IF NOT EXISTS matey_share (
+CREATE TABLE IF NOT EXISTS matey_post_share (
   user_id int(11) UNSIGNED NOT NULL,
   post_id int(11) UNSIGNED NOT NULL,
   date_shared timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -303,9 +291,12 @@ CREATE TABLE IF NOT EXISTS matey_interest_depth_3 (
 
 CREATE TABLE IF NOT EXISTS matey_group (
   group_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id int(11) UNSIGNED NOT NULL,
   group_name varchar(500) NOT NULL,
   description varchar(5000),
-  PRIMARY KEY (group_id)
+  date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (group_id),
+  FOREIGN KEY (user_id) REFERENCES matey_user(user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------

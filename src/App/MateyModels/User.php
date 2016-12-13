@@ -28,8 +28,9 @@ class User extends AbstractModel
     protected $silhouette;
     protected $dateRegistered;
     protected $verified;
+    protected $phoneNumber;
     protected $location;
-    protected $state;
+    protected $country;
     protected $birthday;
 
     // STATISTICS
@@ -191,23 +192,39 @@ class User extends AbstractModel
     public function setLocation($location)
     {
         $this->location = $location;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCountry()
+    {
+        return $this->country;
+    }
+
+    /**
+     * @param mixed $country
+     */
+    public function setCountry($country)
+    {
+        $this->country = $country;
         return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getState()
+    public function getPhoneNumber()
     {
-        return $this->state;
+        return $this->phoneNumber;
     }
 
     /**
-     * @param mixed $state
+     * @param mixed $phoneNumber
      */
-    public function setState($state)
+    public function setPhoneNumber($phoneNumber)
     {
-        $this->state = $state;
+        $this->phoneNumber = $phoneNumber;
         return $this;
     }
 
@@ -393,8 +410,9 @@ class User extends AbstractModel
         if(isset($values['verified'])) $this->setVerified($values['verified']);
         if(isset($values['date_registered'])) $this->setDateRegistered($values['date_registered']);
         if(isset($values['location'])) $this->setLocation($values['location']);
-        if(isset($values['state'])) $this->setState($values['state']);
+        if(isset($values['country'])) $this->setCountry($values['country']);
         if(isset($values['birthday'])) $this->setBirthday($values['birthday']);
+        if(isset($values['phone_number'])) $this->setPhoneNumber($values['phone_number']);
         if(isset($values['num_of_followers'])) $this->setNumOfFollowers($values['num_of_followers']);
         if(isset($values['num_of_following'])) $this->setNumOfFollowing($values['num_of_following']);
         if(isset($values['num_of_posts'])) $this->setNumOfPosts($values['num_of_posts']);
@@ -418,8 +436,9 @@ class User extends AbstractModel
         empty($this->silhouette) && $this->silhouette != false ? : $keyValues['is_silhouette'] = $this->silhouette;
         empty($this->verified) ? : $keyValues['verified'] = $this->verified;
         empty($this->location) ? : $keyValues['location'] = $this->location;
-        empty($this->state) ? : $keyValues['state'] = $this->state;
+        empty($this->country) ? : $keyValues['country'] = $this->country;
         empty($this->birthday) ? : $keyValues['birthday'] = $this->birthday;
+        empty($this->phoneNumber) ? : $keyValues['phone_number'] = $this->phoneNumber;
 
         return $keyValues;
     }
@@ -435,11 +454,9 @@ class User extends AbstractModel
         empty($this->fullName) ? : $keyValues['full_name'] = $this->fullName;
         empty($this->verified) && $this->verified != false ? : $keyValues['verified'] = $this->verified;
         empty($this->location) ? : $keyValues['location'] = $this->location;
-        empty($this->state) ? : $keyValues['state'] = $this->state;
+        empty($this->country) ? : $keyValues['country'] = $this->country;
         empty($this->birthday) ? : $keyValues['birthday'] = $this->birthday;
-        //$keyValues['profile_picture'] = $this->getProfilePicture();
-        $keyValues['picture_url'] = "https://tctechcrunch2011.files.wordpress.com/2010/10/pirate.jpg";
-        $keyValues['cover_url'] = "http://vignette2.wikia.nocookie.net/angrybirds/images/c/cf/Heikki_wallpaper3_medium.jpg/revision/latest?cb=20120626123135";
+        empty($this->phoneNumber) ? : $keyValues['phone_number'] = $this->phoneNumber;
         empty($this->numOfFollowers) && $this->numOfFollowers !== 0 ? : $keyValues['num_of_followers'] = $this->numOfFollowers;
         empty($this->numOfFollowing) && $this->numOfFollowing !== 0 ? : $keyValues['num_of_following'] = $this->numOfFollowing;
         empty($this->numOfPosts) && $this->numOfPosts !== 0 ? : $keyValues['num_of_posts'] = $this->numOfPosts;
@@ -449,6 +466,9 @@ class User extends AbstractModel
         empty($this->numOfReceivedResponses) && $this->numOfReceivedResponses !== 0 ? : $keyValues['num_of_received_responses'] = $this->numOfReceivedResponses;
         empty($this->numOfBestResponses) && $this->numOfBestResponses !== 0 ? : $keyValues['num_of_best_responses'] = $this->numOfBestResponses;
         empty($this->numOfShares) && $this->numOfShares !== 0 ? : $keyValues['num_of_shares'] = $this->numOfShares;
+        //$keyValues['profile_picture'] = $this->getProfilePicture();
+        $keyValues['picture_url'] = "https://tctechcrunch2011.files.wordpress.com/2010/10/pirate.jpg";
+        $keyValues['cover_url'] = "http://vignette2.wikia.nocookie.net/angrybirds/images/c/cf/Heikki_wallpaper3_medium.jpg/revision/latest?cb=20120626123135";
 
         return $keyValues;
     }
