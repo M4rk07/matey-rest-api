@@ -11,6 +11,7 @@ namespace App\Handlers\Account;
 
 use App\Exception\AlreadyRegisteredException;
 use App\Security\SaltGenerator;
+use App\Validators\Name;
 use App\Validators\UserId;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
@@ -29,7 +30,7 @@ class StandardAccountHandler extends AbstractAccountHandler
         /*
          * First, check if user is already registered
          */
-        $email = $request->request->get('email');
+        $email = trim($request->request->get('email'));
         $user = $this->getAccountByEmail($email);
 
         /*
@@ -66,8 +67,30 @@ class StandardAccountHandler extends AbstractAccountHandler
         }
 
         $password = $request->request->get('password');
-        $firstName = $request->request->get('first_name');
-        $lastName = $request->request->get('last_name');
+        $firstName = trim($request->request->get('first_name'));
+        $lastName = trim($request->request->get('last_name'));
+
+        $errors = $this->validator->validate($firstName, [
+            new NotBlank(),
+            new Name()
+        ]);
+
+        if (count($errors) > 0) {
+            throw new InvalidRequestException([
+                'error_description' => $errors->get(0)->getMessage(),
+            ]);
+        }
+
+        $errors = $this->validator->validate($lastName, [
+            new NotBlank(),
+            new Name()
+        ]);
+
+        if (count($errors) > 0) {
+            throw new InvalidRequestException([
+                'error_description' => $errors->get(0)->getMessage(),
+            ]);
+        }
 
         /*
          * Prepare salt and encoded password for new user
@@ -157,7 +180,7 @@ class StandardAccountHandler extends AbstractAccountHandler
 
         if (count($errors) > 0) {
             throw new InvalidRequestException([
-                'error_description' => 'The request includes an invalid parameter value.',
+                'error_description' => $errors->get(0)->getMessage(),
             ]);
         }
 

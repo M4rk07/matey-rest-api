@@ -358,6 +358,26 @@
                     }
                 }
             }
+        },
+        "/api/v1/users/me/profiles/pictures": {
+            "post": {
+                "description": "Ruta za izlistavanje zapracenih korisnika.",
+                "parameters": [
+                    {
+                        "name": "picture",
+                        "in": "formData",
+                        "description": "Slika koja se uploaduje.",
+                        "required": true,
+                        "type": "string",
+                        "format": "binary"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok."
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -499,7 +519,7 @@
                 "offset": {
                     "type": "integer"
                 }
-            },
+            }
         }
     }
 }

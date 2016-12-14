@@ -19,7 +19,7 @@ class Name extends Regex
     {
         return parent::__construct(array_merge([
             'message' => 'This is not a valid first_name.',
-            'pattern' => '/^\D*$/',
+            'pattern' => '/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.\'-]+$/u',
         ], (array) $options));
     }
 }

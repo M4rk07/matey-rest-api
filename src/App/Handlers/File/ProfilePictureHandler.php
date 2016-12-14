@@ -75,8 +75,8 @@ class ProfilePictureHandler extends AbstractFileHandler
             ),
         );
 
-        $cloudStorage = new CloudStorageUpload($uploads);
-        $cloudStorage->upload();
+        //$cloudStorage = new CloudStorageUpload($uploads);
+        //$cloudStorage->upload();
 
         return new JsonResponse(null, 200);
     }
