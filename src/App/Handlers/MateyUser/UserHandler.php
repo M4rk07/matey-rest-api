@@ -70,15 +70,33 @@ class UserHandler extends AbstractUserHandler
         if($userId == $id) throw new InvalidRequestException();
 
         $followManager = $this->modelManagerFactory->getModelManager('follow');
-        $follow = new Follow();
+        $followClass = $followManager->getClassName();
+        $follow = new $followClass();
+
+        $userManager = $this->modelManagerFactory->getModelManager('user');
+        $userClass = $userManager->getClassName();
+
+        $userFrom = new $userClass();
+        $userTo = new $userClass();
+
+        $userFrom->setId($userId);
+        $userTo->setId($id);
 
         $follow->setUserFrom($userId)
             ->setUserTo($id);
 
         $method = $request->getMethod();
 
-        if($method == "POST") $followManager->createModel($follow);
-        else if ($method == "DELETE") $followManager->deleteModel($follow);
+        if($method == "POST") {
+            $followManager->createModel($follow);
+            $userManager->incrNumOfFollowers($userTo);
+            $userManager->incrNumOfFollowing($userFrom);
+        }
+        else if ($method == "DELETE") {
+            $followManager->deleteModel($follow);
+            $userManager->incrNumOfFollowers($userTo, -1);
+            $userManager->incrNumOfFollowing($userFrom, -1);
+        }
 
         return new JsonResponse(array(), 200);
 

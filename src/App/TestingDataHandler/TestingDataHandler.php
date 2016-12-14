@@ -14,6 +14,7 @@ use App\Security\SaltGenerator;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Validator\Constraints\Password;
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Client;
 use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -47,6 +48,13 @@ class TestingDataHandler implements TestingDataHandlerInterface
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
         $users = $userManager->readModelAll(10);
+        $userManager = $this->modelManagerFactory->getModelManager('user');
+        $userClass = $userManager->getClassName();
+
+        $userFrom = new $userClass();
+        $userTo = new $userClass();
+
+
 
         $followManager = $this->modelManagerFactory->getModelManager('follow');
         $followClassName = $followManager->getClassName();
@@ -65,7 +73,13 @@ class TestingDataHandler implements TestingDataHandlerInterface
                 $follow->setUserFrom($userId)
                     ->setUserTo($user->getId());
 
-                $followManager->createModel($follow);
+                try {
+                    $followManager->createModel($follow);
+
+                    $userFrom->setId($userId);
+                    $userManager->incrNumOfFollowers($user);
+                    $userManager->incrNumOfFollowing($userFrom);
+                } catch (\Exception $e) {}
                 $haveBeen[] = $userId;
 
             }
@@ -81,7 +95,13 @@ class TestingDataHandler implements TestingDataHandlerInterface
                 $follow->setUserFrom($user->getId())
                     ->setUserTo($userId);
 
-                $followManager->createModel($follow);
+                try {
+                    $followManager->createModel($follow);
+
+                    $userTo->setId($userId);
+                    $userManager->incrNumOfFollowers($userTo);
+                    $userManager->incrNumOfFollowing($user);
+                } catch (\Exception $e) {}
                 $haveBeen[] = $userId;
 
             }
@@ -110,8 +130,6 @@ class TestingDataHandler implements TestingDataHandlerInterface
             $oauth2User->setId($user->getId());
 
             $oauth2UserManager->createModel($oauth2User);
-            $userManager->initializeUserStatistics($user);
-            $userManager->initializeUserIdByEmail($user);
         }
 
     }

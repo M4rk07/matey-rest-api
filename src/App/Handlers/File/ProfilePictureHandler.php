@@ -23,7 +23,7 @@ class ProfilePictureHandler extends AbstractFileHandler
 
     public function upload (Application $app, Request $request)
     {
-        $user_id = $request->request->get('user_id');
+        $userId = $request->request->get('user_id');
         $picture = $request->files->get('picture');
 
         $errors = $this->validator->validate($picture, [
@@ -59,24 +59,34 @@ class ProfilePictureHandler extends AbstractFileHandler
         $uploads = array(
             array(
                 'file' => file_get_contents($originalPicture),
-                'name' => 'profile_pictures/originals/'.$user_id.'.jpg'
+                'name' => 'profile_pictures/originals/'.$userId.'.jpg'
             ),
             array(
                 'file' => $picture100x100,
-                'name' => 'profile_pictures/100x100/'.$user_id.'.jpg'
+                'name' => 'profile_pictures/100x100/'.$userId.'.jpg'
             ),
             array(
                 'file' => $picture200x200,
-                'name' => 'profile_pictures/200x200/'.$user_id.'.jpg'
+                'name' => 'profile_pictures/200x200/'.$userId.'.jpg'
             ),
             array(
                 'file' => $picture480x480,
-                'name' => 'profile_pictures/480x480/'.$user_id.'.jpg'
+                'name' => 'profile_pictures/480x480/'.$userId.'.jpg'
             ),
         );
 
-        //$cloudStorage = new CloudStorageUpload($uploads);
-        //$cloudStorage->upload();
+        $cloudStorage = new CloudStorageUpload($uploads);
+        $cloudStorage->upload();
+
+        $userManager = $this->modelManagerFactory->getModelManager('user');
+        $userClass = $userManager->getClassName();
+        $user = new $userClass();
+
+        $user->setSilhouette(0);
+
+        $userManager->updateModel($user, array(
+            'user_id' => $userId
+        ));
 
         return new JsonResponse(null, 200);
     }

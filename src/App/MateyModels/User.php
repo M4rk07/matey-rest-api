@@ -121,9 +121,9 @@ class User extends AbstractModel
         if($size != 'small' && in_array($size, array('medium', 'large', 'veryLarge'))) {
             if($size == 'medium') $dimension = '200x200';
             else if($size == 'large') $dimension = '480x480';
-            else if($size == 'veryLarge') $dimension = '720x720';
+            else if($size == 'original') $dimension = 'originals';
         }
-        if($this->silhouette == 1) return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/profile_pictures/".$dimension."/silhouette.jpg";
+        if($this->silhouette == 1) return "https://tctechcrunch2011.files.wordpress.com/2010/10/pirate.jpg";
         return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/profile_pictures/".$dimension."/".$this->getId().".jpg";
     }
 
@@ -140,7 +140,7 @@ class User extends AbstractModel
      */
     public function setSilhouette($silhouette)
     {
-        $this->silhouette = (bool)$silhouette;
+        $this->silhouette = (int)$silhouette;
         return $this;
     }
 
@@ -174,7 +174,7 @@ class User extends AbstractModel
      */
     public function setVerified($verified)
     {
-        $this->verified = (bool)$verified;
+        $this->verified = (int)$verified;
         return $this;
     }
 
@@ -433,7 +433,7 @@ class User extends AbstractModel
         empty($this->firstName) ? : $keyValues['first_name'] = $this->firstName;
         empty($this->lastName) ? : $keyValues['last_name'] = $this->lastName;
         empty($this->fullName) ? : $keyValues['full_name'] = $this->fullName;
-        empty($this->silhouette) && $this->silhouette != false ? : $keyValues['is_silhouette'] = $this->silhouette;
+        empty($this->silhouette) && $this->silhouette != 0 ? : $keyValues['is_silhouette'] = $this->silhouette;
         empty($this->verified) ? : $keyValues['verified'] = $this->verified;
         empty($this->location) ? : $keyValues['location'] = $this->location;
         empty($this->country) ? : $keyValues['country'] = $this->country;
@@ -452,22 +452,21 @@ class User extends AbstractModel
         empty($this->firstName) ? : $keyValues['first_name'] = $this->firstName;
         empty($this->lastName) ? : $keyValues['last_name'] = $this->lastName;
         empty($this->fullName) ? : $keyValues['full_name'] = $this->fullName;
-        empty($this->verified) && $this->verified != false ? : $keyValues['verified'] = $this->verified;
+        empty($this->verified) && $this->verified != 0 ? : $keyValues['verified'] = $this->verified;
         empty($this->location) ? : $keyValues['location'] = $this->location;
         empty($this->country) ? : $keyValues['country'] = $this->country;
         empty($this->birthday) ? : $keyValues['birthday'] = $this->birthday;
         empty($this->phoneNumber) ? : $keyValues['phone_number'] = $this->phoneNumber;
-        empty($this->numOfFollowers) && $this->numOfFollowers !== 0 ? : $keyValues['num_of_followers'] = $this->numOfFollowers;
-        empty($this->numOfFollowing) && $this->numOfFollowing !== 0 ? : $keyValues['num_of_following'] = $this->numOfFollowing;
-        empty($this->numOfPosts) && $this->numOfPosts !== 0 ? : $keyValues['num_of_posts'] = $this->numOfPosts;
-        empty($this->numOfGivenApproves) && $this->numOfGivenApproves !== 0 ? : $keyValues['num_of_given_approves'] = $this->numOfGivenApproves;
-        empty($this->numOfReceivedApproves) && $this->numOfReceivedApproves !== 0 ? : $keyValues['num_of_received_approves'] = $this->numOfReceivedApproves;
-        empty($this->numOfGivenResponses) && $this->numOfGivenResponses !== 0 ? : $keyValues['num_of_given_responses'] = $this->numOfGivenResponses;
-        empty($this->numOfReceivedResponses) && $this->numOfReceivedResponses !== 0 ? : $keyValues['num_of_received_responses'] = $this->numOfReceivedResponses;
-        empty($this->numOfBestResponses) && $this->numOfBestResponses !== 0 ? : $keyValues['num_of_best_responses'] = $this->numOfBestResponses;
-        empty($this->numOfShares) && $this->numOfShares !== 0 ? : $keyValues['num_of_shares'] = $this->numOfShares;
-        //$keyValues['profile_picture'] = $this->getProfilePicture();
-        $keyValues['picture_url'] = "https://tctechcrunch2011.files.wordpress.com/2010/10/pirate.jpg";
+        empty($this->numOfFollowers) && $this->numOfFollowers != 0 ? : $keyValues['num_of_followers'] = $this->numOfFollowers;
+        empty($this->numOfFollowing) && $this->numOfFollowing != 0 ? : $keyValues['num_of_following'] = $this->numOfFollowing;
+        empty($this->numOfPosts) && $this->numOfPosts != 0 ? : $keyValues['num_of_posts'] = $this->numOfPosts;
+        empty($this->numOfGivenApproves) && $this->numOfGivenApproves != 0 ? : $keyValues['num_of_given_approves'] = $this->numOfGivenApproves;
+        empty($this->numOfReceivedApproves) && $this->numOfReceivedApproves != 0 ? : $keyValues['num_of_received_approves'] = $this->numOfReceivedApproves;
+        empty($this->numOfGivenResponses) && $this->numOfGivenResponses != 0 ? : $keyValues['num_of_given_responses'] = $this->numOfGivenResponses;
+        empty($this->numOfReceivedResponses) && $this->numOfReceivedResponses != 0 ? : $keyValues['num_of_received_responses'] = $this->numOfReceivedResponses;
+        empty($this->numOfBestResponses) && $this->numOfBestResponses != 0 ? : $keyValues['num_of_best_responses'] = $this->numOfBestResponses;
+        empty($this->numOfShares) && $this->numOfShares != 0 ? : $keyValues['num_of_shares'] = $this->numOfShares;
+        $keyValues['profile_picture'] = $this->getProfilePicture('large');
         $keyValues['cover_url'] = "http://vignette2.wikia.nocookie.net/angrybirds/images/c/cf/Heikki_wallpaper3_medium.jpg/revision/latest?cb=20120626123135";
 
         return $keyValues;
