@@ -175,7 +175,7 @@ class UserHandler extends AbstractUserHandler
             $users = $userManager->readModelBy(array(
                 'user_id' => $connectionsArray
             ), null, $limit, null, array(
-                'user_id', 'first_name', 'last_name', 'full_name', 'location', 'state'
+                'user_id', 'first_name', 'last_name', 'full_name', 'location', 'country'
             ));
         }
 

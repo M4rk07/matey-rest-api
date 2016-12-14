@@ -466,7 +466,7 @@ class User extends AbstractModel
         empty($this->numOfReceivedResponses) && $this->numOfReceivedResponses != 0 ? : $keyValues['num_of_received_responses'] = $this->numOfReceivedResponses;
         empty($this->numOfBestResponses) && $this->numOfBestResponses != 0 ? : $keyValues['num_of_best_responses'] = $this->numOfBestResponses;
         empty($this->numOfShares) && $this->numOfShares != 0 ? : $keyValues['num_of_shares'] = $this->numOfShares;
-        $keyValues['profile_picture'] = $this->getProfilePicture('large');
+        $keyValues['picture_url'] = $this->getProfilePicture('large');
         $keyValues['cover_url'] = "http://vignette2.wikia.nocookie.net/angrybirds/images/c/cf/Heikki_wallpaper3_medium.jpg/revision/latest?cb=20120626123135";
 
         return $keyValues;

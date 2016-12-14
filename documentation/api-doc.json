@@ -414,7 +414,7 @@
                     "type": "string"
                 },
                 "verified": {
-                    "type": "boolean"
+                    "type": "integer"
                 },
                 "picture_url": {
                     "type": "string"
@@ -425,7 +425,7 @@
                 "location": {
                     "type": "string"
                 },
-                "state": {
+                "country": {
                     "type": "string"
                 },
                 "birthday": {
