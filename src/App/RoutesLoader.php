@@ -51,6 +51,9 @@ class RoutesLoader
         $api->get('/users/{userId}/following', 'matey.user_controller:getFollowingAction');
         $api->post('/users/me/profiles/pictures', 'matey.file_controller:uploadProfilePictureAction');
         $api->post('/users/me/profiles/covers', 'matey.file_controller:uploadCoverPictureAction');
+        $api->post('/users/me/groups', 'matey.group_controller:createGroupAction');
+        $api->get('/groups/{groupId}', 'matey.group_controller:getGroupAction');
+        $api->post('/users/me/groups/{groupId}/pictures', 'matey.file_controller:uploadGroupPictureAction');
 
         $this->app->get('/tests/data', 'matey.testingdata_controller:makeData');
 

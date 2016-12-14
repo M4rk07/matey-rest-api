@@ -5,6 +5,7 @@ use App\Controllers\API\AccountController;
 use App\Controllers\API\ConnectionController;
 use App\Controllers\API\DeviceController;
 use App\Controllers\API\FileController;
+use App\Controllers\API\GroupController;
 use App\Controllers\API\ProfileController;
 use App\Controllers\API\ProfilePictureController;
 use App\Controllers\API\TestDataController;
@@ -81,7 +82,8 @@ class MateyServiceProvider implements ServiceProviderInterface
 
         $app['matey.handlers.file'] = [
             'profile_picture' => 'App\\Handlers\\File\\ProfilePictureHandler',
-            'cover_picture' => 'App\\Handlers\\File\\CoverPictureHandler'
+            'cover_picture' => 'App\\Handlers\\File\\CoverPictureHandler',
+            'group_picture' => 'App\\Handlers\\File\\GroupPictureHandler',
         ];
 
         $app['matey.handlers.group'] = [
@@ -169,6 +171,14 @@ class MateyServiceProvider implements ServiceProviderInterface
                 $app['validator'],
                 $app['matey.model_manager.factory'],
                 $app['matey.file_handler.factory']
+            );
+        });
+
+        $app['matey.group_controller'] = $app->share(function () use ($app) {
+            return new GroupController(
+                $app['validator'],
+                $app['matey.model_manager.factory'],
+                $app['matey.group_handler.factory']
             );
         });
 

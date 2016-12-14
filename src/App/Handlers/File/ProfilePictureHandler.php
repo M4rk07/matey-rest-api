@@ -26,6 +26,8 @@ class ProfilePictureHandler extends AbstractFileHandler
         $userId = $request->request->get('user_id');
         $picture = $request->files->get('picture');
 
+        // TODO: Proveriti da li je korisnik autorizovan da izvrsi upload slike.
+
         $errors = $this->validator->validate($picture, [
             new NotBlank(),
             new Image(array(
@@ -60,19 +62,7 @@ class ProfilePictureHandler extends AbstractFileHandler
             array(
                 'file' => file_get_contents($originalPicture),
                 'name' => 'profile_pictures/originals/'.$userId.'.jpg'
-            ),
-            array(
-                'file' => $picture100x100,
-                'name' => 'profile_pictures/100x100/'.$userId.'.jpg'
-            ),
-            array(
-                'file' => $picture200x200,
-                'name' => 'profile_pictures/200x200/'.$userId.'.jpg'
-            ),
-            array(
-                'file' => $picture480x480,
-                'name' => 'profile_pictures/480x480/'.$userId.'.jpg'
-            ),
+            )
         );
 
         $cloudStorage = new CloudStorageUpload($uploads);
@@ -88,38 +78,14 @@ class ProfilePictureHandler extends AbstractFileHandler
             'user_id' => $userId
         ));
 
-        return new JsonResponse(null, 200);
+        $user->setId($userId);
+
+        return new JsonResponse(null, 201, array(
+            'Location' => $user->getProfilePicture('original')
+        ));
     }
 
-    function resizeImage($file, $w, $h, $crop=FALSE) {
 
-        list($width, $height) = getimagesize($file);
-        $r = $width / $height;
-        if ($crop) {
-            if ($width > $height) {
-                $width = ceil($width-($width*abs($r-$w/$h)));
-            } else {
-                $height = ceil($height-($height*abs($r-$w/$h)));
-            }
-            $newwidth = $w;
-            $newheight = $h;
-        } else {
-            if ($w/$h > $r) {
-                $newwidth = $h*$r;
-                $newheight = $h;
-            } else {
-                $newheight = $w/$r;
-                $newwidth = $w;
-            }
-        }
-        $src = imagecreatefromjpeg($file);
-        $dst = imagecreatetruecolor($newwidth, $newheight);
-        imagecopyresampled($dst, $src, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
-
-        unset($src);
-
-        return $dst;
-    }
 
     function compress($source, $destination, $quality) {
 

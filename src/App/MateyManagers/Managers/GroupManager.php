@@ -9,8 +9,12 @@
 namespace App\MateyModels;
 
 
+use AuthBucket\OAuth2\Model\ModelInterface;
+
 class GroupManager extends AbstractManager
 {
+
+    const FIELD_NUM_OF_FOLLOWERS = "num_of_followers";
 
     /**
      * @return mixed
@@ -27,6 +31,21 @@ class GroupManager extends AbstractManager
     public function getKeyName()
     {
         return "GROUP";
+    }
+
+    public function createModel(ModelInterface $model, $ignore = false)
+    {
+        $model = parent::createModel($model, $ignore);
+
+        $this->initializeGroupStatistics($model);
+
+        return $model;
+    }
+
+    public function initializeGroupStatistics(Group $group) {
+        $this->redis->hmset(self::KEY_GROUP.":counts:".$group->getId(), array(
+            self::FIELD_NUM_OF_FOLLOWERS => 0
+        ));
     }
 
 }

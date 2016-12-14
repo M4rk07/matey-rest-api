@@ -43,4 +43,10 @@ class FileController extends AbstractController
             ->upload($app, $request);
     }
 
+    public function uploadGroupPictureAction (Application $app, Request $request, $groupId) {
+        return $this->fileHandler
+            ->getFileHandler('group_picture')
+            ->upload($app, $request, $groupId);
+    }
+
 }

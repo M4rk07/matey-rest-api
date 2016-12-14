@@ -36,4 +36,10 @@ class GroupController extends AbstractController
             ->createGroup($app, $request);
     }
 
+    public function getGroupAction (Application $app, Request $request, $groupId) {
+        return $this->groupHandlerFactory
+            ->getGroupHandler('standard')
+            ->getGroup($app, $request, $groupId);
+    }
+
 }

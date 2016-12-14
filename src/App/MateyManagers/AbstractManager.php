@@ -53,6 +53,7 @@ abstract class AbstractManager implements ModelManagerInterface
     // REDIS KEYS
     const KEY_APP = "APP";
     const KEY_USER = "USER";
+    const KEY_GROUP = "GROUP";
     const KEY_POST = "POST";
     const KEY_RESPONSE = "RESPONSE";
     const KEY_INTEREST = "INTEREST";
@@ -201,7 +202,7 @@ abstract class AbstractManager implements ModelManagerInterface
     {
         $models = $this->readModelBy($criteria, $orderBy, 1, 0, $fields);
 
-        return is_array($models) ? reset($models) : $models;
+        return is_array($models) && !empty($models) ? reset($models) : null;
     }
 
     public function updateModel(ModelInterface $model, array $criteria = null)

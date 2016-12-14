@@ -222,6 +222,8 @@ CREATE TABLE IF NOT EXISTS matey_group (
   user_id int(11) UNSIGNED NOT NULL,
   group_name varchar(500) NOT NULL,
   description varchar(5000),
+  privacy VARCHAR(10) NOT NULL,
+  is_silhouette boolean NOT NULL DEFAULT 1,
   date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (group_id),
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id)

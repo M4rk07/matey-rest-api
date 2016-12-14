@@ -13,7 +13,7 @@ use App\MateyModels\ModelManagerFactoryInterface;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class GroupHandlerFactory
+class GroupHandlerFactory implements GroupHandlerFactoryInterface
 {
 
     protected $classes;
@@ -43,7 +43,7 @@ class GroupHandlerFactory
         $this->classes = $classes;
     }
 
-    public function getFileHandler($type = null)
+    public function getGroupHandler($type = null)
     {
         $type = $type ?: current(array_keys($this->classes));
 
@@ -59,7 +59,7 @@ class GroupHandlerFactory
         );
     }
 
-    public function getFileHandlers()
+    public function getGroupHandlers()
     {
         return $this->classes;
     }

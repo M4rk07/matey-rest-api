@@ -9,6 +9,7 @@
 namespace App\Handlers\MateyUser;
 
 
+use App\Exception\NotFoundException;
 use App\MateyModels\Follow;
 use App\MateyModels\User;
 use App\Paths\Paths;
@@ -48,7 +49,7 @@ class UserHandler extends AbstractUserHandler
             'user_id' => $id
         ));
 
-        if(!$user) throw new ResourceNotFoundException();
+        if(empty($user)) throw new NotFoundException();
 
         return new JsonResponse($user->getValuesAsArray(), 200);
     }

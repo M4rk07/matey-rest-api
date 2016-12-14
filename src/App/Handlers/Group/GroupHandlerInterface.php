@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 interface GroupHandlerInterface
 {
     function createGroup(Application $app, Request $request);
+    function getGroup(Application $app, Request $request, $groupId);
     function deleteGroup(Application $app, Request $request);
     function followGroup(Application $app, Request $request);
 }

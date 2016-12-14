@@ -22,6 +22,8 @@ class CoverPictureHandler extends AbstractFileHandler
         $user_id = $request->request->get('user_id');
         $cover = $request->files->get('cover');
 
+        // TODO: Proveriti da li je korisnik autorizovan da izvrsi upload slike.
+
         $errors = $this->validator->validate($cover, [
             new NotBlank(),
             new Image(array(
