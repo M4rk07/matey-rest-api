@@ -12,6 +12,7 @@ namespace App\Handlers\File;
 use App\Upload\CloudStorageUpload;
 use App\Validators\GroupId;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
+use AuthBucket\OAuth2\Exception\UnauthorizedClientException;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,8 +25,6 @@ class GroupPictureHandler extends AbstractFileHandler
     {
         $userId = $request->request->get('user_id');
         $picture = $request->files->get('group_picture');
-
-        // TODO: Proveriti da li je korisnik autorizovan da izvrsi upload slike.
 
         $errors = $this->validator->validate($groupId, [
             new NotBlank(),
@@ -49,6 +48,19 @@ class GroupPictureHandler extends AbstractFileHandler
                 'error_description' => $errors->get(0)->getMessage(),
             ]);
         }
+
+        /*
+         * Check if user is owner of the group or not
+         */
+        $groupRelationshipManager = $this->modelManagerFactory->getModelManager('group_relationship');
+
+        $groupRelationship = $groupRelationshipManager->readModelOneBy(array(
+            'group_id' =>$groupId,
+            'user_id' => $userId,
+            'role' => ['OWNER', 'ADMIN']
+        ));
+
+        if(empty($groupRelationship)) throw new UnauthorizedClientException();
 
         $originalPicture = $picture->getRealPath();
 

@@ -105,115 +105,6 @@ CREATE TABLE IF NOT EXISTS matey_follower (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `matey_post`
---
-
-CREATE TABLE IF NOT EXISTS matey_post (
-  post_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  user_id int(11) UNSIGNED NOT NULL,
-  text varchar(7000) NOT NULL,
-  date_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  deleted tinyint(1) NOT NULL DEFAULT 0,
-  PRIMARY KEY (post_id),
-  FOREIGN KEY (user_id) REFERENCES matey_user(user_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `matey_share`
---
-
-CREATE TABLE IF NOT EXISTS matey_post_share (
-  user_id int(11) UNSIGNED NOT NULL,
-  post_id int(11) UNSIGNED NOT NULL,
-  date_shared timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
-  FOREIGN KEY (post_id) REFERENCES matey_post(post_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `matey_post_follow`
---
-
-CREATE TABLE IF NOT EXISTS matey_post_follow (
-  user_id int(11) UNSIGNED NOT NULL,
-  post_id int(11) UNSIGNED NOT NULL,
-  date_started timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
-  FOREIGN KEY (post_id) REFERENCES matey_post(post_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `matey_response`
---
-
-CREATE TABLE IF NOT EXISTS matey_response (
-  response_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  user_id int(11) UNSIGNED NOT NULL,
-  post_id int(11) UNSIGNED NOT NULL,
-  text varchar(7000) NOT NULL,
-  date_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  deleted tinyint(1) NOT NULL DEFAULT 0,
-  PRIMARY KEY (response_id),
-  FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
-  FOREIGN KEY (post_id) REFERENCES matey_post(post_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `matey_approve`
---
-
-CREATE TABLE IF NOT EXISTS matey_approve (
-  user_id int(11) UNSIGNED NOT NULL,
-  response_id int(11) UNSIGNED NOT NULL,
-  PRIMARY KEY (user_id, response_id),
-  FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
-  FOREIGN KEY (response_id) REFERENCES matey_response(response_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `matey_activity_type`
---
-
-CREATE TABLE IF NOT EXISTS matey_activity_type (
-  activity_type varchar(50) NOT NULL,
-  PRIMARY KEY (activity_type)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `matey_activity`
---
-
-CREATE TABLE IF NOT EXISTS matey_activity (
-  activity_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  user_id int(11) UNSIGNED NOT NULL,
-  source_id int(11) UNSIGNED NOT NULL,
-  parent_id int(11) UNSIGNED NOT NULL,
-  parent_type varchar(50) NOT NULL,
-  activity_type varchar(50) NOT NULL,
-  activity_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  srl_data blob NOT NULL,
-  deleted tinyint(1) NOT NULL DEFAULT 0,
-  PRIMARY KEY (activity_id),
-  FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
-  FOREIGN KEY (activity_type) REFERENCES matey_activity_type(activity_type),
-  FOREIGN KEY (parent_type) REFERENCES matey_activity_type(activity_type)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `matey_group`
 --
 
@@ -222,11 +113,39 @@ CREATE TABLE IF NOT EXISTS matey_group (
   user_id int(11) UNSIGNED NOT NULL,
   group_name varchar(500) NOT NULL,
   description varchar(5000),
-  privacy VARCHAR(10) NOT NULL,
   is_silhouette boolean NOT NULL DEFAULT 1,
   date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  deleted boolean NOT NULL DEFAULT 0,
   PRIMARY KEY (group_id),
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_group_admin`
+--
+
+CREATE TABLE IF NOT EXISTS matey_group_role (
+  role varchar(10) CHARACTER SET utf8 NOT NULL,
+  PRIMARY KEY (role)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_group_admin`
+--
+
+CREATE TABLE IF NOT EXISTS matey_group_relationship (
+  group_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id int(11) UNSIGNED NOT NULL,
+  role varchar(10) CHARACTER SET utf8 NOT NULL,
+  date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (group_id, user_id),
+  FOREIGN KEY (group_id) REFERENCES matey_group(group_id),
+  FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
+  FOREIGN KEY (role) REFERENCES matey_group_role(role)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -369,43 +288,11 @@ CREATE TABLE IF NOT EXISTS oauth2_scope (
 --
 
 INSERT INTO oauth2_client (app_name) VALUES ('Matey');
-
 -- --------------------------------------------------------
 
 --
--- POPULATE table `matey_activity_type`
+-- POPULATE table `matey_group_role`
 --
 
-INSERT INTO matey_activity_type (activity_type) VALUES
-('INTEREST'), ('POST'), ('RESPONSE'),
-('FOLLOW'), ('SHARE'), ('GENERAL');
-
--- --------------------------------------------------------
-
---
--- TRIGGER for table `matey_posts`
---
-
-DELIMITER /
-CREATE TRIGGER delete_response AFTER DELETE on matey_post
-FOR EACH ROW
-BEGIN
-DELETE FROM matey_response
-WHERE matey_response.post_id = old.post_id;
-END;
-/
-DELIMITER ;
--- --------------------------------------------------------
-
---
--- TRIGGER for table `matey_responses`
---
-DELIMITER /
-CREATE TRIGGER delete_approve AFTER DELETE on matey_response
-FOR EACH ROW
-BEGIN
-DELETE FROM matey_approve
-WHERE matey_approve.response_id = old.response_id;
-END;
-/
-DELIMITER ;
+INSERT INTO matey_group_role (role) VALUES
+('OWNER'), ('ADMIN');

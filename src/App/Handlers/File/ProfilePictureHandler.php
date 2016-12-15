@@ -26,8 +26,6 @@ class ProfilePictureHandler extends AbstractFileHandler
         $userId = $request->request->get('user_id');
         $picture = $request->files->get('picture');
 
-        // TODO: Proveriti da li je korisnik autorizovan da izvrsi upload slike.
-
         $errors = $this->validator->validate($picture, [
             new NotBlank(),
             new Image(array(

@@ -42,4 +42,10 @@ class GroupController extends AbstractController
             ->getGroup($app, $request, $groupId);
     }
 
+    public function deleteGroupAction (Application $app, Request $request, $groupId) {
+        return $this->groupHandlerFactory
+            ->getGroupHandler('standard')
+            ->deleteGroup($app, $request, $groupId);
+    }
+
 }

@@ -41,6 +41,7 @@ class RoutesLoader
         $api->put('/users/me/devices/{deviceId}/login', 'matey.device_controller:loginOnDeviceAction');
         $api->delete('/users/me/devices/{deviceId}/login', 'matey.device_controller:loginOnDeviceAction');
 
+        // OPERATIONS ON USERS
         $api->get('/users/{userId}', 'matey.user_controller:getUserAction');
         $api->get('/users/{userId}/profile', 'matey.user_controller:getUserAction');
         $api->post('/users/me/users/{id}/follow', 'matey.user_controller:followAction'); // deprecated
@@ -51,9 +52,12 @@ class RoutesLoader
         $api->get('/users/{userId}/following', 'matey.user_controller:getFollowingAction');
         $api->post('/users/me/profiles/pictures', 'matey.file_controller:uploadProfilePictureAction');
         $api->post('/users/me/profiles/covers', 'matey.file_controller:uploadCoverPictureAction');
-        $api->post('/users/me/groups', 'matey.group_controller:createGroupAction');
+
+        // OPERATIONS ON GROUPS
+        $api->post('/groups', 'matey.group_controller:createGroupAction');
         $api->get('/groups/{groupId}', 'matey.group_controller:getGroupAction');
-        $api->post('/users/me/groups/{groupId}/pictures', 'matey.file_controller:uploadGroupPictureAction');
+        $api->post('/groups/{groupId}/pictures', 'matey.file_controller:uploadGroupPictureAction');
+        $api->delete('/groups/{groupId}', 'matey.group_controller:deleteGroupAction');
 
         $this->app->get('/tests/data', 'matey.testingdata_controller:makeData');
 

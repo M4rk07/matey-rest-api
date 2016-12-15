@@ -54,7 +54,8 @@ class MateyServiceProvider implements ServiceProviderInterface
             'device' => 'App\\MateyModels\\Device',
             'login' => 'App\\MateyModels\\Login',
             'follow' => 'App\\MateyModels\\Follow',
-            'group' => 'App\\MateyModels\\Group'
+            'group' => 'App\\MateyModels\\Group',
+            'group_relationship' => 'App\\MateyModels\\GroupRelationship'
         ];
 
         $app['matey.model_manager.factory'] = $app->share(function ($app) {

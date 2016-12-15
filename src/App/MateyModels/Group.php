@@ -17,10 +17,10 @@ class Group extends AbstractModel
     protected $userId;
     protected $groupName;
     protected $description;
-    protected $privacy;
     protected $dateCreated;
     protected $silhouette;
     protected $numOfFollowers;
+    protected $deleted;
 
     /**
      * @return mixed
@@ -70,23 +70,6 @@ class Group extends AbstractModel
     public function setDescription($description)
     {
         $this->description = $description;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPrivacy()
-    {
-        return $this->privacy;
-    }
-
-    /**
-     * @param mixed $privacy
-     */
-    public function setPrivacy($privacy)
-    {
-        $this->privacy = $privacy;
         return $this;
     }
 
@@ -156,6 +139,23 @@ class Group extends AbstractModel
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getDeleted()
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * @param mixed $deleted
+     */
+    public function setDeleted($deleted)
+    {
+        $this->deleted = (int)$deleted;
+        return $this;
+    }
+
 
     public function setValuesFromArray($values)
     {
@@ -166,6 +166,7 @@ class Group extends AbstractModel
         if(isset($values['date_created'])) $this->setDateCreated($values['date_created']);
         if(isset($values['is_silhouette'])) $this->setSilhouette($values['is_silhouette']);
         if(isset($values['num_of_followers'])) $this->setNumOfFollowers($values['num_of_followers']);
+        if(isset($values['deleted'])) $this->setDeleted($values['deleted']);
     }
 
     public function getMysqlValues()
@@ -176,9 +177,9 @@ class Group extends AbstractModel
         empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
         empty($this->groupName) ? : $keyValues['group_name'] = $this->groupName;
         empty($this->description) ? : $keyValues['description'] = $this->description;
-        empty($this->privacy) ? : $keyValues['privacy'] = $this->privacy;
         empty($this->dateCreated) ? : $keyValues['date_created'] = $this->dateCreated;
         empty($this->silhouette) && $this->silhouette !== 0 ? : $keyValues['is_silhouette'] = $this->silhouette;
+        empty($this->deleted) && $this->deleted !== 0 ? : $keyValues['deleted'] = $this->deleted;
 
         return $keyValues;
     }

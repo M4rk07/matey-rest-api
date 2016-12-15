@@ -40,6 +40,7 @@ abstract class AbstractManager implements ModelManagerInterface
     const T_USER_INTEREST = "matey_user_interest";
     const T_INTEREST_DEPTH_ = "matey_interest_depth_";
     const T_GROUP = "matey_group";
+    const T_GROUP_RELATIONSHIP = "matey_group_relationship";
 
     // Database authorization table names
     const T_A_USER = "oauth2_user";
@@ -98,12 +99,12 @@ abstract class AbstractManager implements ModelManagerInterface
         $qMarks = rtrim($qMarks, ",");
 
         // FINAL QUERY
-        $this->db->executeUpdate("INSERT ". ($ignore ? "IGNORE" : "") ." INTO ".$this->getTableName()." (".$keys.") VALUES(".$qMarks.")",
+        $result = $this->db->executeUpdate("INSERT ". ($ignore ? "IGNORE" : "") ." INTO ".$this->getTableName()." (".$keys.") VALUES(".$qMarks.")",
             $values);
 
         $model->setId($this->db->lastInsertId());
 
-        return $model;
+        return $result > 0 ? $model : null;
 
     }
 
@@ -145,7 +146,7 @@ abstract class AbstractManager implements ModelManagerInterface
                 $inString .= ")";
                 $whereStr[] = $inString;
             }
-            else $whereStr[] = $key . " LIKE :" . $key;
+            else $whereStr[] = $key . " LIKE ?";
         }
         if ($whereStr) {
             $whereStr = implode(" AND ", $whereStr);
@@ -180,14 +181,12 @@ abstract class AbstractManager implements ModelManagerInterface
         $i = 1;
         // bind WHERE criteria values
         foreach($criteria as $key => $value) {
-            $key = $this->makeColumnName($key);
-
             if(is_array($value)) {
                 foreach($value as $keyy => $valuee) {
                     $prepared->bindValue($i++, $valuee);
                 }
             }
-            else $prepared->bindValue(':'.$key, $value);
+            else $prepared->bindValue($i++, $value);
         }
 
         $prepared->execute();
@@ -230,10 +229,10 @@ abstract class AbstractManager implements ModelManagerInterface
         }
 
         // FINAL QUERY
-        $this->db->executeUpdate("UPDATE ".$this->getTableName()." SET ".$setStr.$whereStr,
+        $result = $this->db->executeUpdate("UPDATE ".$this->getTableName()." SET ".$setStr.$whereStr,
             $values);
 
-        return $model;
+        return $result > 0 ? $model : null;
     }
 
     public function deleteModel(ModelInterface $model, $criteria = null)
@@ -250,9 +249,9 @@ abstract class AbstractManager implements ModelManagerInterface
             $whereStr = preg_replace('/AND$/', '', $whereStr);
         }
 
-        $this->db->executeUpdate("DELETE FROM ".$this->getTableName().$whereStr);
+        $result = $this->db->executeUpdate("DELETE FROM ".$this->getTableName().$whereStr);
 
-        return $model;
+        return $result > 0 ? $model : null;
     }
 
     // making objects form array
