@@ -457,7 +457,7 @@ class User extends AbstractModel
         empty($this->numOfBestResponses) && $this->numOfBestResponses !== 0 ? : $keyValues['num_of_best_responses'] = $this->numOfBestResponses;
         empty($this->numOfShares) && $this->numOfShares !== 0 ? : $keyValues['num_of_shares'] = $this->numOfShares;
         $keyValues['picture_url'] = $this->getProfilePicture('original');
-        $keyValues['cover_url'] = "http://vignette2.wikia.nocookie.net/angrybirds/images/c/cf/Heikki_wallpaper3_medium.jpg/revision/latest?cb=20120626123135";
+        $keyValues['cover_url'] = "http://www.twitrcovers.com/wp-content/uploads/2013/07/Abstract-Minimalistic-l.jpg";
 
         return $keyValues;
     }
