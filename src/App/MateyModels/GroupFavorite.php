@@ -2,20 +2,18 @@
 /**
  * Created by PhpStorm.
  * User: marko
- * Date: 6.11.16.
- * Time: 18.59
+ * Date: 3.3.17.
+ * Time: 20.01
  */
 
 namespace App\MateyModels;
 
-use AuthBucket\OAuth2\Model\ModelInterface;
 
-class Approve extends AbstractModel
+class GroupFavorite extends AbstractModel
 {
 
     protected $userId;
-    protected $parentId;
-    protected $parentType;
+    protected $groupId;
     protected $timeC;
 
     /**
@@ -38,34 +36,17 @@ class Approve extends AbstractModel
     /**
      * @return mixed
      */
-    public function getParentId()
+    public function getGroupId()
     {
-        return $this->parentId;
+        return $this->groupId;
     }
 
     /**
-     * @param mixed $parentId
+     * @param mixed $postId
      */
-    public function setParentId($parentId)
+    public function setGroupId($groupId)
     {
-        $this->parentId = $parentId;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getParentType()
-    {
-        return $this->parentType;
-    }
-
-    /**
-     * @param mixed $parentType
-     */
-    public function setParentType($parentType)
-    {
-        $this->parentType = $parentType;
+        $this->groupId = $groupId;
         return $this;
     }
 
@@ -89,8 +70,7 @@ class Approve extends AbstractModel
     public function setValuesFromArray($values)
     {
         $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
-        $this->parentId = isset($values['parent_id']) ? $values['parent_id'] : "";
-        $this->parentType = isset($values['parent_type']) ? $values['parent_type'] : "";
+        $this->groupId = isset($values['group_id']) ? $values['group_id'] : "";
         $this->timeC = isset($values['time_c']) ? $values['time_c'] : "";
     }
 
@@ -99,8 +79,7 @@ class Approve extends AbstractModel
         $keyValues = array ();
 
         empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
-        empty($this->parentId) ? : $keyValues['parent_id'] = $this->parentId;
-        empty($this->parentType) ? : $keyValues['parent_type'] = $this->parentType;
+        empty($this->groupId) ? : $keyValues['group_id'] = $this->groupId;
         empty($this->timeC) ? : $keyValues['time_c'] = $this->timeC;
 
         return $keyValues;

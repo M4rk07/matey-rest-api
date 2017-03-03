@@ -15,7 +15,7 @@ class Paths
     const BASE_API_URL = "http://localhost/matey-api/web/index.php";
     const DEBUG_ENDPOINT = "http://localhost/matey-oauth2/web/index.php/api/oauth2/debug";
 
-    const STORAGE_BASE = "https://storage.googleapis.com";
-    const BUCKET_MATEY = "matey-148023.appspot.com";
+    const STORAGE_BASE = "https://s3-us-west-2.amazonaws.com";
+    const BUCKET_MATEY = "matey";
 
 }

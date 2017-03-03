@@ -1,0 +1,1171 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Matey Resource API",
+        "description": "Resource API for Android application Matey. Korsiti se metodama GET, POST, PUT, DELETE, OPTIONS. Vraca standardne status kodove gde su moguci.",
+        "version": "1.0"
+    },
+    "host": "api.uber.com",
+    "schemes": [
+        "http"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/devices": {
+            "post": {
+                "description": "Ruta za registraciju uredjaja.",
+                "parameters": [
+                    {
+                        "name": "gcm",
+                        "in": "formData",
+                        "description": "GCM key uredjaja.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created.",
+                        "schema": {
+                            "$ref": "#/definitions/Device"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{deviceId}": {
+            "put": {
+                "description": "Ruta za update uredjaja.",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "description": "ID uredjaja koji treba da se update-uje.",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "gcm",
+                        "in": "formData",
+                        "description": "GCM key uredjaja.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "old_gcm",
+                        "in": "formData",
+                        "description": "Stari GCM uredjaja.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON objekat sa podacima o update-ovanom uredjaju.",
+                        "schema": {
+                            "$ref": "#/definitions/Device"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/accounts": {
+            "post": {
+                "description": "Ruta za registraciju korisnika.",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "formData",
+                        "description": "Email korisnika.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "password",
+                        "in": "formData",
+                        "description": "Sifra korisnika, najmanje 5 karaktera.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "first_name",
+                        "in": "formData",
+                        "description": "Ime korisnika.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "last_name",
+                        "in": "formData",
+                        "description": "Prezime korisnika.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created."
+                    }
+                }
+            }
+        },
+        "/api/v1/users/me/accounts": {
+            "post": {
+                "description": "Ruta za dodavanje novog accounta, odnosno merge u prevodu.",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "formData",
+                        "description": "Tip novog account-a koji korisnik zeli da napravi i spoji sa starim. Moguce vrednosti 'standard' i 'facebook'. Podrazumevana vrednost ovog polja je 'standard'.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "password",
+                        "in": "formData",
+                        "description": "Ukoliko je novi account standardni, onda korisnik mora da obezbedi sifru koju zeli da koristi na tom nalogu.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "fb_token",
+                        "in": "formData",
+                        "description": "Ukoliko je novi account facebook, onda korisnik mora da obezbedi facebook-ov access token.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created."
+                    }
+                }
+            }
+        },
+        "/api/v1/users/me/devices/{deviceId}/login": {
+            "put": {
+                "description": "Ruta za ulogovanje korisnika.",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "description": "ID uredjaja na koji korisnik zeli da se uloguje.",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok.",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Ruta za logout korisnika.",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "description": "ID uredjaja sa kojeg korisnik zeli da se izloguje.",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Ok. No content."
+                    }
+                }
+            }
+        },
+        "/api/v1/users/{userId}": {
+            "get": {
+                "description": "Ruta za izvlacenje podataka o korisniku. Bice omoguceno da se doda query parametar 'fields' i da se navedu polja koja korisnik API-ja zeli da izvuce.",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "ID korisnika za kojeg se zahtevaju svi podaci.",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok.",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/{userId}/profile": {
+            "get": {
+                "description": "Modifikacija prethodne rute, izvlacenje samo onih polja koja su neophodna za iscitavanje na profilu. Predstavlja samo brzi nacin.",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "ID korisnika za kojeg se zahtevaju profil podaci.",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok.",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/me/users/following/{userId}": {
+            "post": {
+                "description": "Ruta da se zaprati trazeni korisnik.",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "ID korisnika kojeg korisnik zeli da zaprati.",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created.",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Ruta preko koje se trazeni korisnik izbacuje iz liste zapracenih.",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "ID korisnika kojeg korisnik zeli da izbaci iz zapracenih.",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "OK. No content.",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/{userId}/followers": {
+            "get": {
+                "description": "Ruta za izlistavanje pratioca.",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "ID korisnika za kojeg se trazi lista pratioca.",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Koliko korisnika da se posalje u odgovoru.",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Koliko rastojanje od prvog korisnika u listi.",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok.",
+                        "schema": {
+                            "$ref": "#/definitions/Followers List"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/{userId}/following": {
+            "get": {
+                "description": "Ruta za izlistavanje zapracenih korisnika.",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "ID korisnika kojeg se trazi lista zapracenih.",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Koliko korisnika da se posalje u odgovoru.",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Koliko rastojanje od prvog korisnika u listi.",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok.",
+                        "schema": {
+                            "$ref": "#/definitions/Followers List"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/me/profiles/pictures": {
+            "post": {
+                "description": "Ruta za izlistavanje zapracenih korisnika.",
+                "parameters": [
+                    {
+                        "name": "picture",
+                        "in": "formData",
+                        "description": "Slika koja se uploaduje.",
+                        "required": true,
+                        "type": "string",
+                        "format": "binary"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok."
+                    }
+                }
+            }
+        },
+        "/feed": {
+            "get": {
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "formData",
+                        "description": "Broj postova.",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "formData",
+                        "description": "Rastojanje od prvog posta.",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok.",
+                        "schema": {
+                            "$ref": "#/definitions/FeedGetResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{id}": {
+            "get": {
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID posta za koji se izvlace podaci.",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "replies_num",
+                        "in": "query",
+                        "description": "Koliko odgovora izvuci uz post.",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok.",
+                        "schema": {
+                            "$ref": "#/definitions/PostGetResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{id}/replies": {
+            "get": {
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID posta za koji se izvode odgovori.",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "formData",
+                        "description": "Broj postova.",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "formData",
+                        "description": "Rastojanje od prvog posta.",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok.",
+                        "schema": {
+                            "$ref": "#/definitions/PostRepliesGetResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{id}/boosts": {
+            "get": {
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID posta za koji se izvlace boostovi.",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "formData",
+                        "description": "Broj postova.",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "formData",
+                        "description": "Rastojanje od prvog posta.",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok.",
+                        "schema": {
+                            "$ref": "#/definitions/PostBoostsGetResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/replies/{id}/rereplies": {
+            "get": {
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID odgovora za koji se izvlace odgovori.",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "formData",
+                        "description": "Broj postova.",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "formData",
+                        "description": "Rastojanje od prvog posta.",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok.",
+                        "schema": {
+                            "$ref": "#/definitions/RepliesRepliesGetResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/replies/{id}/approves": {
+            "get": {
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID odgovora za koji se izvlace lajkovi.",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "formData",
+                        "description": "Broj postova.",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "formData",
+                        "description": "Rastojanje od prvog posta.",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok.",
+                        "schema": {
+                            "$ref": "#/definitions/PostBoostsGetResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/rereplies/{id}/approves": {
+            "get": {
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID odgovora za koji se izvlace lajkovi.",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "formData",
+                        "description": "Broj postova.",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "formData",
+                        "description": "Rastojanje od prvog posta.",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok.",
+                        "schema": {
+                            "$ref": "#/definitions/PostBoostsGetResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts": {
+            "post": {
+                "parameters": [
+                    {
+                        "name": "post_data",
+                        "in": "formData",
+                        "description": "Post u JSON formatu.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PostRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok."
+                    }
+                }
+            }
+        },
+        "/posts/{id}/replies": {
+            "post": {
+                "parameters": [
+                    {
+                        "name": "post_data",
+                        "in": "formData",
+                        "description": "Post u JSON formatu.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ReplyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok."
+                    }
+                }
+            }
+        },
+        "/replies/{id}/replies": {
+            "post": {
+                "parameters": [
+                    {
+                        "name": "post_data",
+                        "in": "formData",
+                        "description": "Post u JSON formatu.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RereplyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok."
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Device": {
+            "type": "object",
+            "properties": {
+                "device_id": {
+                    "type": "string"
+                },
+                "device_secret": {
+                    "type": "string"
+                },
+                "gcm": {
+                    "type": "string"
+                }
+            }
+        },
+        "User": {
+            "type": "object",
+            "properties": {
+                "user_id": {
+                    "type": "integer"
+                },
+                "email": {
+                    "type": "integer"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "verified": {
+                    "type": "integer"
+                },
+                "picture_url": {
+                    "type": "string"
+                },
+                "cover_url": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "birthday": {
+                    "type": "string"
+                },
+                "num_of_followers": {
+                    "type": "integer"
+                },
+                "num_of_following": {
+                    "type": "integer"
+                },
+                "num_of_posts": {
+                    "type": "integer"
+                },
+                "num_of_given_approves": {
+                    "type": "integer"
+                },
+                "num_of_received_approves": {
+                    "type": "integer"
+                },
+                "num_of_given_responses": {
+                    "type": "integer"
+                },
+                "num_of_received_responses": {
+                    "type": "integer"
+                },
+                "num_of_best_responses": {
+                    "type": "integer"
+                },
+                "num_of_shares": {
+                    "type": "integer"
+                }
+            }
+        },
+        "Followers List": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "user_id": {
+                                "type": "integer"
+                            },
+                            "first_name": {
+                                "type": "string"
+                            },
+                            "last_name": {
+                                "type": "string"
+                            },
+                            "full_name": {
+                                "type": "string"
+                            },
+                            "picture_url": {
+                                "type": "string"
+                            },
+                            "location": {
+                                "type": "string"
+                            },
+                            "state": {
+                                "type": "string"
+                            },
+                            "following": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                },
+                "_links": {
+                    "type": "object",
+                    "properties": {
+                        "base": {
+                            "type": "string"
+                        },
+                        "next": {
+                            "type": "string"
+                        },
+                        "prev": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                }
+            }
+        },
+        "FeedGetResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "activity_type": {
+                                "type": "string"
+                            },
+                            "activity_object": {
+                                "type": "object",
+                                "properties": {
+                                    "post_id": {
+                                        "type": "integer"
+                                    },
+                                    "user": {
+                                        "type": "object",
+                                        "properties": {
+                                            "user_id": {
+                                                "type": "integer"
+                                            },
+                                            "first_name": {
+                                                "type": "string"
+                                            },
+                                            "last_name": {
+                                                "type": "string"
+                                            },
+                                            "is_silhouette": {
+                                                "type": "integer"
+                                            },
+                                            "picture_url": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "text": {
+                                        "type": "string"
+                                    },
+                                    "time": {
+                                        "type": "timestamp"
+                                    },
+                                    "num_of_boosts": {
+                                        "type": "integer"
+                                    },
+                                    "num_of_replies": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "_links": {
+                    "type": "object",
+                    "properties": {
+                        "base": {
+                            "type": "string"
+                        },
+                        "next": {
+                            "type": "string"
+                        },
+                        "prev": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                }
+            }
+        },
+        "PostGetResponse": {
+            "type": "object",
+            "properties": {
+                "post_id": {
+                    "type": "integer"
+                },
+                "user": {
+                    "type": "object",
+                    "properties": {
+                        "user_id": {
+                            "type": "integer"
+                        },
+                        "first_name": {
+                            "type": "string"
+                        },
+                        "last_name": {
+                            "type": "string"
+                        },
+                        "is_silhouette": {
+                            "type": "integer"
+                        },
+                        "picture_url": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "timestamp"
+                },
+                "num_of_boosts": {
+                    "type": "integer"
+                },
+                "num_of_replies": {
+                    "type": "integer"
+                },
+                "replies": {
+                    "type": "object",
+                    "$ref": "#/definitions/PostRepliesGetResponse"
+                }
+            }
+        },
+        "PostRepliesGetResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "reply_id": {
+                                "type": "integer"
+                            },
+                            "post_id": {
+                                "type": "integer"
+                            },
+                            "user": {
+                                "type": "object",
+                                "properties": {
+                                    "user_id": {
+                                        "type": "integer"
+                                    },
+                                    "first_name": {
+                                        "type": "string"
+                                    },
+                                    "last_name": {
+                                        "type": "string"
+                                    },
+                                    "is_silhouette": {
+                                        "type": "integer"
+                                    },
+                                    "picture_url": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "text": {
+                                "type": "string"
+                            },
+                            "time": {
+                                "type": "timestamp"
+                            }
+                        }
+                    }
+                },
+                "_links": {
+                    "type": "object",
+                    "properties": {
+                        "base": {
+                            "type": "string"
+                        },
+                        "next": {
+                            "type": "string"
+                        },
+                        "prev": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                }
+            }
+        },
+        "PostBoostsGetResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "user_id": {
+                                "type": "integer"
+                            },
+                            "first_name": {
+                                "type": "string"
+                            },
+                            "last_name": {
+                                "type": "string"
+                            },
+                            "is_silhouette": {
+                                "type": "integer"
+                            },
+                            "picture_url": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "_links": {
+                    "type": "object",
+                    "properties": {
+                        "base": {
+                            "type": "string"
+                        },
+                        "next": {
+                            "type": "string"
+                        },
+                        "prev": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                }
+            }
+        },
+        "RepliesRepliesGetResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "rereply_id": {
+                                "type": "integer"
+                            },
+                            "reply_id": {
+                                "type": "integer"
+                            },
+                            "user": {
+                                "type": "object",
+                                "properties": {
+                                    "user_id": {
+                                        "type": "integer"
+                                    },
+                                    "first_name": {
+                                        "type": "string"
+                                    },
+                                    "last_name": {
+                                        "type": "string"
+                                    },
+                                    "is_silhouette": {
+                                        "type": "integer"
+                                    },
+                                    "picture_url": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "text": {
+                                "type": "string"
+                            },
+                            "time": {
+                                "type": "timestamp"
+                            }
+                        }
+                    }
+                },
+                "_links": {
+                    "type": "object",
+                    "properties": {
+                        "base": {
+                            "type": "string"
+                        },
+                        "next": {
+                            "type": "string"
+                        },
+                        "prev": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                }
+            }
+        },
+        "PostRequest": {
+            "type": "object",
+            "properties": {
+                "group_id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "locations": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "lat": {
+                                "type": "string"
+                            },
+                            "long": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "ReplyRequest": {
+            "type": "object",
+            "properties": {
+                "text": {
+                    "type": "string"
+                },
+                "locations": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "lat": {
+                                "type": "string"
+                            },
+                            "long": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "RereplyRequest": {
+            "type": "object",
+            "properties": {
+                "text": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

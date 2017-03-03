@@ -2,20 +2,17 @@
 /**
  * Created by PhpStorm.
  * User: marko
- * Date: 6.11.16.
- * Time: 18.59
+ * Date: 3.3.17.
+ * Time: 19.58
  */
 
 namespace App\MateyModels;
 
-use AuthBucket\OAuth2\Model\ModelInterface;
 
-class Approve extends AbstractModel
+class Bookmark extends AbstractModel
 {
-
     protected $userId;
-    protected $parentId;
-    protected $parentType;
+    protected $postId;
     protected $timeC;
 
     /**
@@ -38,34 +35,17 @@ class Approve extends AbstractModel
     /**
      * @return mixed
      */
-    public function getParentId()
+    public function getPostId()
     {
-        return $this->parentId;
+        return $this->postId;
     }
 
     /**
-     * @param mixed $parentId
+     * @param mixed $postId
      */
-    public function setParentId($parentId)
+    public function setPostId($postId)
     {
-        $this->parentId = $parentId;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getParentType()
-    {
-        return $this->parentType;
-    }
-
-    /**
-     * @param mixed $parentType
-     */
-    public function setParentType($parentType)
-    {
-        $this->parentType = $parentType;
+        $this->postId = $postId;
         return $this;
     }
 
@@ -89,8 +69,7 @@ class Approve extends AbstractModel
     public function setValuesFromArray($values)
     {
         $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
-        $this->parentId = isset($values['parent_id']) ? $values['parent_id'] : "";
-        $this->parentType = isset($values['parent_type']) ? $values['parent_type'] : "";
+        $this->postId = isset($values['post_id']) ? $values['post_id'] : "";
         $this->timeC = isset($values['time_c']) ? $values['time_c'] : "";
     }
 
@@ -99,8 +78,7 @@ class Approve extends AbstractModel
         $keyValues = array ();
 
         empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
-        empty($this->parentId) ? : $keyValues['parent_id'] = $this->parentId;
-        empty($this->parentType) ? : $keyValues['parent_type'] = $this->parentType;
+        empty($this->postId) ? : $keyValues['post_id'] = $this->postId;
         empty($this->timeC) ? : $keyValues['time_c'] = $this->timeC;
 
         return $keyValues;
@@ -112,5 +90,6 @@ class Approve extends AbstractModel
 
         return $keyValues;
     }
+
 
 }

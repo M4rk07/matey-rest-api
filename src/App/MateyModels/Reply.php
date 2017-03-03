@@ -3,44 +3,38 @@
  * Created by PhpStorm.
  * User: marko
  * Date: 3.11.16.
- * Time: 12.55
+ * Time: 13.13
  */
 
 namespace App\MateyModels;
 
-
 use AuthBucket\OAuth2\Model\ModelInterface;
 
-class Post extends AbstractModel
+class Reply extends AbstractModel
 {
-
-    protected $groupId;
+    protected $postId;
     protected $userId;
-    protected $title;
     protected $text;
-    protected $timeC;
     protected $attachsNum;
     protected $locationsNum;
-
-    protected $lastActions;
+    protected $timeC;
+    protected $numOfApproves;
     protected $numOfReplies;
-    protected $numOfShares;
-    protected $numOfBoosts;
 
     /**
      * @return mixed
      */
-    public function getGroupId()
+    public function getPostId()
     {
-        return $this->groupId;
+        return $this->postId;
     }
 
     /**
-     * @param mixed $groupId
+     * @param mixed $postId
      */
-    public function setGroupId($groupId)
+    public function setPostId($postId)
     {
-        $this->groupId = $groupId;
+        $this->postId = $postId;
         return $this;
     }
 
@@ -64,23 +58,6 @@ class Post extends AbstractModel
     /**
      * @return mixed
      */
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    /**
-     * @param mixed $title
-     */
-    public function setTitle($title)
-    {
-        $this->title = $title;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getText()
     {
         return $this->text;
@@ -92,23 +69,6 @@ class Post extends AbstractModel
     public function setText($text)
     {
         $this->text = $text;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getTimeC()
-    {
-        return $this->timeC;
-    }
-
-    /**
-     * @param mixed $timeC
-     */
-    public function setTimeC($timeC)
-    {
-        $this->timeC = $timeC;
         return $this;
     }
 
@@ -149,17 +109,34 @@ class Post extends AbstractModel
     /**
      * @return mixed
      */
-    public function getLastActions()
+    public function getTimeC()
     {
-        return $this->lastActions;
+        return $this->timeC;
     }
 
     /**
-     * @param mixed $lastActions
+     * @param mixed $timeC
      */
-    public function setLastActions($lastActions)
+    public function setTimeC($timeC)
     {
-        $this->lastActions = $lastActions;
+        $this->timeC = $timeC;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNumOfApproves()
+    {
+        return $this->numOfApproves;
+    }
+
+    /**
+     * @param mixed $numOfApproves
+     */
+    public function setNumOfApproves($numOfApproves)
+    {
+        $this->numOfApproves = $numOfApproves;
         return $this;
     }
 
@@ -180,82 +157,38 @@ class Post extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getNumOfShares()
-    {
-        return $this->numOfShares;
-    }
-
-    /**
-     * @param mixed $numOfShares
-     */
-    public function setNumOfShares($numOfShares)
-    {
-        $this->numOfShares = $numOfShares;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getNumOfBoosts()
-    {
-        return $this->numOfBoosts;
-    }
-
-    /**
-     * @param mixed $numOfBoosts
-     */
-    public function setNumOfBoosts($numOfBoosts)
-    {
-        $this->numOfBoosts = $numOfBoosts;
-        return $this;
-    }
-
 
 
     public function serialize() {
         return serialize(array(
+            'response_id' => $this->responseId,
             'post_id' => $this->postId,
             'user_id' => $this->userId,
-            'text' => $this->text
+            'text' => $this->text,
+            'date_time' => $this->dateTime
         ));
-    }
-
-    public function unserialize($data) {
-        $data = unserialize($data);
-        $this->setId($data['post_id'])
-            ->setUserId($data['user_id'])
-            ->setText($data['text']);
-        return $this;
     }
 
     public function setValuesFromArray($values)
     {
         if(isset($values['post_id'])) $this->setId($values['post_id']);
         if(isset($values['user_id'])) $this->setUserId($values['user_id']);
-        if(isset($values['group_id'])) $this->setGroupId($values['group_id']);
-        if(isset($values['title'])) $this->setTitle($values['title']);
+        if(isset($values['post_id'])) $this->setPostId($values['post_id']);
         if(isset($values['text'])) $this->setText($values['text']);
         if(isset($values['time_c'])) $this->setTimeC($values['time_c']);
         if(isset($values['attachs_num'])) $this->setAttachsNum($values['attachs_num']);
         if(isset($values['locations_num'])) $this->setLocationsNum($values['locations_num']);
-        if(isset($values['num_of_shares'])) $this->setNumOfShares($values['num_of_shares']);
         if(isset($values['num_of_replies'])) $this->setNumOfReplies($values['num_of_replies']);
-        if(isset($values['num_of_boosts'])) $this->setNumOfBoosts($values['num_of_boosts']);
-        if(isset($values['last_action'])) $this->setNumOfBoosts($values['last_action']);
+        if(isset($values['num_of_approves'])) $this->setNumOfApproves($values['num_of_approves']);
     }
 
     public function getMysqlValues()
     {
         $keyValues = array ();
 
-        empty($this->id) ? : $keyValues['post_id'] = $this->id;
+        empty($this->id) ? : $keyValues['reply_id'] = $this->id;
         empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
-        empty($this->groupId) ? : $keyValues['group_id'] = $this->groupId;
-        empty($this->title) ? : $keyValues['title'] = $this->title;
+        empty($this->postId) ? : $keyValues['post_id'] = $this->postId;
         empty($this->text) ? : $keyValues['text'] = $this->text;
         empty($this->attachsNum) ? : $keyValues['attachs_num'] = $this->attachsNum;
         empty($this->locationsNum) ? : $keyValues['locations_num'] = $this->locationsNum;
@@ -268,10 +201,8 @@ class Post extends AbstractModel
     {
         $keyValues = $this->getMysqlValues();
 
-        empty($this->numOfShares) ? : $keyValues['num_of_shares'] = $this->numOfShares;
         empty($this->numOfReplies) ? : $keyValues['num_of_replies'] = $this->numOfReplies;
-        empty($this->numOfBoosts) ? : $keyValues['num_of_boosts'] = $this->numOfBoosts;
-        empty($this->lastActions) ? : $keyValues['last_action'] = $this->lastActions;
+        empty($this->numOfApproves) ? : $keyValues['num_of_approves'] = $this->numOfApproves;
 
         return $keyValues;
     }

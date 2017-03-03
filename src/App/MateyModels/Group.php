@@ -17,7 +17,7 @@ class Group extends AbstractModel
     protected $userId;
     protected $groupName;
     protected $description;
-    protected $dateCreated;
+    protected $timeC;
     protected $silhouette;
     protected $numOfFollowers;
     protected $deleted;
@@ -76,17 +76,17 @@ class Group extends AbstractModel
     /**
      * @return mixed
      */
-    public function getDateCreated()
+    public function getTimeC()
     {
-        return $this->dateCreated;
+        return $this->timeC;
     }
 
     /**
      * @param mixed $dateCreated
      */
-    public function setDateCreated($dateCreated)
+    public function setTimeC($timeC)
     {
-        $this->dateCreated = $dateCreated;
+        $this->timeC = $timeC;
         return $this;
     }
 
@@ -177,7 +177,7 @@ class Group extends AbstractModel
         empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
         empty($this->groupName) ? : $keyValues['group_name'] = $this->groupName;
         empty($this->description) ? : $keyValues['description'] = $this->description;
-        empty($this->dateCreated) ? : $keyValues['date_created'] = $this->dateCreated;
+        empty($this->timeC) ? : $keyValues['time_c'] = $this->timeC;
         empty($this->silhouette) && $this->silhouette !== 0 ? : $keyValues['is_silhouette'] = $this->silhouette;
         empty($this->deleted) && $this->deleted !== 0 ? : $keyValues['deleted'] = $this->deleted;
 
@@ -187,6 +187,7 @@ class Group extends AbstractModel
     public function getValuesAsArray()
     {
         $keyValues = $this->getMysqlValues();
+
         empty($this->numOfFollowers) ? : $keyValues['num_of_followers'] = $this->numOfFollowers;
         $keyValues['group_picture_url'] = $this->getGroupPicture('original');
 

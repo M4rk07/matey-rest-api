@@ -90,21 +90,6 @@ CREATE TABLE IF NOT EXISTS matey_login (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `matey_follower`
---
-
-CREATE TABLE IF NOT EXISTS matey_follower (
-  from_user int(11) UNSIGNED NOT NULL,
-  to_user int(11) UNSIGNED NOT NULL,
-  date_started timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (from_user, to_user),
-  FOREIGN KEY (from_user) REFERENCES matey_user(user_id),
-  FOREIGN KEY (to_user) REFERENCES matey_user(user_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `matey_group`
 --
 
@@ -114,7 +99,7 @@ CREATE TABLE IF NOT EXISTS matey_group (
   group_name varchar(500) NOT NULL,
   description varchar(5000),
   is_silhouette boolean NOT NULL DEFAULT 1,
-  date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   deleted boolean NOT NULL DEFAULT 0,
   PRIMARY KEY (group_id),
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id)
@@ -126,9 +111,18 @@ CREATE TABLE IF NOT EXISTS matey_group (
 -- Table structure for table `matey_group_admin`
 --
 
-CREATE TABLE IF NOT EXISTS matey_group_role (
-  role varchar(10) CHARACTER SET utf8 NOT NULL,
-  PRIMARY KEY (role)
+CREATE TABLE IF NOT EXISTS matey_post (
+  post_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  group_id int(11) UNSIGNED NOT NULL DEFAULT 0,
+  user_id int(11) UNSIGNED NOT NULL,
+  title varchar(100) CHARACTER SET utf8,
+  text varchar(3000) CHARACTER SET utf8,
+  attachs_num int(11) NOT NULL DEFAULT 0,
+  locations_num int(11) NOT NULL DEFAULT 0,
+  time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (post_id),
+  FOREIGN KEY(group_id) REFERENCES matey_group(group_id),
+  FOREIGN KEY(user_id) REFERENCES matey_user(user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -137,30 +131,197 @@ CREATE TABLE IF NOT EXISTS matey_group_role (
 -- Table structure for table `matey_group_admin`
 --
 
-CREATE TABLE IF NOT EXISTS matey_group_relationship (
-  group_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS matey_reply (
+  reply_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id int(11) UNSIGNED NOT NULL,
-  role varchar(10) CHARACTER SET utf8 NOT NULL,
-  date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (group_id, user_id),
-  FOREIGN KEY (group_id) REFERENCES matey_group(group_id),
-  FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
-  FOREIGN KEY (role) REFERENCES matey_group_role(role)
+  post_id int(11) UNSIGNED NOT NULL,
+  text varchar(3000) CHARACTER SET utf8,
+  attachs_num int(11) NOT NULL DEFAULT 0,
+  locations_num int(11) NOT NULL DEFAULT 0,
+  time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (reply_id),
+  FOREIGN KEY(user_id) REFERENCES matey_user(user_id),
+  FOREIGN KEY(post_id) REFERENCES matey_post(post_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `matey_group_follow`
+-- Table structure for table `matey_group_admin`
 --
 
-CREATE TABLE IF NOT EXISTS matey_group_follow (
-  group_id int(11) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS matey_rereply (
+  rereply_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id int(11) UNSIGNED NOT NULL,
-  date_started TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (group_id, user_id),
-  FOREIGN KEY(group_id) REFERENCES matey_group(group_id),
+  reply_id int(11) UNSIGNED NOT NULL,
+  text varchar(3000) CHARACTER SET utf8,
+  time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (rereply_id),
+  FOREIGN KEY(user_id) REFERENCES matey_user(user_id),
+  FOREIGN KEY(reply_id) REFERENCES matey_reply(reply_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_group_admin`
+--
+
+CREATE TABLE IF NOT EXISTS matey_group_scope (
+  scope varchar(10) CHARACTER SET utf8 NOT NULL,
+  PRIMARY KEY (scope)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_group_admin`
+--
+
+CREATE TABLE IF NOT EXISTS matey_group_admin (
+  user_id int(11) UNSIGNED NOT NULL,
+  group_id int(11) UNSIGNED NOT NULL,
+  scope varchar(300) CHARACTER SET utf8 NOT NULL,
+  time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, group_id),
+  FOREIGN KEY(user_id) REFERENCES matey_user(user_id),
+  FOREIGN KEY(group_id) REFERENCES matey_group(group_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_group_admin`
+--
+
+CREATE TABLE IF NOT EXISTS matey_group_favorite (
+  user_id int(11) UNSIGNED NOT NULL,
+  group_id int(11) UNSIGNED NOT NULL,
+  time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, group_id),
+  FOREIGN KEY(user_id) REFERENCES matey_user(user_id),
+  FOREIGN KEY(group_id) REFERENCES matey_group(group_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_group_admin`
+--
+
+CREATE TABLE IF NOT EXISTS matey_share (
+  user_id int(11) UNSIGNED NOT NULL,
+  parent_id int(11) UNSIGNED NOT NULL,
+  parent_type varchar(20) CHARACTER SET utf8,
+  time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY(user_id) REFERENCES matey_user(user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_group_admin`
+--
+
+CREATE TABLE IF NOT EXISTS matey_follow (
+  user_id int(11) UNSIGNED NOT NULL,
+  parent_id int(11) UNSIGNED NOT NULL,
+  parent_type varchar(20) CHARACTER SET utf8,
+  time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, parent_id, parent_type),
+  FOREIGN KEY(user_id) REFERENCES matey_user(user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_group_admin`
+--
+
+CREATE TABLE IF NOT EXISTS matey_approve (
+  user_id int(11) UNSIGNED NOT NULL,
+  parent_id int(11) UNSIGNED NOT NULL,
+  parent_type varchar(20) CHARACTER SET utf8,
+  time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, parent_id, parent_type),
+  FOREIGN KEY(user_id) REFERENCES matey_user(user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_group_admin`
+--
+
+CREATE TABLE IF NOT EXISTS matey_boost (
+  user_id int(11) UNSIGNED NOT NULL,
+  post_id int(11) UNSIGNED NOT NULL,
+  time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, post_id),
+  FOREIGN KEY(user_id) REFERENCES matey_user(user_id),
+  FOREIGN KEY(post_id) REFERENCES matey_post(post_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_group_admin`
+--
+
+CREATE TABLE IF NOT EXISTS matey_bookmark (
+  user_id int(11) UNSIGNED NOT NULL,
+  post_id int(11) UNSIGNED NOT NULL,
+  time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, post_id),
+  FOREIGN KEY(user_id) REFERENCES matey_user(user_id),
+  FOREIGN KEY(post_id) REFERENCES matey_post(post_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_group_admin`
+--
+
+CREATE TABLE IF NOT EXISTS matey_location (
+  parent_id int(11) UNSIGNED NOT NULL,
+  parent_type varchar(20) CHARACTER SET utf8,
+  latt varchar(20) CHARACTER SET utf8,
+  longt varchar(20) CHARACTER SET utf8
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_activity_type`
+--
+
+CREATE TABLE IF NOT EXISTS matey_activity_type (
+  activity_type varchar(50) NOT NULL,
+  PRIMARY KEY (activity_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_activity`
+--
+
+CREATE TABLE IF NOT EXISTS matey_activity (
+  activity_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id int(11) UNSIGNED NOT NULL,
+  source_id int(11) UNSIGNED NOT NULL,
+  parent_id int(11) UNSIGNED NOT NULL,
+  parent_type varchar(50) NOT NULL,
+  activity_type varchar(50) NOT NULL,
+  time_c timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  deleted tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (activity_id),
+  FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
+  FOREIGN KEY (activity_type) REFERENCES matey_activity_type(activity_type),
+  FOREIGN KEY (parent_type) REFERENCES matey_activity_type(activity_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -281,6 +442,10 @@ CREATE TABLE IF NOT EXISTS oauth2_scope (
   PRIMARY KEY (scope)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+INSERT INTO matey_activity_type (activity_type) VALUES
+('GROUP'), ('POST'), ('REPLY'),
+('FOLLOW'), ('SHARE'), ('REREPLY'), ('BOOKMARK'), ('BOOST'), ('APPROVE');
+
 -- --------------------------------------------------------
 
 --
@@ -288,11 +453,3 @@ CREATE TABLE IF NOT EXISTS oauth2_scope (
 --
 
 INSERT INTO oauth2_client (app_name) VALUES ('Matey');
--- --------------------------------------------------------
-
---
--- POPULATE table `matey_group_role`
---
-
-INSERT INTO matey_group_role (role) VALUES
-('OWNER'), ('ADMIN');

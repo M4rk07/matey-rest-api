@@ -9,13 +9,13 @@
 namespace App\MateyModels;
 
 
-class GroupRelationship extends AbstractModel
+class GroupAdmin extends AbstractModel
 {
 
     protected $groupId;
     protected $userId;
-    protected $role;
-    protected $dateCreated;
+    protected $scope;
+    protected $timeC;
 
     /**
      * @return mixed
@@ -54,34 +54,34 @@ class GroupRelationship extends AbstractModel
     /**
      * @return mixed
      */
-    public function getRole()
+    public function getScope()
     {
-        return $this->role;
+        return $this->scope;
     }
 
     /**
      * @param mixed $role
      */
-    public function setRole($role)
+    public function setScope($scope)
     {
-        $this->role = $role;
+        $this->scope = $scope;
         return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getDateCreated()
+    public function getTimeC()
     {
-        return $this->dateCreated;
+        return $this->timeC;
     }
 
     /**
      * @param mixed $dateCreated
      */
-    public function setDateCreated($dateCreated)
+    public function setTimeC($timeC)
     {
-        $this->dateCreated = $dateCreated;
+        $this->timeC = $timeC;
         return $this;
     }
 
@@ -89,8 +89,8 @@ class GroupRelationship extends AbstractModel
     {
         if(isset($values['group_id'])) $this->setId($values['group_id']);
         if(isset($values['user_id'])) $this->setUserId($values['user_id']);
-        if(isset($values['role'])) $this->setRole($values['role']);
-        if(isset($values['date_created'])) $this->setDateCreated($values['date_created']);
+        if(isset($values['scope'])) $this->setScope($values['scope']);
+        if(isset($values['time_c'])) $this->setTimeC($values['time_c']);
     }
 
     public function getMysqlValues()
@@ -99,8 +99,8 @@ class GroupRelationship extends AbstractModel
 
         empty($this->id) ? : $keyValues['group_id'] = $this->id;
         empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
-        empty($this->role) ? : $keyValues['role'] = $this->role;
-        empty($this->dateCreated) ? : $keyValues['date_created'] = $this->dateCreated;
+        empty($this->scope) ? : $keyValues['scope'] = $this->scope;
+        empty($this->timeC) ? : $keyValues['time_c'] = $this->timeC;
 
         return $keyValues;
     }

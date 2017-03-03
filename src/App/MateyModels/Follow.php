@@ -9,14 +9,15 @@
 namespace App\MateyModels;
 
 
-use AuthBucket\OAuth2\Model\ModelInterface;
-
 class Follow extends AbstractModel
 {
 
     protected $userFrom;
-    protected $userTo;
-    protected $dateTime;
+    protected $parentId;
+    protected $parentType;
+    protected $timeC;
+    protected $numOfInteractions;
+    protected $sumOfInteractions;
 
     /**
      * @return mixed
@@ -38,42 +39,94 @@ class Follow extends AbstractModel
     /**
      * @return mixed
      */
-    public function getUserTo()
+    public function getParentId()
     {
-        return $this->userTo;
+        return $this->parentId;
     }
 
     /**
-     * @param mixed $userTo
+     * @param mixed $parentId
      */
-    public function setUserTo($userTo)
+    public function setParentId($parentId)
     {
-        $this->userTo = $userTo;
+        $this->parentId = $parentId;
         return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getDateTime()
+    public function getParentType()
     {
-        return $this->dateTime;
+        return $this->parentType;
     }
 
     /**
-     * @param mixed $dateTime
+     * @param mixed $parentType
      */
-    public function setDateTime($dateTime)
+    public function setParentType($parentType)
     {
-        $this->dateTime = $dateTime;
+        $this->parentType = $parentType;
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTimeC()
+    {
+        return $this->timeC;
+    }
+
+    /**
+     * @param mixed $timeC
+     */
+    public function setTimeC($timeC)
+    {
+        $this->timeC = $timeC;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNumOfInteractions()
+    {
+        return $this->numOfInteractions;
+    }
+
+    /**
+     * @param mixed $numOfInteractions
+     */
+    public function setNumOfInteractions($numOfInteractions)
+    {
+        $this->numOfInteractions = $numOfInteractions;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSumOfInteractions()
+    {
+        return $this->sumOfInteractions;
+    }
+
+    /**
+     * @param mixed $sumOfInteractions
+     */
+    public function setSumOfInteractions($sumOfInteractions)
+    {
+        $this->sumOfInteractions = $sumOfInteractions;
     }
 
     public function setValuesFromArray($values)
     {
         $this->userFrom = isset($values['from_user']) ? $values['from_user'] : "";
-        $this->userTo = isset($values['to_user']) ? $values['to_user'] : "";
-        $this->dateTime = isset($values['date_time']) ? $values['date_time'] : "";
+        $this->parentId = isset($values['parent_id']) ? $values['parent_id'] : "";
+        $this->parentType = isset($values['parent_type']) ? $values['parent_type'] : "";
+        $this->timeC = isset($values['time_c']) ? $values['time_c'] : "";
+        $this->numOfInteractions = isset($values['num_of_interactions']) ? $values['num_of_interactions'] : "";
+        $this->sumOfInteractions = isset($values['sum_of_interactions']) ? $values['sum_of_interactions'] : "";
     }
 
     public function getMysqlValues()
@@ -81,19 +134,19 @@ class Follow extends AbstractModel
         $keyValues = array ();
 
         empty($this->userFrom) ? : $keyValues['from_user'] = $this->userFrom;
-        empty($this->userTo) ? : $keyValues['to_user'] = $this->userTo;
-        empty($this->dateTime) ? : $keyValues['date_time'] = $this->dateTime;
+        empty($this->parentId) ? : $keyValues['parent_id'] = $this->parentId;
+        empty($this->parentType) ? : $keyValues['parent_type'] = $this->parentType;
+        empty($this->timeC) ? : $keyValues['time_c'] = $this->timeC;
 
         return $keyValues;
     }
 
     public function getValuesAsArray()
     {
-        $keyValues = array ();
+        $keyValues = $this->getMysqlValues();
 
-        empty($this->userFrom) ? : $keyValues['from_user'] = $this->userFrom;
-        empty($this->userTo) ? : $keyValues['to_user'] = $this->userTo;
-        empty($this->dateTime) ? : $keyValues['date_time'] = $this->dateTime;
+        empty($this->numOfInteractions) ? : $keyValues['num_of_interactions'] = $this->numOfInteractions;
+        empty($this->sumOfInteractions) ? : $keyValues['sum_of_interactions'] = $this->sumOfInteractions;
 
         return $keyValues;
     }
