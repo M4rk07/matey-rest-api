@@ -21,16 +21,16 @@ class ResponseManager extends AbstractManager
      */
     public function getClassName()
     {
-        return 'App\\MateyModels\\Response';
+        return 'App\\MateyModels\\Reply';
     }
 
     public function getTableName() {
-        return self::T_RESPONSE;
+        return self::T_REPLY;
     }
 
     public function getKeyName()
     {
-        return "RESPONSE";
+        return "REPLY";
     }
 
 }

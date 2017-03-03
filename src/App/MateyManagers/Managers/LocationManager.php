@@ -2,14 +2,14 @@
 /**
  * Created by PhpStorm.
  * User: marko
- * Date: 15.12.16.
- * Time: 16.34
+ * Date: 3.3.17.
+ * Time: 20.18
  */
 
 namespace App\MateyModels;
 
 
-class GroupRelationshipManager extends AbstractManager
+class LocationManager extends AbstractManager
 {
 
     /**
@@ -17,16 +17,16 @@ class GroupRelationshipManager extends AbstractManager
      */
     public function getClassName()
     {
-        return 'App\\MateyModels\\GroupRelationship';
+        return 'App\\MateyModels\\Location';
     }
 
     public function getTableName() {
-        return self::T_GROUP_RELATIONSHIP;
+        return self::T_LOCATION;
     }
 
     public function getKeyName()
     {
-        return "GROUP-RELATIONSHIP";
+        return "LOCATION";
     }
 
 }
