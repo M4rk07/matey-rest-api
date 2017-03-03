@@ -12,7 +12,7 @@ namespace App\MateyModels;
 class Follow extends AbstractModel
 {
 
-    protected $userFrom;
+    protected $userId;
     protected $parentId;
     protected $parentType;
     protected $timeC;
@@ -22,17 +22,17 @@ class Follow extends AbstractModel
     /**
      * @return mixed
      */
-    public function getUserFrom()
+    public function getUserId()
     {
-        return $this->userFrom;
+        return $this->userId;
     }
 
     /**
      * @param mixed $userFrom
      */
-    public function setUserFrom($userFrom)
+    public function setUserId($userId)
     {
-        $this->userFrom = $userFrom;
+        $this->userId = $userId;
         return $this;
     }
 
@@ -121,7 +121,7 @@ class Follow extends AbstractModel
 
     public function setValuesFromArray($values)
     {
-        $this->userFrom = isset($values['from_user']) ? $values['from_user'] : "";
+        $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
         $this->parentId = isset($values['parent_id']) ? $values['parent_id'] : "";
         $this->parentType = isset($values['parent_type']) ? $values['parent_type'] : "";
         $this->timeC = isset($values['time_c']) ? $values['time_c'] : "";
@@ -133,7 +133,7 @@ class Follow extends AbstractModel
     {
         $keyValues = array ();
 
-        empty($this->userFrom) ? : $keyValues['from_user'] = $this->userFrom;
+        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
         empty($this->parentId) ? : $keyValues['parent_id'] = $this->parentId;
         empty($this->parentType) ? : $keyValues['parent_type'] = $this->parentType;
         empty($this->timeC) ? : $keyValues['time_c'] = $this->timeC;

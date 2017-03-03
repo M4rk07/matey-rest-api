@@ -208,6 +208,8 @@ abstract class AbstractManager implements ModelManagerInterface
     {
         $fields = $model->getMysqlValues();
 
+        if(empty($fields)) null;
+
         $setStr = "";
         $values = [];
         foreach($fields as $key => $value) {
