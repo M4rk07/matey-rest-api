@@ -156,5 +156,34 @@ class UserManager extends AbstractManager
         $this->redis->hincrby(self::KEY_USER.":counts:".$user->getId(), self::FIELD_NUM_OF_SHARES, $incrBy);
     }
 
+    public function pushFeedForCalculation (User $user, array $ids) {
+        $this->redis->sadd($this->getKeyName().":feed_calculation:".$user->getId(), $ids);
+    }
+
+    public function getFeedForCalculation (User $user) {
+        $this->redis->smembers($this->getKeyName().":feed_calculation:".$user->getId());
+    }
+
+    public function pushFeedScored (User $user, array $scoreValues) {
+        $this->redis->zadd($this->getKeyName().":feed_scored:".$user->getId(), $scoreValues);
+    }
+
+    public function getFeedScored (User $user, $start, $stop) {
+        return $this->redis->zrange($this->getKeyName().":feed_scored:".$user->getId(), $start, $stop);
+    }
+
+    public function pushFeedSeen (User $user, array $ids) {
+        $this->redis->sadd($this->getKeyName().":feed_seen:".$user->getId(), $ids);
+    }
+
+    public function getFeedSeen (User $user) {
+        return $this->redis->smembers($this->getKeyName().":feed_seen:".$user->getId());
+    }
+
+    public function isFeedSeen (User $user, $id) {
+        $seen = $this->redis->sismember($this->getKeyName().":feed_seen:".$user->getId(), $id);
+        if(empty($seen)) return false;
+        return true;
+    }
 
 }

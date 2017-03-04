@@ -49,9 +49,7 @@ class S3Storage
 
             $promises[$i++]
                 ->then(
-                    function ($value) {
-                        var_dump($value);
-                    },
+                    function ($value) {},
                     function ($reason) use ($errors) {
                         // The call failed. You can recover from the error here and
                         // return a value that will be provided to the next successful

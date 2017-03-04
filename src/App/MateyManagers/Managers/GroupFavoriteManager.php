@@ -9,7 +9,7 @@
 namespace App\MateyModels;
 
 
-class GroupFavorite extends AbstractManager
+class GroupFavoriteManager extends AbstractManager
 {
 
     /**

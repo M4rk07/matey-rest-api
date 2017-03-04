@@ -101,6 +101,7 @@ class Follow extends AbstractModel
     public function setNumOfInteractions($numOfInteractions)
     {
         $this->numOfInteractions = $numOfInteractions;
+        return $this;
     }
 
     /**
@@ -117,16 +118,17 @@ class Follow extends AbstractModel
     public function setSumOfInteractions($sumOfInteractions)
     {
         $this->sumOfInteractions = $sumOfInteractions;
+        return $this;
     }
 
     public function setValuesFromArray($values)
     {
-        $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
-        $this->parentId = isset($values['parent_id']) ? $values['parent_id'] : "";
-        $this->parentType = isset($values['parent_type']) ? $values['parent_type'] : "";
-        $this->timeC = isset($values['time_c']) ? $values['time_c'] : "";
-        $this->numOfInteractions = isset($values['num_of_interactions']) ? $values['num_of_interactions'] : "";
-        $this->sumOfInteractions = isset($values['sum_of_interactions']) ? $values['sum_of_interactions'] : "";
+        if(isset($values['user_id'])) $this->setUserId($values['user_id']);
+        if(isset($values['parent_id'])) $this->setParentId($values['parent_id']);
+        if(isset($values['parent_type'])) $this->setParentType($values['parent_type']);
+        if(isset($values['time_c'])) $this->setTimeC($values['time_c']);
+        if(isset($values['num_of_interactions'])) $this->setNumOfInteractions($values['num_of_interactions']);
+        if(isset($values['sum_of_interactions'])) $this->setSumOfInteractions($values['sum_of_interactions']);
     }
 
     public function getMysqlValues()

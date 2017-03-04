@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * Date: 3.3.17.
  * Time: 16.07
  */
-class AbstractPostHandler implements PostHandlerInterface
+abstract class AbstractPostHandler implements PostHandlerInterface
 {
 
     protected $validator;

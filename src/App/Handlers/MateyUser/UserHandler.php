@@ -83,8 +83,9 @@ class UserHandler extends AbstractUserHandler
         $userFrom->setId($userId);
         $userTo->setId($id);
 
-        $follow->setUserFrom($userId)
-            ->setUserTo($id);
+        $follow->setUserId($userId)
+            ->setParentId($id)
+            ->setParentType("USER");
 
         $method = $request->getMethod();
 
@@ -155,18 +156,20 @@ class UserHandler extends AbstractUserHandler
 
         if($type == "followers") {
             $followers = $followManager->readModelBy(array(
-                'to_user' => $id
+                'parent_id' => $id,
+                'parent_type' => "USER"
             ), null, $limit, $offset);
             foreach($followers as $follower) {
-                $connectionsArray[] = $follower->getUserFrom();
+                $connectionsArray[] = $follower->getUserId();
             }
 
         } else {
             $followers = $followManager->readModelBy(array(
-                'from_user' => $id
+                'user_id' => $id,
+                'parent_type' => "USER"
             ), null, $limit, $offset);
             foreach($followers as $follower) {
-                $connectionsArray[] = $follower->getUserTo();
+                $connectionsArray[] = $follower->getParentId();
             }
         }
 

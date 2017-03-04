@@ -26,7 +26,7 @@ define("ROOT_PATH", __DIR__ . "/..");
 
 $app->register(new DoctrineServiceProvider(), array(
     'db.options' => array(
-        'dbname' => 'matey_db_v1',
+        'dbname' => 'matey_db',
         'user' => 'root',
         'password' => 'maka',
         'host' => 'localhost',

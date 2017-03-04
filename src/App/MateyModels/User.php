@@ -44,6 +44,10 @@ class User extends AbstractModel
     protected $numOfBestResponses;
     protected $numOfShares;
 
+    protected $feedForCalculation;
+    protected $feedScored;
+    protected $feedSeen;
+
     /**
      * @return mixed
      */
@@ -123,7 +127,7 @@ class User extends AbstractModel
             else if($size == 'large') $dimension = '480x480';
             else if($size == 'original') $dimension = 'originals';
         }
-        if($this->silhouette == 1) return "https://tctechcrunch2011.files.wordpress.com/2010/10/pirate.jpg";
+        if($this->silhouette == 0) return "https://tctechcrunch2011.files.wordpress.com/2010/10/pirate.jpg";
         return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/pictures/".$dimension."/".$this->getId().".jpg";
     }
 

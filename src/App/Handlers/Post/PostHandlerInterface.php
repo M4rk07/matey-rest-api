@@ -8,8 +8,12 @@
 
 namespace App\Handlers\Post;
 
+use Silex\Application;
+use Symfony\Component\HttpFoundation\Request;
 
 interface PostHandlerInterface
 {
+
+    public function createPost (Application $app, Request $request);
 
 }

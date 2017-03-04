@@ -193,7 +193,6 @@ abstract class AbstractManager implements ModelManagerInterface
         $all = $prepared->fetchAll();
 
         $models = $this->makeObjects($all);
-
         return $models;
     }
 

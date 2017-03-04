@@ -6,6 +6,7 @@ use App\Controllers\API\ConnectionController;
 use App\Controllers\API\DeviceController;
 use App\Controllers\API\FileController;
 use App\Controllers\API\GroupController;
+use App\Controllers\API\PostController;
 use App\Controllers\API\ProfileController;
 use App\Controllers\API\ProfilePictureController;
 use App\Controllers\API\TestDataController;
@@ -18,6 +19,7 @@ use App\Handlers\File\FileHandlerFactory;
 use App\Handlers\Group\GroupHandlerFactory;
 use App\Handlers\MateyUser\UserHandlerFactory;
 use App\Handlers\MergeAccount\MergeAccountHandlerFactory;
+use App\Handlers\Post\PostHandlerFactory;
 use App\Handlers\Profile\ProfileHandlerFactory;
 use App\Handlers\ProfilePicture\ProfilePictureHandler;
 use App\Handlers\TestingData\TestingDataHandler;
@@ -55,7 +57,17 @@ class MateyServiceProvider implements ServiceProviderInterface
             'login' => 'App\\MateyModels\\Login',
             'follow' => 'App\\MateyModels\\Follow',
             'group' => 'App\\MateyModels\\Group',
-            'group_relationship' => 'App\\MateyModels\\GroupRelationship'
+            'group_admin' => 'App\\MateyModels\\GroupAdmin',
+            'group_favorite' => 'App\\MateyModels\\GroupFavorite',
+            'location' => 'App\\MateyModels\\Location',
+            'activity' => 'App\\MateyModels\\Activity',
+            'approve' => 'App\\MateyModels\\Approve',
+            'bookmark' => 'App\\MateyModels\\Bookmark',
+            'boost' => 'App\\MateyModels\\Boost',
+            'post' => 'App\\MateyModels\\Post',
+            'reply' => 'App\\MateyModels\\Reply',
+            'rereply' => 'App\\MateyModels\\Rereply',
+            'share' => 'App\\MateyModels\\Share',
         ];
 
         $app['matey.model_manager.factory'] = $app->share(function ($app) {
@@ -85,10 +97,15 @@ class MateyServiceProvider implements ServiceProviderInterface
             'profile_picture' => 'App\\Handlers\\File\\ProfilePictureHandler',
             'cover_picture' => 'App\\Handlers\\File\\CoverPictureHandler',
             'group_picture' => 'App\\Handlers\\File\\GroupPictureHandler',
+            'attachment' => 'App\\Handlers\\File\\AttachmentHandler',
         ];
 
         $app['matey.handlers.group'] = [
             'standard' => 'App\\Handlers\\Group\\StandardGroupHandler'
+        ];
+
+        $app['matey.handlers.post'] = [
+            'standard' => 'App\\Handlers\\Post\\StandardPostHandler'
         ];
 
                     // HANDLERS FACTORIES //
@@ -130,6 +147,14 @@ class MateyServiceProvider implements ServiceProviderInterface
                 $app['validator'],
                 $app['matey.model_manager.factory'],
                 $app['matey.handlers.group']
+            );
+        });
+
+        $app['matey.post_handler.factory'] = $app->share(function($app) {
+            return new PostHandlerFactory(
+                $app['validator'],
+                $app['matey.model_manager.factory'],
+                $app['matey.handlers.post']
             );
         });
 
@@ -180,6 +205,14 @@ class MateyServiceProvider implements ServiceProviderInterface
                 $app['validator'],
                 $app['matey.model_manager.factory'],
                 $app['matey.group_handler.factory']
+            );
+        });
+
+        $app['matey.post_controller'] = $app->share(function () use ($app) {
+            return new PostController(
+                $app['validator'],
+                $app['matey.model_manager.factory'],
+                $app['matey.post_handler.factory']
             );
         });
 
