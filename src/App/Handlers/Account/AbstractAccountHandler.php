@@ -9,6 +9,7 @@
 namespace App\Handlers\Account;
 
 
+use App\Handlers\AbstractHandler;
 use App\MateyModels\ModelManagerFactoryInterface;
 use App\MateyModels\User;
 use App\Validators\Name;
@@ -19,20 +20,8 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-abstract class AbstractAccountHandler implements AccountHandlerInterface
+abstract class AbstractAccountHandler extends AbstractHandler implements AccountHandlerInterface
 {
-
-    protected $validator;
-    protected $modelManagerFactory;
-
-    public function __construct(
-        ValidatorInterface $validator,
-        ModelManagerFactoryInterface $modelManagerFactory
-    )
-    {
-        $this->validator = $validator;
-        $this->modelManagerFactory = $modelManagerFactory;
-    }
 
     protected function getAccountById($userId)
     {

@@ -9,23 +9,12 @@
 namespace App\Handlers\File;
 
 
+use App\Handlers\AbstractHandler;
 use App\MateyModels\ModelManagerFactoryInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-abstract class AbstractFileHandler implements FileHandlerInterface
+abstract class AbstractFileHandler extends AbstractHandler implements FileHandlerInterface
 {
-
-    protected $validator;
-    protected $modelManagerFactory;
-
-    public function __construct(
-        ValidatorInterface $validator,
-        ModelManagerFactoryInterface $modelManagerFactory
-    )
-    {
-        $this->validator = $validator;
-        $this->modelManagerFactory = $modelManagerFactory;
-    }
 
     function resizeImage($file, $w, $h, $crop=FALSE) {
 

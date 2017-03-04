@@ -62,6 +62,14 @@ class FollowManager extends AbstractManager
 
     }
 
+    public function getGroupAndUserFollowers($userId, $groupId) {
+        $all = $this->db->fetchAll("SELECT * FROM " . $this->getTableName() .
+            " WHERE (parent_id = ".$userId." AND parent_type = ".Activity::USER_TYPE.") 
+            OR (parent_id = ".$groupId." AND parent_type = ".Activity::GROUP_TYPE.")");
+
+        return $this->makeObjects($all);
+    }
+
     // ---------------------------- REDIS TOOOLS ---------------------------------
 
     public function initializeInteractionsData(Follow $follow) {

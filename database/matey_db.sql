@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS matey_login (
 --
 
 CREATE TABLE IF NOT EXISTS matey_group (
-  group_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  group_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT=1001,
   user_id int(11) UNSIGNED NOT NULL,
   group_name varchar(500) NOT NULL,
   description varchar(5000),

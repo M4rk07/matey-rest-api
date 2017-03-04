@@ -9,22 +9,11 @@
 namespace App\Handlers\Group;
 
 
+use App\Handlers\AbstractHandler;
 use App\MateyModels\ModelManagerFactoryInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-abstract class AbstractGroupHandler implements GroupHandlerInterface
+abstract class AbstractGroupHandler extends AbstractHandler implements GroupHandlerInterface
 {
-
-    protected $validator;
-    protected $modelManagerFactory;
-
-    public function __construct(
-        ValidatorInterface $validator,
-        ModelManagerFactoryInterface $modelManagerFactory
-    )
-    {
-        $this->validator = $validator;
-        $this->modelManagerFactory = $modelManagerFactory;
-    }
 
 }

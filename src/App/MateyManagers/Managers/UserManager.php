@@ -156,7 +156,7 @@ class UserManager extends AbstractManager
         $this->redis->hincrby(self::KEY_USER.":counts:".$user->getId(), self::FIELD_NUM_OF_SHARES, $incrBy);
     }
 
-    public function pushFeedForCalculation (User $user, array $ids) {
+    public function pushFeedForCalculation (User $user, $ids) {
         $this->redis->sadd($this->getKeyName().":feed_calculation:".$user->getId(), $ids);
     }
 
@@ -164,7 +164,7 @@ class UserManager extends AbstractManager
         $this->redis->smembers($this->getKeyName().":feed_calculation:".$user->getId());
     }
 
-    public function pushFeedScored (User $user, array $scoreValues) {
+    public function pushFeedScored (User $user, $scoreValues) {
         $this->redis->zadd($this->getKeyName().":feed_scored:".$user->getId(), $scoreValues);
     }
 
@@ -172,7 +172,7 @@ class UserManager extends AbstractManager
         return $this->redis->zrange($this->getKeyName().":feed_scored:".$user->getId(), $start, $stop);
     }
 
-    public function pushFeedSeen (User $user, array $ids) {
+    public function pushFeedSeen (User $user, $ids) {
         $this->redis->sadd($this->getKeyName().":feed_seen:".$user->getId(), $ids);
     }
 

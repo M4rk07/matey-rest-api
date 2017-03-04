@@ -1,5 +1,6 @@
 <?php
 namespace App\Handlers\Post;
+use App\Handlers\AbstractHandler;
 use App\MateyModels\ModelManagerFactoryInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -9,19 +10,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * Date: 3.3.17.
  * Time: 16.07
  */
-abstract class AbstractPostHandler implements PostHandlerInterface
+abstract class AbstractPostHandler extends AbstractHandler implements PostHandlerInterface
 {
-
-    protected $validator;
-    protected $modelManagerFactory;
-
-    public function __construct(
-        ValidatorInterface $validator,
-        ModelManagerFactoryInterface $modelManagerFactory
-    )
-    {
-        $this->validator = $validator;
-        $this->modelManagerFactory = $modelManagerFactory;
-    }
 
 }

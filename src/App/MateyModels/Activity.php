@@ -11,7 +11,17 @@ namespace App\MateyModels;
 class Activity extends AbstractModel
 {
 
-    protected $activityId;
+    const USER_TYPE = "USER";
+    const POST_TYPE = "POST";
+    const GROUP_TYPE = "GROUP";
+    const SHARE_TYPE = "SHARE";
+    const BOOKMARK_TYPE = "BOOKMARK";
+    const BOOST_TYPE = "BOOST";
+    const REPLY_TYPE = "REPLY";
+    const REREPLY_TYPE = "REREPLY";
+    const APPROVE_TYPE = "APPROVE";
+    const FOLLOW_TYPE = "FOLLOW";
+
     protected $userId;
     protected $sourceId;
     protected $parentId;
@@ -19,22 +29,6 @@ class Activity extends AbstractModel
     protected $activityType;
     protected $timeC;
 
-    /**
-     * @return mixed
-     */
-    public function getActivityId()
-    {
-        return $this->activityId;
-    }
-
-    /**
-     * @param mixed $activityId
-     */
-    public function setActivityId($activityId)
-    {
-        $this->activityId = $activityId;
-        return $this;
-    }
 
     /**
      * @return mixed
@@ -140,20 +134,21 @@ class Activity extends AbstractModel
 
     public function setValuesFromArray($values)
     {
-        $this->activityId = isset($values['activity_id']) ? $values['activity_id'] : "";
-        $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
-        $this->sourceId = isset($values['source_id']) ? $values['source_id'] : "";
-        $this->parentId = isset($values['parent_id']) ? $values['parent_id'] : "";
-        $this->parentType = isset($values['parent_type']) ? $values['parent_type'] : "";
-        $this->activityType = isset($values['activity_type']) ? $values['activity_type'] : "";
-        $this->timeC = isset($values['time_c']) ? $values['time_c'] : "";
+
+        if(isset($values['activity_id'])) $this->setId($values['activity_id']);
+        if(isset($values['user_id'])) $this->setUserId($values['user_id']);
+        if(isset($values['source_id'])) $this->setSourceId($values['source_id']);
+        if(isset($values['parent_id'])) $this->setParentId($values['parent_id']);
+        if(isset($values['parent_type'])) $this->setParentType($values['parent_type']);
+        if(isset($values['activity_type'])) $this->setActivityType($values['activity_type']);
+        if(isset($values['time_c'])) $this->setTimeC($values['time_c']);
     }
 
     public function getMysqlValues()
     {
         $keyValues = array ();
 
-        empty($this->activityId) ? : $keyValues['activity_id'] = $this->activityId;
+        empty($this->id) ? : $keyValues['activity_id'] = $this->id;
         empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
         empty($this->sourceId) ? : $keyValues['source_id'] = $this->sourceId;
         empty($this->parentId) ? : $keyValues['parent_id'] = $this->parentId;

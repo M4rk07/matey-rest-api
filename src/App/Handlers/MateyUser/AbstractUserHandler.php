@@ -1,5 +1,6 @@
 <?php
 namespace App\Handlers\MateyUser;
+use App\Handlers\AbstractHandler;
 use App\MateyModels\ModelManagerFactoryInterface;
 use Silex\Application;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -10,19 +11,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * Date: 30.11.16.
  * Time: 02.00
  */
-abstract class AbstractUserHandler implements UserHandlerInterface
+abstract class AbstractUserHandler extends AbstractHandler implements UserHandlerInterface
 {
-
-    protected $validator;
-    protected $modelManagerFactory;
-
-    public function __construct(
-        ValidatorInterface $validator,
-        ModelManagerFactoryInterface $modelManagerFactory
-    )
-    {
-        $this->validator = $validator;
-        $this->modelManagerFactory = $modelManagerFactory;
-    }
 
 }

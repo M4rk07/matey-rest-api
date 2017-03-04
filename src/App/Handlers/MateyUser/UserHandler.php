@@ -9,7 +9,10 @@
 namespace App\Handlers\MateyUser;
 
 
+use App\Constants\Defaults\DefaultNumbers;
+use App\Constants\Messages\ResponseMessages;
 use App\Exception\NotFoundException;
+use App\MateyModels\Activity;
 use App\MateyModels\Follow;
 use App\MateyModels\User;
 use App\Paths\Paths;
@@ -17,6 +20,7 @@ use App\Validators\PositiveInteger;
 use App\Validators\UnsignedInteger;
 use App\Validators\UserId;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,17 +35,11 @@ class UserHandler extends AbstractUserHandler
     {
 
         if($id == "me") $id = $request->request->get('user_id');
-        else {
-            $errors = $this->validator->validate($id, [
+        else $this->validateValue($id, [
                 new NotBlank(),
                 new UserId()
-            ]);
-            if (count($errors) > 0) {
-                throw new InvalidRequestException([
-                    'error_description' => 'The request includes an invalid parameter value.',
-                ]);
-            }
-        }
+        ]);
+
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
 
@@ -58,41 +56,40 @@ class UserHandler extends AbstractUserHandler
 
         $userId = $request->request->get('user_id');
 
-        $errors = $this->validator->validate($id, [
+        $this->validateValue($id, [
             new NotBlank(),
             new UserId()
         ]);
-        if (count($errors) > 0) {
-            throw new InvalidRequestException([
-                'error_description' => 'The request includes an invalid parameter value.',
-            ]);
-        }
 
         if($userId == $id) throw new InvalidRequestException();
 
         $followManager = $this->modelManagerFactory->getModelManager('follow');
-        $followClass = $followManager->getClassName();
-        $follow = new $followClass();
+        $follow = $followManager->getModel();
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
-        $userClass = $userManager->getClassName();
-
-        $userFrom = new $userClass();
-        $userTo = new $userClass();
+        $userFrom = $userManager->getModel();
+        $userTo = $userManager->getModel();
 
         $userFrom->setId($userId);
         $userTo->setId($id);
 
         $follow->setUserId($userId)
             ->setParentId($id)
-            ->setParentType("USER");
+            ->setParentType(Activity::USER_TYPE);
 
         $method = $request->getMethod();
 
         if($method == "POST") {
-            $followManager->createModel($follow);
+            try {
+                $followManager->createModel($follow);
+            } catch (UniqueConstraintViolationException $e) {
+                throw new InvalidRequestException(array(
+                    'error_description' => ResponseMessages::DUPLICATE_FOLLOWER
+                ));
+            }
             $userManager->incrNumOfFollowers($userTo);
             $userManager->incrNumOfFollowing($userFrom);
+            $this->pushToFeeds($userFrom, $userTo);
         }
         else if ($method == "DELETE") {
             $followManager->deleteModel($follow);
@@ -117,37 +114,22 @@ class UserHandler extends AbstractUserHandler
             $me = true;
         }
 
-        if(empty($limit)) $limit = 30;
+        if(empty($limit)) $limit = DefaultNumbers::PAG_LIMIT_FOLLOWERS;
 
-        $errors = $this->validator->validate($limit, [
+        $this->validateValue($limit, [
             new NotBlank(),
             new UnsignedInteger()
         ]);
-        if (count($errors) > 0) {
-            throw new InvalidRequestException([
-                'error_description' => 'The request includes an invalid parameter value.',
-            ]);
-        }
 
-        $errors = $this->validator->validate($offset, [
+        $this->validateValue($offset, [
             new NotBlank(),
             new PositiveInteger()
         ]);
-        if (count($errors) > 0) {
-            throw new InvalidRequestException([
-                'error_description' => 'The request includes an invalid parameter value.',
-            ]);
-        }
 
-        $errors = $this->validator->validate($id, [
+        $this->validateValue($id, [
             new NotBlank(),
             new UserId()
         ]);
-        if (count($errors) > 0) {
-            throw new InvalidRequestException([
-                'error_description' => 'The request includes an invalid parameter value.',
-            ]);
-        }
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
         $followManager = $this->modelManagerFactory->getModelManager('follow');
@@ -230,6 +212,26 @@ class UserHandler extends AbstractUserHandler
 
         if($follow) return true;
         return false;
+
+    }
+
+    // Method for pushing three last posts to following user
+    public function pushToFeeds(User $userFrom, User $userTo) {
+        $postManager = $this->modelManagerFactory->getModelManager('post');
+
+        $posts = $postManager->readModelBy(array(
+            'user_id' => $userTo->getId()
+        ), 'time_c', DefaultNumbers::POSTS_NUM_ON_FOLLOW, 0, 'post_id', 'DESC');
+
+        if(empty($posts)) return;
+
+        $postIds = array();
+        foreach ($posts as $post) {
+            $postIds[] = $post->getId();
+        }
+
+        $userManager = $this->modelManagerFactory->getModelManager('user');
+        $userManager->pushFeedForCalculation($userFrom, $postIds);
 
     }
 

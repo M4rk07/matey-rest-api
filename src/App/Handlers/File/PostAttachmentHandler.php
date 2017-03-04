@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\Image;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class AttachmentHandler extends AbstractFileHandler
+class PostAttachmentHandler extends AbstractFileHandler
 {
 
     public function upload(Application $app, Request $request, $id = null)
@@ -26,7 +26,6 @@ class AttachmentHandler extends AbstractFileHandler
         for($iterator = $request->files->getIterator();
             $iterator->valid();
             $iterator->next()) {
-
             $files[] = $request->files->get($iterator->key());
         }
 
@@ -34,7 +33,7 @@ class AttachmentHandler extends AbstractFileHandler
         $fileId = 1;
         foreach($files as $file) {
 
-            $errors = $this->validator->validate($file, [
+            $this->validateValue($file, [
                 new NotBlank(),
                 new Image(array(
                     'allowLandscape' => true,
@@ -43,11 +42,6 @@ class AttachmentHandler extends AbstractFileHandler
                     'maxSize' => '1M'
                 ))
             ]);
-            if (count($errors) > 0) {
-                throw new InvalidRequestException([
-                    'error_description' => $errors->get(0)->getMessage(),
-                ]);
-            }
 
             $uploads[] = array(
                 "file" => file_get_contents($file->getRealPath()),

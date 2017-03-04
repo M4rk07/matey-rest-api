@@ -114,7 +114,8 @@ abstract class AbstractManager implements ModelManagerInterface
         return $this->makeObjects($all);
     }
 
-    public function readModelBy(array $criteria, array $orderBy = null, $limit = null, $offset = null, array $fields = null)
+    public function readModelBy(array $criteria, array $orderBy = null,
+                                $limit = null, $offset = null, array $fields = null, $ascDesc = 'ASC')
     {
 
         $sql = "SELECT ";
@@ -122,9 +123,12 @@ abstract class AbstractManager implements ModelManagerInterface
         // ------------------------------------------------------------ FIELDS
         $fieldsStr = "";
         if(!empty($fields)) {
-            foreach($fields as $field) {
-                $fieldsStr .= $field.",";
-            }
+            if(is_array($fields)) {
+                foreach ($fields as $field) {
+                    $fieldsStr .= $field . ",";
+                }
+            } else $fieldsStr = $fields;
+
             $fieldsStr = rtrim($fieldsStr, ',');
         }
 
@@ -169,7 +173,7 @@ abstract class AbstractManager implements ModelManagerInterface
             $orderByStr = '';
         }
 
-        if(!empty($orderByStr)) $sql .= " ORDER BY " . $orderByStr;
+        if(!empty($orderByStr)) $sql .= " ORDER BY " . $orderByStr . " " . $ascDesc;
 
         // ------------------------------------------------------------ LIMIT CLAUSE
         if($limit !== null) $sql .= " LIMIT " . $limit;
@@ -281,6 +285,11 @@ abstract class AbstractManager implements ModelManagerInterface
         else if(strcmp($key, "refreshToken") == 0) $key = "refresh_token";
 
         return $key;
+    }
+
+    public function getModel() {
+        $class = $this->getClassName();
+        return new $class();
     }
 
 }
