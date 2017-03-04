@@ -170,7 +170,7 @@ class StandardPostHandler extends AbstractPostHandler
             $follows = $followManager->readModelBy(array(
                 'parent_id' => $post->getUserId(),
                 'parent_type' => Activity::USER_TYPE
-            ), null, null, null, 'user_id');
+            ), null, null, null, array('user_id'));
         } else
             $follows = $followManager->getGroupAndUserFollowers($post->getUserId(), $post->getGroupId());
 

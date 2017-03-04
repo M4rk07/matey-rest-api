@@ -221,7 +221,7 @@ class UserHandler extends AbstractUserHandler
 
         $posts = $postManager->readModelBy(array(
             'user_id' => $userTo->getId()
-        ), 'time_c', DefaultNumbers::POSTS_NUM_ON_FOLLOW, 0, 'post_id', 'DESC');
+        ), 'time_c', DefaultNumbers::POSTS_NUM_ON_FOLLOW, 0, array('post_id'), 'DESC');
 
         if(empty($posts)) return;
 

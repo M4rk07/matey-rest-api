@@ -55,5 +55,11 @@ class UserController extends AbstractController
             ->getConnections($app, $request, $userId, 'following');
     }
 
+    public function getFeedAction(Application $app, Request $request) {
+        return $this->userHandlerFactory
+            ->getUserHandler('user')
+            ->getFeed($app, $request);
+    }
+
 
 }

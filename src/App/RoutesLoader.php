@@ -54,6 +54,7 @@ class RoutesLoader
         $api->post('/users/me/profiles/covers', 'matey.file_controller:uploadCoverPictureAction');
 
         $api->post('/posts', 'matey.post_controller:createPostAction');
+        $api->get('/feed', 'matey.user_controller:getFeedAction');
 
         // OPERATIONS ON GROUPS
         $api->post('/groups', 'matey.group_controller:createGroupAction');
