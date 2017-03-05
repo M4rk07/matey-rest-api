@@ -13,6 +13,7 @@ use App\Constants\Defaults\DefaultNumbers;
 use App\Constants\Messages\ResponseMessages;
 use App\Exception\NotFoundException;
 use App\MateyModels\Activity;
+use App\MateyModels\FeedEntry;
 use App\MateyModels\Follow;
 use App\MateyModels\User;
 use App\Paths\Paths;
@@ -89,7 +90,7 @@ class UserHandler extends AbstractUserHandler
             }
             $userManager->incrNumOfFollowers($userTo);
             $userManager->incrNumOfFollowing($userFrom);
-            $this->pushToFeeds($userFrom, $userTo);
+            $this->pushToFeedsOnFollow($userFrom, $userTo);
         }
         else if ($method == "DELETE") {
             $followManager->deleteModel($follow);
@@ -216,22 +217,24 @@ class UserHandler extends AbstractUserHandler
     }
 
     // Method for pushing three last posts to following user
-    public function pushToFeeds(User $userFrom, User $userTo) {
+    public function pushToFeedsOnFollow(User $userFrom, User $userTo) {
         $postManager = $this->modelManagerFactory->getModelManager('post');
 
         $posts = $postManager->readModelBy(array(
             'user_id' => $userTo->getId()
-        ), 'time_c', DefaultNumbers::POSTS_NUM_ON_FOLLOW, 0, array('post_id'), 'DESC');
+        ), 'time_c', DefaultNumbers::POSTS_NUM_ON_FOLLOW, 0, array('post_id', 'group_id'), 'DESC');
 
         if(empty($posts)) return;
 
-        $postIds = array();
+        $feedEntries = array();
         foreach ($posts as $post) {
-            $postIds[] = $post->getId();
+            $feedEntryArr['post_id'] = $post->getId();
+            $feedEntryArr['seen'] = false;
+            $feedEntries[] = new FeedEntry($feedEntryArr);
         }
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
-        $userManager->pushFeedForCalculation($userFrom, $postIds);
+        $userManager->pushFeedForCalculation($userFrom, $feedEntries);
 
     }
 

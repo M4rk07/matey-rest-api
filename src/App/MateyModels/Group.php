@@ -14,7 +14,7 @@ use App\Paths\Paths;
 class Group extends AbstractModel
 {
 
-    const DEFAULT_GROUP = 1;
+    const DEFAULT_GROUP = NULL;
 
     protected $userId;
     protected $groupName;

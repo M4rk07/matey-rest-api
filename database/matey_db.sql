@@ -94,15 +94,14 @@ CREATE TABLE IF NOT EXISTS matey_login (
 --
 
 CREATE TABLE IF NOT EXISTS matey_group (
-  group_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT=1001,
+  group_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id int(11) UNSIGNED NOT NULL,
   group_name varchar(500) NOT NULL,
   description varchar(5000),
   is_silhouette boolean NOT NULL DEFAULT 1,
   time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   deleted boolean NOT NULL DEFAULT 0,
-  PRIMARY KEY (group_id),
-  FOREIGN KEY (user_id) REFERENCES matey_user(user_id)
+  PRIMARY KEY (group_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -113,10 +112,10 @@ CREATE TABLE IF NOT EXISTS matey_group (
 
 CREATE TABLE IF NOT EXISTS matey_post (
   post_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  group_id int(11) UNSIGNED NOT NULL DEFAULT 0,
+  group_id int(11) UNSIGNED,
   user_id int(11) UNSIGNED NOT NULL,
   title varchar(100) CHARACTER SET utf8,
-  text varchar(3000) CHARACTER SET utf8,
+  text varchar(3000) CHARACTER SET utf8 DEFAULT '',
   attachs_num int(11) NOT NULL DEFAULT 0,
   locations_num int(11) NOT NULL DEFAULT 0,
   time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -446,6 +445,8 @@ INSERT INTO matey_activity_type (activity_type) VALUES
 ('GROUP'), ('POST'), ('REPLY'),
 ('FOLLOW'), ('SHARE'), ('REREPLY'), ('BOOKMARK'), ('BOOST'), ('APPROVE');
 
+INSERT INTO matey_group (group_id, group_name) VALUES (1, 'default');
+
 -- --------------------------------------------------------
 
 --
@@ -453,3 +454,5 @@ INSERT INTO matey_activity_type (activity_type) VALUES
 --
 
 INSERT INTO oauth2_client (app_name) VALUES ('Matey');
+
+ ALTER TABLE matey_group AUTO_INCREMENT=1001

@@ -42,6 +42,7 @@ abstract class AbstractManager implements ModelManagerInterface
     const T_LOGIN = "matey_login";
     const T_BOOKMARK = "matey_bookmark";
     const T_GROUP = "matey_group";
+    const T_FEED = "FEED";
 
     // Database authorization table names
     const T_A_USER = "oauth2_user";

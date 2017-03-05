@@ -10,6 +10,7 @@ namespace App\Handlers\Post;
 
 use App\Constants\Defaults\DefaultNumbers;
 use App\MateyModels\Activity;
+use App\MateyModels\FeedEntry;
 use App\MateyModels\Group;
 use App\MateyModels\Post;
 use App\Validators\UnsignedInteger;
@@ -75,7 +76,7 @@ class StandardPostHandler extends AbstractPostHandler
 
         // Calling the service for uploading Post attachments to S3 storage
         if(strpos($contentType, 'multipart/form-data') === 0) {
-            $app['matey.file_handler.factory']->getFileHandler('post_attachment')->upload($app, $request, $post->getId());
+            //$app['matey.file_handler.factory']->getFileHandler('post_attachment')->upload($app, $request, $post->getId());
         }
 
         // Pushing newly created post to news feed of followers
@@ -103,7 +104,7 @@ class StandardPostHandler extends AbstractPostHandler
         }
 
         // JSON must be provided, and title of the Post
-        if(empty($jsonData) || !isset($jsonData->title)) return new InvalidRequestException();
+        if(empty($jsonData) || !isset($jsonData->title)) throw new InvalidRequestException();
 
         // Next validating all provided values and setting defaults
         // ---------TITLE
@@ -176,11 +177,16 @@ class StandardPostHandler extends AbstractPostHandler
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
         $user = $userManager->getModel();
-
+        $date = new \DateTime();
         // Pushing Post to Feeds
         foreach ($follows as $follow) {
             $user->setId($follow->getUserId());
-            $userManager->pushFeedForCalculation($user, $post->getId());
+            $feedEntryArr['post_id'] = $post->getId();
+            $feedEntryArr['seen'] = false;
+
+            $feedEntry = new FeedEntry($feedEntryArr);
+
+            $userManager->pushFeedForCalculation($user, $feedEntry);
         }
         $user->setId($post->getUserId());
         $userManager->pushFeedForCalculation($user, $post->getId());

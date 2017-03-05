@@ -19,6 +19,7 @@ class PostManager extends AbstractManager
 
     const FIELD_NUM_OF_BOOSTS = "num_of_boosts";
     const FILED_NUM_OF_REPLIES = "num_of_replies";
+    const FILED_TIMESTAMP = "timestamp";
 
     /**
      * @return mixed
@@ -41,24 +42,9 @@ class PostManager extends AbstractManager
         $model = parent::createModel($model, $ignore);
 
         $this->initializeStatisticsData($model);
+        $this->setPostTimestamp($model, new \DateTime());
 
         return $model;
-    }
-
-    public function readModelBy(array $criteria, array $orderBy = null, $limit = null, $offset = null, array $fields = null) {
-
-        $models = parent::readModelBy($criteria, $orderBy, $limit, $offset, $fields);
-
-        if($fields == null || (in_array('statistics', $fields) && !empty($models))) {
-
-            foreach($models as $key => $model) {
-                $models[$key] = $this->getStatisticsData($model);
-            }
-
-        }
-
-        return $models;
-
     }
 
     // ---------------------------- REDIS TOOOLS ---------------------------------
@@ -66,7 +52,7 @@ class PostManager extends AbstractManager
     public function initializeStatisticsData(Post $post) {
         $this->redis->hmset($this->getKeyName().":statistics:".$post->getId(), array(
             self::FIELD_NUM_OF_BOOSTS => 0,
-            self::FILED_NUM_OF_REPLIES => 0,
+            self::FILED_NUM_OF_REPLIES => 0
         ));
     }
 
@@ -78,6 +64,18 @@ class PostManager extends AbstractManager
 
         return $post;
 
+    }
+
+    public function setPostTimestamp (Post $post, \DateTime $dateTime) {
+        $this->redis->set($this->getKeyName().":timestamp:".$post->getId(), $dateTime->getTimestamp());
+    }
+
+    public function getPostTimestamp (Post $post) {
+        $timestamp = $this->redis->get($this->getKeyName().":timestamp:".$post->getId());
+
+        $post->setValuesFromArray(array('timestamp' => $timestamp));
+
+        return $post;
     }
 
     public function incrNumOfBoosts(Post $post, $incrBy = 1) {

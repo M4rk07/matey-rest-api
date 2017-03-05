@@ -26,6 +26,7 @@ class Post extends AbstractModel
     protected $numOfReplies;
     protected $numOfShares;
     protected $numOfBoosts;
+    protected $timestamp;
 
     /**
      * @return mixed
@@ -214,6 +215,23 @@ class Post extends AbstractModel
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getTimestamp()
+    {
+        return $this->timestamp;
+    }
+
+    /**
+     * @param mixed $timestamp
+     */
+    public function setTimestamp($timestamp)
+    {
+        $this->timestamp = $timestamp;
+        return $this;
+    }
+
 
 
     public function serialize() {
@@ -246,6 +264,7 @@ class Post extends AbstractModel
         if(isset($values['num_of_replies'])) $this->setNumOfReplies($values['num_of_replies']);
         if(isset($values['num_of_boosts'])) $this->setNumOfBoosts($values['num_of_boosts']);
         if(isset($values['last_action'])) $this->setNumOfBoosts($values['last_action']);
+        if(isset($values['timestamp'])) $this->setTimestamp($values['timestamp']);
     }
 
     public function getMysqlValues()
@@ -272,6 +291,7 @@ class Post extends AbstractModel
         empty($this->numOfReplies) ? : $keyValues['num_of_replies'] = $this->numOfReplies;
         empty($this->numOfBoosts) ? : $keyValues['num_of_boosts'] = $this->numOfBoosts;
         empty($this->lastActions) ? : $keyValues['last_action'] = $this->lastActions;
+        empty($this->timestamp) ? : $keyValues['timestamp'] = $this->timestamp;
 
         return $keyValues;
     }
