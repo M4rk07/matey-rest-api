@@ -8,7 +8,10 @@
 
 namespace App\Handlers\Post;
 
+use App\Algos\FeedRank\FeedRank;
+use App\Constants\Defaults\DefaultDates;
 use App\Constants\Defaults\DefaultNumbers;
+use App\Constants\Messages\ResponseMessages;
 use App\MateyModels\Activity;
 use App\MateyModels\FeedEntry;
 use App\MateyModels\Group;
@@ -35,6 +38,10 @@ class StandardPostHandler extends AbstractPostHandler
         $contentType = $request->headers->get('Content-Type');
         $jsonData = $this->getJsonPostData($request, $contentType);
 
+        if($request->files->count() > 5) throw new InvalidRequestException(
+            array('error' => ResponseMessages::TOO_MUCH_FILES)
+        );
+
         // Creating necessary data managers.
         $postManager = $this->modelManagerFactory->getModelManager('post');
         $post = $postManager->getModel();
@@ -48,7 +55,10 @@ class StandardPostHandler extends AbstractPostHandler
             ->setAttachsNum($request->files->count())
             ->setLocationsNum(count($jsonData['locations']))
             ->setUserId($userId)
-            ->setGroupId($jsonData['group_id']);
+            ->setGroupId($jsonData['group_id'])
+            ->setTimeC(date(DefaultDates::DATE_FORMAT))
+            ->setNumOfBoosts(0)
+            ->setNumOfReplies(0);
 
         // Starting transaction
         $postManager->startTransaction();
@@ -76,11 +86,11 @@ class StandardPostHandler extends AbstractPostHandler
 
         // Calling the service for uploading Post attachments to S3 storage
         if(strpos($contentType, 'multipart/form-data') === 0) {
-            //$app['matey.file_handler.factory']->getFileHandler('post_attachment')->upload($app, $request, $post->getId());
+            $app['matey.file_handler.factory']->getFileHandler('post_attachment')->upload($app, $request, $post->getId());
         }
 
         // Pushing newly created post to news feed of followers
-        $this->pushToFeeds($post);
+        $app['matey.feed_handler']->pushUpdateToFeeds($post);
 
         return new JsonResponse(null, 200);
 
@@ -156,40 +166,6 @@ class StandardPostHandler extends AbstractPostHandler
         } else $returnValues['locations'] = array();
 
         return $returnValues;
-
-    }
-
-    // Method for pushing newly created Post to Feeds
-    public function pushToFeeds(Post $post) {
-        $followManager = $this->modelManagerFactory->getModelManager('follow');
-
-        /*
-         * If there is no group, than fetch only user followers,
-         * otherwise fetch and group followers
-         */
-        if($post->getGroupId() == Group::DEFAULT_GROUP) {
-            $follows = $followManager->readModelBy(array(
-                'parent_id' => $post->getUserId(),
-                'parent_type' => Activity::USER_TYPE
-            ), null, null, null, array('user_id'));
-        } else
-            $follows = $followManager->getGroupAndUserFollowers($post->getUserId(), $post->getGroupId());
-
-        $userManager = $this->modelManagerFactory->getModelManager('user');
-        $user = $userManager->getModel();
-        $date = new \DateTime();
-        // Pushing Post to Feeds
-        foreach ($follows as $follow) {
-            $user->setId($follow->getUserId());
-            $feedEntryArr['post_id'] = $post->getId();
-            $feedEntryArr['seen'] = false;
-
-            $feedEntry = new FeedEntry($feedEntryArr);
-
-            $userManager->pushFeedForCalculation($user, $feedEntry);
-        }
-        $user->setId($post->getUserId());
-        $userManager->pushFeedForCalculation($user, $post->getId());
 
     }
 

@@ -11,4 +11,5 @@ namespace App\Constants\Messages;
 class ResponseMessages
 {
     const DUPLICATE_FOLLOWER = "Hey, you are already sailing with this user.";
+    const TOO_MUCH_FILES = "Too much files.";
 }

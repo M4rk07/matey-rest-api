@@ -11,7 +11,6 @@
 
 namespace AuthBucket\OAuth2\Security\Firewall;
 
-use App\MateyModels\ModelManagerFactoryInterface;
 use App\OAuth2Models\AccessTokenManager;
 use App\MateyModels\UserManager;
 use App\Services\BackupService;
@@ -19,6 +18,7 @@ use App\Services\Redis\RedisService;
 use AuthBucket\OAuth2\Exception\ExceptionInterface;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
+use AuthBucket\OAuth2\Model\ModelManagerFactoryInterface;
 use AuthBucket\OAuth2\Security\Authentication\Token\AccessTokenToken;
 use AuthBucket\OAuth2\TokenType\TokenTypeHandlerFactoryInterface;
 use AuthBucket\OAuth2\Validator\Constraints\AccessToken;

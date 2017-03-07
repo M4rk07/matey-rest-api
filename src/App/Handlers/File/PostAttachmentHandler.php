@@ -9,6 +9,7 @@
 namespace App\Handlers\File;
 
 
+use App\Constants\Messages\ResponseMessages;
 use App\Upload\S3Storage;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use Silex\Application;
@@ -28,6 +29,10 @@ class PostAttachmentHandler extends AbstractFileHandler
             $iterator->next()) {
             $files[] = $request->files->get($iterator->key());
         }
+
+        if(count($files) > 5) throw new InvalidRequestException(
+            array('error' => ResponseMessages::TOO_MUCH_FILES)
+        );
 
         $uploads = array();
         $fileId = 1;

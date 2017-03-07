@@ -14,20 +14,9 @@ use AuthBucket\OAuth2\Model\AccessTokenManagerInterface;
 class AccessTokenManager extends AbstractManager implements AccessTokenManagerInterface
 {
 
-    /**
-     * @return mixed
-     */
-    public function getClassName()
-    {
-        return 'App\\OAuth2Models\\AccessToken';
-    }
-
-    public function getTableName() {
-        return self::T_A_ACCESS_TOKEN;
-    }
 
     public function updateToken ($accessToken) {
-        $this->db->update(self::T_A_ACCESS_TOKEN, array(
+        $this->db->update($this->getTableName(), array(
             'expires' => (new \DateTime('+60 days'))->format('Y-m-d H:i:s')
         ), array(
             'access_token' => $accessToken

@@ -15,16 +15,4 @@ use AuthBucket\OAuth2\Model\CodeManagerInterface;
 class CodeManager extends AbstractManager implements CodeManagerInterface
 {
 
-    /**
-     * @return mixed
-     */
-    public function getClassName()
-    {
-        return 'App\\OAuth2Models\\Code';
-    }
-
-    public function getTableName() {
-        return self::T_A_CODES;
-    }
-
 }

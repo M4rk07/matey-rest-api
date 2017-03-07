@@ -1,6 +1,7 @@
 <?php
 namespace App\MateyModels;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
+use AuthBucket\OAuth2\Model\ModelManagerFactoryInterface;
 use AuthBucket\OAuth2\Model\ModelManagerInterface;
 use Doctrine\DBAL\Connection;
 use Predis\Client;
@@ -15,14 +16,14 @@ class ModelManagerFactory implements ModelManagerFactoryInterface
 {
     protected $managers;
 
-    public function __construct(array $models = [], Connection $dbConnection = null, Client $predisConnection = null)
+    public function __construct(array $modelsConfig = [], Connection $dbConnection = null, Client $predisConnection = null)
     {
         $managers = [];
 
-        foreach ($models as $type => $model) {
+        foreach ($modelsConfig as $type => $config) {
             if($dbConnection != null) {
-                $className = $model . 'Manager';
-                $manager = new $className($dbConnection, $predisConnection);
+                $className = $config['class_name'] . 'Manager';
+                $manager = new $className($dbConnection, $predisConnection, $config);
                 if (!$manager instanceof ModelManagerInterface) {
                     throw new ServerErrorException();
                 }

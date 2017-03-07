@@ -87,7 +87,7 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
                 $login->setUserId($userId)
                     ->setDeviceId($deviceId)
                     ->setStatus(1);
-                $loginManager->createModel($login, true);
+                $loginManager->createModel($login);
 
             }
 

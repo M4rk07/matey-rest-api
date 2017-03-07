@@ -44,6 +44,7 @@ class StandardAccountHandler extends AbstractAccountHandler
             $facebookInfo = $facebookInfoManager->readModelOneBy(array(
                 'user_id' => $user->getId()
             ));
+
             /*
              * Fetch user oauth2 data
              */
@@ -51,6 +52,7 @@ class StandardAccountHandler extends AbstractAccountHandler
             $oauth2User = $oauth2UserManager->readModelOneBy(array(
                 'user_id' => $user->getId()
             ));
+
                 /*
                  * If there is facebook account only
                  * offering merge

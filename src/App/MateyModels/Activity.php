@@ -8,6 +8,8 @@
 
 namespace App\MateyModels;
 
+use App\Constants\Defaults\DefaultDates;
+
 class Activity extends AbstractModel
 {
 
@@ -128,7 +130,7 @@ class Activity extends AbstractModel
      */
     public function setTimeC($timeC)
     {
-        $this->timeC = $timeC;
+        $this->timeC = $this->createDateTimeFromString($timeC);
         return $this;
     }
 
@@ -154,7 +156,7 @@ class Activity extends AbstractModel
         empty($this->parentId) ? : $keyValues['parent_id'] = $this->parentId;
         empty($this->parentType) ? : $keyValues['parent_type'] =$this->parentType;
         empty($this->activityType) ? : $keyValues['activity_type'] = $this->activityType;
-        empty($this->timeC) ? : $keyValues['time_c'] = $this->timeC;
+        empty($this->timeC) ? : $keyValues['time_c'] = $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
 
         return $keyValues;
     }

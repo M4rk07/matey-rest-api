@@ -14,16 +14,4 @@ use AuthBucket\OAuth2\Model\AccessTokenManagerInterface;
 class AuthorizeManager extends AbstractManager implements AccessTokenManagerInterface
 {
 
-    /**
-     * @return mixed
-     */
-    public function getClassName()
-    {
-        return 'App\\OAuth2Models\\Authorize';
-    }
-
-    public function getTableName() {
-        return self::T_A_AUTHORIZE;
-    }
-
 }

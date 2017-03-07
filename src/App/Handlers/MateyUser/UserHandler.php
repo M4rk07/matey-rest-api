@@ -53,7 +53,7 @@ class UserHandler extends AbstractUserHandler
         return new JsonResponse($user->getValuesAsArray(), 200);
     }
 
-    public function follow (Request $request, $id) {
+    public function follow (Application $app, Request $request, $id) {
 
         $userId = $request->request->get('user_id');
 
@@ -90,7 +90,7 @@ class UserHandler extends AbstractUserHandler
             }
             $userManager->incrNumOfFollowers($userTo);
             $userManager->incrNumOfFollowing($userFrom);
-            $this->pushToFeedsOnFollow($userFrom, $userTo);
+            $this->pushToFeedsOnFollow($app, $userFrom, $userTo);
         }
         else if ($method == "DELETE") {
             $followManager->deleteModel($follow);
@@ -217,24 +217,20 @@ class UserHandler extends AbstractUserHandler
     }
 
     // Method for pushing three last posts to following user
-    public function pushToFeedsOnFollow(User $userFrom, User $userTo) {
+    public function pushToFeedsOnFollow(Application $app, User $userFrom, User $userTo) {
         $postManager = $this->modelManagerFactory->getModelManager('post');
 
         $posts = $postManager->readModelBy(array(
             'user_id' => $userTo->getId()
-        ), 'time_c', DefaultNumbers::POSTS_NUM_ON_FOLLOW, 0, array('post_id', 'group_id'), 'DESC');
+        ), 'time_c', DefaultNumbers::POSTS_NUM_ON_FOLLOW, 0, array('post_id', 'time_c'), 'DESC');
 
         if(empty($posts)) return;
 
-        $feedEntries = array();
-        foreach ($posts as $post) {
-            $feedEntryArr['post_id'] = $post->getId();
-            $feedEntryArr['seen'] = false;
-            $feedEntries[] = new FeedEntry($feedEntryArr);
+        foreach($posts as $post) {
+
         }
 
-        $userManager = $this->modelManagerFactory->getModelManager('user');
-        $userManager->pushFeedForCalculation($userFrom, $feedEntries);
+        $app['matey.feed_handler']->push($userFrom, $posts);
 
     }
 

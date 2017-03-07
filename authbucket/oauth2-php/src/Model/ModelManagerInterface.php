@@ -22,6 +22,12 @@ interface ModelManagerInterface
 
     public function getTableName();
 
+    public function getRedisKey();
+
+    public function getMysqlFields();
+
+    public function getRedisFields();
+
     public function startTransaction();
 
     public function commitTransaction();
@@ -38,5 +44,5 @@ interface ModelManagerInterface
 
     public function updateModel(ModelInterface $model);
 
-    public function deleteModel(ModelInterface $model, $criteria = null);
+    public function deleteModel(ModelInterface $model);
 }

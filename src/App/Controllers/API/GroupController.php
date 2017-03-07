@@ -22,11 +22,8 @@ class GroupController extends AbstractController
     protected $groupHandlerFactory;
 
     public function __construct(
-        ValidatorInterface $validator,
-        ModelManagerFactoryInterface $modelManagerFactory,
         GroupHandlerFactoryInterface $groupHandlerFactory
     ) {
-        parent::__construct($validator, $modelManagerFactory);
         $this->groupHandlerFactory = $groupHandlerFactory;
     }
 

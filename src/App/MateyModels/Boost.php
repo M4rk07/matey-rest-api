@@ -9,6 +9,8 @@
 namespace App\MateyModels;
 
 
+use App\Constants\Defaults\DefaultDates;
+
 class Boost extends AbstractModel
 {
     protected $userId;
@@ -62,15 +64,15 @@ class Boost extends AbstractModel
      */
     public function setTimeC($timeC)
     {
-        $this->timeC = $timeC;
+        $this->timeC = $this->createDateTimeFromString($timeC);
         return $this;
     }
 
     public function setValuesFromArray($values)
     {
-        $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
-        $this->postId = isset($values['post_id']) ? $values['post_id'] : "";
-        $this->timeC = isset($values['time_c']) ? $values['time_c'] : "";
+        if(isset($values['user_id'])) $this->setUserId($values['user_id']);
+        if(isset($values['post_id'])) $this->setPostId($values['post_id']);
+        if(isset($values['time_c'])) $this->setUserId($values['time_c']);
     }
 
     public function getMysqlValues()
@@ -79,7 +81,7 @@ class Boost extends AbstractModel
 
         empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
         empty($this->postId) ? : $keyValues['post_id'] = $this->postId;
-        empty($this->timeC) ? : $keyValues['time_c'] = $this->timeC;
+        empty($this->timeC) ? : $keyValues['time_c'] = $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
 
         return $keyValues;
     }

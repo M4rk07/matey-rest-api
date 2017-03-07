@@ -9,6 +9,8 @@
 namespace App\MateyModels;
 
 
+use App\Constants\Defaults\DefaultDates;
+
 class Follow extends AbstractModel
 {
 
@@ -83,7 +85,7 @@ class Follow extends AbstractModel
      */
     public function setTimeC($timeC)
     {
-        $this->timeC = $timeC;
+        $this->timeC = $this->createDateTimeFromString($timeC);
         return $this;
     }
 
@@ -138,7 +140,7 @@ class Follow extends AbstractModel
         empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
         empty($this->parentId) ? : $keyValues['parent_id'] = $this->parentId;
         empty($this->parentType) ? : $keyValues['parent_type'] = $this->parentType;
-        empty($this->timeC) ? : $keyValues['time_c'] = $this->timeC;
+        empty($this->timeC) ? : $keyValues['time_c'] = $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
 
         return $keyValues;
     }

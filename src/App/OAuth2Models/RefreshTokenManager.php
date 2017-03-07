@@ -15,16 +15,4 @@ use AuthBucket\OAuth2\Model\RefreshTokenManagerInterface;
 class RefreshTokenManager extends AbstractManager implements RefreshTokenManagerInterface
 {
 
-    /**
-     * @return mixed
-     */
-    public function getClassName()
-    {
-        return 'App\\OAuth2Models\\RefreshToken';
-    }
-
-    public function getTableName() {
-        return self::T_A_REFRESH_TOKEN;
-    }
-
 }

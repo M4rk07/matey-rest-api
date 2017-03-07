@@ -62,14 +62,14 @@ $app->register(new Silex\Provider\SecurityServiceProvider());
 
 $app->register(new Silex\Provider\ValidatorServiceProvider());
 
+$app->register(new \App\Provider\MateyServiceProvider());
+
 # Register AuthBucketOAuth2ServiceProvider.
 $app->register(new AuthBucket\OAuth2\Provider\AuthBucketOAuth2ServiceProvider());
 
 $app->register(new ServiceControllerServiceProvider());
 
 $app->register(new HttpCacheServiceProvider(), array("http_cache.cache_dir" => ROOT_PATH . "/storage/cache",));
-
-$app->register(new \App\Provider\MateyServiceProvider());
 
 //handling CORS preflight request
 $app->before(function (Request $request) {

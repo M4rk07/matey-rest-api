@@ -14,16 +14,4 @@ use AuthBucket\OAuth2\Model\ClientManagerInterface;
 class ClientManager extends AbstractManager implements ClientManagerInterface
 {
 
-    /**
-     * @return mixed
-     */
-    public function getClassName()
-    {
-        return 'App\\OAuth2Models\\Client';
-    }
-
-    public function getTableName() {
-        return self::T_A_CLIENTS;
-    }
-
 }

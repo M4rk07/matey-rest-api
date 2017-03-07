@@ -15,16 +15,5 @@ use AuthBucket\OAuth2\Model\ScopeManagerInterface;
 class ScopeManager extends AbstractManager implements ScopeManagerInterface
 {
 
-    /**
-     * @return mixed
-     */
-    public function getClassName()
-    {
-        return 'App\\OAuth2Models\\Scope';
-    }
-
-    public function getTableName() {
-        return self::T_A_SCOPES;
-    }
 
 }

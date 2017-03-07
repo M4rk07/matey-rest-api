@@ -22,11 +22,8 @@ class DeviceController extends AbstractController
     protected $deviceHandlerFactory;
 
     public function __construct(
-        ValidatorInterface $validator,
-        ModelManagerFactoryInterface $modelManagerFactory,
         DeviceHandlerFactoryInterface $deviceHandlerFactory
     ) {
-        parent::__construct($validator, $modelManagerFactory);
         $this->deviceHandlerFactory = $deviceHandlerFactory;
     }
 

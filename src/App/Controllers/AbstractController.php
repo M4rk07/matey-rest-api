@@ -8,12 +8,11 @@
 
 namespace App\Controllers;
 
-
-use App\MateyModels\ModelManagerFactoryInterface;
 use App\Paths\Paths;
 use App\Services\BaseService;
 use App\Services\Redis\RedisService;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
+use AuthBucket\OAuth2\Model\ModelManagerFactoryInterface;
 use GuzzleHttp\Client;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,17 +27,5 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class AbstractController
 {
-
-    protected $validator;
-    protected $modelManagerFactory;
-
-    public function __construct(
-        ValidatorInterface $validator,
-        ModelManagerFactoryInterface $modelManagerFactory
-    )
-    {
-        $this->validator = $validator;
-        $this->modelManagerFactory = $modelManagerFactory;
-    }
 
 }

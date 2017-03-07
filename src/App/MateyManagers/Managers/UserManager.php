@@ -156,43 +156,12 @@ class UserManager extends AbstractManager
         $this->redis->hincrby(self::KEY_USER.":counts:".$user->getId(), self::FIELD_NUM_OF_SHARES, $incrBy);
     }
 
-    public function pushFeedForCalculation (User $user, $feedEntries) {
-
-        $feeds = array();
-        foreach ($feedEntries as $feedEntry) {
-            $feeds[] = json_encode($feedEntry->asArray());
-        }
-        $this->redis->sadd($this->getKeyName().":feed_calculation:".$user->getId(), $feeds);
-
-    }
-
-    public function getFeedForCalculation (User $user) {
-
-        $feeds = $this->redis->smembers($this->getKeyName().":feed_calculation:".$user->getId());
-
-        $models = array();
-        foreach($feeds as $feed) {
-            $models[] = new FeedEntry($feed, 'json');
-        }
-        return $models;
-    }
-
-    public function pushFeedScored (User $user, $scoreValues) {
-        $feeds = array();
-        foreach ($scoreValues as $scoreValue) {
-            $feeds[] = array(json_encode($scoreValue['feedEntry']->asArray()) => $scoreValue['score']);
-        }
+    public function pushFeed (User $user, $feeds) {
         $this->redis->zadd($this->getKeyName().":feed_scored:".$user->getId(), $feeds);
     }
 
-    public function getFeedScored (User $user, $start = 0, $stop = 10) {
-        $feeds = $this->redis->zrange($this->getKeyName().":feed_scored:".$user->getId(), $start, $stop);
-
-        $models = array();
-        foreach($feeds as $feed) {
-            $models[] = new FeedEntry($feed, 'json');
-        }
-        return $models;
+    public function getFeed (User $user, $start = 0, $stop = 10) {
+        return $this->redis->zrange($this->getKeyName().":feed_scored:".$user->getId(), $start, $stop);
     }
 
     public function pushFeedSeen (User $user, $ids) {

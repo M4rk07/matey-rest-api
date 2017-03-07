@@ -17,23 +17,6 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class OAuth2UserManager extends AbstractManager implements UserProviderInterface
 {
 
-    /**
-     * @return mixed
-     */
-    public function getClassName()
-    {
-        return 'App\\MateyModels\\OAuth2User';
-    }
-
-    public function getTableName() {
-        return self::T_A_USER;
-    }
-
-    public function getKeyName()
-    {
-        return "OAUTH2_USER";
-    }
-
     public function loadUserByUsername($username)
     {
         $models = $this->readModelOneBy(array(

@@ -21,11 +21,8 @@ class PostController extends AbstractController
     protected $postHandlerFactory;
 
     public function __construct(
-        ValidatorInterface $validator,
-        ModelManagerFactoryInterface $modelManagerFactory,
         PostHandlerFactoryInterface $postHandlerFactory
     ) {
-        parent::__construct($validator, $modelManagerFactory);
         $this->postHandlerFactory = $postHandlerFactory;
     }
 

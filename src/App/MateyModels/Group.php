@@ -9,6 +9,7 @@
 namespace App\MateyModels;
 
 
+use App\Constants\Defaults\DefaultDates;
 use App\Paths\Paths;
 
 class Group extends AbstractModel
@@ -88,7 +89,7 @@ class Group extends AbstractModel
      */
     public function setTimeC($timeC)
     {
-        $this->timeC = $timeC;
+        $this->timeC = $this->createDateTimeFromString($timeC);
         return $this;
     }
 
@@ -165,7 +166,7 @@ class Group extends AbstractModel
         if(isset($values['user_id'])) $this->setUserId($values['user_id']);
         if(isset($values['group_name'])) $this->setGroupName($values['group_name']);
         if(isset($values['description'])) $this->setDescription($values['description']);
-        if(isset($values['date_created'])) $this->setDateCreated($values['date_created']);
+        if(isset($values['time_c'])) $this->setTimeC($values['time_c']);
         if(isset($values['is_silhouette'])) $this->setSilhouette($values['is_silhouette']);
         if(isset($values['num_of_followers'])) $this->setNumOfFollowers($values['num_of_followers']);
         if(isset($values['deleted'])) $this->setDeleted($values['deleted']);
@@ -179,7 +180,7 @@ class Group extends AbstractModel
         empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
         empty($this->groupName) ? : $keyValues['group_name'] = $this->groupName;
         empty($this->description) ? : $keyValues['description'] = $this->description;
-        empty($this->timeC) ? : $keyValues['time_c'] = $this->timeC;
+        empty($this->timeC) ? : $keyValues['time_c'] = $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
         empty($this->silhouette) && $this->silhouette !== 0 ? : $keyValues['is_silhouette'] = $this->silhouette;
         empty($this->deleted) && $this->deleted !== 0 ? : $keyValues['deleted'] = $this->deleted;
 

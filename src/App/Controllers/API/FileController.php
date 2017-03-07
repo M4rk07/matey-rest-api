@@ -23,11 +23,8 @@ class FileController extends AbstractController
     protected $fileHandler;
 
     public function __construct(
-        ValidatorInterface $validator,
-        ModelManagerFactoryInterface $modelManagerFactory,
         FileHandlerFactoryInterface $fileHandler
     ) {
-        parent::__construct($validator, $modelManagerFactory);
         $this->fileHandler = $fileHandler;
     }
 

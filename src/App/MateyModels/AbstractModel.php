@@ -9,6 +9,7 @@
 namespace App\MateyModels;
 
 
+use App\Constants\Defaults\DefaultDates;
 use AuthBucket\OAuth2\Model\ModelInterface;
 
 abstract class AbstractModel implements ModelInterface
@@ -27,7 +28,7 @@ abstract class AbstractModel implements ModelInterface
     }
 
     public function createDateTimeFromString ($dateTimeString) {
-        return \DateTime::createFromFormat($this->dateFormat, $dateTimeString);
+        return \DateTime::createFromFormat(DefaultDates::DATE_FORMAT, $dateTimeString);
     }
 
     public function createArrayFromString ($string) {

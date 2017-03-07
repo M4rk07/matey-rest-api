@@ -21,7 +21,7 @@ abstract class AbstractHandler
 
     public function __construct(
         ValidatorInterface $validator,
-        ModelManagerFactoryInterface $modelManagerFactory
+        \AuthBucket\OAuth2\Model\ModelManagerFactoryInterface $modelManagerFactory
     )
     {
         $this->validator = $validator;

@@ -23,11 +23,8 @@ class UserController extends AbstractController
     protected $userHandlerFactory;
 
     public function __construct(
-        ValidatorInterface $validator,
-        ModelManagerFactoryInterface $modelManagerFactory,
         UserHandlerFactoryInterface $userHandlerFactory
     ) {
-        parent::__construct($validator, $modelManagerFactory);
         $this->userHandlerFactory = $userHandlerFactory;
     }
 
@@ -37,10 +34,10 @@ class UserController extends AbstractController
             ->getUser($request, $userId);
     }
 
-    public function followAction(Request $request, $id) {
+    public function followAction(Application $app, Request $request, $id) {
         return $this->userHandlerFactory
             ->getUserHandler('user')
-            ->follow($request, $id);
+            ->follow($app, $request, $id);
     }
 
     public function getFollowersAction(Application $app, Request $request, $userId) {

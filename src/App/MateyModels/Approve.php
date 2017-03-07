@@ -8,6 +8,7 @@
 
 namespace App\MateyModels;
 
+use App\Constants\Defaults\DefaultDates;
 use AuthBucket\OAuth2\Model\ModelInterface;
 
 class Approve extends AbstractModel
@@ -82,16 +83,16 @@ class Approve extends AbstractModel
      */
     public function setTimeC($timeC)
     {
-        $this->timeC = $timeC;
+        $this->timeC = $this->createDateTimeFromString($timeC);
         return $this;
     }
 
     public function setValuesFromArray($values)
     {
-        $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
-        $this->parentId = isset($values['parent_id']) ? $values['parent_id'] : "";
-        $this->parentType = isset($values['parent_type']) ? $values['parent_type'] : "";
-        $this->timeC = isset($values['time_c']) ? $values['time_c'] : "";
+        if(isset($values['user_id'])) $this->setUserId($values['user_id']);
+        if(isset($values['parent_id'])) $this->setParentId($values['parent_id']);
+        if(isset($values['parent_type'])) $this->setParentType($values['parent_type']);
+        if(isset($values['time_c'])) $this->setTimeC($values['time_c']);
     }
 
     public function getMysqlValues()
@@ -101,7 +102,7 @@ class Approve extends AbstractModel
         empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
         empty($this->parentId) ? : $keyValues['parent_id'] = $this->parentId;
         empty($this->parentType) ? : $keyValues['parent_type'] = $this->parentType;
-        empty($this->timeC) ? : $keyValues['time_c'] = $this->timeC;
+        empty($this->timeC) ? : $keyValues['time_c'] = $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
 
         return $keyValues;
     }

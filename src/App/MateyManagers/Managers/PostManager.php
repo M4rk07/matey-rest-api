@@ -19,7 +19,6 @@ class PostManager extends AbstractManager
 
     const FIELD_NUM_OF_BOOSTS = "num_of_boosts";
     const FILED_NUM_OF_REPLIES = "num_of_replies";
-    const FILED_TIMESTAMP = "timestamp";
 
     /**
      * @return mixed

@@ -12,7 +12,7 @@ namespace App\Controllers\API;
 use App\Controllers\AbstractController;
 use App\Handlers\Account\AccountHandlerFactory;
 use App\Handlers\Account\AccountHandlerFactoryInterface;
-use App\MateyModels\ModelManagerFactoryInterface;
+use AuthBucket\OAuth2\Model\ModelManagerFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -22,11 +22,8 @@ class AccountController extends AbstractController
     protected $accountHandlerFactory;
 
     public function __construct(
-        ValidatorInterface $validator,
-        ModelManagerFactoryInterface $modelManagerFactory,
         AccountHandlerFactoryInterface $accountHandlerFactory
     ) {
-        parent::__construct($validator, $modelManagerFactory);
         $this->accountHandlerFactory = $accountHandlerFactory;
     }
 

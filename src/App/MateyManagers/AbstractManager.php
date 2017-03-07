@@ -22,49 +22,44 @@ abstract class AbstractManager implements ModelManagerInterface
     // Database connection holder
     protected $db;
     protected $redis;
+    protected $modelConfig;
 
-    // Database resource table names
-    const T_USER = "matey_user";
-    const T_FACEBOOK_INFO = "matey_facebook_info";
-    const T_FOLLOWER = "matey_follow";
-    const T_POST = "matey_post";
-    const T_APPROVE = "matey_approve";
-    const T_REPLY = "matey_reply";
-    const T_BOOST = "matey_boost";
-    const T_GROUP_ADMIN = "matey_group_admin";
-    const T_GROUP_FAVORITE = "matey_group_favorite";
-    const T_LOCATION = "matey_location";
-    const T_REREPLY = "matey_rereply";
-    const T_SHARE = "matey_share";
-    const T_ACTIVITY = "matey_activity";
-    const T_ACTIVITY_TYPE = "matey_activity_type";
-    const T_DEVICE = "matey_device";
-    const T_LOGIN = "matey_login";
-    const T_BOOKMARK = "matey_bookmark";
-    const T_GROUP = "matey_group";
-    const T_FEED = "FEED";
-
-    // Database authorization table names
-    const T_A_USER = "oauth2_user";
-    const T_A_ACCESS_TOKEN = "oauth2_access_token";
-    const T_A_REFRESH_TOKEN = "oauth2_refresh_token";
-    const T_A_CLIENTS = "oauth2_client";
-    const T_A_CODES = "oauth2_code";
-    const T_A_AUTHORIZE = "oauth2_authorize";
-    const T_A_SCOPES = "oauth2_scope";
-
-    // REDIS KEYS
-    const KEY_APP = "APP";
-    const KEY_USER = "USER";
-    const KEY_GROUP = "GROUP";
-    const KEY_POST = "POST";
-    const KEY_REPLY = "REPLY";
-
-
-    public function __construct(Connection $db, Client $redis = null)
+    public function __construct(Connection $db, Client $redis = null, array $modelConfig)
     {
         $this->db = $db;
         $this->redis = $redis;
+        $this->modelConfig = $modelConfig;
+    }
+
+    public function getModel()
+    {
+        $class = $this->getClassName();
+        return new $class();
+    }
+
+    public function getClassName()
+    {
+        return $this->modelConfig['class_name'];
+    }
+
+    public function getTableName()
+    {
+        return isset($this->modelConfig['table_name']) ? $this->modelConfig['table_name'] : null;
+    }
+
+    public function getRedisKey()
+    {
+        return isset($this->modelConfig['redis_key']) ? $this->modelConfig['redis_key'] : null;
+    }
+
+    public function getMysqlFields()
+    {
+        return isset($this->modelConfig['mysql_fields']) ? $this->modelConfig['mysql_fields'] : array();
+    }
+
+    public function getRedisFields()
+    {
+        return isset($this->modelConfig['redis_fields']) ? $this->modelConfig['redis_fields'] : array();
     }
 
     public function startTransaction() {
@@ -82,26 +77,23 @@ abstract class AbstractManager implements ModelManagerInterface
             $this->db->rollBack();
     }
 
-    public function createModel(ModelInterface $model, $ignore = false)
+    public function createModel(ModelInterface $model)
     {
 
         $fields = $model->getMysqlValues();
 
-        $keys = "";
-        $values = [];
-        $qMarks = "";
-        foreach ($fields as $key => $value) {
-            $key = $this->makeColumnName($key);
-            $keys.=$key.",";
-            $values[]=$value;
-            $qMarks.="?,";
-        }
-        $keys = rtrim($keys, ",");
-        $qMarks = rtrim($qMarks, ",");
+        $queryBuilder = $this->db->createQueryBuilder();
 
-        // FINAL QUERY
-        $result = $this->db->executeUpdate("INSERT ". ($ignore ? "IGNORE" : "") ." INTO ".$this->getTableName()." (".$keys.") VALUES(".$qMarks.")",
-            $values);
+        $queryBuilder->insert($this->getTableName());
+
+        $counter = 0;
+        foreach($fields as $key => $value) {
+            $key = $this->makeColumnName($key);
+            $queryBuilder->setValue($key, '?');
+            $queryBuilder->setParameter($counter++, $value);
+        }
+
+        $result = $queryBuilder->execute();
 
         $model->setId($this->db->lastInsertId());
 
@@ -109,93 +101,38 @@ abstract class AbstractManager implements ModelManagerInterface
 
     }
 
-    public function readModelAll($limit = null)
+    public function readModelAll()
     {
-        $all = $this->db->fetchAll("SELECT * FROM " . $this->getTableName() . ($limit == null ? "" : " LIMIT ".$limit));
+        $all = $this->db->fetchAll("SELECT * FROM " . $this->getTableName());
         return $this->makeObjects($all);
     }
 
     public function readModelBy(array $criteria, array $orderBy = null,
                                 $limit = null, $offset = null, array $fields = null, $ascDesc = 'ASC')
     {
+        $queryBuilder = $this->db->createQueryBuilder();
 
-        $sql = "SELECT ";
+        if(empty($fields)) $mysqlFields = "*";
+        else $mysqlFields = array_intersect($fields, $this->getMysqlFields());
 
-        // ------------------------------------------------------------ FIELDS
-        $fieldsStr = "";
-        if(!empty($fields)) {
-            if(is_array($fields)) {
-                foreach ($fields as $field) {
-                    $fieldsStr .= $field . ",";
-                }
-            } else $fieldsStr = $fields;
+        $queryBuilder->select($mysqlFields)
+            ->from($this->getTableName());
 
-            $fieldsStr = rtrim($fieldsStr, ',');
-        }
-
-        empty($fieldsStr) ? $sql.="*" : $sql.=$fieldsStr;
-
-        $sql.= " FROM ".$this->getTableName();
-
-        // ------------------------------------------------------------ WHERE CLAUSE
-        $whereStr = [];
+        $counter = 0;
         foreach($criteria as $key => $value) {
             $key = $this->makeColumnName($key);
-
-            if(is_array($value)) {
-                $inString = $key . " IN (";
-                foreach($value as $valuee) {
-                    $inString .= "?,";
-                }
-                $inString = rtrim($inString,',');
-                $inString .= ")";
-                $whereStr[] = $inString;
-            }
-            else $whereStr[] = $key . " LIKE ?";
-        }
-        if ($whereStr) {
-            $whereStr = implode(" AND ", $whereStr);
-        } else {
-            $whereStr = '';
+            $queryBuilder->andWhere($key . "=?");
+            $queryBuilder->setParameter($counter++, $value);
         }
 
-        $sql .= " WHERE " . $whereStr;
+        if(isset($limit))
+            $queryBuilder->setMaxResults($limit);
+        if(isset($orderBy))
+            $queryBuilder->orderBy($orderBy, $ascDesc);
+        if(isset($offset))
+            $queryBuilder->setFirstResult($offset);
 
-        // ------------------------------------------------------------ ORDER BY CLAUSE
-        $orderByStr = [];
-        if ($orderBy !== null && is_array($orderBy)) {
-            foreach($orderBy as $key => $value) {
-                $orderByStr[] = $key . " " . $value;
-            }
-        }
-        if ($orderByStr) {
-            $orderByStr = implode(", ", $orderByStr);
-        } else {
-            $orderByStr = '';
-        }
-
-        if(!empty($orderByStr)) $sql .= " ORDER BY " . $orderByStr . " " . $ascDesc;
-
-        // ------------------------------------------------------------ LIMIT CLAUSE
-        if($limit !== null) $sql .= " LIMIT " . $limit;
-        // ------------------------------------------------------------ OFFSET CLAUSE
-        if($offset !== null) $sql .= " OFFSET " . $offset;
-
-        $prepared = $this->db->prepare($sql);
-
-        $i = 1;
-        // bind WHERE criteria values
-        foreach($criteria as $key => $value) {
-            if(is_array($value)) {
-                foreach($value as $keyy => $valuee) {
-                    $prepared->bindValue($i++, $valuee);
-                }
-            }
-            else $prepared->bindValue($i++, $value);
-        }
-
-        $prepared->execute();
-        $all = $prepared->fetchAll();
+        $all = $queryBuilder->execute()->fetchAll();
 
         $models = $this->makeObjects($all);
         return $models;
@@ -212,50 +149,42 @@ abstract class AbstractManager implements ModelManagerInterface
     {
         $fields = $model->getMysqlValues();
 
-        if(empty($fields)) null;
+        $queryBuilder = $this->db->createQueryBuilder();
+        $queryBuilder->update($this->getTableName());
 
-        $setStr = "";
-        $values = [];
+        $counter = 0;
         foreach($fields as $key => $value) {
             $key = $this->makeColumnName($key);
-            $setStr.=$key."=?,";
-            $values[] = $value;
-        }
-        $setStr = rtrim($setStr,',');
-
-        $whereStr = "";
-        if($criteria != null) {
-            $whereStr = " WHERE ";
-            foreach($criteria as $key => $value) {
-                $whereStr.=$key."=? AND ";
-                $values[] = $value;
-            }
-            $whereStr = rtrim($whereStr);
-            $whereStr = preg_replace('/ AND$/', '', $whereStr);
+            $queryBuilder->set($key, "?");
+            $queryBuilder->setParameter($counter++, $value);
         }
 
-        // FINAL QUERY
-        $result = $this->db->executeUpdate("UPDATE ".$this->getTableName()." SET ".$setStr.$whereStr,
-            $values);
+        foreach($criteria as $key => $value) {
+            $key = $this->makeColumnName($key);
+            $queryBuilder->andWhere($key, "=?");
+            $queryBuilder->setParameter($counter++, $value);
+        }
+
+        $result = $queryBuilder->execute();
 
         return $result > 0 ? $model : null;
     }
 
-    public function deleteModel(ModelInterface $model, $criteria = null)
+    public function deleteModel(ModelInterface $model)
     {
-        $criteria = $model->getMysqlValues();
+        $criterias = $model->getMysqlValues();
 
-        $whereStr = "";
-        if($criteria != null) {
-            $whereStr = " WHERE ";
-            foreach($criteria as $key => $value) {
-                $whereStr.=$key."=".$value." AND ";
-            }
-            $whereStr=rtrim($whereStr);
-            $whereStr = preg_replace('/AND$/', '', $whereStr);
+        $queryBuilder = $this->db->createQueryBuilder();
+        $queryBuilder->delete($this->getTableName());
+
+        $counter = 0;
+        foreach($criterias as $key => $value) {
+            $key = $this->makeColumnName($key);
+            $queryBuilder->andWhere($key, "=?");
+            $queryBuilder->setParameter($counter++, $value);
         }
 
-        $result = $this->db->executeUpdate("DELETE FROM ".$this->getTableName().$whereStr);
+        $result = $queryBuilder->execute();
 
         return $result > 0 ? $model : null;
     }
@@ -286,11 +215,6 @@ abstract class AbstractManager implements ModelManagerInterface
         else if(strcmp($key, "refreshToken") == 0) $key = "refresh_token";
 
         return $key;
-    }
-
-    public function getModel() {
-        $class = $this->getClassName();
-        return new $class();
     }
 
 }
