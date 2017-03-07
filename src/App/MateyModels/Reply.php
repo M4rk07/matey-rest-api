@@ -8,10 +8,12 @@
 
 namespace App\MateyModels;
 
+use App\Constants\Defaults\DefaultDates;
 use AuthBucket\OAuth2\Model\ModelInterface;
 
 class Reply extends AbstractModel
 {
+    protected $replyId;
     protected $postId;
     protected $userId;
     protected $text;
@@ -20,6 +22,27 @@ class Reply extends AbstractModel
     protected $timeC;
     protected $numOfApproves;
     protected $numOfReplies;
+
+    public function setId($id) {
+        return $this->setReplyId($id);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getReplyId()
+    {
+        return $this->replyId;
+    }
+
+    /**
+     * @param mixed $replyId
+     */
+    public function setReplyId($replyId)
+    {
+        $this->replyId = $replyId;
+        return $this;
+    }
 
     /**
      * @return mixed
@@ -169,43 +192,44 @@ class Reply extends AbstractModel
         ));
     }
 
-    public function setValuesFromArray($values)
+    public function getSetFunction (array $props, $type = 'get')
     {
-        if(isset($values['post_id'])) $this->setId($values['post_id']);
-        if(isset($values['user_id'])) $this->setUserId($values['user_id']);
-        if(isset($values['post_id'])) $this->setPostId($values['post_id']);
-        if(isset($values['text'])) $this->setText($values['text']);
-        if(isset($values['time_c'])) $this->setTimeC($values['time_c']);
-        if(isset($values['attachs_num'])) $this->setAttachsNum($values['attachs_num']);
-        if(isset($values['locations_num'])) $this->setLocationsNum($values['locations_num']);
-        if(isset($values['num_of_replies'])) $this->setNumOfReplies($values['num_of_replies']);
-        if(isset($values['num_of_approves'])) $this->setNumOfApproves($values['num_of_approves']);
+        if ($props['key'] == 'reply_id') {
+            if ($type == 'get') return $this->getReplyId();
+            else return $this->setReplyId($props['value']);
+        }
+        if ($props['key'] == 'post_id') {
+            if ($type == 'get') return $this->getPostId();
+            else return $this->setPostId($props['value']);
+        }
+        else if ($props['key'] == 'user_id') {
+            if ($type == 'get') return $this->getUserId();
+            else return $this->setUserId($props['value']);
+        }
+        else if ($props['key'] == 'text') {
+            if ($type == 'get') return $this->getText();
+            else return $this->setText($props['value']);
+        }
+        else if($props['key'] == 'time_c') {
+            if($type == 'get') return $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
+            else return $this->setTimeC($this->createDateTimeFromString($props['value']));
+        }
+        else if ($props['key'] == 'attachs_num') {
+            if ($type == 'get') return $this->getAttachsNum();
+            else return $this->setAttachsNum($props['value']);
+        }
+        else if ($props['key'] == 'locations_num') {
+            if ($type == 'get') return $this->getLocationsNum();
+            else return $this->setLocationsNum($props['value']);
+        }
+        else if ($props['key'] == 'num_of_replies') {
+            if ($type == 'get') return $this->getNumOfReplies();
+            else return $this->setNumOfReplies($props['value']);
+        }
+        else if ($props['key'] == 'num_of_approves') {
+            if ($type == 'get') return $this->getNumOfApproves();
+            else return $this->setNumOfApproves($props['value']);
+        }
     }
-
-    public function getMysqlValues()
-    {
-        $keyValues = array ();
-
-        empty($this->id) ? : $keyValues['reply_id'] = $this->id;
-        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
-        empty($this->postId) ? : $keyValues['post_id'] = $this->postId;
-        empty($this->text) ? : $keyValues['text'] = $this->text;
-        empty($this->attachsNum) ? : $keyValues['attachs_num'] = $this->attachsNum;
-        empty($this->locationsNum) ? : $keyValues['locations_num'] = $this->locationsNum;
-        empty($this->timeC) ? : $keyValues['time_c'] = $this->timeC;
-
-        return $keyValues;
-    }
-
-    public function getValuesAsArray()
-    {
-        $keyValues = $this->getMysqlValues();
-
-        empty($this->numOfReplies) ? : $keyValues['num_of_replies'] = $this->numOfReplies;
-        empty($this->numOfApproves) ? : $keyValues['num_of_approves'] = $this->numOfApproves;
-
-        return $keyValues;
-    }
-
 
 }

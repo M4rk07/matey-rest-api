@@ -1,6 +1,7 @@
 <?php
 
 namespace App\MateyModels;
+use App\Constants\Defaults\DefaultDates;
 use App\Paths\Paths;
 use App\Validators\Name;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
@@ -337,7 +338,7 @@ class User extends AbstractModel
     /**
      * @return mixed
      */
-    public function getNumOfGivenResponses()
+    public function getNumOfGivenReplies()
     {
         return $this->numOfGivenResponses;
     }
@@ -345,7 +346,7 @@ class User extends AbstractModel
     /**
      * @param mixed $numOfGivenResponses
      */
-    public function setNumOfGivenResponses($numOfGivenResponses)
+    public function setNumOfGivenReplies($numOfGivenResponses)
     {
         $this->numOfGivenResponses = (int)$numOfGivenResponses;
         return $this;
@@ -354,7 +355,7 @@ class User extends AbstractModel
     /**
      * @return mixed
      */
-    public function getNumOfReceivedResponses()
+    public function getNumOfReceivedReplies()
     {
         return $this->numOfReceivedResponses;
     }
@@ -362,7 +363,7 @@ class User extends AbstractModel
     /**
      * @param mixed $numOfReceivedResponses
      */
-    public function setNumOfReceivedResponses($numOfReceivedResponses)
+    public function setNumOfReceivedReplies($numOfReceivedResponses)
     {
         $this->numOfReceivedResponses = (int)$numOfReceivedResponses;
         return $this;
@@ -371,7 +372,7 @@ class User extends AbstractModel
     /**
      * @return mixed
      */
-    public function getNumOfBestResponses()
+    public function getNumOfBestReplies()
     {
         return $this->numOfBestResponses;
     }
@@ -379,7 +380,7 @@ class User extends AbstractModel
     /**
      * @param mixed $numOfBestResponses
      */
-    public function setNumOfBestResponses($numOfBestResponses)
+    public function setNumOfBestReplies($numOfBestResponses)
     {
         $this->numOfBestResponses = (int)$numOfBestResponses;
         return $this;
@@ -402,68 +403,91 @@ class User extends AbstractModel
         return $this;
     }
 
-    public function setValuesFromArray($values)
-    {
-
-        if(isset($values['user_id'])) $this->setId($values['user_id']);
-        if(isset($values['email'])) $this->setEmail($values['email']);
-        if(isset($values['first_name'])) $this->setFirstName($values['first_name']);
-        if(isset($values['last_name'])) $this->setLastName($values['last_name']);
-        if(isset($values['full_name'])) $this->setFullName($values['full_name']);
-        if(isset($values['is_silhouette'])) $this->setSilhouette($values['is_silhouette']);
-        if(isset($values['verified'])) $this->setVerified($values['verified']);
-        if(isset($values['date_registered'])) $this->setDateRegistered($values['date_registered']);
-        if(isset($values['location'])) $this->setLocation($values['location']);
-        if(isset($values['country'])) $this->setCountry($values['country']);
-        if(isset($values['birthday'])) $this->setBirthday($values['birthday']);
-        if(isset($values['phone_number'])) $this->setPhoneNumber($values['phone_number']);
-        if(isset($values['num_of_followers'])) $this->setNumOfFollowers($values['num_of_followers']);
-        if(isset($values['num_of_following'])) $this->setNumOfFollowing($values['num_of_following']);
-        if(isset($values['num_of_posts'])) $this->setNumOfPosts($values['num_of_posts']);
-        if(isset($values['num_of_given_approves'])) $this->setNumOfGivenApproves($values['num_of_given_approves']);
-        if(isset($values['num_of_received_approves'])) $this->setNumOfReceivedApproves($values['num_of_received_approves']);
-        if(isset($values['num_of_given_responses'])) $this->setNumOfGivenResponses($values['num_of_given_responses']);
-        if(isset($values['num_of_received_responses'])) $this->setNumOfReceivedResponses($values['num_of_received_responses']);
-        if(isset($values['num_of_best_responses'])) $this->setNumOfBestResponses($values['num_of_best_responses']);
-        if(isset($values['num_of_shares'])) $this->setNumOfShares($values['num_of_shares']);
-
-    }
-
-    public function getMysqlValues () {
-        $keyValues = array ();
-
-        empty($this->id) ? : $keyValues['user_id'] = $this->id;
-        empty($this->email) ? : $keyValues['email'] = $this->email;
-        empty($this->firstName) ? : $keyValues['first_name'] = $this->firstName;
-        empty($this->lastName) ? : $keyValues['last_name'] = $this->lastName;
-        empty($this->fullName) ? : $keyValues['full_name'] = $this->fullName;
-        empty($this->silhouette) && $this->silhouette !== 0 ? : $keyValues['is_silhouette'] = $this->silhouette;
-        empty($this->verified) ? : $keyValues['verified'] = $this->verified;
-        empty($this->location) ? : $keyValues['location'] = $this->location;
-        empty($this->country) ? : $keyValues['country'] = $this->country;
-        empty($this->birthday) ? : $keyValues['birthday'] = $this->birthday;
-        empty($this->phoneNumber) ? : $keyValues['phone_number'] = $this->phoneNumber;
-
-        return $keyValues;
-    }
-
-    public function getValuesAsArray(array $fields = null)
-    {
-        $keyValues = $this->getMysqlValues();
-
-        empty($this->numOfFollowers) && $this->numOfFollowers !== 0 ? : $keyValues['num_of_followers'] = $this->numOfFollowers;
-        empty($this->numOfFollowing) && $this->numOfFollowing !== 0 ? : $keyValues['num_of_following'] = $this->numOfFollowing;
-        empty($this->numOfPosts) && $this->numOfPosts !== 0 ? : $keyValues['num_of_posts'] = $this->numOfPosts;
-        empty($this->numOfGivenApproves) && $this->numOfGivenApproves !== 0 ? : $keyValues['num_of_given_approves'] = $this->numOfGivenApproves;
-        empty($this->numOfReceivedApproves) && $this->numOfReceivedApproves !== 0 ? : $keyValues['num_of_received_approves'] = $this->numOfReceivedApproves;
-        empty($this->numOfGivenResponses) && $this->numOfGivenResponses !== 0 ? : $keyValues['num_of_given_responses'] = $this->numOfGivenResponses;
-        empty($this->numOfReceivedResponses) && $this->numOfReceivedResponses !== 0 ? : $keyValues['num_of_received_responses'] = $this->numOfReceivedResponses;
-        empty($this->numOfBestResponses) && $this->numOfBestResponses !== 0 ? : $keyValues['num_of_best_responses'] = $this->numOfBestResponses;
-        empty($this->numOfShares) && $this->numOfShares !== 0 ? : $keyValues['num_of_shares'] = $this->numOfShares;
-        $keyValues['picture_url'] = $this->getProfilePicture('original');
-        $keyValues['cover_url'] = "http://www.twitrcovers.com/wp-content/uploads/2013/07/Abstract-Minimalistic-l.jpg";
-
-        return $keyValues;
+    public function getSetFunction (array $props, $type = 'get') {
+        if($props['key'] == 'user_id') {
+            if($type == 'get') return $this->getId();
+            else return $this->setId($props['value']);
+        }
+        else if($props['key'] == 'email') {
+            if($type == 'get') return $this->getEmail();
+            else return $this->setEmail($props['value']);
+        }
+        else if($props['key'] == 'first_name') {
+            if($type == 'get') return $this->getFirstName();
+            else return $this->setFirstName($props['value']);
+        }
+        else if($props['key'] == 'last_name') {
+            if($type == 'get') return $this->getLastName();
+            else return $this->setLastName($props['value']);
+        }
+        else if($props['key'] == 'full_name') {
+            if($type == 'get') return $this->getFullName();
+            else return $this->setFullName($props['value']);
+        }
+        else if($props['key'] == 'is_silhouette') {
+            if($type == 'get') return $this->isSilhouette();
+            else return $this->setSilhouette($props['value']);
+        }
+        else if($props['key'] == 'verified') {
+            if($type == 'get') return $this->getVerified();
+            else return $this->setVerified($props['value']);
+        }
+        else if($props['key'] == 'date_registered') {
+            if($type == 'get') return $this->getDateRegistered()->format(DefaultDates::DATE_FORMAT);
+            else return $this->setDateRegistered($props['value']);
+        }
+        else if($props['key'] == 'location') {
+            if($type == 'get') return $this->getLocation();
+            else return $this->setLocation($props['value']);
+        }
+        else if($props['key'] == 'country') {
+            if($type == 'get') return $this->getCountry();
+            else return $this->setCountry($props['value']);
+        }
+        else if($props['key'] == 'birthday') {
+            if($type == 'get') return $this->getBirthday();
+            else return $this->setBirthday($props['value']);
+        }
+        else if($props['key'] == 'phone_number') {
+            if($type == 'get') return $this->getPhoneNumber();
+            else return $this->setPhoneNumber($props['value']);
+        }
+        else if($props['key'] == 'num_of_followers') {
+            if($type == 'get') return $this->getNumOfFollowers();
+            else return $this->setNumOfFollowers($props['value']);
+        }
+        else if($props['key'] == 'num_of_following') {
+            if($type == 'get') return $this->getNumOfFollowing();
+            else return $this->setNumOfFollowing($props['value']);
+        }
+        else if($props['key'] == 'num_of_posts') {
+            if($type == 'get') return $this->getNumOfPosts();
+            else return $this->setNumOfPosts($props['value']);
+        }
+        else if($props['key'] == 'num_of_given_approves') {
+            if($type == 'get') return $this->getNumOfGivenApproves();
+            else return $this->setNumOfGivenApproves($props['value']);
+        }
+        else if($props['key'] == 'num_of_received_approves') {
+            if($type == 'get') return $this->getNumOfReceivedApproves();
+            else return $this->setNumOfReceivedApproves($props['value']);
+        }
+        else if($props['key'] == 'num_of_given_replies') {
+            if($type == 'get') return $this->getNumOfGivenReplies();
+            else return $this->setNumOfGivenReplies($props['value']);
+        }
+        else if($props['key'] == 'num_of_received_replies') {
+            if($type == 'get') return $this->getNumOfReceivedReplies();
+            else return $this->setNumOfReceivedReplies($props['value']);
+        }
+        else if($props['key'] == 'num_of_best_replies') {
+            if($type == 'get') return $this->getNumOfBestReplies();
+            else return $this->setNumOfBestReplies($props['value']);
+        }
+        else if($props['key'] == 'num_of_shares') {
+            if($type == 'get') return $this->getNumOfShares();
+            else return $this->setNumOfShares($props['value']);
+        }
     }
 
 }

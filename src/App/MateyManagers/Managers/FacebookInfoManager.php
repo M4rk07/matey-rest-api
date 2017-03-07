@@ -15,23 +15,6 @@ class FacebookInfoManager extends AbstractManager
 {
     const SUBKEY_FB_TOKEN = "fb-token";
 
-    /**
-     * @return mixed
-     */
-    public function getClassName()
-    {
-        return 'App\\MateyModels\\FacebookInfo';
-    }
-
-    public function getTableName() {
-        return self::T_FACEBOOK_INFO;
-    }
-
-    public function getKeyName()
-    {
-        return "FACEBOOK_INFO";
-    }
-
     public function createModel(ModelInterface $model, $ignore = false)
     {
         $model = parent::createModel($model, $ignore);
@@ -41,8 +24,8 @@ class FacebookInfoManager extends AbstractManager
     }
 
     public function pushFbAccessToken(ModelInterface $facebookInfo) {
-        $this->redis->set(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$facebookInfo->getId(), $facebookInfo->getFbToken());
-        $this->redis->expire(self::KEY_USER.":".self::SUBKEY_FB_TOKEN.":".$facebookInfo->getId(), 3600);
+        $this->redis->set($this->getRedisKey().":".self::SUBKEY_FB_TOKEN.":".$facebookInfo->getId(), $facebookInfo->getFbToken());
+        $this->redis->expire($this->getRedisKey().":".self::SUBKEY_FB_TOKEN.":".$facebookInfo->getId(), 3600);
     }
 
 }

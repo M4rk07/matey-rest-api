@@ -10,6 +10,7 @@ namespace App\MateyModels;
 
 
 
+use App\Constants\Defaults\DefaultDates;
 use AuthBucket\OAuth2\Model\ModelInterface;
 
 class Login extends AbstractModel
@@ -106,39 +107,27 @@ class Login extends AbstractModel
         return $this;
     }
 
-    public function setValuesFromArray($values)
-    {
-        $this->deviceId = isset($values['device_id']) ? $values['device_id'] : "";
-        $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
-        $this->dateTime = isset($values['date_time']) ? $values['date_time'] : "";
-        $this->status = isset($values['status']) ? $values['status'] : "";
-        $this->gcm = isset($values['gcm']) ? $values['gcm'] : "";
-    }
-
-    public function getMysqlValues()
-    {
-        $keyValues = array ();
-
-        empty($this->deviceId) ? : $keyValues['device_id'] = $this->deviceId;
-        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
-        empty($this->dateTime) ? : $keyValues['date_time'] = $this->dateTime;
-        empty($this->status) ? : $keyValues['status'] = $this->status;
-        empty($this->gcm) ? : $keyValues['gcm'] = $this->gcm;
-
-        return $keyValues;
-    }
-
-    public function getValuesAsArray()
-    {
-        $keyValues = array ();
-
-        empty($this->deviceId) ? : $keyValues['device_id'] = $this->deviceId;
-        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
-        empty($this->dateTime) ? : $keyValues['date_time'] = $this->dateTime;
-        empty($this->status) ? : $keyValues['status'] = $this->status;
-        empty($this->gcm) ? : $keyValues['gcm'] = $this->gcm;
-
-        return $keyValues;
+    public function getSetFunction (array $props, $type = 'get') {
+        if($props['key'] == 'device_id') {
+            if($type == 'get') return $this->getDeviceId();
+            else return $this->setDeviceId($props['value']);
+        }
+        else if($props['key'] == 'user_id') {
+            if($type == 'get') return $this->getUserId();
+            else return $this->setUserId($props['value']);
+        }
+        else if($props['key'] == 'date_time') {
+            if($type == 'get') return $this->getDateTime()->format(DefaultDates::DATE_FORMAT);
+            else return $this->setDateTime($this->createDateTimeFromString($props['value']));
+        }
+        else if($props['key'] == 'status') {
+            if($type == 'get') return $this->getStatus();
+            else return $this->setStatus($props['value']);
+        }
+        else if($props['key'] == 'gcm') {
+            if($type == 'get') return $this->getGcm();
+            else return $this->setGcm($props['value']);
+        }
     }
 
 

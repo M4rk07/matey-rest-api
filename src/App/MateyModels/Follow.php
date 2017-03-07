@@ -85,7 +85,7 @@ class Follow extends AbstractModel
      */
     public function setTimeC($timeC)
     {
-        $this->timeC = $this->createDateTimeFromString($timeC);
+        $this->timeC = $timeC;
         return $this;
     }
 
@@ -123,36 +123,31 @@ class Follow extends AbstractModel
         return $this;
     }
 
-    public function setValuesFromArray($values)
-    {
-        if(isset($values['user_id'])) $this->setUserId($values['user_id']);
-        if(isset($values['parent_id'])) $this->setParentId($values['parent_id']);
-        if(isset($values['parent_type'])) $this->setParentType($values['parent_type']);
-        if(isset($values['time_c'])) $this->setTimeC($values['time_c']);
-        if(isset($values['num_of_interactions'])) $this->setNumOfInteractions($values['num_of_interactions']);
-        if(isset($values['sum_of_interactions'])) $this->setSumOfInteractions($values['sum_of_interactions']);
-    }
-
-    public function getMysqlValues()
-    {
-        $keyValues = array ();
-
-        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
-        empty($this->parentId) ? : $keyValues['parent_id'] = $this->parentId;
-        empty($this->parentType) ? : $keyValues['parent_type'] = $this->parentType;
-        empty($this->timeC) ? : $keyValues['time_c'] = $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
-
-        return $keyValues;
-    }
-
-    public function getValuesAsArray()
-    {
-        $keyValues = $this->getMysqlValues();
-
-        empty($this->numOfInteractions) ? : $keyValues['num_of_interactions'] = $this->numOfInteractions;
-        empty($this->sumOfInteractions) ? : $keyValues['sum_of_interactions'] = $this->sumOfInteractions;
-
-        return $keyValues;
+    public function getSetFunction (array $props, $type = 'get') {
+        if($props['key'] == 'user_id') {
+            if($type == 'get') return $this->getUserId();
+            else return $this->setUserId($props['value']);
+        }
+        else if($props['key'] == 'parent_id') {
+            if($type == 'get') return $this->getParentId();
+            else return $this->setParentId($props['value']);
+        }
+        else if($props['key'] == 'parent_type') {
+            if($type == 'get') return $this->getParentType();
+            else return $this->setParentType($props['value']);
+        }
+        else if($props['key'] == 'time_c') {
+            if($type == 'get') return $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
+            else return $this->setTimeC($this->createDateTimeFromString($props['value']));
+        }
+        else if($props['key'] == 'num_of_interactions') {
+            if($type == 'get') return $this->getNumOfInteractions();
+            else return $this->setNumOfInteractions($props['value']);
+        }
+        else if($props['key'] == 'sum_of_interactions') {
+            if($type == 'get') return $this->getSumOfInteractions();
+            else return $this->setSumOfInteractions($props['value']);
+        }
     }
 
 

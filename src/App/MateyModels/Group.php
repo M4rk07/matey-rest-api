@@ -17,6 +17,7 @@ class Group extends AbstractModel
 
     const DEFAULT_GROUP = NULL;
 
+    protected $groupId;
     protected $userId;
     protected $groupName;
     protected $description;
@@ -24,6 +25,27 @@ class Group extends AbstractModel
     protected $silhouette;
     protected $numOfFollowers;
     protected $deleted;
+
+    public function setId($id) {
+        return $this->setGroupId($id);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGroupId()
+    {
+        return $this->groupId;
+    }
+
+    /**
+     * @param mixed $groupId
+     */
+    public function setGroupId($groupId)
+    {
+        $this->groupId = $groupId;
+        return $this;
+    }
 
     /**
      * @return mixed
@@ -89,7 +111,7 @@ class Group extends AbstractModel
      */
     public function setTimeC($timeC)
     {
-        $this->timeC = $this->createDateTimeFromString($timeC);
+        $this->timeC = $timeC;
         return $this;
     }
 
@@ -159,42 +181,39 @@ class Group extends AbstractModel
         return $this;
     }
 
-
-    public function setValuesFromArray($values)
-    {
-        if(isset($values['group_id'])) $this->setId($values['group_id']);
-        if(isset($values['user_id'])) $this->setUserId($values['user_id']);
-        if(isset($values['group_name'])) $this->setGroupName($values['group_name']);
-        if(isset($values['description'])) $this->setDescription($values['description']);
-        if(isset($values['time_c'])) $this->setTimeC($values['time_c']);
-        if(isset($values['is_silhouette'])) $this->setSilhouette($values['is_silhouette']);
-        if(isset($values['num_of_followers'])) $this->setNumOfFollowers($values['num_of_followers']);
-        if(isset($values['deleted'])) $this->setDeleted($values['deleted']);
-    }
-
-    public function getMysqlValues()
-    {
-        $keyValues = array ();
-
-        empty($this->id) ? : $keyValues['group_id'] = $this->id;
-        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
-        empty($this->groupName) ? : $keyValues['group_name'] = $this->groupName;
-        empty($this->description) ? : $keyValues['description'] = $this->description;
-        empty($this->timeC) ? : $keyValues['time_c'] = $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
-        empty($this->silhouette) && $this->silhouette !== 0 ? : $keyValues['is_silhouette'] = $this->silhouette;
-        empty($this->deleted) && $this->deleted !== 0 ? : $keyValues['deleted'] = $this->deleted;
-
-        return $keyValues;
-    }
-
-    public function getValuesAsArray()
-    {
-        $keyValues = $this->getMysqlValues();
-
-        empty($this->numOfFollowers) ? : $keyValues['num_of_followers'] = $this->numOfFollowers;
-        $keyValues['group_picture_url'] = $this->getGroupPicture('original');
-
-        return $keyValues;
+    public function getSetFunction (array $props, $type = 'get') {
+        if($props['key'] == 'group_id') {
+            if($type == 'get') return $this->getGroupId();
+            else return $this->setGroupId($props['value']);
+        }
+        else if($props['key'] == 'user_id') {
+            if($type == 'get') return $this->getUserId();
+            else return $this->setUserId($props['value']);
+        }
+        else if($props['key'] == 'group_name') {
+            if($type == 'get') return $this->getGroupName();
+            else return $this->setGroupName($props['value']);
+        }
+        else if($props['key'] == 'description') {
+            if($type == 'get') return $this->getDescription();
+            else return $this->setDescription($props['value']);
+        }
+        else if($props['key'] == 'time_c') {
+            if($type == 'get') return $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
+            else return $this->setTimeC($this->createDateTimeFromString($props['value']));
+        }
+        else if($props['key'] == 'is_silhouette') {
+            if($type == 'get') return $this->getSilhouette();
+            else return $this->setSilhouette($props['value']);
+        }
+        else if($props['key'] == 'num_of_followers') {
+            if($type == 'get') return $this->getNumOfFollowers();
+            else return $this->setNumOfFollowers($props['value']);
+        }
+        else if($props['key'] == 'deleted') {
+            if($type == 'get') return $this->getDeleted();
+            else return $this->setDeleted($props['value']);
+        }
     }
 
 

@@ -9,14 +9,37 @@
 namespace App\MateyModels;
 
 
+use App\Constants\Defaults\DefaultDates;
+
 class Rereply extends AbstractModel
 {
 
+    protected $rereplyId;
     protected $replyId;
     protected $userId;
     protected $text;
     protected $timeC;
     protected $numOfApproves;
+
+    public function setId($id) {
+        return $this->setRereplyId($id);
+    }
+    /**
+     * @return mixed
+     */
+    public function getRereplyId()
+    {
+        return $this->rereplyId;
+    }
+
+    /**
+     * @param mixed $rereplyId
+     */
+    public function setRereplyId($rereplyId)
+    {
+        $this->rereplyId = $rereplyId;
+        return $this;
+    }
 
     /**
      * @return mixed
@@ -114,36 +137,32 @@ class Rereply extends AbstractModel
         ));
     }
 
-    public function setValuesFromArray($values)
+    public function getSetFunction (array $props, $type = 'get')
     {
-        if(isset($values['rereply_id'])) $this->setId($values['rereply_id']);
-        if(isset($values['user_id'])) $this->setUserId($values['user_id']);
-        if(isset($values['reply_id'])) $this->setReplyId($values['reply_id']);
-        if(isset($values['text'])) $this->setText($values['text']);
-        if(isset($values['time_c'])) $this->setTimeC($values['time_c']);
-        if(isset($values['num_of_approves'])) $this->setNumOfApproves($values['num_of_approves']);
-    }
-
-    public function getMysqlValues()
-    {
-        $keyValues = array ();
-
-        empty($this->id) ? : $keyValues['rereply_id'] = $this->id;
-        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
-        empty($this->replyId) ? : $keyValues['reply_id'] = $this->replyId;
-        empty($this->text) ? : $keyValues['text'] = $this->text;
-        empty($this->timeC) ? : $keyValues['time_c'] = $this->timeC;
-
-        return $keyValues;
-    }
-
-    public function getValuesAsArray()
-    {
-        $keyValues = $this->getMysqlValues();
-
-        empty($this->numOfApproves) ? : $keyValues['num_of_approves'] = $this->numOfApproves;
-
-        return $keyValues;
+        if ($props['key'] == 'rereply_id') {
+            if ($type == 'get') return $this->getRereplyId();
+            else return $this->setRereplyId($props['value']);
+        }
+        if ($props['key'] == 'reply_id') {
+            if ($type == 'get') return $this->getReplyId();
+            else return $this->setReplyId($props['value']);
+        }
+        else if ($props['key'] == 'user_id') {
+            if ($type == 'get') return $this->getUserId();
+            else return $this->setUserId($props['value']);
+        }
+        else if ($props['key'] == 'text') {
+            if ($type == 'get') return $this->getText();
+            else return $this->setText($props['value']);
+        }
+        else if($props['key'] == 'time_c') {
+            if($type == 'get') return $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
+            else return $this->setTimeC($this->createDateTimeFromString($props['value']));
+        }
+        else if ($props['key'] == 'num_of_approves') {
+            if ($type == 'get') return $this->getNumOfApproves();
+            else return $this->setNumOfApproves($props['value']);
+        }
     }
 
 }

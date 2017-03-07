@@ -39,10 +39,32 @@ abstract class AbstractModel implements ModelInterface
         return implode(" ", $array);
     }
 
-    abstract public function setValuesFromArray ($values);
+    public abstract function getSetFunction(array $props, $type = 'get');
 
-    abstract public function getMysqlValues ();
+    public function asArray ($fields) {
 
-    abstract public function getValuesAsArray ();
+        $keyValues = array();
+
+        if(!is_array($fields)) $fields = array($fields);
+
+        foreach($fields as $field) {
+            $props['key'] = $field;
+            $thisValue = $this->getSetFunction($props);
+            if(!empty($thisValue)) $keyValues[$field] = $thisValue;
+        }
+
+        return $keyValues;
+    }
+
+    public function setValuesFromArray($values)
+    {
+
+        foreach($values as $key => $value) {
+            $props['key'] = $key;
+            $props['value'] = $value;
+            $this->getSetFunction($props, 'set');
+        }
+
+    }
 
 }

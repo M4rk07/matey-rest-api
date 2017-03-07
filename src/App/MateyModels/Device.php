@@ -8,6 +8,7 @@
 
 namespace App\MateyModels;
 
+use App\Constants\Defaults\DefaultDates;
 use AuthBucket\OAuth2\Model\ModelInterface;
 
 class Device extends AbstractModel
@@ -17,6 +18,10 @@ class Device extends AbstractModel
     protected $deviceSecret;
     protected $gcm;
     protected $dateRegistered;
+
+    public function setId($id) {
+        return $this->setDeviceId($id);
+    }
 
     /**
      * @return mixed
@@ -86,37 +91,23 @@ class Device extends AbstractModel
         return $this;
     }
 
-    public function setValuesFromArray($values)
-    {
-        $this->deviceId = isset($values['device_id']) ? $values['device_id'] : "";
-        $this->deviceSecret = isset($values['device_secret']) ? $values['device_secret'] : "";
-        $this->gcm = isset($values['gcm']) ? $values['gcm'] : "";
-        $this->dateRegistered = isset($values['date_registered']) ? $values['date_registered'] : "";
-    }
-
-    public function getMysqlValues()
-    {
-        $keyValues = array ();
-
-        empty($this->deviceId) ? : $keyValues['device_id'] = $this->deviceId;
-        empty($this->deviceSecret) ? : $keyValues['device_secret'] = $this->deviceSecret;
-        empty($this->gcm) ? : $keyValues['gcm'] = $this->gcm;
-        empty($this->dateRegistered) ? : $keyValues['date_registered'] = $this->dateRegistered;
-
-        return $keyValues;
-    }
-
-
-    public function getValuesAsArray()
-    {
-        $keyValues = array ();
-
-        empty($this->id) ? : $keyValues['device_id'] = $this->id;
-        empty($this->deviceSecret) ? : $keyValues['device_secret'] = $this->deviceSecret;
-        empty($this->gcm) ? : $keyValues['gcm'] = $this->gcm;
-        empty($this->dateRegistered) ? : $keyValues['date_registered'] = $this->dateRegistered;
-
-        return $keyValues;
+    public function getSetFunction (array $props, $type = 'get') {
+        if($props['key'] == 'device_id') {
+            if($type == 'get') return $this->getDeviceId();
+            else return $this->setDeviceId($props['value']);
+        }
+        else if($props['key'] == 'device_secret') {
+            if($type == 'get') return $this->getDeviceSecret();
+            else return $this->setDeviceSecret($props['value']);
+        }
+        else if($props['key'] == 'gcm') {
+            if($type == 'get') return $this->getGcm();
+            else return $this->setGcm($props['value']);
+        }
+        else if($props['key'] == 'date_registered') {
+            if($type == 'get') return $this->getDateRegistered()->format(DefaultDates::DATE_FORMAT);
+            else return $this->setDateRegistered($this->createDateTimeFromString($props['value']));
+        }
     }
 
 

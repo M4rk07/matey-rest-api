@@ -24,12 +24,34 @@ class Activity extends AbstractModel
     const APPROVE_TYPE = "APPROVE";
     const FOLLOW_TYPE = "FOLLOW";
 
+    protected $activityId;
     protected $userId;
     protected $sourceId;
     protected $parentId;
     protected $parentType;
     protected $activityType;
     protected $timeC;
+
+    public function setId($id) {
+        return $this->setActivityId($id);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getActivityId()
+    {
+        return $this->activityId;
+    }
+
+    /**
+     * @param mixed $activityId
+     */
+    public function setActivityId($activityId)
+    {
+        $this->activityId = $activityId;
+        return $this;
+    }
 
 
     /**
@@ -134,38 +156,35 @@ class Activity extends AbstractModel
         return $this;
     }
 
-    public function setValuesFromArray($values)
-    {
-
-        if(isset($values['activity_id'])) $this->setId($values['activity_id']);
-        if(isset($values['user_id'])) $this->setUserId($values['user_id']);
-        if(isset($values['source_id'])) $this->setSourceId($values['source_id']);
-        if(isset($values['parent_id'])) $this->setParentId($values['parent_id']);
-        if(isset($values['parent_type'])) $this->setParentType($values['parent_type']);
-        if(isset($values['activity_type'])) $this->setActivityType($values['activity_type']);
-        if(isset($values['time_c'])) $this->setTimeC($values['time_c']);
-    }
-
-    public function getMysqlValues()
-    {
-        $keyValues = array ();
-
-        empty($this->id) ? : $keyValues['activity_id'] = $this->id;
-        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
-        empty($this->sourceId) ? : $keyValues['source_id'] = $this->sourceId;
-        empty($this->parentId) ? : $keyValues['parent_id'] = $this->parentId;
-        empty($this->parentType) ? : $keyValues['parent_type'] =$this->parentType;
-        empty($this->activityType) ? : $keyValues['activity_type'] = $this->activityType;
-        empty($this->timeC) ? : $keyValues['time_c'] = $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
-
-        return $keyValues;
-    }
-
-    public function getValuesAsArray()
-    {
-        $keyValues = $this->getMysqlValues();
-
-        return $keyValues;
+    public function getSetFunction (array $props, $type = 'get') {
+        if($props['key'] == 'activity_id') {
+            if($type == 'get') return $this->getActivityId();
+            else return $this->setActivityId($props['value']);
+        }
+        else if($props['key'] == 'user_id') {
+            if($type == 'get') return $this->getUserId();
+            else return $this->setUserId($props['value']);
+        }
+        else if($props['key'] == 'source_id') {
+            if($type == 'get') return $this->getSourceId();
+            else return $this->setSourceId($props['value']);
+        }
+        else if($props['key'] == 'parent_id') {
+            if($type == 'get') return $this->getParentId();
+            else return $this->setParentId($props['value']);
+        }
+        else if($props['key'] == 'parent_type') {
+            if($type == 'get') return $this->getParentType();
+            else return $this->setParentType($props['value']);
+        }
+        else if($props['key'] == 'activity_type') {
+            if($type == 'get') return $this->getActivityType();
+            else return $this->setActivityType($props['value']);
+        }
+        else if($props['key'] == 'time_c') {
+            if($type == 'get') return $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
+            else return $this->setTimeC($props['value']);
+        }
     }
 
 

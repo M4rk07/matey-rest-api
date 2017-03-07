@@ -98,41 +98,24 @@ class Client extends AbstractModel implements ClientInterface
         return $this;
     }
 
-
-    public function setValuesFromArray($values)
+    public function getSetFunction (array $props, $type = 'get')
     {
-        $this->id = $values['client_id'];
-
-        $this->clientId = $this->id;
-        $this->clientSecret = $values['client_secret'];
-        $this->appName = $values['app_name'];
-        $this->clientType = $values['client_type'];
-        $this->redirectUri = $values['redirect_uri'];
-    }
-
-    public function getMysqlValues () {
-        $keyValues = array ();
-
-        empty($this->clientId) ? : $keyValues['client_id'] = $this->clientId;
-        empty($this->clientSecret) ? : $keyValues['client_secret'] = $this->clientSecret;
-        empty($this->appName) ? : $keyValues['app_name'] = $this->appName;
-        empty($this->clientType) ? : $keyValues['client_type'] = $this->clientType;
-        empty($this->redirectUri) ? : $keyValues['redirect_uri'] =$this->redirectUri;
-
-        return $keyValues;
-    }
-
-    public function getValuesAsArray()
-    {
-        $keyValues = array ();
-
-        empty($this->clientId) ? : $keyValues['client_id'] = $this->clientId;
-        empty($this->clientSecret) ? : $keyValues['client_secret'] = $this->clientSecret;
-        empty($this->appName) ? : $keyValues['app_name'] = $this->appName;
-        empty($this->clientType) ? : $keyValues['client_type'] = $this->clientType;
-        empty($this->redirectUri) ? : $keyValues['redirect_uri'] =$this->redirectUri;
-
-        return $keyValues;
+        if ($props['key'] == 'client_id') {
+            if ($type == 'get') return $this->getClientId();
+            else return $this->setClientId($props['value']);
+        } else if ($props['key'] == 'client_secret') {
+            if ($type == 'get') return $this->getClientSecret();
+            else return $this->setClientSecret($props['value']);
+        } else if ($props['key'] == 'app_name') {
+            if ($type == 'get') return $this->getAppName();
+            else return $this->setAppName($props['value']);
+        } else if ($props['key'] == 'client_type') {
+            if ($type == 'get') return $this->getClientType();
+            else return $this->setClientType($props['value']);
+        } else if ($props['key'] == 'redirect_uri') {
+            if ($type == 'get') return $this->getRedirectUri();
+            else return $this->setRedirectUri($props['value']);
+        }
     }
 
 }

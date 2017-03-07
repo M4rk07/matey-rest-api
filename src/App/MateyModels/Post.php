@@ -9,11 +9,13 @@
 namespace App\MateyModels;
 
 
+use App\Constants\Defaults\DefaultDates;
 use AuthBucket\OAuth2\Model\ModelInterface;
 
 class Post extends AbstractModel
 {
 
+    protected $postId;
     protected $groupId;
     protected $userId;
     protected $title;
@@ -26,7 +28,27 @@ class Post extends AbstractModel
     protected $numOfReplies;
     protected $numOfShares;
     protected $numOfBoosts;
-    protected $timestamp;
+
+    public function setId($id) {
+        return $this->setPostId($id);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPostId()
+    {
+        return $this->postId;
+    }
+
+    /**
+     * @param mixed $postId
+     */
+    public function setPostId($postId)
+    {
+        $this->postId = $postId;
+        return $this;
+    }
 
     /**
      * @return mixed
@@ -215,23 +237,6 @@ class Post extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getTimestamp()
-    {
-        return $this->timestamp;
-    }
-
-    /**
-     * @param mixed $timestamp
-     */
-    public function setTimestamp($timestamp)
-    {
-        $this->timestamp = $timestamp;
-        return $this;
-    }
-
 
 
     public function serialize() {
@@ -250,50 +255,52 @@ class Post extends AbstractModel
         return $this;
     }
 
-    public function setValuesFromArray($values)
+    public function getSetFunction (array $props, $type = 'get')
     {
-        if(isset($values['post_id'])) $this->setId($values['post_id']);
-        if(isset($values['user_id'])) $this->setUserId($values['user_id']);
-        if(isset($values['group_id'])) $this->setGroupId($values['group_id']);
-        if(isset($values['title'])) $this->setTitle($values['title']);
-        if(isset($values['text'])) $this->setText($values['text']);
-        if(isset($values['time_c'])) $this->setTimeC($values['time_c']);
-        if(isset($values['attachs_num'])) $this->setAttachsNum($values['attachs_num']);
-        if(isset($values['locations_num'])) $this->setLocationsNum($values['locations_num']);
-        if(isset($values['num_of_shares'])) $this->setNumOfShares($values['num_of_shares']);
-        if(isset($values['num_of_replies'])) $this->setNumOfReplies($values['num_of_replies']);
-        if(isset($values['num_of_boosts'])) $this->setNumOfBoosts($values['num_of_boosts']);
-        if(isset($values['last_action'])) $this->setNumOfBoosts($values['last_action']);
-        if(isset($values['timestamp'])) $this->setTimestamp($values['timestamp']);
-    }
-
-    public function getMysqlValues()
-    {
-        $keyValues = array ();
-
-        empty($this->id) ? : $keyValues['post_id'] = $this->id;
-        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
-        empty($this->groupId) ? : $keyValues['group_id'] = $this->groupId;
-        empty($this->title) ? : $keyValues['title'] = $this->title;
-        empty($this->text) ? : $keyValues['text'] = $this->text;
-        empty($this->attachsNum) ? : $keyValues['attachs_num'] = $this->attachsNum;
-        empty($this->locationsNum) ? : $keyValues['locations_num'] = $this->locationsNum;
-        empty($this->timeC) ? : $keyValues['time_c'] = $this->timeC;
-
-        return $keyValues;
-    }
-
-    public function getValuesAsArray()
-    {
-        $keyValues = $this->getMysqlValues();
-
-        empty($this->numOfShares) ? : $keyValues['num_of_shares'] = $this->numOfShares;
-        empty($this->numOfReplies) ? : $keyValues['num_of_replies'] = $this->numOfReplies;
-        empty($this->numOfBoosts) ? : $keyValues['num_of_boosts'] = $this->numOfBoosts;
-        empty($this->lastActions) ? : $keyValues['last_action'] = $this->lastActions;
-        empty($this->timestamp) ? : $keyValues['timestamp'] = $this->timestamp;
-
-        return $keyValues;
+        if ($props['key'] == 'post_id') {
+            if ($type == 'get') return $this->getPostId();
+            else return $this->setPostId($props['value']);
+        }
+        else if ($props['key'] == 'user_id') {
+            if ($type == 'get') return $this->getUserId();
+            else return $this->setUserId($props['value']);
+        }
+        else if ($props['key'] == 'group_id') {
+            if ($type == 'get') return $this->getGroupId();
+            else return $this->setGroupId($props['value']);
+        }
+        else if ($props['key'] == 'title') {
+            if ($type == 'get') return $this->getTitle();
+            else return $this->setTitle($props['value']);
+        }
+        else if ($props['key'] == 'text') {
+            if ($type == 'get') return $this->getText();
+            else return $this->setText($props['value']);
+        }
+        else if($props['key'] == 'time_c') {
+            if($type == 'get') return $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
+            else return $this->setTimeC($this->createDateTimeFromString($props['value']));
+        }
+        else if ($props['key'] == 'attachs_num') {
+            if ($type == 'get') return $this->getAttachsNum();
+            else return $this->setAttachsNum($props['value']);
+        }
+        else if ($props['key'] == 'locations_num') {
+            if ($type == 'get') return $this->getLocationsNum();
+            else return $this->setLocationsNum($props['value']);
+        }
+        else if ($props['key'] == 'num_of_shares') {
+            if ($type == 'get') return $this->getNumOfShares();
+            else return $this->setNumOfShares($props['value']);
+        }
+        else if ($props['key'] == 'num_of_replies') {
+            if ($type == 'get') return $this->getNumOfReplies();
+            else return $this->setNumOfReplies($props['value']);
+        }
+        else if ($props['key'] == 'num_of_boosts') {
+            if ($type == 'get') return $this->getNumOfBoosts();
+            else return $this->setNumOfBoosts($props['value']);
+        }
     }
 
 

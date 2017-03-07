@@ -80,7 +80,7 @@ abstract class AbstractManager implements ModelManagerInterface
     public function createModel(ModelInterface $model)
     {
 
-        $fields = $model->getMysqlValues();
+        $fields = $model->asArray($this->getMysqlFields());
 
         $queryBuilder = $this->db->createQueryBuilder();
 
@@ -147,7 +147,7 @@ abstract class AbstractManager implements ModelManagerInterface
 
     public function updateModel(ModelInterface $model, array $criteria = null)
     {
-        $fields = $model->getMysqlValues();
+        $fields = $model->asArray($this->getMysqlFields());
 
         $queryBuilder = $this->db->createQueryBuilder();
         $queryBuilder->update($this->getTableName());
@@ -172,7 +172,7 @@ abstract class AbstractManager implements ModelManagerInterface
 
     public function deleteModel(ModelInterface $model)
     {
-        $criterias = $model->getMysqlValues();
+        $criterias = $model->asArray($this->getMysqlFields());
 
         $queryBuilder = $this->db->createQueryBuilder();
         $queryBuilder->delete($this->getTableName());
@@ -195,8 +195,7 @@ abstract class AbstractManager implements ModelManagerInterface
         $modelObjects = array();
 
         foreach ($result as $modelValues) {
-            $className = $this->getClassName();
-            $object = new $className();
+            $object = $this->getModel();
             $object->setValuesFromArray($modelValues);
 
             array_push($modelObjects, $object);

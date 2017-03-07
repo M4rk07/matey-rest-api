@@ -14,8 +14,30 @@ use AuthBucket\OAuth2\Model\ModelInterface;
 class FacebookInfo extends AbstractModel
 {
 
+    protected $userId;
     protected $fbId;
     protected $fbToken;
+
+    public function setId($id) {
+        return $this->setUserId($id);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    /**
+     * @param mixed $userId
+     */
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
+        return $this;
+    }
 
     /**
      * @return mixed
@@ -51,30 +73,19 @@ class FacebookInfo extends AbstractModel
         return $this;
     }
 
-    public function setValuesFromArray($values)
-    {
-        $this->id = isset($values['user_id']) ? $values['user_id'] : "";
-        $this->fbId = isset($values['fb_id']) ? $values['fb_id'] : "";
-    }
-
-    public function getMysqlValues()
-    {
-        $keyValues = array ();
-
-        empty($this->id) ? : $keyValues['user_id'] = $this->id;
-        empty($this->fbId) ? : $keyValues['fb_id'] = $this->fbId;
-
-        return $keyValues;
-    }
-
-    public function getValuesAsArray()
-    {
-        $keyValues = array ();
-
-        empty($this->id) ? : $keyValues['user_id'] = $this->id;
-        empty($this->fbId) ? : $keyValues['fb_id'] = $this->fbId;
-
-        return $keyValues;
+    public function getSetFunction (array $props, $type = 'get') {
+        if($props['key'] == 'user_id') {
+            if($type == 'get') return $this->getUserId();
+            else return $this->setUserId($props['value']);
+        }
+        else if($props['key'] == 'fb_id') {
+            if($type == 'get') return $this->getFbId();
+            else return $this->setFbId($props['value']);
+        }
+        else if($props['key'] == 'fb_token') {
+            if($type == 'get') return $this->getFbToken();
+            else return $this->setFbToken($props['value']);
+        }
     }
 
 

@@ -9,6 +9,8 @@
 namespace App\MateyModels;
 
 
+use App\Constants\Defaults\DefaultDates;
+
 class GroupFavorite extends AbstractModel
 {
 
@@ -65,6 +67,21 @@ class GroupFavorite extends AbstractModel
     {
         $this->timeC = $timeC;
         return $this;
+    }
+
+    public function getSetFunction (array $props, $type = 'get') {
+        if($props['key'] == 'group_id') {
+            if($type == 'get') return $this->getGroupId();
+            else return $this->setGroupId($props['value']);
+        }
+        else if($props['key'] == 'user_id') {
+            if($type == 'get') return $this->getUserId();
+            else return $this->setUserId($props['value']);
+        }
+        else if($props['key'] == 'time_c') {
+            if($type == 'get') return $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
+            else return $this->setTimeC($this->createDateTimeFromString($props['value']));
+        }
     }
 
     public function setValuesFromArray($values)

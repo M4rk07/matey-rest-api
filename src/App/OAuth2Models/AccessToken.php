@@ -9,6 +9,7 @@
 
 namespace App\OAuth2Models;
 
+use App\Constants\Defaults\DefaultDates;
 use App\MateyModels\AbstractModel;
 use AuthBucket\OAuth2\Model\AccessTokenInterface;
 use AuthBucket\OAuth2\Model\ModelInterface;
@@ -126,53 +127,27 @@ class AccessToken extends AbstractModel implements AccessTokenInterface
         return $this;
     }
 
-    // set object values from array
-    public function setValuesFromArray ($values) {
-
-        $this->id = $values['access_token'];
-
-        $this->accessToken = $values['access_token'];
-        $this->tokenType = $values['token_type'];
-        $this->clientId = $values['client_id'];
-        $this->username = $values['username'];
-        $this->expires = $this->createDateTimeFromString($values['expires']);
-        $this->scope = $this->createArrayFromString($values['scope']);
-
-    }
-
-    public function getMysqlValues () {
-        $keyValues = array ();
-
-        empty($this->accessToken) ? : $keyValues['access_token'] = $this->accessToken;
-        empty($this->tokenType) ? : $keyValues['token_type'] = $this->tokenType;
-        empty($this->clientId) ? : $keyValues['client_id'] = $this->clientId;
-        empty($this->username) ? : $keyValues['username'] = $this->username;
-        if(!empty($this->expires)) {
-            $expires = $this->expires;
-            $keyValues['expires'] = $expires->format($this->dateFormat);
+    public function getSetFunction (array $props, $type = 'get')
+    {
+        if ($props['key'] == 'access_token') {
+            if ($type == 'get') return $this->getAccessToken();
+            else return $this->setAccessToken($props['value']);
+        } else if ($props['key'] == 'token_type') {
+            if ($type == 'get') return $this->getTokenType();
+            else return $this->setTokenType($props['value']);
+        } else if ($props['key'] == 'client_id') {
+            if ($type == 'get') return $this->getClientId();
+            else return $this->setClientId($props['value']);
+        } else if ($props['key'] == 'username') {
+            if ($type == 'get') return $this->getUsername();
+            else return $this->setUsername($props['value']);
+        } else if ($props['key'] == 'expires') {
+            if ($type == 'get') return $this->getExpires()->format(DefaultDates::DATE_FORMAT);
+            else return $this->setExpires($this->createDateTimeFromString($props['value']));
+        } else if ($props['key'] == 'scope') {
+            if ($type == 'get') return $this->getScope();
+            else return $this->setScope($props['value']);
         }
-        empty($this->scope) ? : $keyValues['scope'] = $this->scope;
-
-        return $keyValues;
-    }
-
-    // gets object values as array
-    public function getValuesAsArray () {
-
-        $keyValues = array ();
-
-        empty($this->accessToken) ? : $keyValues['access_token'] = $this->accessToken;
-        empty($this->tokenType) ? : $keyValues['token_type'] = $this->tokenType;
-        empty($this->clientId) ? : $keyValues['client_id'] = $this->clientId;
-        empty($this->username) ? : $keyValues['username'] = $this->username;
-        if(!empty($this->expires)) {
-            $expires = $this->expires;
-            $keyValues['expires'] = $expires->format($this->dateFormat);
-        }
-        empty($this->scope) ? : $keyValues['scope'] = $this->scope;
-
-        return $keyValues;
-
     }
 
 }

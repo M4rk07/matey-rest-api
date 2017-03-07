@@ -9,6 +9,8 @@
 namespace App\MateyModels;
 
 
+use App\Constants\Defaults\DefaultDates;
+
 class GroupAdmin extends AbstractModel
 {
 
@@ -85,31 +87,23 @@ class GroupAdmin extends AbstractModel
         return $this;
     }
 
-    public function setValuesFromArray($values)
-    {
-        if(isset($values['group_id'])) $this->setId($values['group_id']);
-        if(isset($values['user_id'])) $this->setUserId($values['user_id']);
-        if(isset($values['scope'])) $this->setScope($values['scope']);
-        if(isset($values['time_c'])) $this->setTimeC($values['time_c']);
+    public function getSetFunction (array $props, $type = 'get') {
+        if($props['key'] == 'group_id') {
+            if($type == 'get') return $this->getGroupId();
+            else return $this->setGroupId($props['value']);
+        }
+        else if($props['key'] == 'user_id') {
+            if($type == 'get') return $this->getUserId();
+            else return $this->setUserId($props['value']);
+        }
+        else if($props['key'] == 'scope') {
+            if($type == 'get') return $this->getScope();
+            else return $this->setScope($props['value']);
+        }
+        else if($props['key'] == 'time_c') {
+            if($type == 'get') return $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
+            else return $this->setTimeC($this->createDateTimeFromString($props['value']));
+        }
     }
-
-    public function getMysqlValues()
-    {
-        $keyValues = array ();
-
-        empty($this->id) ? : $keyValues['group_id'] = $this->id;
-        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
-        empty($this->scope) ? : $keyValues['scope'] = $this->scope;
-        empty($this->timeC) ? : $keyValues['time_c'] = $this->timeC;
-
-        return $keyValues;
-    }
-
-    public function getValuesAsArray()
-    {
-        $keyValues = $this->getMysqlValues();
-        return $keyValues;
-    }
-
 
 }

@@ -9,6 +9,7 @@
 namespace App\OAuth2Models;
 
 
+use App\Constants\Defaults\DefaultDates;
 use App\MateyModels\AbstractModel;
 use AuthBucket\OAuth2\Model\ModelInterface;
 use AuthBucket\OAuth2\Model\RefreshTokenInterface;
@@ -107,49 +108,24 @@ class RefreshToken extends AbstractModel implements RefreshTokenInterface
     }
 
 
-
-    public function setValuesFromArray($values)
+    public function getSetFunction (array $props, $type = 'get')
     {
-        $expires = \DateTime::createFromFormat('Y-m-d H:i:s', $values['expires']);
-
-        $this->id = $values['refresh_token'];
-
-        $this->refreshToken = $values['refresh_token'];
-        $this->clientId = $values['client_id'];
-        $this->username = $values['username'];
-        $this->expires = $this->createDateTimeFromString($values['expires']);
-        $this->scope = $this->createArrayFromString($values['scope']);
-    }
-
-    public function getMysqlValues () {
-        $keyValues = array ();
-
-        empty($this->refreshToken) ? : $keyValues['refresh_token'] = $this->refreshToken;
-        empty($this->clientId) ? : $keyValues['client_id'] = $this->clientId;
-        empty($this->username) ? : $keyValues['username'] = $this->username;
-        if(!empty($this->expires)) {
-            $expires = $this->expires;
-            $keyValues['expires'] = $expires->format($this->dateFormat);
+        if ($props['key'] == 'refresh_token') {
+            if ($type == 'get') return $this->getRefreshToken();
+            else return $this->setRefreshToken($props['value']);
+        } else if ($props['key'] == 'client_id') {
+            if ($type == 'get') return $this->getClientId();
+            else return $this->setClientId($props['value']);
+        } else if ($props['key'] == 'username') {
+            if ($type == 'get') return $this->getUsername();
+            else return $this->setUsername($props['value']);
+        } else if ($props['key'] == 'expires') {
+            if ($type == 'get') return $this->getExpires()->format(DefaultDates::DATE_FORMAT);
+            else return $this->setExpires($this->createDateTimeFromString($props['value']));
+        } else if ($props['key'] == 'scope') {
+            if ($type == 'get') return $this->getScope();
+            else return $this->setScope($props['value']);
         }
-        empty($this->scope) ? : $keyValues['scope'] =$this->scope;
-
-        return $keyValues;
-    }
-
-    public function getValuesAsArray()
-    {
-        $keyValues = array ();
-
-        empty($this->refreshToken) ? : $keyValues['refresh_token'] = $this->refreshToken;
-        empty($this->clientId) ? : $keyValues['client_id'] = $this->clientId;
-        empty($this->username) ? : $keyValues['username'] = $this->username;
-        if(!empty($this->expires)) {
-            $expires = $this->expires;
-            $keyValues['expires'] = $expires->format($this->dateFormat);
-        }
-        empty($this->scope) ? : $keyValues['scope'] =$this->scope;
-
-        return $keyValues;
     }
 
 

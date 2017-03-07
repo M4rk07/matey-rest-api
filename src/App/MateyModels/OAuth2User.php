@@ -94,36 +94,21 @@ class OAuth2User extends \App\MateyModels\AbstractModel implements UserInterface
         // TODO: Implement eraseCredentials() method.
     }
 
-    public function setValuesFromArray($values)
+    public function getSetFunction (array $props, $type = 'get')
     {
-        $this->id = isset($values['user_id']) ? $values['user_id'] : "";
-        $this->username = isset($values['username']) ? $values['username'] : "";
-        $this->password = isset($values['password']) ? $values['password'] : "";
-        $this->salt = isset($values['salt']) ? $values['salt'] : "";
-    }
-
-    public function getMysqlValues()
-    {
-        $keyValues = array ();
-
-        empty($this->id) ? : $keyValues['user_id'] = $this->id;
-        empty($this->username) ? : $keyValues['username'] = $this->username;
-        empty($this->password) ? : $keyValues['password'] = $this->password;
-        empty($this->salt) ? : $keyValues['salt'] = $this->salt;
-
-        return $keyValues;
-    }
-
-    public function getValuesAsArray()
-    {
-        $keyValues = array ();
-
-        empty($this->id) ? : $keyValues['user_id'] = $this->id;
-        empty($this->username) ? : $keyValues['username'] = $this->username;
-        empty($this->password) ? : $keyValues['password'] = $this->password;
-        empty($this->salt) ? : $keyValues['salt'] = $this->salt;
-
-        return $keyValues;
+        if ($props['key'] == 'user_id') {
+            if ($type == 'get') return $this->getId();
+            else return $this->setId($props['value']);
+        } else if ($props['key'] == 'username') {
+            if ($type == 'get') return $this->getUsername();
+            else return $this->setUsername($props['value']);
+        } else if ($props['key'] == 'password') {
+            if ($type == 'get') return $this->getPassword();
+            else return $this->setPassword($props['value']);
+        } else if ($props['key'] == 'salt') {
+            if ($type == 'get') return $this->getSalt();
+            else return $this->setSalt($props['value']);
+        }
     }
 
 

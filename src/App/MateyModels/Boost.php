@@ -64,32 +64,23 @@ class Boost extends AbstractModel
      */
     public function setTimeC($timeC)
     {
-        $this->timeC = $this->createDateTimeFromString($timeC);
+        $this->timeC = $timeC;
         return $this;
     }
 
-    public function setValuesFromArray($values)
-    {
-        if(isset($values['user_id'])) $this->setUserId($values['user_id']);
-        if(isset($values['post_id'])) $this->setPostId($values['post_id']);
-        if(isset($values['time_c'])) $this->setUserId($values['time_c']);
+    public function getSetFunction (array $props, $type = 'get') {
+        if($props['key'] == 'user_id') {
+            if($type == 'get') return $this->getUserId();
+            else return $this->setUserId($props['value']);
+        }
+        else if($props['key'] == 'post_id') {
+            if($type == 'get') return $this->getPostId();
+            else return $this->setPostId($props['value']);
+        }
+        else if($props['key'] == 'time_c') {
+            if($type == 'get') return $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
+            else return $this->setTimeC($this->createDateTimeFromString($props['value']));
+        }
     }
 
-    public function getMysqlValues()
-    {
-        $keyValues = array ();
-
-        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
-        empty($this->postId) ? : $keyValues['post_id'] = $this->postId;
-        empty($this->timeC) ? : $keyValues['time_c'] = $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
-
-        return $keyValues;
-    }
-
-    public function getValuesAsArray()
-    {
-        $keyValues = $this->getMysqlValues();
-
-        return $keyValues;
-    }
 }

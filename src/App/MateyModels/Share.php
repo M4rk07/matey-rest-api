@@ -9,6 +9,8 @@
 namespace App\MateyModels;
 
 
+use App\Constants\Defaults\DefaultDates;
+
 class Share extends AbstractModel
 {
 
@@ -85,31 +87,23 @@ class Share extends AbstractModel
         return $this;
     }
 
-    public function setValuesFromArray($values)
-    {
-        $this->userId = isset($values['user_id']) ? $values['user_id'] : "";
-        $this->parentId = isset($values['parent_id']) ? $values['parent_id'] : "";
-        $this->parentType = isset($values['parent_type']) ? $values['parent_type'] : "";
-        $this->timeC = isset($values['time_c']) ? $values['time_c'] : "";
-    }
-
-    public function getMysqlValues()
-    {
-        $keyValues = array ();
-
-        empty($this->userId) ? : $keyValues['user_id'] = $this->userId;
-        empty($this->parentId) ? : $keyValues['parent_id'] = $this->parentId;
-        empty($this->parentType) ? : $keyValues['parent_type'] = $this->parentType;
-        empty($this->timeC) ? : $keyValues['time_c'] = $this->timeC;
-
-        return $keyValues;
-    }
-
-    public function getValuesAsArray()
-    {
-        $keyValues = $this->getMysqlValues();
-
-        return $keyValues;
+    public function getSetFunction (array $props, $type = 'get') {
+        if($props['key'] == 'user_id') {
+            if($type == 'get') return $this->getUserId();
+            else return $this->setUserId($props['value']);
+        }
+        else if($props['key'] == 'parent_id') {
+            if($type == 'get') return $this->getParentId();
+            else return $this->setParentId($props['value']);
+        }
+        else if($props['key'] == 'parent_type') {
+            if($type == 'get') return $this->getParentType();
+            else return $this->setParentType($props['value']);
+        }
+        else if($props['key'] == 'time_c') {
+            if($type == 'get') return $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
+            else return $this->setTimeC($this->createDateTimeFromString($props['value']));
+        }
     }
 
 }

@@ -85,31 +85,23 @@ class Location
         return $this;
     }
 
-    public function setValuesFromArray($values)
-    {
-        $this->parentId = isset($values['parent_id']) ? $values['parent_id'] : "";
-        $this->parentType= isset($values['parent_type']) ? $values['parent_type'] : "";
-        $this->latt = isset($values['latt']) ? $values['longt'] : "";
-        $this->longt = isset($values['longt']) ? $values['longt'] : "";
-    }
-
-    public function getMysqlValues()
-    {
-        $keyValues = array ();
-
-        empty($this->parentId) ? : $keyValues['parent_id'] = $this->parentId;
-        empty($this->parentType) ? : $keyValues['parent_type'] = $this->parentType;
-        empty($this->latt) ? : $keyValues['latt'] = $this->latt;
-        empty($this->longt) ? : $keyValues['longt'] = $this->longt;
-
-        return $keyValues;
-    }
-
-    public function getValuesAsArray()
-    {
-        $keyValues = $this->getMysqlValues();
-
-        return $keyValues;
+    public function getSetFunction (array $props, $type = 'get') {
+        if($props['key'] == 'parent_id') {
+            if($type == 'get') return $this->getParentId();
+            else return $this->setParentId($props['value']);
+        }
+        else if($props['key'] == 'parent_type') {
+            if($type == 'get') return $this->getParentType();
+            else return $this->setParentType($props['value']);
+        }
+        else if($props['key'] == 'latt') {
+            if($type == 'get') return $this->getLatt();
+            else return $this->setLatt($props['value']);
+        }
+        else if($props['key'] == 'longt') {
+            if($type == 'get') return $this->getLongt();
+            else return $this->setLongt($props['value']);
+        }
     }
 
 }
