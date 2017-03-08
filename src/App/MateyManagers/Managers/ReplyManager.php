@@ -19,25 +19,9 @@ class ReplyManager extends AbstractManager
 
     const FIELD_NUM_OF_APPROVES = "num_of_approves";
     const FILED_NUM_OF_REPLIES = "num_of_replies";
-    /**
-     * @return mixed
-     */
-    public function getClassName()
-    {
-        return 'App\\MateyModels\\Reply';
-    }
 
-    public function getTableName() {
-        return self::T_REPLY;
-    }
-
-    public function getKeyName()
-    {
-        return "REPLY";
-    }
-
-    public function createModel(ModelInterface $model, $ignore = false) {
-        $model = parent::createModel($model, $ignore);
+    public function createModel(ModelInterface $model) {
+        $model = parent::createModel($model);
 
         $this->initializeStatisticsData($model);
 
@@ -63,7 +47,7 @@ class ReplyManager extends AbstractManager
     // ---------------------------- REDIS TOOOLS ---------------------------------
 
     public function initializeStatisticsData(Reply $reply) {
-        $this->redis->hmset($this->getKeyName().":statistics:".$reply->getId(), array(
+        $this->redis->hmset($this->getRedisKey().":statistics:".$reply->getReplyId(), array(
             self::FIELD_NUM_OF_APPROVES => 0,
             self::FILED_NUM_OF_REPLIES => 0,
         ));
@@ -71,7 +55,7 @@ class ReplyManager extends AbstractManager
 
     public function getStatisticsData (Reply $reply) {
 
-        $statistics = $this->redis->hgetall($this->getKeyName().":statistics:".$reply->getId());
+        $statistics = $this->redis->hgetall($this->getRedisKey().":statistics:".$reply->getReplyId());
 
         $reply->setValuesFromArray($statistics);
 
@@ -80,12 +64,12 @@ class ReplyManager extends AbstractManager
     }
 
     public function incrNumOfApproves(Reply $reply, $incrBy = 1) {
-        $this->redis->hincrby($this->getKeyName().":statistics:".$reply->getId(),
+        $this->redis->hincrby($this->getRedisKey().":statistics:".$reply->getReplyId(),
             self::FIELD_NUM_OF_APPROVES, $incrBy);
     }
 
     public function incrNumOfReplies(Reply $reply, $incrBy = 1) {
-        $this->redis->hincrby($this->getKeyName().":statistics:".$reply->getId(),
+        $this->redis->hincrby($this->getRedisKey().":statistics:".$reply->getReplyId(),
             self::FILED_NUM_OF_REPLIES, $incrBy);
     }
 

@@ -16,26 +16,9 @@ class GroupManager extends AbstractManager
 
     const FIELD_NUM_OF_FOLLOWERS = "num_of_followers";
 
-    /**
-     * @return mixed
-     */
-    public function getClassName()
+    public function createModel(ModelInterface $model)
     {
-        return 'App\\MateyModels\\Group';
-    }
-
-    public function getTableName() {
-        return self::T_GROUP;
-    }
-
-    public function getKeyName()
-    {
-        return "GROUP";
-    }
-
-    public function createModel(ModelInterface $model, $ignore = false)
-    {
-        $model = parent::createModel($model, $ignore);
+        $model = parent::createModel($model);
 
         $this->initializeGroupStatistics($model);
 
@@ -43,7 +26,7 @@ class GroupManager extends AbstractManager
     }
 
     public function initializeGroupStatistics(Group $group) {
-        $this->redis->hmset(self::KEY_GROUP.":counts:".$group->getId(), array(
+        $this->redis->hmset($this->getRedisKey().":counts:".$group->getGroupId(), array(
             self::FIELD_NUM_OF_FOLLOWERS => 0
         ));
     }

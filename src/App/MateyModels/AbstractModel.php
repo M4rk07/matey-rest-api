@@ -50,7 +50,11 @@ abstract class AbstractModel implements ModelInterface
         foreach($fields as $field) {
             $props['key'] = $field;
             $thisValue = $this->getSetFunction($props);
-            if(!empty($thisValue)) $keyValues[$field] = $thisValue;
+            if($thisValue === null && $field == 'group_id') $keyValues[$field] = null;
+            if(!empty($thisValue)) {
+                if($thisValue instanceof \DateTime) $thisValue = $thisValue->format(DefaultDates::DATE_FORMAT);
+                $keyValues[$field] = $thisValue;
+            }
         }
 
         return $keyValues;

@@ -222,13 +222,9 @@ class UserHandler extends AbstractUserHandler
 
         $posts = $postManager->readModelBy(array(
             'user_id' => $userTo->getId()
-        ), 'time_c', DefaultNumbers::POSTS_NUM_ON_FOLLOW, 0, array('post_id', 'time_c'), 'DESC');
+        ), array('time_c' => 'DESC'), DefaultNumbers::POSTS_NUM_ON_FOLLOW, 0, array('post_id', 'time_c'));
 
         if(empty($posts)) return;
-
-        foreach($posts as $post) {
-
-        }
 
         $app['matey.feed_handler']->push($userFrom, $posts);
 

@@ -20,6 +20,7 @@ class Follow extends AbstractModel
     protected $timeC;
     protected $numOfInteractions;
     protected $sumOfInteractions;
+    protected $lastInteraction;
 
     /**
      * @return mixed
@@ -123,6 +124,40 @@ class Follow extends AbstractModel
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getLastInteraction()
+    {
+        return $this->lastInteraction;
+    }
+
+    /**
+     * @param mixed $lastInteraction
+     */
+    public function setLastInteraction($lastInteraction)
+    {
+        $this->lastInteraction = $lastInteraction;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getScore()
+    {
+        $timeFollowed = $this->getTimeC();
+        $lastInteractions = $this->getLastInteraction();
+        $sumOfInteractions = $this->getSumOfInteractions();
+        $numOfInteractions = $this->getNumOfInteractions();
+
+        $now = new \DateTime(DefaultDates::DATE_FORMAT);
+
+        $daysSinceFollowed = $now->diff($timeFollowed)->format("%a");
+        $daysSinceLastInteraction = $now->diff($lastInteractions)->format("%a");
+
+        return ($sumOfInteractions*0.2)+(($numOfInteractions/$daysSinceFollowed)*0.5)+((1/$daysSinceLastInteraction)*0.3);
+    }
+
     public function getSetFunction (array $props, $type = 'get') {
         if($props['key'] == 'user_id') {
             if($type == 'get') return $this->getUserId();
@@ -137,7 +172,7 @@ class Follow extends AbstractModel
             else return $this->setParentType($props['value']);
         }
         else if($props['key'] == 'time_c') {
-            if($type == 'get') return $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
+            if($type == 'get') return $this->getTimeC();
             else return $this->setTimeC($this->createDateTimeFromString($props['value']));
         }
         else if($props['key'] == 'num_of_interactions') {
@@ -147,6 +182,10 @@ class Follow extends AbstractModel
         else if($props['key'] == 'sum_of_interactions') {
             if($type == 'get') return $this->getSumOfInteractions();
             else return $this->setSumOfInteractions($props['value']);
+        }
+        else if ($props['key'] == 'last_interaction') {
+            if ($type == 'get') return $this->getLastInteraction();
+            else return $this->setLastInteraction($props['value']);
         }
     }
 

@@ -55,10 +55,7 @@ class StandardPostHandler extends AbstractPostHandler
             ->setAttachsNum($request->files->count())
             ->setLocationsNum(count($jsonData['locations']))
             ->setUserId($userId)
-            ->setGroupId($jsonData['group_id'])
-            ->setTimeC(date(DefaultDates::DATE_FORMAT))
-            ->setNumOfBoosts(0)
-            ->setNumOfReplies(0);
+            ->setGroupId($jsonData['group_id']);
 
         // Starting transaction
         $postManager->startTransaction();
@@ -67,7 +64,7 @@ class StandardPostHandler extends AbstractPostHandler
             $post = $postManager->createModel($post);
 
             // Creating Activity model
-            $activity->setSourceId($post->getId())
+            $activity->setSourceId($post->getPostId())
                 ->setUserId($userId)
                 ->setParentId($jsonData['group_id'])
                 ->setParentType(Activity::GROUP_TYPE)
@@ -81,16 +78,16 @@ class StandardPostHandler extends AbstractPostHandler
         } catch (\Exception $e) {
             // Rollback transaction on failure
             $postManager->rollbackTransaction();
-            throw new ServerErrorException();
+            throw $e;
         }
 
         // Calling the service for uploading Post attachments to S3 storage
         if(strpos($contentType, 'multipart/form-data') === 0) {
-            $app['matey.file_handler.factory']->getFileHandler('post_attachment')->upload($app, $request, $post->getId());
+            $app['matey.file_handler.factory']->getFileHandler('post_attachment')->upload($app, $request, $post->getPostId());
         }
 
         // Pushing newly created post to news feed of followers
-        $app['matey.feed_handler']->pushUpdateToFeeds($post);
+        $app['matey.feed_handler']->pushNewPost($post);
 
         return new JsonResponse(null, 200);
 

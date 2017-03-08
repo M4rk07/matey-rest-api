@@ -23,7 +23,7 @@ class UserHandlerFactory implements UserHandlerFactoryInterface
 
     public function __construct(
         ValidatorInterface $validator,
-        ModelManagerFactoryInterface $modelManagerFactory,
+        \AuthBucket\OAuth2\Model\ModelManagerFactoryInterface $modelManagerFactory,
         array $classes = []
     )
     {

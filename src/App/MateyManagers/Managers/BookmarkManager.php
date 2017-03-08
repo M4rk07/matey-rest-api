@@ -12,21 +12,5 @@ namespace App\MateyModels;
 class BookmarkManager extends AbstractManager
 {
 
-    /**
-     * @return mixed
-     */
-    public function getClassName()
-    {
-        return 'App\\MateyModels\\Bookmark';
-    }
-
-    public function getTableName() {
-        return self::T_BOOKMARK;
-    }
-
-    public function getKeyName()
-    {
-        return "BOOKMARK";
-    }
 
 }

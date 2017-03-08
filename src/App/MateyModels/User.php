@@ -22,6 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class User extends AbstractModel
 {
+    protected $userId;
     protected $email;
     protected $firstName;
     protected $lastName;
@@ -49,6 +50,25 @@ class User extends AbstractModel
     protected $feedScored;
     protected $feedSeen;
 
+    public function setId($id) {
+        return $this->setUserId($id);
+    }
+    /**
+     * @return mixed
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    /**
+     * @param mixed $userId
+     */
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
+        return $this;
+    }
     /**
      * @return mixed
      */
@@ -405,8 +425,8 @@ class User extends AbstractModel
 
     public function getSetFunction (array $props, $type = 'get') {
         if($props['key'] == 'user_id') {
-            if($type == 'get') return $this->getId();
-            else return $this->setId($props['value']);
+            if($type == 'get') return $this->getUserId();
+            else return $this->setUserId($props['value']);
         }
         else if($props['key'] == 'email') {
             if($type == 'get') return $this->getEmail();
@@ -433,7 +453,7 @@ class User extends AbstractModel
             else return $this->setVerified($props['value']);
         }
         else if($props['key'] == 'date_registered') {
-            if($type == 'get') return $this->getDateRegistered()->format(DefaultDates::DATE_FORMAT);
+            if($type == 'get') return $this->getDateRegistered();
             else return $this->setDateRegistered($props['value']);
         }
         else if($props['key'] == 'location') {

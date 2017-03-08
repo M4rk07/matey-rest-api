@@ -13,7 +13,7 @@ use App\Constants\Defaults\DefaultDates;
 class Activity extends AbstractModel
 {
 
-    const USER_TYPE = "USER";
+    const USER_TYPE = "MATEY_USER";
     const POST_TYPE = "POST";
     const GROUP_TYPE = "GROUP";
     const SHARE_TYPE = "SHARE";
@@ -27,7 +27,7 @@ class Activity extends AbstractModel
     protected $activityId;
     protected $userId;
     protected $sourceId;
-    protected $parentId;
+    protected $parentId = null;
     protected $parentType;
     protected $activityType;
     protected $timeC;
@@ -182,7 +182,7 @@ class Activity extends AbstractModel
             else return $this->setActivityType($props['value']);
         }
         else if($props['key'] == 'time_c') {
-            if($type == 'get') return $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
+            if($type == 'get') return $this->getTimeC();
             else return $this->setTimeC($props['value']);
         }
     }

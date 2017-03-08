@@ -11,35 +11,22 @@ namespace App\MateyModels;
 
 use App\Algos\ActivityWeights;
 use App\Algos\Timer;
+use App\Constants\Defaults\DefaultDates;
 use App\MateyModels\Follow;
 use App\MateyModels\User;
 use App\Services\BaseService;
+use AuthBucket\OAuth2\Exception\ServerErrorException;
 use AuthBucket\OAuth2\Model\ModelInterface;
 
 class FollowManager extends AbstractManager
 {
     const FIELD_NUM_OF_INTERACTIONS = "num_of_interactions";
     const FIELD_SUM_OF_INTERACTIONS = "sum_of_interactions";
+    const FIELD_LAST_INTERACTION = "last_interaction";
 
-    /**
-     * @return mixed
-     */
-    public function getClassName()
-    {
-        return 'App\\MateyModels\\Follow';
-    }
 
-    public function getTableName() {
-        return self::T_FOLLOWER;
-    }
-
-    public function getKeyName()
-    {
-        return "FOLLOW";
-    }
-
-    public function createModel(ModelInterface $model, $ignore = false) {
-        $model = parent::createModel($model, $ignore);
+    public function createModel(ModelInterface $model) {
+        $model = parent::createModel($model);
 
         $this->initializeInteractionsData($model);
 
@@ -51,38 +38,58 @@ class FollowManager extends AbstractManager
         $models = parent::readModelBy($criteria, $orderBy, $limit, $offset, $fields);
 
         if($fields == null || (in_array('interactions', $fields) && !empty($models))) {
-
             foreach($models as $key => $model) {
                 $models[$key] = $this->getInteractionsData($model);
             }
-
         }
 
         return $models;
 
     }
 
-    public function getGroupAndUserFollowers($userId, $groupId) {
-        $all = $this->db->fetchAll("SELECT * FROM " . $this->getTableName() .
-            " WHERE (parent_id = ".$userId." AND parent_type = ".Activity::USER_TYPE.") 
-            OR (parent_id = ".$groupId." AND parent_type = ".Activity::GROUP_TYPE.")");
+    public function getRelevantFollowers (Post $post) {
+        if(empty($post->getUserId())) throw new ServerErrorException();
 
-        return $this->makeObjects($all);
+        $queryBuilder = $this->db->createQueryBuilder();
+
+        $queryBuilder->select('user_id')
+            ->from($this->getTableName());
+
+        $queryBuilder->andWhere('parent_id=?');
+        $queryBuilder->andWhere('parent_type=?');
+        $queryBuilder->setParameter(0, $post->getUserId());
+        $queryBuilder->setParameter(1, Activity::USER_TYPE);
+
+        if(!empty($post->getGroupId())) {
+            $queryBuilder->andWhere('parent_id=?');
+            $queryBuilder->andWhere('parent_type=?');
+            $queryBuilder->setParameter(0, $post->getGroupId());
+            $queryBuilder->setParameter(1, Activity::GROUP_TYPE);
+        }
+
+        $all = $queryBuilder->execute()->fetchAll();
+
+        $models = $this->makeObjects($all);
+        return $models;
     }
 
     // ---------------------------- REDIS TOOOLS ---------------------------------
 
     public function initializeInteractionsData(Follow $follow) {
-        $this->redis->hmset($this->getKeyName().":interactions:"
+        $now = new \DateTime();
+        $now = $now->format(DefaultDates::DATE_FORMAT);
+
+        $this->redis->hmset($this->getRedisKey().":interactions:"
             .$follow->getUserId().":".$follow->getParentId().":".$follow->getParentType(), array(
             self::FIELD_NUM_OF_INTERACTIONS => 0,
             self::FIELD_SUM_OF_INTERACTIONS => 0,
+            self::FIELD_LAST_INTERACTION => $now
         ));
     }
 
     public function getInteractionsData (Follow $follow) {
 
-        $statistics = $this->redis->hgetall($this->getKeyName().":interactions:"
+        $statistics = $this->redis->hgetall($this->getRedisKey().":interactions:"
             .$follow->getUserId().":".$follow->getParentId().":".$follow->getParentType());
 
         $follow->setValuesFromArray($statistics);
@@ -92,15 +99,24 @@ class FollowManager extends AbstractManager
     }
 
     public function incrNumOfInteractions(Follow $follow, $incrBy = 1) {
-        $this->redis->hincrby($this->getKeyName().":interactions:"
+        $this->redis->hincrby($this->getRedisKey().":interactions:"
             .$follow->getUserId().":".$follow->getParentId().":".$follow->getParentType(),
             self::FIELD_NUM_OF_INTERACTIONS, $incrBy);
     }
 
     public function incrSumOfInteractions(Follow $follow, $incrBy = 1) {
-        $this->redis->hincrby($this->getKeyName().":interactions:"
+        $this->redis->hincrby($this->getRedisKey().":interactions:"
             .$follow->getUserId().":".$follow->getParentId().":".$follow->getParentType(),
             self::FIELD_SUM_OF_INTERACTIONS, $incrBy);
+    }
+
+    public function updateLastInteraction(Follow $follow) {
+        $now = new \DateTime();
+        $now = $now->format(DefaultDates::DATE_FORMAT);
+
+        $this->redis->hset($this->getRedisKey().":interactions:"
+            .$follow->getUserId().":".$follow->getParentId().":".$follow->getParentType(),
+            self::FIELD_LAST_INTERACTION, $now);
     }
 
 }

@@ -43,7 +43,7 @@ class UserManager extends AbstractManager
 
     public function createModel(ModelInterface $model, $ignore = false)
     {
-        $model = parent::createModel($model, $ignore);
+        $model = parent::createModel($model);
 
         $this->initializeUserStatistics($model);
 
@@ -67,7 +67,7 @@ class UserManager extends AbstractManager
     }
 
     public function initializeUserStatistics(User $user) {
-        $this->redis->hmset($this->getRedisKey().":counts:".$user->getId(), array(
+        $this->redis->hmset($this->getRedisKey().":counts:".$user->getUserId(), array(
             self::FIELD_NUM_OF_FOLLOWERS => 0,
             self::FIELD_NUM_OF_FOLLOWING => 0,
             self::FIELD_NUM_OF_POSTS => 0,
@@ -82,7 +82,7 @@ class UserManager extends AbstractManager
 
     public function getUserStatistics (User $user) {
 
-        $userStatistics = $this->redis->hgetall($this->getRedisKey().":counts:".$user->getId());
+        $userStatistics = $this->redis->hgetall($this->getRedisKey().":counts:".$user->getUserId());
 
         $user->setValuesFromArray($userStatistics);
 
@@ -91,67 +91,65 @@ class UserManager extends AbstractManager
     }
 
     public function incrNumOfFollowers(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getId(), self::FIELD_NUM_OF_FOLLOWERS, $incrBy);
+        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWERS, $incrBy);
     }
 
     public function decrNumOfFollowers(User $user, $decrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getId(), self::FIELD_NUM_OF_FOLLOWERS, $decrBy);
+        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWERS, $decrBy);
     }
 
     public function incrNumOfFollowing(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getId(), self::FIELD_NUM_OF_FOLLOWING, $incrBy);
+        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWING, $incrBy);
     }
 
     public function decrNumOfFollowing(User $user, $decrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getId(), self::FIELD_NUM_OF_FOLLOWING, $decrBy);
+        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWING, $decrBy);
     }
 
     public function incrNumOfPosts(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getId(), self::FIELD_NUM_OF_POSTS, $incrBy);
+        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_POSTS, $incrBy);
     }
 
     public function incrNumOfGivenApproves(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getId(), self::FIELD_NUM_OF_GIVEN_APPROVES, $incrBy);
+        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_GIVEN_APPROVES, $incrBy);
     }
 
     public function incrNumOfReceivedApproves(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getId(), self::FIELD_NUM_OF_RECEIVED_APPROVES, $incrBy);
+        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_RECEIVED_APPROVES, $incrBy);
     }
 
     public function incrNumOfGivenResponses(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getId(), self::FIELD_NUM_OF_GIVEN_RESPONSES, $incrBy);
+        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_GIVEN_RESPONSES, $incrBy);
     }
 
     public function incrNumOfReceivedResponses(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getId(), self::FIELD_NUM_OF_RECEIVED_RESPONSES, $incrBy);
+        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_RECEIVED_RESPONSES, $incrBy);
     }
 
     public function incrNumOfBestResponses(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getId(), self::FIELD_NUM_OF_BEST_RESPONSES, $incrBy);
+        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_BEST_RESPONSES, $incrBy);
     }
 
     public function incrNumOfShares(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getId(), self::FIELD_NUM_OF_SHARES, $incrBy);
+        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_SHARES, $incrBy);
     }
 
-    public function pushFeed (User $user, $feeds) {
-        $this->redis->zadd($this->getRedisKey().":feed_scored:".$user->getId(), $feeds);
+    public function pushFeed (User $user, $posts) {
+        if(!is_array($posts)) $posts = array($posts);
+        foreach($posts as $post)
+            $this->redis->lpush($this->getRedisKey().":feed:".$user->getUserId(), $post->getPostId());
     }
 
     public function getFeed (User $user, $start = 0, $stop = 10) {
-        return $this->redis->zrange($this->getRedisKey().":feed_scored:".$user->getId(), $start, $stop);
+        return $this->redis->lrange($this->getRedisKey().":feed:".$user->getUserId(), $start, $stop);
     }
 
     public function pushFeedSeen (User $user, $ids) {
-        $this->redis->sadd($this->getRedisKey().":feed_seen:".$user->getId(), $ids);
-    }
-
-    public function getFeedSeen (User $user) {
-        return $this->redis->smembers($this->getRedisKey().":feed_seen:".$user->getId());
+        $this->redis->sadd($this->getRedisKey().":feed_seen:".$user->getUserId(), $ids);
     }
 
     public function isFeedSeen (User $user, $id) {
-        $seen = $this->redis->sismember($this->getRedisKey().":feed_seen:".$user->getId(), $id);
+        $seen = $this->redis->sismember($this->getRedisKey().":feed_seen:".$user->getUserId(), $id);
         if(empty($seen)) return false;
         return true;
     }

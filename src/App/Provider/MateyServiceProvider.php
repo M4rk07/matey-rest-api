@@ -4,6 +4,7 @@ namespace App\Provider;
 use App\Controllers\API\AccountController;
 use App\Controllers\API\ConnectionController;
 use App\Controllers\API\DeviceController;
+use App\Controllers\API\FeedController;
 use App\Controllers\API\FileController;
 use App\Controllers\API\GroupController;
 use App\Controllers\API\PostController;
@@ -192,6 +193,12 @@ class MateyServiceProvider implements ServiceProviderInterface
         $app['matey.post_controller'] = $app->share(function () use ($app) {
             return new PostController(
                 $app['matey.post_handler.factory']
+            );
+        });
+
+        $app['matey.feed_controller'] = $app->share(function () use ($app) {
+            return new FeedController(
+                $app['matey.feed_handler']
             );
         });
 

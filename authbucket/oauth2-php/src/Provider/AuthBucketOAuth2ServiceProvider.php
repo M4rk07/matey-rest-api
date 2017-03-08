@@ -41,6 +41,7 @@ class AuthBucketOAuth2ServiceProvider implements ServiceProviderInterface
         // (Optional) Override this with your own model classes, default with
         // in-memory AccessToken for using resource firewall with remote debug
         // endpoint.
+        /*
         $app['authbucket_oauth2.model'] = [
             'access_token' => 'App\\OAuth2Models\\AccessToken',
             'authorize' => 'App\\OAuth2Models\\Authorize',
@@ -49,6 +50,7 @@ class AuthBucketOAuth2ServiceProvider implements ServiceProviderInterface
             'refresh_token' => 'App\\OAuth2Models\\RefreshToken',
             'scope' => 'App\\OAuth2Models\\Scope',
         ];
+        */
 
         // (Optional) Override this with your backend model managers, e.g.
         // Doctrine ORM EntityRepository, default with in-memory

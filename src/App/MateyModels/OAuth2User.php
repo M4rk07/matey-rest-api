@@ -16,10 +16,31 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class OAuth2User extends \App\MateyModels\AbstractModel implements UserInterface
 {
 
+    protected $userId;
     protected $username;
     protected $password;
     protected $salt;
     protected $roles = array();
+
+    public function setId($id) {
+        return $this->setUserId($id);
+    }
+    /**
+     * @return mixed
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    /**
+     * @param mixed $userId
+     */
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
+        return $this;
+    }
 
     /**
      * @return mixed
@@ -97,8 +118,8 @@ class OAuth2User extends \App\MateyModels\AbstractModel implements UserInterface
     public function getSetFunction (array $props, $type = 'get')
     {
         if ($props['key'] == 'user_id') {
-            if ($type == 'get') return $this->getId();
-            else return $this->setId($props['value']);
+            if ($type == 'get') return $this->getUserId();
+            else return $this->setUserId($props['value']);
         } else if ($props['key'] == 'username') {
             if ($type == 'get') return $this->getUsername();
             else return $this->setUsername($props['value']);

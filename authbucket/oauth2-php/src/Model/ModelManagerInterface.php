@@ -18,6 +18,8 @@ namespace AuthBucket\OAuth2\Model;
  */
 interface ModelManagerInterface
 {
+    public function getModel();
+
     public function getClassName();
 
     public function getTableName();

@@ -125,7 +125,7 @@ class StandardAccountHandler extends AbstractAccountHandler
         $userManager->startTransaction();
         try {
             $user = $this->storeUserData($user);
-            $oauth2User->setId($user->getId());
+            $oauth2User->setUserId($user->getUserId());
             $oauth2UserManager->createModel($oauth2User);
 
             $userManager->commitTransaction();

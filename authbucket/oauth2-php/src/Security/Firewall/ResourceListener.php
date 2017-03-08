@@ -117,7 +117,7 @@ class ResourceListener implements ListenerInterface
         $this->tokenStorage->setToken($tokenAuthenticated);
 
         $user = $this->getTokenOwnerId($tokenAuthenticated);
-        $request->request->set("user_id", $user->getId());
+        $request->request->set("user_id", $user->getUserId());
 
     }
 

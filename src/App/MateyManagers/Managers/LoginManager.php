@@ -15,21 +15,5 @@ use App\Services\BaseService;
 class LoginManager extends AbstractManager
 {
 
-    /**
-     * @return mixed
-     */
-    public function getClassName()
-    {
-        return 'App\\MateyModels\\Login';
-    }
-
-    public function getTableName() {
-        return self::T_LOGIN;
-    }
-
-    public function getKeyName()
-    {
-        return "LOGIN";
-    }
 
 }

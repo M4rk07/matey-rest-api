@@ -12,21 +12,5 @@ namespace App\MateyModels;
 class ApproveManager extends AbstractManager
 {
 
-    /**
-     * @return mixed
-     */
-    public function getClassName()
-    {
-        return 'App\\MateyModels\\Approve';
-    }
-
-    public function getTableName() {
-        return self::T_APPROVE;
-    }
-
-    public function getKeyName()
-    {
-        return "APPROVE";
-    }
 
 }

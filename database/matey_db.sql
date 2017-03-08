@@ -455,4 +455,10 @@ INSERT INTO matey_group (group_id, group_name) VALUES (1, 'default');
 
 INSERT INTO oauth2_client (app_name) VALUES ('Matey');
 
- ALTER TABLE matey_group AUTO_INCREMENT=1001
+ALTER TABLE matey_group AUTO_INCREMENT=1001;
+ALTER TABLE matey_user AUTO_INCREMENT=1001;
+ALTER TABLE matey_post AUTO_INCREMENT=1001;
+ALTER TABLE matey_reply AUTO_INCREMENT=1001;
+ALTER TABLE matey_rereply AUTO_INCREMENT=1001;
+ALTER TABLE matey_activity AUTO_INCREMENT=1001;
+ALTER TABLE matey_device AUTO_INCREMENT=1001;

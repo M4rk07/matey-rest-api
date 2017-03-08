@@ -9,8 +9,9 @@
 namespace App\Handlers\Post;
 
 
-use App\MateyModels\ModelManagerFactoryInterface;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
+use AuthBucket\OAuth2\Model\ModelManagerFactoryInterface;
+use AuthBucket\OAuth2\Model\ModelManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class PostHandlerFactory implements PostHandlerFactoryInterface

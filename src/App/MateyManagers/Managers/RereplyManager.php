@@ -15,25 +15,9 @@ class RereplyManager extends AbstractManager
 {
 
     const FIELD_NUM_OF_APPROVES = "num_of_approves";
-    /**
-     * @return mixed
-     */
-    public function getClassName()
-    {
-        return 'App\\MateyModels\\Rereply';
-    }
 
-    public function getTableName() {
-        return self::T_REREPLY;
-    }
-
-    public function getKeyName()
-    {
-        return "REREPLY";
-    }
-
-    public function createModel(ModelInterface $model, $ignore = false) {
-        $model = parent::createModel($model, $ignore);
+    public function createModel(ModelInterface $model) {
+        $model = parent::createModel($model);
 
         $this->initializeStatisticsData($model);
 
@@ -58,24 +42,24 @@ class RereplyManager extends AbstractManager
 
     // ---------------------------- REDIS TOOOLS ---------------------------------
 
-    public function initializeStatisticsData(Post $post) {
-        $this->redis->hmset($this->getKeyName().":statistics:".$post->getId(), array(
+    public function initializeStatisticsData(Rereply $rereply) {
+        $this->redis->hmset($this->getRedisKey().":statistics:".$rereply->getRereplyId(), array(
             self::FIELD_NUM_OF_APPROVES => 0,
         ));
     }
 
-    public function getStatisticsData (Post $post) {
+    public function getStatisticsData (Rereply $rereply) {
 
-        $statistics = $this->redis->hgetall($this->getKeyName().":statistics:".$post->getId());
+        $statistics = $this->redis->hgetall($this->getRedisKey().":statistics:".$rereply->getRereplyId());
 
-        $post->setValuesFromArray($statistics);
+        $rereply->setValuesFromArray($statistics);
 
-        return $post;
+        return $rereply;
 
     }
 
     public function incrNumOfApproves(Rereply $rereply, $incrBy = 1) {
-        $this->redis->hincrby($this->getKeyName().":statistics:".$rereply->getId(),
+        $this->redis->hincrby($this->getRedisKey().":statistics:".$rereply->getRereplyId(),
             self::FIELD_NUM_OF_APPROVES, $incrBy);
     }
 

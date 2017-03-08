@@ -1,7 +1,7 @@
 model_name=user
 class_name=App\MateyModels\User
 table_name=matey_user
-mysql_fields=user_id,email,first_name,last_name,country,location,birthday,phone_number,is_silhouette,verified,date_registered
+mysql_fields=user_id,email,first_name,last_name,full_name,country,location,birthday,phone_number,is_silhouette,verified,date_registered
 redis_key=USER
 redis_fields=num_of_following,num_of_followers,num_of_posts,num_of_given_replies,num_of_received_replies,num_of_given_approves,num_of_received_approves,num_of_best_responses,num_of_shares
 
@@ -89,7 +89,7 @@ class_name=App\MateyModels\Post
 table_name=matey_post
 mysql_fields=post_id,group_id,user_id,title,text,attachs_num,locations_num,time_c
 redis_key=POST
-redis_fields=num_of_boosts,num_of_replies
+redis_fields=statistics
 
 model_name=reply
 class_name=App\MateyModels\Reply

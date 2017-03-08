@@ -108,7 +108,7 @@ abstract class AbstractManager implements ModelManagerInterface
     }
 
     public function readModelBy(array $criteria, array $orderBy = null,
-                                $limit = null, $offset = null, array $fields = null, $ascDesc = 'ASC')
+                                $limit = null, $offset = null, array $fields = null)
     {
         $queryBuilder = $this->db->createQueryBuilder();
 
@@ -121,14 +121,25 @@ abstract class AbstractManager implements ModelManagerInterface
         $counter = 0;
         foreach($criteria as $key => $value) {
             $key = $this->makeColumnName($key);
-            $queryBuilder->andWhere($key . "=?");
-            $queryBuilder->setParameter($counter++, $value);
+            if(is_array($value)) {
+                foreach($value as $val) {
+                    $queryBuilder->orWhere($key . "=?");
+                    $queryBuilder->setParameter($counter++, $val);
+                }
+            }
+            else {
+                $queryBuilder->andWhere($key . "=?");
+                $queryBuilder->setParameter($counter++, $value);
+            }
         }
 
         if(isset($limit))
             $queryBuilder->setMaxResults($limit);
-        if(isset($orderBy))
-            $queryBuilder->orderBy($orderBy, $ascDesc);
+        if(isset($orderBy)) {
+            foreach ($orderBy as $key => $value) {
+                $queryBuilder->addOrderBy($key, $value);
+            }
+        }
         if(isset($offset))
             $queryBuilder->setFirstResult($offset);
 

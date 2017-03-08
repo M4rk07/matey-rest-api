@@ -10,6 +10,7 @@ namespace App\MateyModels;
 
 
 use App\Constants\Defaults\DefaultDates;
+use App\Paths\Paths;
 use AuthBucket\OAuth2\Model\ModelInterface;
 
 class Post extends AbstractModel
@@ -28,6 +29,7 @@ class Post extends AbstractModel
     protected $numOfReplies;
     protected $numOfShares;
     protected $numOfBoosts;
+    protected $score;
 
     public function setId($id) {
         return $this->setPostId($id);
@@ -152,6 +154,14 @@ class Post extends AbstractModel
         return $this;
     }
 
+    public function getAttachsLocation ($numOfAttachs) {
+        $arr = array();
+        for($i=1; $i<=$numOfAttachs; $i++) {
+            $arr[] = Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/posts/".$this->getPostId()."/".$i.".jpg";
+        }
+        return $arr;
+    }
+
     /**
      * @return mixed
      */
@@ -237,7 +247,22 @@ class Post extends AbstractModel
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getScore()
+    {
+        $timeCreated = $this->getTimeC()->getTimestamp();
+        $now = new \DateTime(DefaultDates::DATE_FORMAT);
+        $now = $now->getTimestamp();
 
+        $numOfBoosts = $this->getNumOfBoosts();
+        $numOfReplies = $this->getNumOfReplies();
+
+        if($numOfBoosts == 0) $numOfBoosts = 1;
+
+        return ((1/($now-$timeCreated))*0.5)+($numOfBoosts*0.3)+((1/$numOfReplies)*0.2);
+    }
 
     public function serialize() {
         return serialize(array(
@@ -278,7 +303,7 @@ class Post extends AbstractModel
             else return $this->setText($props['value']);
         }
         else if($props['key'] == 'time_c') {
-            if($type == 'get') return $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
+            if($type == 'get') return $this->getTimeC();
             else return $this->setTimeC($this->createDateTimeFromString($props['value']));
         }
         else if ($props['key'] == 'attachs_num') {
@@ -300,6 +325,9 @@ class Post extends AbstractModel
         else if ($props['key'] == 'num_of_boosts') {
             if ($type == 'get') return $this->getNumOfBoosts();
             else return $this->setNumOfBoosts($props['value']);
+        }
+        else if ($props['key'] == 'score') {
+            if ($type == 'get') return $this->getScore();
         }
     }
 
