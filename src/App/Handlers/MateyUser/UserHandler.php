@@ -26,6 +26,7 @@ use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Symfony\Component\Security\Core\Exception\InvalidArgumentException;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -34,9 +35,7 @@ class UserHandler extends AbstractUserHandler
 
     public function getUser(Request $request, $id)
     {
-
-        if($id == "me") $id = $request->request->get('user_id');
-        else $this->validateValue($id, [
+        $this->validateValue($id, [
                 new NotBlank(),
                 new UserId()
         ]);
@@ -50,7 +49,7 @@ class UserHandler extends AbstractUserHandler
 
         if(empty($user)) throw new NotFoundException();
 
-        return new JsonResponse($user->getValuesAsArray(), 200);
+        return new JsonResponse($user->asArray(), 200);
     }
 
     public function follow (Application $app, Request $request, $id) {
@@ -71,14 +70,20 @@ class UserHandler extends AbstractUserHandler
         $userFrom = $userManager->getModel();
         $userTo = $userManager->getModel();
 
-        $userFrom->setId($userId);
-        $userTo->setId($id);
+        $userFrom->setUserId($userId);
+        $userTo->setUserId($id);
 
         $follow->setUserId($userId)
             ->setParentId($id)
             ->setParentType(Activity::USER_TYPE);
 
         $method = $request->getMethod();
+
+        $userExists = $userManager->readModelOneBy(array(
+            'user_id' => $userTo->getUserId()
+        ));
+
+        if(empty($userExists)) throw new InvalidRequestException();
 
         if($method == "POST") {
             try {
@@ -90,7 +95,7 @@ class UserHandler extends AbstractUserHandler
             }
             $userManager->incrNumOfFollowers($userTo);
             $userManager->incrNumOfFollowing($userFrom);
-            $this->pushToFeedsOnFollow($app, $userFrom, $userTo);
+            //$this->pushToFeedsOnFollow($app, $userFrom, $userTo);
         }
         else if ($method == "DELETE") {
             $followManager->deleteModel($follow);
@@ -140,7 +145,7 @@ class UserHandler extends AbstractUserHandler
         if($type == "followers") {
             $followers = $followManager->readModelBy(array(
                 'parent_id' => $id,
-                'parent_type' => "USER"
+                'parent_type' => Activity::USER_TYPE
             ), null, $limit, $offset);
             foreach($followers as $follower) {
                 $connectionsArray[] = $follower->getUserId();
@@ -149,7 +154,7 @@ class UserHandler extends AbstractUserHandler
         } else {
             $followers = $followManager->readModelBy(array(
                 'user_id' => $id,
-                'parent_type' => "USER"
+                'parent_type' => Activity::USER_TYPE
             ), null, $limit, $offset);
             foreach($followers as $follower) {
                 $connectionsArray[] = $follower->getParentId();
@@ -195,9 +200,10 @@ class UserHandler extends AbstractUserHandler
     }
 
     public function addConnectionUserToResponse (User $user, $userId, $me, $type) {
+        $userManager = $this->modelManagerFactory->getModelManager('user');
         $userVals = array();
         if($user) {
-            $userVals = $user->getValuesAsArray();
+            $userVals = $user->asArray();
             $userVals ['following'] = $me && $type == 'following' ? true : $this->isFollowing($userId, $user->getId());
         }
         return $userVals;
@@ -207,8 +213,9 @@ class UserHandler extends AbstractUserHandler
 
         $followManager = $this->modelManagerFactory->getModelManager('follow');
         $follow = $followManager->readModelOneBy(array(
-            'from_user' => $userId,
-            'to_user' => $followingId
+            'user_id' => $userId,
+            'parent_id' => $followingId,
+            'parent_type' => Activity::USER_TYPE
         ));
 
         if($follow) return true;
@@ -221,8 +228,8 @@ class UserHandler extends AbstractUserHandler
         $postManager = $this->modelManagerFactory->getModelManager('post');
 
         $posts = $postManager->readModelBy(array(
-            'user_id' => $userTo->getId()
-        ), array('time_c' => 'DESC'), DefaultNumbers::POSTS_NUM_ON_FOLLOW, 0, array('post_id', 'time_c'));
+            'user_id' => $userTo->getUserId()
+        ), array('time_c' => 'DESC'), DefaultNumbers::POSTS_NUM_ON_FOLLOW, 0, array('post_id'));
 
         if(empty($posts)) return;
 

@@ -81,6 +81,18 @@ class StandardPostHandler extends AbstractPostHandler
             throw $e;
         }
 
+        if($post->getLocationsNum() > 0) {
+            $locationManager = $this->modelManagerFactory->getModelManager('location');
+            foreach($jsonData['locations'] as $location) {
+                $newLocation = $locationManager->getModel();
+                $newLocation->setParentId($post->getPostId())
+                    ->setParentType(Activity::POST_TYPE)
+                    ->setLatt($location->latt)
+                    ->setLongt($location->longt);
+                $locationManager->createModel($newLocation);
+            }
+        }
+
         // Calling the service for uploading Post attachments to S3 storage
         if(strpos($contentType, 'multipart/form-data') === 0) {
             $app['matey.file_handler.factory']->getFileHandler('post_attachment')->upload($app, $request, $post->getPostId());

@@ -29,6 +29,8 @@ class UserController extends AbstractController
     }
 
     public function getUserAction(Request $request, $userId) {
+        if($userId == "me") $userId = $request->request->get('user_id');
+
         return $this->userHandlerFactory
             ->getUserHandler('user')
             ->getUser($request, $userId);

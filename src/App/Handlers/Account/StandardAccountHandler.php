@@ -42,7 +42,7 @@ class StandardAccountHandler extends AbstractAccountHandler
              */
             $facebookInfoManager = $this->modelManagerFactory->getModelManager('facebookInfo', 'mysql');
             $facebookInfo = $facebookInfoManager->readModelOneBy(array(
-                'user_id' => $user->getId()
+                'user_id' => $user->getUserId()
             ));
 
             /*
@@ -50,7 +50,7 @@ class StandardAccountHandler extends AbstractAccountHandler
              */
             $oauth2UserManager = $this->modelManagerFactory->getModelManager('oauth2User', 'mysql');
             $oauth2User = $oauth2UserManager->readModelOneBy(array(
-                'user_id' => $user->getId()
+                'user_id' => $user->getUserId()
             ));
 
                 /*
@@ -103,11 +103,8 @@ class StandardAccountHandler extends AbstractAccountHandler
         $userManager = $this->modelManagerFactory->getModelManager('user');
         $oauth2UserManager = $this->modelManagerFactory->getModelManager('oauth2User');
 
-        $userClass = $userManager->getClassName();
-        $oauth2UserClass = $oauth2UserManager->getClassName();
-
-        $user = new $userClass();
-        $oauth2User = new $oauth2UserClass();
+        $user = $userManager->getModel();
+        $oauth2User = $oauth2UserManager->getModel();
 
         $user->setEmail($email)
             ->setFirstName($firstName)
@@ -131,7 +128,7 @@ class StandardAccountHandler extends AbstractAccountHandler
             $userManager->commitTransaction();
         } catch (\Exception $e) {
             $userManager->rollbackTransaction();
-            throw new ServerErrorException();
+            throw $e;
         }
 
         return new JsonResponse(null, 200);

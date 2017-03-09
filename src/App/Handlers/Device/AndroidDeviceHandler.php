@@ -47,7 +47,7 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
          */
         $device = $deviceManager->createModel($device);
 
-        return new JsonResponse($device->getValuesAsArray(), 200);
+        return new JsonResponse($device->asArray($deviceManager->getAllFields()), 200);
     }
 
     public function updateDevice(Request $request, $deviceId)
@@ -65,9 +65,11 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
             ]);
         }
 
+        $deviceManager = $this->modelManagerFactory->getModelManager('device');
+
         $device = $this->updateGcmById($deviceId, $gcm, $oldGcm);
 
-        return new JsonResponse($device->getValuesAsArray(), 200);
+        return new JsonResponse($device->asArray($deviceManager->getAllFields()), 200);
     }
 
     public function loginOnDevice(Application $app, Request $request, $deviceId)

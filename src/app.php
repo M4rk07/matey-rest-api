@@ -87,6 +87,13 @@ $app->before(function (Request $request) {
 $app->after(function (Request $request, Response $response) {
     $response->headers->set("Access-Control-Allow-Origin","*");
     $response->headers->set("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS");
+
+    $response->setEtag(md5($response->getContent()));
+
+    $etags = $request->getETags();
+    foreach($etags as $etag) {
+        if($response->getEtag() == $etag) $response->setContent(null);
+    }
 });
 
 //accepting JSON

@@ -101,7 +101,7 @@ class GroupAdmin extends AbstractModel
             else return $this->setScope($props['value']);
         }
         else if($props['key'] == 'time_c') {
-            if($type == 'get') return $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
+            if($type == 'get') return $this->getTimeC();
             else return $this->setTimeC($this->createDateTimeFromString($props['value']));
         }
     }

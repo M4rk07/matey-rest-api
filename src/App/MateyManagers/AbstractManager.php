@@ -34,7 +34,7 @@ abstract class AbstractManager implements ModelManagerInterface
     public function getModel()
     {
         $class = $this->getClassName();
-        return new $class();
+        return new $class($this->getAllFields());
     }
 
     public function getClassName()
@@ -54,12 +54,24 @@ abstract class AbstractManager implements ModelManagerInterface
 
     public function getMysqlFields()
     {
-        return isset($this->modelConfig['mysql_fields']) ? $this->modelConfig['mysql_fields'] : array();
+        if(isset($this->modelConfig['mysql_fields'])) {
+            return is_array($this->modelConfig['mysql_fields']) ?
+                $this->modelConfig['mysql_fields'] : array($this->modelConfig['mysql_fields']);
+        }
+        else return array();
     }
 
     public function getRedisFields()
     {
-        return isset($this->modelConfig['redis_fields']) ? $this->modelConfig['redis_fields'] : array();
+        if(isset($this->modelConfig['redis_fields'])) {
+            return is_array($this->modelConfig['redis_fields']) ?
+                $this->modelConfig['redis_fields'] : array($this->modelConfig['redis_fields']);
+        }
+        else return array();
+    }
+
+    public function getAllFields() {
+        return array_merge($this->getMysqlFields(), $this->getRedisFields());
     }
 
     public function startTransaction() {

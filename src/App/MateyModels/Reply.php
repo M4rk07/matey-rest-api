@@ -211,7 +211,7 @@ class Reply extends AbstractModel
             else return $this->setText($props['value']);
         }
         else if($props['key'] == 'time_c') {
-            if($type == 'get') return $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
+            if($type == 'get') return $this->getTimeC();
             else return $this->setTimeC($this->createDateTimeFromString($props['value']));
         }
         else if ($props['key'] == 'attachs_num') {

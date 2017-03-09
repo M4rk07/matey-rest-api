@@ -10,13 +10,19 @@ namespace App\MateyModels;
 
 
 use App\Constants\Defaults\DefaultDates;
+use AuthBucket\OAuth2\Exception\ServerErrorException;
 use AuthBucket\OAuth2\Model\ModelInterface;
+use Symfony\Component\Security\Core\Exception\InvalidArgumentException;
 
 abstract class AbstractModel implements ModelInterface
 {
 
     protected $id;
-    protected $dateFormat = 'Y-m-d H:i:s';
+    protected $allFields;
+
+    public function __construct($allFields) {
+        $this->allFields = $allFields;
+    }
 
     public function getId(){
         return $this->id;
@@ -41,17 +47,18 @@ abstract class AbstractModel implements ModelInterface
 
     public abstract function getSetFunction(array $props, $type = 'get');
 
-    public function asArray ($fields) {
+    public function asArray ($fields = null) {
 
         $keyValues = array();
 
+        if($fields === null) $fields = $this->allFields;
         if(!is_array($fields)) $fields = array($fields);
 
         foreach($fields as $field) {
             $props['key'] = $field;
             $thisValue = $this->getSetFunction($props);
             if($thisValue === null && $field == 'group_id') $keyValues[$field] = null;
-            if(!empty($thisValue)) {
+            if(isset($thisValue)) {
                 if($thisValue instanceof \DateTime) $thisValue = $thisValue->format(DefaultDates::DATE_FORMAT);
                 $keyValues[$field] = $thisValue;
             }

@@ -90,7 +90,7 @@ class ProfilePictureHandler extends AbstractFileHandler
             'user_id' => $userId
         ));
 
-        $user->setId($userId);
+        $user->setUserId($userId);
 
         return new JsonResponse(null, 201, array(
             'Location' => $user->getProfilePicture('original')

@@ -117,7 +117,7 @@ class Login extends AbstractModel
             else return $this->setUserId($props['value']);
         }
         else if($props['key'] == 'date_time') {
-            if($type == 'get') return $this->getDateTime()->format(DefaultDates::DATE_FORMAT);
+            if($type == 'get') return $this->getDateTime();
             else return $this->setDateTime($this->createDateTimeFromString($props['value']));
         }
         else if($props['key'] == 'status') {

@@ -27,11 +27,11 @@ class UserManager extends AbstractManager
     const FIELD_NUM_OF_FOLLOWING = "num_of_following";
     const FIELD_NUM_OF_FOLLOWERS = "num_of_followers";
     const FIELD_NUM_OF_POSTS = "num_of_posts";
-    const FIELD_NUM_OF_GIVEN_RESPONSES = "num_of_given_responses";
-    const FIELD_NUM_OF_RECEIVED_RESPONSES = "num_of_received_responses";
+    const FIELD_NUM_OF_GIVEN_REPLIES = "num_of_given_replies";
+    const FIELD_NUM_OF_RECEIVED_REPLIES = "num_of_received_replies";
     const FIELD_NUM_OF_GIVEN_APPROVES = "num_of_given_approves";
     const FIELD_NUM_OF_RECEIVED_APPROVES = "num_of_received_approves";
-    const FIELD_NUM_OF_BEST_RESPONSES = "num_of_best_responses";
+    const FIELD_NUM_OF_BEST_REPLIES = "num_of_best_replies";
     const FIELD_NUM_OF_SHARES = "num_of_shares";
 
     public function loadUserByEmail($email)
@@ -73,9 +73,9 @@ class UserManager extends AbstractManager
             self::FIELD_NUM_OF_POSTS => 0,
             self::FIELD_NUM_OF_GIVEN_APPROVES => 0,
             self::FIELD_NUM_OF_RECEIVED_APPROVES => 0,
-            self::FIELD_NUM_OF_GIVEN_RESPONSES => 0,
-            self::FIELD_NUM_OF_RECEIVED_RESPONSES => 0,
-            self::FIELD_NUM_OF_BEST_RESPONSES => 0,
+            self::FIELD_NUM_OF_GIVEN_REPLIES => 0,
+            self::FIELD_NUM_OF_RECEIVED_REPLIES => 0,
+            self::FIELD_NUM_OF_BEST_REPLIES => 0,
             self::FIELD_NUM_OF_SHARES => 0
         ));
     }
@@ -118,16 +118,16 @@ class UserManager extends AbstractManager
         $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_RECEIVED_APPROVES, $incrBy);
     }
 
-    public function incrNumOfGivenResponses(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_GIVEN_RESPONSES, $incrBy);
+    public function incrNumOfGivenReplies(User $user, $incrBy = 1) {
+        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_GIVEN_REPLIES, $incrBy);
     }
 
-    public function incrNumOfReceivedResponses(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_RECEIVED_RESPONSES, $incrBy);
+    public function incrNumOfReceivedReplies(User $user, $incrBy = 1) {
+        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_RECEIVED_REPLIES, $incrBy);
     }
 
-    public function incrNumOfBestResponses(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_BEST_RESPONSES, $incrBy);
+    public function incrNumOfBestReplies(User $user, $incrBy = 1) {
+        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_BEST_REPLIES, $incrBy);
     }
 
     public function incrNumOfShares(User $user, $incrBy = 1) {

@@ -9,7 +9,7 @@
 namespace App\MateyModels;
 
 
-class Location
+class Location extends AbstractModel
 {
 
     protected $parentId;

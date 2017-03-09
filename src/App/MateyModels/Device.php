@@ -105,7 +105,7 @@ class Device extends AbstractModel
             else return $this->setGcm($props['value']);
         }
         else if($props['key'] == 'date_registered') {
-            if($type == 'get') return $this->getDateRegistered()->format(DefaultDates::DATE_FORMAT);
+            if($type == 'get') return $this->getDateRegistered();
             else return $this->setDateRegistered($this->createDateTimeFromString($props['value']));
         }
     }

@@ -30,6 +30,8 @@ interface ModelManagerInterface
 
     public function getRedisFields();
 
+    public function getAllFields();
+
     public function startTransaction();
 
     public function commitTransaction();
