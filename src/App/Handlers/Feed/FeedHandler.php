@@ -40,8 +40,7 @@ class FeedHandler extends AbstractFeedHandler
         $finalResult = array();
         foreach($posts as $post) {
             $arr['activity_type'] = Activity::POST_TYPE;
-            $post->setUserId(null);
-            $arr['activity_object'] = $post->asArray();
+            $arr['activity_object'] = $post->asArray(array_diff($postManager->getAllFields(), array('user_id')));
             foreach($users as $user) {
                 if($user->getUserId() == $post->getUserId()) {
                     $arr['activity_object']['user'] = $user->asArray();
