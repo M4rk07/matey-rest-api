@@ -312,7 +312,7 @@ CREATE TABLE IF NOT EXISTS matey_activity (
   activity_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id int(11) UNSIGNED NOT NULL,
   source_id int(11) UNSIGNED NOT NULL,
-  parent_id int(11) UNSIGNED NOT NULL,
+  parent_id int(11) UNSIGNED,
   parent_type varchar(50) NOT NULL,
   activity_type varchar(50) NOT NULL,
   time_c timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
