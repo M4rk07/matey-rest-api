@@ -73,4 +73,14 @@ class PostController extends AbstractController
             ->archive($app, $request, $postId);
     }
 
+    public function getUserDeckAction (Application $app, Request $request) {
+        return $this->postHandler
+            ->getDeck($app, $request, 'user');
+    }
+
+    public function getGroupDeckAction (Application $app, Request $request, $groupId) {
+        return $this->postHandler
+            ->getDeck($app, $request, 'group', $groupId);
+    }
+
 }

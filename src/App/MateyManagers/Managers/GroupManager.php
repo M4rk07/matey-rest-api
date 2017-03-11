@@ -15,6 +15,8 @@ class GroupManager extends AbstractManager
 {
 
     const FIELD_NUM_OF_FOLLOWERS = "num_of_followers";
+    const FIELD_NUM_OF_SHARES = "num_of_shares";
+    const FIELD_NUM_OF_FAVORITES = "num_of_favorites";
 
     public function createModel(ModelInterface $model)
     {
@@ -27,8 +29,20 @@ class GroupManager extends AbstractManager
 
     public function initializeGroupStatistics(Group $group) {
         $this->redis->hmset($this->getRedisKey().":statistics:".$group->getGroupId(), array(
-            self::FIELD_NUM_OF_FOLLOWERS => 0
+            self::FIELD_NUM_OF_FOLLOWERS => 0,
+            self::FIELD_NUM_OF_SHARES => 0,
+            self::FIELD_NUM_OF_SHARES => 0
         ));
+    }
+
+    public function pushDeck (Group $group, $posts) {
+        if(!is_array($posts)) $posts = array($posts);
+        foreach($posts as $post)
+            $this->redis->lpush($this->getRedisKey().":feed:".$group->getGroupId(), $post->getPostId());
+    }
+
+    public function getDeck (Group $group, $start = 0, $stop = 10) {
+        return $this->redis->lrange($this->getRedisKey().":feed:".$group->getGroupId(), $start, $stop);
     }
 
 }

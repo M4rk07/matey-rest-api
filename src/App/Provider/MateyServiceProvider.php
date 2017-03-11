@@ -17,6 +17,7 @@ use App\Handlers\Account\AccountHandlerFactory;
 use App\Handlers\Bulletin\Post\PostHandler;
 use App\Handlers\Bulletin\Post\StandardPostHandler;
 use App\Handlers\Bulletin\Reply\ReplyHandler;
+use App\Handlers\Bulletin\Reply\StandardReplyHandler;
 use App\Handlers\Bulletin\Rereply\RereplyHandler;
 use App\Handlers\Connections\ConnectionHandlerFactory;
 use App\Handlers\Device\DeviceHandlerFactory;
@@ -145,7 +146,7 @@ class MateyServiceProvider implements ServiceProviderInterface
         });
 
         $app['matey.reply_handler'] = $app->share(function($app) {
-            return new ReplyHandler(
+            return new StandardReplyHandler(
                 $app['validator'],
                 $app['matey.model_manager.factory']
             );
@@ -153,13 +154,6 @@ class MateyServiceProvider implements ServiceProviderInterface
 
         $app['matey.rereply_handler'] = $app->share(function($app) {
             return new RereplyHandler(
-                $app['validator'],
-                $app['matey.model_manager.factory']
-            );
-        });
-
-        $app['matey.feed_handler'] = $app->share(function($app) {
-            return new FeedHandler(
                 $app['validator'],
                 $app['matey.model_manager.factory']
             );
@@ -208,12 +202,6 @@ class MateyServiceProvider implements ServiceProviderInterface
         $app['matey.post_controller'] = $app->share(function () use ($app) {
             return new PostController(
                 $app['matey.post_handler']
-            );
-        });
-
-        $app['matey.feed_controller'] = $app->share(function () use ($app) {
-            return new FeedController(
-                $app['matey.feed_handler']
             );
         });
 

@@ -17,6 +17,7 @@ use App\MateyModels\FeedEntry;
 use App\MateyModels\Follow;
 use App\MateyModels\User;
 use App\Paths\Paths;
+use App\Services\PaginationService;
 use App\Validators\PositiveInteger;
 use App\Validators\UnsignedInteger;
 use App\Validators\UserId;
@@ -39,7 +40,6 @@ class UserHandler extends AbstractUserHandler
                 new NotBlank(),
                 new UserId()
         ]);
-
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
 
@@ -171,31 +171,17 @@ class UserHandler extends AbstractUserHandler
             ));
         }
 
-        $response['data'] = array();
+        $responseData = array();
         if(is_array($users)) {
             foreach ($users as $user) {
-                $response['data'][] = $this->addConnectionUserToResponse($user, $userId, $me, $type);
+                $responseData[] = $this->addConnectionUserToResponse($user, $userId, $me, $type);
             }
-        } else if ($users) $response['data'][] = $this->addConnectionUserToResponse($users, $userId, $me, $type);
+        } else if ($users) $responseData[] = $this->addConnectionUserToResponse($users, $userId, $me, $type);
 
         // GENERATING PAGINATION DETAILS
+        $paginationService = new PaginationService($responseData, $limit, $offset, '/users/'.$id.'/'.$type);
 
-        $response['size'] = count($response['data']);
-        $response['offset'] = (int)$offset;
-        $response['limit'] = (int)$limit;
-
-        $response['_links']['base'] = Paths::BASE_API_URL;
-        if($response['size'] == $response['limit'])
-        $response['_links']['next'] =
-            $app['api.endpoint'].'/'.$app['api.version'].'/users/'.$id.'/'.$type.
-            '?limit='.$limit.'&offset='.((int)$offset+(int)$limit);
-        if($response['offset'] != 0)
-        $response['_links']['prev'] =
-            $app['api.endpoint'].'/'.$app['api.version'].'/users/'.$id.'/'.$type.
-            '?limit='.$limit.'&offset='.( ((int)$offset-(int)$limit) < 0 ? 0 : ((int)$offset-(int)$limit) );
-
-        return new JsonResponse($response, 200);
-
+        return new JsonResponse($paginationService->getResponse(), 200);
     }
 
     public function addConnectionUserToResponse (User $user, $userId, $me, $type) {

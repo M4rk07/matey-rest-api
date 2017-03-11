@@ -53,6 +53,11 @@ class User extends AbstractModel
     public function setId($id) {
         return $this->setUserId($id);
     }
+
+    public function getId() {
+        return $this->getUserId();
+    }
+
     /**
      * @return mixed
      */

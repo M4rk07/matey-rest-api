@@ -30,6 +30,10 @@ class Group extends AbstractModel
         return $this->setGroupId($id);
     }
 
+    public function getId() {
+        return $this->getGroupId();
+    }
+
     /**
      * @return mixed
      */

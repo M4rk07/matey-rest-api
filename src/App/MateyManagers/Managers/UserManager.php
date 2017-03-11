@@ -134,13 +134,13 @@ class UserManager extends AbstractManager
         $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_SHARES, $incrBy);
     }
 
-    public function pushFeed (User $user, $posts) {
+    public function pushDeck (User $user, $posts) {
         if(!is_array($posts)) $posts = array($posts);
         foreach($posts as $post)
             $this->redis->lpush($this->getRedisKey().":feed:".$user->getUserId(), $post->getPostId());
     }
 
-    public function getFeed (User $user, $start = 0, $stop = 10) {
+    public function getDeck (User $user, $start = 0, $stop = 10) {
         return $this->redis->lrange($this->getRedisKey().":feed:".$user->getUserId(), $start, $stop);
     }
 

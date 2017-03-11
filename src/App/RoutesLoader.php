@@ -63,6 +63,8 @@ class RoutesLoader
         $api->put('/posts/{postId}/shares', 'matey.post_controller:shareAction');
         $api->put('/posts/{postId}/bookmarks', 'matey.post_controller:bookmarkAction');
         $api->put('/posts/{postId}/archive', 'matey.post_controller:archiveAction');
+        $api->get('/deck', 'matey.post_controller:getUserDeckAction');
+        $api->get('/groups/{groupId}/deck', 'matey.post_controller:getGroupDeckAction');
 
         // REPLY CONTROLLER
         $api->post('/posts/{postId}/replies', 'matey.reply_controller:createReplyAction');

@@ -3,6 +3,7 @@
 namespace App\Handlers\Bulletin\Reply;
 use App\Handlers\Bulletin\Reply\StandardReply\AbstractStandardReplyHandler;
 use App\MateyModels\Activity;
+use App\Services\PaginationService;
 use App\Validators\UnsignedInteger;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
 use Silex\Application;
@@ -120,7 +121,10 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
             $finalResult[] = $reply->asArray();
         }
 
-        return new JsonResponse($finalResult, 200);
+        $paginationService = new PaginationService($finalResult, $limit, $offset,
+            '/posts/'.$postId.'/replies');
+
+        return new JsonResponse($paginationService->getResponse(), 200);
     }
 
     public function fetchReplies($postId, $limit, $offset) {

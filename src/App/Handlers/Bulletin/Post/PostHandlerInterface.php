@@ -22,5 +22,6 @@ interface PostHandlerInterface
     public function share (Application $app, Request $request, $postId);
     public function bookmark (Application $app, Request $request, $postId);
     public function archive (Application $app, Request $request, $postId);
+    public function getDeck (Application $app, Request $request, $type, $groupId = null);
 
 }

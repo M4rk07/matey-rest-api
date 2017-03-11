@@ -10,6 +10,7 @@ namespace App\Handlers\Bulletin\Rereply;
 
 
 use App\MateyModels\Activity;
+use App\Services\PaginationService;
 use App\Validators\UnsignedInteger;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
 use Silex\Application;
@@ -102,7 +103,10 @@ class RereplyHandler extends AbstractRereplyHandler
             $finalResult[] = $rereply->asArray();
         }
 
-        return new JsonResponse($finalResult, 200);
+        $paginationService = new PaginationService($finalResult, $limit, $offset,
+            '/replies/'.$replyId.'/rereplies');
+
+        return new JsonResponse($paginationService->getResponse(), 200);
 
     }
 
