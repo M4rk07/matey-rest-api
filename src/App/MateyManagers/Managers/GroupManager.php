@@ -26,7 +26,7 @@ class GroupManager extends AbstractManager
     }
 
     public function initializeGroupStatistics(Group $group) {
-        $this->redis->hmset($this->getRedisKey().":counts:".$group->getGroupId(), array(
+        $this->redis->hmset($this->getRedisKey().":statistics:".$group->getGroupId(), array(
             self::FIELD_NUM_OF_FOLLOWERS => 0
         ));
     }

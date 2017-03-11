@@ -53,7 +53,23 @@ class RoutesLoader
         $api->post('/users/me/profiles/pictures', 'matey.file_controller:uploadProfilePictureAction');
         $api->post('/users/me/profiles/covers', 'matey.file_controller:uploadCoverPictureAction');
 
+        // POST CONTROLLER
         $api->post('/posts', 'matey.post_controller:createPostAction');
+        $api->delete('/posts/{postId}', 'matey.post_controller:deletePostAction');
+        $api->get('/group/{groupId}/posts', 'matey.post_controller:getGroupPostsAction');
+        $api->get('/users/{userId}/posts', 'matey.post_controller:getUsersPostsAction');
+        $api->get('/posts/{postId}', 'matey.post_controller:getPostAction');
+
+        // REPLY CONTROLLER
+        $api->post('/posts/{postId}/replies', 'matey.reply_controller:createReplyAction');
+        $api->delete('/replies/{replyId}', 'matey.reply_controller:deleteReplyAction');
+        $api->get('/posts/{postId}/replies', 'matey.reply_controller:getRepliesAction');
+
+        // REREPLY CONTROLLER
+        $api->post('/replies/{replyId}/rereplies', 'matey.rereply_controller:createRerepliesAction');
+        $api->delete('/rereplies/{rereplyId}', 'matey.rereply_controller:deleteRereplyAction');
+        $api->get('/replies/{replyId}/rereplies', 'matey.rereply_controller:getRerepliesAction');
+
         $api->get('/feed', 'matey.feed_controller:getFeedAction');
 
         // OPERATIONS ON GROUPS

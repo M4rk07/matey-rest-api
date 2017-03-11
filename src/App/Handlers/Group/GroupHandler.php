@@ -22,7 +22,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class StandardGroupHandler extends AbstractGroupHandler
+class GroupHandler extends AbstractGroupHandler
 {
     function createGroup(Application $app, Request $request)
     {

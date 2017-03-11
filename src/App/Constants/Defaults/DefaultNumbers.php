@@ -12,4 +12,5 @@ class DefaultNumbers
     const POSTS_NUM_ON_FOLLOW = 3;
     const MIN_TITLE_CHARS = 5;
     const MAX_TITLE_CHARS = 100;
+    const REPLIES_LIMIT = 5;
 }

@@ -14,10 +14,15 @@ use App\Controllers\API\TestDataController;
 use App\Controllers\API\UserController;
 use App\Controllers\RegistrationController;
 use App\Handlers\Account\AccountHandlerFactory;
+use App\Handlers\Bulletin\Post\PostHandler;
+use App\Handlers\Bulletin\Post\StandardPostHandler;
+use App\Handlers\Bulletin\Reply\ReplyHandler;
+use App\Handlers\Bulletin\Rereply\RereplyHandler;
 use App\Handlers\Connections\ConnectionHandlerFactory;
 use App\Handlers\Device\DeviceHandlerFactory;
 use App\Handlers\Feed\FeedHandler;
 use App\Handlers\File\FileHandlerFactory;
+use App\Handlers\Group\GroupHandler;
 use App\Handlers\Group\GroupHandlerFactory;
 use App\Handlers\MateyUser\UserHandlerFactory;
 use App\Handlers\MergeAccount\MergeAccountHandlerFactory;
@@ -25,10 +30,14 @@ use App\Handlers\Post\PostHandlerFactory;
 use App\Handlers\Profile\ProfileHandlerFactory;
 use App\Handlers\ProfilePicture\ProfilePictureHandler;
 use App\Handlers\TestingData\TestingDataHandler;
+use App\MateyModels\Group;
 use App\MateyModels\ModelManagerFactory;
 use App\RoutesLoader;
 use App\ServicesLoader;
 use App\Handlers\Registration\RegistrationHandlerFactory;
+use App\Validators\PositiveInteger;
+use App\Validators\UnsignedInteger;
+use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use Resource\Config\ConfigProvider;
 use Silex\Application;
 use Silex\Provider\HttpCacheServiceProvider;
@@ -40,6 +49,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Carbon\Carbon;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * Created by PhpStorm.
@@ -85,14 +95,6 @@ class MateyServiceProvider implements ServiceProviderInterface
             'post_attachment' => 'App\\Handlers\\File\\PostAttachmentHandler',
         ];
 
-        $app['matey.handlers.group'] = [
-            'standard' => 'App\\Handlers\\Group\\StandardGroupHandler'
-        ];
-
-        $app['matey.handlers.post'] = [
-            'standard' => 'App\\Handlers\\Post\\StandardPostHandler'
-        ];
-
                     // HANDLERS FACTORIES //
 
         $app['matey.account_handler.factory'] = $app->share(function($app) {
@@ -127,19 +129,32 @@ class MateyServiceProvider implements ServiceProviderInterface
             );
         });
 
-        $app['matey.group_handler.factory'] = $app->share(function($app) {
-            return new GroupHandlerFactory(
+        $app['matey.group_handler'] = $app->share(function($app) {
+            return new GroupHandler(
                 $app['validator'],
                 $app['matey.model_manager.factory'],
                 $app['matey.handlers.group']
             );
         });
 
-        $app['matey.post_handler.factory'] = $app->share(function($app) {
-            return new PostHandlerFactory(
+        $app['matey.post_handler'] = $app->share(function($app) {
+            return new PostHandler(
                 $app['validator'],
-                $app['matey.model_manager.factory'],
-                $app['matey.handlers.post']
+                $app['matey.model_manager.factory']
+            );
+        });
+
+        $app['matey.reply_handler'] = $app->share(function($app) {
+            return new ReplyHandler(
+                $app['validator'],
+                $app['matey.model_manager.factory']
+            );
+        });
+
+        $app['matey.rereply_handler'] = $app->share(function($app) {
+            return new RereplyHandler(
+                $app['validator'],
+                $app['matey.model_manager.factory']
             );
         });
 
@@ -186,13 +201,13 @@ class MateyServiceProvider implements ServiceProviderInterface
 
         $app['matey.group_controller'] = $app->share(function () use ($app) {
             return new GroupController(
-                $app['matey.group_handler.factory']
+                $app['matey.group_handler']
             );
         });
 
         $app['matey.post_controller'] = $app->share(function () use ($app) {
             return new PostController(
-                $app['matey.post_handler.factory']
+                $app['matey.post_handler']
             );
         });
 
@@ -210,6 +225,34 @@ class MateyServiceProvider implements ServiceProviderInterface
             );
         });
 
+        $app['before.pagination_params'] = function (Application $app, Request $request) {
+            $limit = $request->query->get('limit');
+            $offset = $request->query->get('offset');
+
+            $validator = $app['validator'];
+
+            $errors = $validator->validate($limit, array(
+                new NotBlank(),
+                new UnsignedInteger()
+            ));
+
+            if (count($errors) > 0) {
+                throw new InvalidRequestException([
+                    'error_description' => $errors->get(0)->getMessage(),
+                ]);
+            }
+
+            $errors = $validator->validate($offset, array(
+                new NotBlank(),
+                new PositiveInteger()
+            ));
+
+            if (count($errors) > 0) {
+                throw new InvalidRequestException([
+                    'error_description' => $errors->get(0)->getMessage(),
+                ]);
+            }
+        };
 
     }
 

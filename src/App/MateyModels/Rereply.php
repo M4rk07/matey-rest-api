@@ -20,6 +20,7 @@ class Rereply extends AbstractModel
     protected $text;
     protected $timeC;
     protected $numOfApproves;
+    protected $deleted;
 
     public function setId($id) {
         return $this->setRereplyId($id);
@@ -112,6 +113,24 @@ class Rereply extends AbstractModel
     /**
      * @return mixed
      */
+    public function getDeleted()
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * @param mixed $deleted
+     */
+    public function setDeleted($deleted)
+    {
+        $this->deleted = $deleted;
+        return $this;
+    }
+
+
+    /**
+     * @return mixed
+     */
     public function getNumOfApproves()
     {
         return $this->numOfApproves;
@@ -162,6 +181,10 @@ class Rereply extends AbstractModel
         else if ($props['key'] == 'num_of_approves') {
             if ($type == 'get') return $this->getNumOfApproves();
             else return $this->setNumOfApproves($props['value']);
+        }
+        else if ($props['key'] == 'deleted') {
+            if ($type == 'get') return $this->getDeleted();
+            else return $this->setDeleted($props['key']);
         }
     }
 

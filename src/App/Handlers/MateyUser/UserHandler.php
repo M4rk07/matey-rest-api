@@ -218,7 +218,7 @@ class UserHandler extends AbstractUserHandler
             'parent_type' => Activity::USER_TYPE
         ));
 
-        if($follow) return true;
+        if(!empty($follow)) return true;
         return false;
 
     }

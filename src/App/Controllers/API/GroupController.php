@@ -11,6 +11,7 @@ namespace App\Controllers\API;
 
 use App\Controllers\AbstractController;
 use App\Handlers\Group\GroupHandlerFactoryInterface;
+use App\Handlers\Group\GroupHandlerInterface;
 use App\MateyModels\ModelManagerFactoryInterface;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,29 +20,26 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class GroupController extends AbstractController
 {
 
-    protected $groupHandlerFactory;
+    protected $groupHandler;
 
     public function __construct(
-        GroupHandlerFactoryInterface $groupHandlerFactory
+        GroupHandlerInterface $groupHandler
     ) {
-        $this->groupHandlerFactory = $groupHandlerFactory;
+        $this->groupHandler = $groupHandler;
     }
 
     public function createGroupAction (Application $app, Request $request) {
-        return $this->groupHandlerFactory
-            ->getGroupHandler('standard')
+        return $this->groupHandler
             ->createGroup($app, $request);
     }
 
     public function getGroupAction (Application $app, Request $request, $groupId) {
-        return $this->groupHandlerFactory
-            ->getGroupHandler('standard')
+        return $this->groupHandler
             ->getGroup($app, $request, $groupId);
     }
 
     public function deleteGroupAction (Application $app, Request $request, $groupId) {
-        return $this->groupHandlerFactory
-            ->getGroupHandler('standard')
+        return $this->groupHandler
             ->deleteGroup($app, $request, $groupId);
     }
 

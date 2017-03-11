@@ -6,7 +6,7 @@
  * Time: 16.10
  */
 
-namespace App\Handlers\Post;
+namespace App\Handlers\Bulletin\Post;
 
 use App\Algos\FeedRank\FeedRank;
 use App\Constants\Defaults\DefaultDates;
@@ -27,7 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class StandardPostHandler extends AbstractPostHandler
+class PostHandler extends AbstractPostHandler
 {
 
     public function createPost(Application $app, Request $request) {
@@ -36,17 +36,20 @@ class StandardPostHandler extends AbstractPostHandler
 
         // Getting json data in relation to Content-Type
         $contentType = $request->headers->get('Content-Type');
-        $jsonData = $this->getJsonPostData($request, $contentType);
 
-        if($request->files->count() > 5) throw new InvalidRequestException(
-            array('error' => ResponseMessages::TOO_MUCH_FILES)
-        );
+        $this->validateNumOfFiles($request);
+        $jsonDataRequest = $this->getJsonPostData($request, $contentType);
+
+        $jsonData = array();
+        $jsonData['title'] = $this->gValidateTitle($jsonDataRequest);
+        $jsonData['text'] = $this->gValidateText($jsonDataRequest);
+        $jsonData['group_id'] = $this->gValidateGroupId($jsonDataRequest);
+        $jsonData['locations'] = $this->gValidateLocations($jsonDataRequest);
 
         // Creating necessary data managers.
         $postManager = $this->modelManagerFactory->getModelManager('post');
-        $post = $postManager->getModel();
-
         $activityManager = $this->modelManagerFactory->getModelManager('activity');
+        $post = $postManager->getModel();
         $activity = $activityManager->getModel();
 
         // Creating a Post model
@@ -78,7 +81,7 @@ class StandardPostHandler extends AbstractPostHandler
         } catch (\Exception $e) {
             // Rollback transaction on failure
             $postManager->rollbackTransaction();
-            throw $e;
+            throw new ServerErrorException();
         }
 
         if($post->getLocationsNum() > 0) {
@@ -105,77 +108,65 @@ class StandardPostHandler extends AbstractPostHandler
 
     }
 
-    // Method for retrieving json file from request
-    public function getJsonPostData (Request $request, $contentType) {
-        /*
-         * This variable will store values from json,
-         * or default if none.
-         */
-        $returnValues = array();
+    public function deletePost (Application $app, Request $request, $postId) {
+        // Get user id based on token
+        $userId = $request->request->get('user_id');
 
-        // Retrieving json based on Content-Type
-        if($contentType == 'application/json') {
-            $jsonData = $request->getContent();
-            $jsonData = json_decode($jsonData);
-        } else if(strpos($contentType, 'multipart/form-data') === 0) {
-            $jsonData = $request->request->get('json_data');
-            $jsonData = json_decode($jsonData);
+        $postManager = $this->modelManagerFactory->getModelManager('post');
+        $post = $postManager->getModel();
+
+        $post->setDeleted(1);
+
+        $postManager->updateModel($post, array(
+            'post_id' => $postId,
+            'user_id' => $userId
+        ));
+
+        return new JsonResponse(null, 200);
+    }
+
+    public function getPost (Application $app, Request $request, $postId) {
+
+        $postManager = $this->modelManagerFactory->getModelManager('post');
+        $post = $postManager->readModelBy(array(
+            'post_id' => $postId,
+            'deleted' => 0
+        ), null, 1);
+
+        $replies = $app['matey.reply_handler']->fetchReplies($post->getPostId(), DefaultNumbers::REPLIES_LIMIT, 0);
+
+        $finalResult = $post->asArray();
+        foreach ($replies as $reply) {
+            $finalResult['replies'][] = $reply->asArray();
         }
 
-        // JSON must be provided, and title of the Post
-        if(empty($jsonData) || !isset($jsonData->title)) throw new InvalidRequestException();
+        return new JsonResponse($finalResult, 200);
+    }
 
-        // Next validating all provided values and setting defaults
-        // ---------TITLE
-        $this->validateValue($jsonData->title, [
-            new NotBlank(),
-            new Length(array(
-                'min' => DefaultNumbers::MIN_TITLE_CHARS,
-                'max' => DefaultNumbers::MAX_TITLE_CHARS,
-                'minMessage' => "Title must be at least {{ limit }} characters long.",
-                'maxMessage' => "Title cannot be longer than {{ limit }} characters."
-            ))
-        ]);
+    public function getPosts(Application $app, Request $request, $type, $id) {
 
-        $returnValues['title'] = $jsonData->title;
+        $limit = $request->query->get('limit');
+        $offset = $request->query->get('offset');
 
-        // ---------GROUP ID
-        if(isset($jsonData->group_id)) {
+        $postManager = $this->modelManagerFactory->getModelManager('post');
+        if($type == 'user') {
+            $posts = $postManager->readModelBy(array(
+                'user_id' => $id,
+                'deleted' => 0
+            ), array('time_c' => 'DESC'), $limit, $offset);
+        } else {
+            $posts = $postManager->readModelBy(array(
+                'group_id' => $id,
+                'deleted' => 0
+            ), array('time_c' => 'DESC'), $limit, $offset);
+        }
 
-            $this->validateValue($jsonData->group_id, [
-                new NotBlank(),
-                new UnsignedInteger()
-            ]);
+        $finalResult = array();
+        foreach ($posts as $post) {
+            $finalResult[] = $post->asArray();
+        }
 
-            $returnValues['group_id'] = $jsonData->group_id;
-        } else $returnValues['group_id'] = Group::DEFAULT_GROUP;
-
-        // ---------TEXT
-        if(isset($jsonData->text)) {
-            $this->validateValue($jsonData->text, [
-                new NotBlank()
-            ]);
-
-            $returnValues['text'] = $jsonData->text;
-        } else $returnValues['text'] = "";
-
-        // ---------LOCATIONS
-        if(isset($jsonData->locations)) {
-
-            foreach($jsonData->locations as $value) {
-                $this->validateValue($value->latt, [
-                    new NotBlank()
-                ]);
-                $this->validateValue($value->longt, [
-                    new NotBlank()
-                ]);
-            }
-
-            $returnValues['locations'] = $jsonData->locations;
-        } else $returnValues['locations'] = array();
-
-        return $returnValues;
-
+        return new JsonResponse($finalResult, 200);
     }
 
 }

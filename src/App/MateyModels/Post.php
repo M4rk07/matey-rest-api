@@ -24,6 +24,7 @@ class Post extends AbstractModel
     protected $timeC;
     protected $attachsNum;
     protected $locationsNum;
+    protected $deleted;
 
     protected $lastActions;
     protected $numOfReplies;
@@ -182,6 +183,23 @@ class Post extends AbstractModel
     /**
      * @return mixed
      */
+    public function getDeleted()
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * @param mixed $deleted
+     */
+    public function setDeleted($deleted)
+    {
+        $this->deleted = $deleted;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getLastActions()
     {
         return $this->lastActions;
@@ -328,6 +346,10 @@ class Post extends AbstractModel
         }
         else if ($props['key'] == 'score') {
             if ($type == 'get') return $this->getScore();
+        }
+        else if ($props['key'] == 'deleted') {
+            if ($type == 'get') return $this->getDeleted();
+            else return $this->setDeleted($props['key']);
         }
     }
 

@@ -10,26 +10,47 @@ namespace App\Controllers\API;
 
 
 use App\Controllers\AbstractController;
+use App\Handlers\Bulletin\Post\PostHandlerInterface;
 use App\Handlers\Post\PostHandlerFactoryInterface;
 use App\MateyModels\ModelManagerFactoryInterface;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class PostController extends AbstractController
 {
-    protected $postHandlerFactory;
+    protected $postHandler;
 
     public function __construct(
-        PostHandlerFactoryInterface $postHandlerFactory
+        PostHandlerInterface $postHandler
     ) {
-        $this->postHandlerFactory = $postHandlerFactory;
+        $this->postHandler = $postHandler;
     }
 
     public function createPostAction (Application $app, Request $request) {
-        return $this->postHandlerFactory
-            ->getPostHandler('standard')
+        return $this->postHandler
             ->createPost($app, $request);
+    }
+
+    public function deletePostAction (Application $app, Request $request, $postId) {
+        return $this->postHandler
+            ->deletePost($app, $request, $postId);
+    }
+
+    public function getPostAction (Application $app, Request $request, $postId) {
+        return $this->postHandler
+            ->getPost($app, $request, $postId);
+    }
+
+    public function getGroupPostsAction (Application $app, Request $request, $groupId) {
+        return $this->postHandler
+            ->getPosts($app, $request, 'group', $groupId);
+    }
+
+    public function getUserPostsAction (Application $app, Request $request, $userId) {
+        return $this->postHandler
+            ->getPosts($app, $request, 'group', $userId);
     }
 
 }

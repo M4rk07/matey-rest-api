@@ -1,21 +1,19 @@
 <?php
+
+namespace App\Handlers\Reply;
+use AuthBucket\OAuth2\Exception\ServerErrorException;
+use AuthBucket\OAuth2\Model\ModelManagerFactoryInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+
 /**
  * Created by PhpStorm.
  * User: marko
- * Date: 3.3.17.
- * Time: 16.13
+ * Date: 10.3.17.
+ * Time: 17.45
  */
-
-namespace App\Handlers\Post;
-
-
-use AuthBucket\OAuth2\Exception\ServerErrorException;
-use AuthBucket\OAuth2\Model\ModelManagerFactoryInterface;
-use AuthBucket\OAuth2\Model\ModelManagerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-
-class PostHandlerFactory implements PostHandlerFactoryInterface
+class HandlerFactory implements \HandlerFactoryInterface
 {
+
     protected $classes;
     protected $validator;
     protected $modelManagerFactory;
@@ -23,7 +21,8 @@ class PostHandlerFactory implements PostHandlerFactoryInterface
     public function __construct(
         ValidatorInterface $validator,
         ModelManagerFactoryInterface $modelManagerFactory,
-        array $classes = []
+        array $classes = [],
+        $handlerInterfaceName
     )
     {
         $this->validator = $validator;
@@ -35,7 +34,7 @@ class PostHandlerFactory implements PostHandlerFactoryInterface
             }
 
             $reflection = new \ReflectionClass($class);
-            if (!$reflection->implementsInterface('App\\Handlers\\Post\\PostHandlerInterface')) {
+            if (!$reflection->implementsInterface($handlerInterfaceName)) {
                 throw new ServerErrorException();
             }
         }
@@ -43,7 +42,7 @@ class PostHandlerFactory implements PostHandlerFactoryInterface
         $this->classes = $classes;
     }
 
-    public function getPostHandler($type = null)
+    public function getHandler($type = null)
     {
         $type = $type ?: current(array_keys($this->classes));
 
@@ -59,8 +58,9 @@ class PostHandlerFactory implements PostHandlerFactoryInterface
         );
     }
 
-    public function getPostHandlers()
+    public function getHandlers()
     {
         return $this->classes;
     }
+
 }

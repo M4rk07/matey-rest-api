@@ -119,6 +119,7 @@ CREATE TABLE IF NOT EXISTS matey_post (
   attachs_num int(11) NOT NULL DEFAULT 0,
   locations_num int(11) NOT NULL DEFAULT 0,
   time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  deleted boolean NOT NULL DEFAULT 0,
   PRIMARY KEY (post_id),
   FOREIGN KEY(group_id) REFERENCES matey_group(group_id),
   FOREIGN KEY(user_id) REFERENCES matey_user(user_id)
@@ -138,6 +139,7 @@ CREATE TABLE IF NOT EXISTS matey_reply (
   attachs_num int(11) NOT NULL DEFAULT 0,
   locations_num int(11) NOT NULL DEFAULT 0,
   time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  deleted boolean NOT NULL DEFAULT 0,
   PRIMARY KEY (reply_id),
   FOREIGN KEY(user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY(post_id) REFERENCES matey_post(post_id)
@@ -155,6 +157,7 @@ CREATE TABLE IF NOT EXISTS matey_rereply (
   reply_id int(11) UNSIGNED NOT NULL,
   text varchar(3000) CHARACTER SET utf8,
   time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  deleted boolean NOT NULL DEFAULT 0,
   PRIMARY KEY (rereply_id),
   FOREIGN KEY(user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY(reply_id) REFERENCES matey_reply(reply_id)
@@ -182,6 +185,7 @@ CREATE TABLE IF NOT EXISTS matey_group_admin (
   group_id int(11) UNSIGNED NOT NULL,
   scope varchar(300) CHARACTER SET utf8 NOT NULL,
   time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  active boolean NOT NULL DEFAULT 0,
   PRIMARY KEY (user_id, group_id),
   FOREIGN KEY(user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY(group_id) REFERENCES matey_group(group_id)
