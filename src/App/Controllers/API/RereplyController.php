@@ -11,6 +11,7 @@ namespace App\Controllers\API;
 
 use App\Controllers\AbstractController;
 use App\Handlers\Bulletin\Rereply\RereplyHandler;
+use App\MateyModels\Activity;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -37,6 +38,11 @@ class RereplyController extends AbstractController
     public function getRerepliesAction (Application $app, Request $request, $replyId) {
         return $this->rereplyHandler
             ->getRereplies($app, $request, $replyId);
+    }
+
+    public function approveAction (Application $app, Request $request, $rereplyId) {
+        return $this->rereplyHandler
+            ->approve($app, $request, Activity::REREPLY_TYPE, $rereplyId);
     }
 
 }

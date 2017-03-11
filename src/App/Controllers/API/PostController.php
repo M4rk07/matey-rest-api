@@ -53,4 +53,24 @@ class PostController extends AbstractController
             ->getPosts($app, $request, 'group', $userId);
     }
 
+    public function boostAction (Application $app, Request $request, $postId) {
+        return $this->postHandler
+            ->boost($app, $request, $postId);
+    }
+
+    public function shareAction (Application $app, Request $request, $postId) {
+        return $this->postHandler
+            ->share($app, $request, $postId);
+    }
+
+    public function bookmarkAction (Application $app, Request $request, $postId) {
+        return $this->postHandler
+            ->bookmark($app, $request, $postId);
+    }
+
+    public function archiveAction (Application $app, Request $request, $postId) {
+        return $this->postHandler
+            ->archive($app, $request, $postId);
+    }
+
 }

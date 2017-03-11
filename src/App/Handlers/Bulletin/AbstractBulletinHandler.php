@@ -10,6 +10,7 @@ namespace App\Handlers\Post;
 use App\Constants\Defaults\DefaultNumbers;
 use App\Constants\Messages\ResponseMessages;
 use App\Handlers\AbstractHandler;
+use App\Handlers\Activity\Activity;
 use App\MateyModels\Group;
 use App\MateyModels\ModelManagerFactoryInterface;
 use App\Validators\UnsignedInteger;
@@ -19,7 +20,7 @@ use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-abstract class AbstractBulletinHandler extends AbstractHandler
+abstract class AbstractBulletinHandler extends Activity
 {
 
     // Method for retrieving json file from request

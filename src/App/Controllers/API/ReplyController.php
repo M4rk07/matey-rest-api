@@ -11,6 +11,8 @@ namespace App\Controllers\API;
 
 use App\Controllers\AbstractController;
 use App\Handlers\Bulletin\Reply\ReplyHandler;
+use App\Handlers\Bulletin\Reply\StandardReplyHandler;
+use App\MateyModels\Activity;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -19,7 +21,7 @@ class ReplyController extends AbstractController
     protected $replyHandler;
 
     public function __construct(
-        ReplyHandler $replyHandler
+        StandardReplyHandler $replyHandler
     ) {
         $this->replyHandler = $replyHandler;
     }
@@ -37,5 +39,10 @@ class ReplyController extends AbstractController
     public function getRepliesAction (Application $app, Request $request, $postId) {
         return $this->replyHandler
             ->getReplies($app, $request, $postId);
+    }
+
+    public function approveAction (Application $app, Request $request, $replyId) {
+        return $this->replyHandler
+            ->approve($app, $request, Activity::REPLY_TYPE, $replyId);
     }
 }

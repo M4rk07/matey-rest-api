@@ -24,6 +24,7 @@ class Post extends AbstractModel
     protected $timeC;
     protected $attachsNum;
     protected $locationsNum;
+    protected $archived;
     protected $deleted;
 
     protected $lastActions;
@@ -177,6 +178,23 @@ class Post extends AbstractModel
     public function setLocationsNum($locationsNum)
     {
         $this->locationsNum = $locationsNum;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getArchived()
+    {
+        return $this->archived;
+    }
+
+    /**
+     * @param mixed $archived
+     */
+    public function setArchived($archived)
+    {
+        $this->archived = $archived;
         return $this;
     }
 
@@ -346,6 +364,10 @@ class Post extends AbstractModel
         }
         else if ($props['key'] == 'score') {
             if ($type == 'get') return $this->getScore();
+        }
+        else if ($props['key'] == 'archived') {
+            if ($type == 'get') return $this->getArchived();
+            else return $this->setArchived($props['key']);
         }
         else if ($props['key'] == 'deleted') {
             if ($type == 'get') return $this->getDeleted();

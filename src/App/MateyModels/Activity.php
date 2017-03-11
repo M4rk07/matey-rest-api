@@ -23,6 +23,7 @@ class Activity extends AbstractModel
     const REREPLY_TYPE = "REREPLY";
     const APPROVE_TYPE = "APPROVE";
     const FOLLOW_TYPE = "FOLLOW";
+    const ARCHIVE_TYPE = "ARCHIVE";
 
     protected $activityId;
     protected $userId;

@@ -87,7 +87,7 @@ mysql_fields=user_id,device_id,time_logged,status,gcm
 model_name=post
 class_name=App\MateyModels\Post
 table_name=matey_post
-mysql_fields=post_id,group_id,user_id,title,text,attachs_num,locations_num,time_c,deleted
+mysql_fields=post_id,group_id,user_id,title,text,attachs_num,locations_num,time_c,archived,deleted
 redis_key=POST
 redis_fields=statistics
 

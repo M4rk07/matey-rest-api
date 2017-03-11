@@ -1,18 +1,17 @@
 <?php
-namespace App\Handlers\Bulletin\Reply;
-use Silex\Application;
-use Symfony\Component\HttpFoundation\Request;
-
 /**
  * Created by PhpStorm.
  * User: marko
- * Date: 10.3.17.
- * Time: 17.50
+ * Date: 11.3.17.
+ * Time: 17.18
  */
+
+namespace App\Handlers\Bulletin\Reply;
+
+use Silex\Application;
+use Symfony\Component\HttpFoundation\Request;
+
 interface ReplyHandlerInterface
 {
-    public function createReply (Application $app, Request $request, $postId);
-    public function deleteReply (Application $app, Request $request, $replyId);
-    public function getReplies (Application $app, Request $request, $postId);
-
+    public function approve(Application $app, Request $request, $type, $id);
 }

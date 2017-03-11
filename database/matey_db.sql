@@ -119,6 +119,7 @@ CREATE TABLE IF NOT EXISTS matey_post (
   attachs_num int(11) NOT NULL DEFAULT 0,
   locations_num int(11) NOT NULL DEFAULT 0,
   time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  archived boolean NOT NULL DEFAULT 0,
   deleted boolean NOT NULL DEFAULT 0,
   PRIMARY KEY (post_id),
   FOREIGN KEY(group_id) REFERENCES matey_group(group_id),
@@ -447,7 +448,7 @@ CREATE TABLE IF NOT EXISTS oauth2_scope (
 
 INSERT INTO matey_activity_type (activity_type) VALUES
 ('GROUP'), ('POST'), ('REPLY'),
-('FOLLOW'), ('SHARE'), ('REREPLY'), ('BOOKMARK'), ('BOOST'), ('APPROVE');
+('FOLLOW'), ('SHARE'), ('REREPLY'), ('BOOKMARK'), ('BOOST'), ('APPROVE'), ('ARCHIVE');
 
 INSERT INTO matey_group (group_id, group_name) VALUES (1, 'default');
 

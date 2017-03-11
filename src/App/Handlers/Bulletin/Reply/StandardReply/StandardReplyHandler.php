@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Handlers\Bulletin\Reply;
+use App\Handlers\Bulletin\Reply\StandardReply\AbstractStandardReplyHandler;
 use App\MateyModels\Activity;
 use App\Validators\UnsignedInteger;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
@@ -15,7 +16,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * Date: 10.3.17.
  * Time: 17.44
  */
-class ReplyHandler extends AbstractReplyHandler
+class StandardReplyHandler extends AbstractStandardReplyHandler
 {
 
     public function createReply(Application $app, Request $request, $postId) {
@@ -54,17 +55,9 @@ class ReplyHandler extends AbstractReplyHandler
         $replyManager->startTransaction();
         try {
             // Writing Post model to database
-            $post = $replyManager->createModel($reply);
+            $reply = $replyManager->createModel($reply);
 
-            // Creating Activity model
-            $activity->setSourceId($post->getReplyId())
-                ->setUserId($userId)
-                ->setParentId($postId)
-                ->setParentType(Activity::POST_TYPE)
-                ->setActivityType(Activity::REPLY_TYPE);
-
-            // Writing Activity model to database
-            $activityManager->createModel($activity);
+            $this->createActivity($reply->getReplyId(), $userId, $postId, Activity::POST_TYPE, Activity::REPLY_TYPE);
 
             // Commiting transaction on success
             $replyManager->commitTransaction();
@@ -90,6 +83,11 @@ class ReplyHandler extends AbstractReplyHandler
         if(strpos($contentType, 'multipart/form-data') === 0) {
             $app['matey.file_handler.factory']->getFileHandler('post_attachment')->upload($app, $request, $post->getPostId());
         }
+
+        $postManager = $this->modelManagerFactory->getModelManager('post');
+        $post = $postManager->getModel();
+        $post->setPostId($postId);
+        $postManager->incrNumOfReplies($post);
 
         return new JsonResponse(null, 200);
     }

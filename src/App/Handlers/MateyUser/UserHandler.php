@@ -95,7 +95,7 @@ class UserHandler extends AbstractUserHandler
             }
             $userManager->incrNumOfFollowers($userTo);
             $userManager->incrNumOfFollowing($userFrom);
-            //$this->pushToFeedsOnFollow($app, $userFrom, $userTo);
+            $this->createActivity($userTo->getUserId(), $userFrom->getUserId(), $userTo->getUserId(), Activity::USER_TYPE, Activity::FOLLOW_TYPE);
         }
         else if ($method == "DELETE") {
             $followManager->deleteModel($follow);
@@ -172,7 +172,6 @@ class UserHandler extends AbstractUserHandler
         }
 
         $response['data'] = array();
-
         if(is_array($users)) {
             foreach ($users as $user) {
                 $response['data'][] = $this->addConnectionUserToResponse($user, $userId, $me, $type);

@@ -66,15 +66,7 @@ class PostHandler extends AbstractPostHandler
             // Writing Post model to database
             $post = $postManager->createModel($post);
 
-            // Creating Activity model
-            $activity->setSourceId($post->getPostId())
-                ->setUserId($userId)
-                ->setParentId($jsonData['group_id'])
-                ->setParentType(Activity::GROUP_TYPE)
-                ->setActivityType(Activity::POST_TYPE);
-
-            // Writing Activity model to database
-            $activityManager->createModel($activity);
+            $this->createActivity($post->getPostId(), $userId, $jsonData['group_id'], Activity::GROUP_TYPE, Activity::POST_TYPE);
 
             // Commiting transaction on success
             $postManager->commitTransaction();
@@ -104,6 +96,11 @@ class PostHandler extends AbstractPostHandler
         // Pushing newly created post to news feed of followers
         $app['matey.feed_handler']->pushNewPost($post);
 
+        $userManager = $this->modelManagerFactory->getModelManager('user');
+        $user = $userManager->getModel();
+        $user->setUserId($userId);
+        $userManager->incrNumOfPosts($user);
+
         return new JsonResponse(null, 200);
 
     }
@@ -129,8 +126,7 @@ class PostHandler extends AbstractPostHandler
 
         $postManager = $this->modelManagerFactory->getModelManager('post');
         $post = $postManager->readModelBy(array(
-            'post_id' => $postId,
-            'deleted' => 0
+            'post_id' => $postId
         ), null, 1);
 
         $replies = $app['matey.reply_handler']->fetchReplies($post->getPostId(), DefaultNumbers::REPLIES_LIMIT, 0);
@@ -151,13 +147,11 @@ class PostHandler extends AbstractPostHandler
         $postManager = $this->modelManagerFactory->getModelManager('post');
         if($type == 'user') {
             $posts = $postManager->readModelBy(array(
-                'user_id' => $id,
-                'deleted' => 0
+                'user_id' => $id
             ), array('time_c' => 'DESC'), $limit, $offset);
         } else {
             $posts = $postManager->readModelBy(array(
-                'group_id' => $id,
-                'deleted' => 0
+                'group_id' => $id
             ), array('time_c' => 'DESC'), $limit, $offset);
         }
 
@@ -167,6 +161,91 @@ class PostHandler extends AbstractPostHandler
         }
 
         return new JsonResponse($finalResult, 200);
+    }
+
+    public function boost (Application $app, Request $request, $postId) {
+        $userId = $request->request->get('user_id');
+
+        $boostManager = $this->modelManagerFactory->getModelManager('boost');
+        $boost = $boostManager->getModel();
+        $boost->setUsedId($userId)
+            ->setPostId($postId);
+        $boostManager->createModel($boost);
+
+        $postManager = $this->modelManagerFactory->getModelManager('post');
+        $post = $postManager->getModel();
+        $post->setPostId($postId);
+        $postManager->incrNumOfBoosts($post);
+
+        $post = $postManager->readModelOneBy(array(
+            'post_id' => $postId
+        ), null, array('group_id'));
+        $this->createActivity($postId, $userId, $post->getGroupId(), Activity::GROUP_TYPE, Activity::BOOST_TYPE);
+
+        return new JsonResponse(null, 200);
+    }
+
+    public function share (Application $app, Request $request, $postId) {
+        $userId = $request->request->get('user_id');
+
+        $shareManager = $this->modelManagerFactory->getModelManager('share');
+        $share = $shareManager->getModel();
+        $share->setUserId($userId)
+            ->setParentId($postId)
+            ->setParentType(Activity::POST_TYPE);
+        $shareManager->createModel($share);
+
+        $postManager = $this->modelManagerFactory->getModelManager('post');
+        $post = $postManager->getModel();
+        $post->setPostId($postId);
+        $postManager->incrNumOfShares($post);
+
+        $post = $postManager->readModelOneBy(array(
+            'post_id' => $postId
+        ), null, array('group_id'));
+        $this->createActivity($postId, $userId, $post->getGroupId(), Activity::GROUP_TYPE, Activity::SHARE_TYPE);
+
+        return new JsonResponse(null, 200);
+    }
+
+    public function bookmark (Application $app, Request $request, $postId) {
+        $userId = $request->request->get('user_id');
+
+        $bookmarkManager = $this->modelManagerFactory->getModelManager('bookmark');
+        $bookmark = $bookmarkManager->getModel();
+        $bookmark->setUserId($userId)
+            ->setPostId($postId);
+        $bookmarkManager->createModel($bookmark);
+
+        $postManager = $this->modelManagerFactory->getModelManager('post');
+        $post = $postManager->getModel();
+        $post->setPostId($postId);
+        $postManager->incrNumOfBookmarks($post);
+
+        $post = $postManager->readModelOneBy(array(
+            'post_id' => $postId
+        ), null, array('group_id'));
+        $this->createActivity($postId, $userId, $post->getGroupId(), Activity::GROUP_TYPE, Activity::BOOKMARK_TYPE);
+
+        return new JsonResponse(null, 200);
+    }
+
+    public function archive (Application $app, Request $request, $postId) {
+        $userId = $request->request->get('user_id');
+
+        $postManager = $this->modelManagerFactory->getModelManager('post');
+        $post = $postManager->getModel();
+        $post->setArchived(1);
+        $postManager->updateModel($post, array(
+            'post_id' => $postId
+        ));
+
+        $post = $postManager->readModelOneBy(array(
+            'post_id' => $postId
+        ), null, array('group_id'));
+        $this->createActivity($postId, $userId, $post->getGroupId(), Activity::GROUP_TYPE, Activity::ARCHIVE_TYPE);
+
+        return new JsonResponse(null, 200);
     }
 
 }

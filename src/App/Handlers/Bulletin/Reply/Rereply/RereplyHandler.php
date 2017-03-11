@@ -53,17 +53,9 @@ class RereplyHandler extends AbstractRereplyHandler
         $rereplyManager->startTransaction();
         try {
             // Writing Post model to database
-            $post = $rereplyManager->createModel($rereply);
+            $rereply = $rereplyManager->createModel($rereply);
 
-            // Creating Activity model
-            $activity->setSourceId($post->getRereplyId())
-                ->setUserId($userId)
-                ->setParentId($replyId)
-                ->setParentType(Activity::REPLY_TYPE)
-                ->setActivityType(Activity::REREPLY_TYPE);
-
-            // Writing Activity model to database
-            $activityManager->createModel($activity);
+            $this->createActivity($rereply->getRereplyId(), $userId, $replyId, Activity::REPLY_TYPE, Activity::REREPLY_TYPE);
 
             // Commiting transaction on success
             $rereplyManager->commitTransaction();
@@ -72,6 +64,11 @@ class RereplyHandler extends AbstractRereplyHandler
             $rereplyManager->rollbackTransaction();
             throw new ServerErrorException();
         }
+
+        $replyManager = $this->modelManagerFactory->getModelManager('reply');
+        $reply = $replyManager->getModel();
+        $reply->setReplyId($replyId);
+        $replyManager->incrNumOfReplies($reply);
 
         return new JsonResponse(null, 200);
     }

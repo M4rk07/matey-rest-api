@@ -59,16 +59,22 @@ class RoutesLoader
         $api->get('/group/{groupId}/posts', 'matey.post_controller:getGroupPostsAction');
         $api->get('/users/{userId}/posts', 'matey.post_controller:getUsersPostsAction');
         $api->get('/posts/{postId}', 'matey.post_controller:getPostAction');
+        $api->put('/posts/{postId}/boosts', 'matey.post_controller:boostAction');
+        $api->put('/posts/{postId}/shares', 'matey.post_controller:shareAction');
+        $api->put('/posts/{postId}/bookmarks', 'matey.post_controller:bookmarkAction');
+        $api->put('/posts/{postId}/archive', 'matey.post_controller:archiveAction');
 
         // REPLY CONTROLLER
         $api->post('/posts/{postId}/replies', 'matey.reply_controller:createReplyAction');
         $api->delete('/replies/{replyId}', 'matey.reply_controller:deleteReplyAction');
         $api->get('/posts/{postId}/replies', 'matey.reply_controller:getRepliesAction');
+        $api->put('/replies/{replyId}/approves', 'matey.reply_controller:approveAction');
 
         // REREPLY CONTROLLER
         $api->post('/replies/{replyId}/rereplies', 'matey.rereply_controller:createRerepliesAction');
         $api->delete('/rereplies/{rereplyId}', 'matey.rereply_controller:deleteRereplyAction');
         $api->get('/replies/{replyId}/rereplies', 'matey.rereply_controller:getRerepliesAction');
+        $api->put('/rereplies/{rereplyId}/approves', 'matey.rereply_controller:approveAction');
 
         $api->get('/feed', 'matey.feed_controller:getFeedAction');
 
