@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class PostHandler extends AbstractPostHandler
 {
 
-    public function createPost(Application $app, Request $request) {
+    public function handleCreatePost(Application $app, Request $request) {
         // Get user id based on token
         $userId = $request->request->get('user_id');
 
@@ -51,7 +51,6 @@ class PostHandler extends AbstractPostHandler
         $postManager = $this->modelManagerFactory->getModelManager('post');
         $activityManager = $this->modelManagerFactory->getModelManager('activity');
         $post = $postManager->getModel();
-        $activity = $activityManager->getModel();
 
         // Creating a Post model
         $post->setTitle($jsonData['title'])
@@ -102,17 +101,15 @@ class PostHandler extends AbstractPostHandler
         $user->setUserId($userId);
         $userManager->incrNumOfPosts($user);
 
-        $posts = $this->fetchObjects(array(
+        $finalResult = $this->getPosts(array(
             'post_id' => $post->getPostId()
-        ), 1, 0, 'post');
-        $users = $this->getObjectOwners($posts, 1);
-        $finalResult = $this->getJsonObjects($posts, $users, 'post');
+        ));
 
         return new JsonResponse($finalResult, 200);
 
     }
 
-    public function deletePost (Application $app, Request $request, $postId) {
+    public function handleDeletePost (Application $app, Request $request, $postId) {
         // Get user id based on token
         $userId = $request->request->get('user_id');
 
@@ -129,43 +126,36 @@ class PostHandler extends AbstractPostHandler
         return new JsonResponse(null, 200);
     }
 
-    public function getPost (Application $app, Request $request, $postId) {
+    public function handleGetSinglePost (Application $app, Request $request, $postId) {
 
-        $post = $this->fetchObjects(array(
+        $postResult = $this->getPosts(array(
             'post_id' => $postId
-        ), 1, 0, 'post');
-        $user = $this->getObjectOwners($post, 1);
+        ), 1);
 
-        $replies = $this->fetchObjects(array(
+        $replyHandler = $app['matey.reply_handler'];
+        $repliesResult = $replyHandler->getReplies(array(
             'post_id' => $postId
-        ), DefaultNumbers::REPLIES_LIMIT, 0, 'reply');
-        $usersReplied = $this->getObjectOwners($replies, DefaultNumbers::REPLIES_LIMIT);
-        $finalReplies = $this->getJsonObjects($replies, $usersReplied, 'reply');
+        ), DefaultNumbers::REPLIES_LIMIT);
 
-        $finalResult = $this->getJsonObjects($post, $user, 'post');
-        $finalResult[0]['replies'] = $finalReplies;
+        $postResult[0]['replies'] = $repliesResult;
 
-        return new JsonResponse($finalResult, 200);
+        return new JsonResponse($postResult, 200);
     }
 
-    public function getPosts(Application $app, Request $request, $type, $id) {
+    public function handleGetPosts(Application $app, Request $request, $type, $id) {
 
         $limit = $request->query->get('limit');
         $offset = $request->query->get('offset');
 
-        $postManager = $this->modelManagerFactory->getModelManager('post');
         if($type == 'user') {
-            $posts = $postManager->readModelBy(array(
+            $finalResult = $this->getPosts(array(
                 'user_id' => $id
-            ), array('time_c' => 'DESC'), $limit, $offset);
+            ), $limit, $offset);
         } else {
-            $posts = $postManager->readModelBy(array(
-                'group_id' => $id
-            ), array('time_c' => 'DESC'), $limit, $offset);
+            $finalResult = $this->getPosts(array(
+                'user_id' => $id
+            ), $limit, $offset);
         }
-
-        $users = $this->getObjectOwners($posts, 1);
-        $finalResult = $this->getJsonObjects($posts, $users, 'post');
 
         $paginationService = new PaginationService($finalResult, $limit, $offset,
             $type =='user' ? '/users/'.$id.'/posts' : '/groups/'.$id.'/posts');
@@ -173,7 +163,7 @@ class PostHandler extends AbstractPostHandler
         return new JsonResponse($paginationService->getResponse(), 200);
     }
 
-    public function boost (Application $app, Request $request, $postId) {
+    public function handleBoost (Application $app, Request $request, $postId) {
         $userId = $request->request->get('user_id');
 
         $boostManager = $this->modelManagerFactory->getModelManager('boost');
@@ -195,7 +185,7 @@ class PostHandler extends AbstractPostHandler
         return new JsonResponse(null, 200);
     }
 
-    public function share (Application $app, Request $request, $postId) {
+    public function handleShare (Application $app, Request $request, $postId) {
         $userId = $request->request->get('user_id');
 
         $shareManager = $this->modelManagerFactory->getModelManager('share');
@@ -218,7 +208,7 @@ class PostHandler extends AbstractPostHandler
         return new JsonResponse(null, 200);
     }
 
-    public function bookmark (Application $app, Request $request, $postId) {
+    public function handleBookmark (Application $app, Request $request, $postId) {
         $userId = $request->request->get('user_id');
 
         $bookmarkManager = $this->modelManagerFactory->getModelManager('bookmark');
@@ -240,7 +230,7 @@ class PostHandler extends AbstractPostHandler
         return new JsonResponse(null, 200);
     }
 
-    public function archive (Application $app, Request $request, $postId) {
+    public function handleArchive (Application $app, Request $request, $postId) {
         $userId = $request->request->get('user_id');
 
         $postManager = $this->modelManagerFactory->getModelManager('post');
@@ -259,7 +249,7 @@ class PostHandler extends AbstractPostHandler
         return new JsonResponse(null, 200);
     }
 
-    public function getDeck (Application $app, Request $request, $type, $groupId = null) {
+    public function handleGetDeck (Application $app, Request $request, $groupId = null) {
 
         $userId = $request->request->get('user_id');
         $limit = $request->query->get('limit');
@@ -272,21 +262,19 @@ class PostHandler extends AbstractPostHandler
         $user->setUserId($userId);
         $group->setGroupId($groupId);
 
-        if($type == 'group' && $groupId !== null)
+        if($groupId !== null)
             $postIds = $groupManager->getDeck($group, $offset, $offset+$limit);
         else
             $postIds = $userManager->getDeck($user, $offset, $offset+$limit);
 
-        $posts = $this->fetchObjects(array(
+        $finalPosts = $this->getPosts(array(
             'post_id' => $postIds
-        ), $limit, 0, 'post');
-        $users = $this->getObjectOwners($posts, $limit);
-        $postJsonObjects = $this->getJsonObjects($posts, $users, 'post');
+        ));
 
         $finalResult = array();
-        foreach($postJsonObjects as $jsonObject) {
+        foreach($finalPosts as $finalPost) {
             $arr['activity_type'] = Activity::POST_TYPE;
-            $arr['activity_object'] = $jsonObject;
+            $arr['activity_object'] = $finalPost;
 
             $finalResult[]= $arr;
         }

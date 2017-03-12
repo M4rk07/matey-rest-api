@@ -70,8 +70,17 @@ abstract class AbstractManager implements ModelManagerInterface
         else return array();
     }
 
+    public function getAdditionalFields()
+    {
+        if(isset($this->modelConfig['additional_fields'])) {
+            return is_array($this->modelConfig['additional_fields']) ?
+                $this->modelConfig['additional_fields'] : array($this->modelConfig['additional_fields']);
+        }
+        else return array();
+    }
+
     public function getAllFields() {
-        return array_merge($this->getMysqlFields(), $this->getRedisFields());
+        return array_merge($this->getMysqlFields(), $this->getRedisFields(), $this->getAdditionalFields());
     }
 
     public function startTransaction() {

@@ -14,4 +14,6 @@ class DefaultNumbers
     const MAX_TITLE_CHARS = 100;
     const REPLIES_LIMIT = 5;
     const DECK_CAPACITY = 300;
+    const REREPLIES_LIMIT = 10;
+    const POSTS_LIMIT = 10;
 }

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Handlers\Account;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -12,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 interface AccountHandlerInterface
 {
 
-    function createAccount(Request $request);
+    function handleCreateAccount(Application $app, Request $request);
 
     function mergeAccount(Request $request);
 

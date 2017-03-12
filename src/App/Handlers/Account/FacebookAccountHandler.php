@@ -15,6 +15,7 @@ use AuthBucket\OAuth2\Exception\ServerErrorException;
 use Facebook\Exceptions\FacebookResponseException;
 use Facebook\Exceptions\FacebookSDKException;
 use Facebook\Facebook;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
@@ -23,7 +24,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class FacebookAccountHandler extends AbstractAccountHandler
 {
 
-    public function createAccount(Request $request)
+    public function handleCreateAccount(Application $app, Request $request)
     {
         /*
          * Get facebook access token

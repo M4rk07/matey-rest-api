@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Handlers\Bulletin\StandardReply;
+use App\Constants\Defaults\DefaultNumbers;
 use App\Handlers\Bulletin\Reply\StandardReply\AbstractStandardReplyHandler;
 use App\MateyModels\Activity;
 use App\Services\PaginationService;
@@ -20,7 +21,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class StandardReplyHandler extends AbstractStandardReplyHandler
 {
 
-    public function createReply(Application $app, Request $request, $postId) {
+    public function handleCreateReply(Application $app, Request $request, $postId) {
         // Get user id based on token
         $userId = $request->request->get('user_id');
 
@@ -41,9 +42,7 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
 
         // Creating necessary data managers.
         $replyManager = $this->modelManagerFactory->getModelManager('reply');
-        $activityManager = $this->modelManagerFactory->getModelManager('activity');
         $reply = $replyManager->getModel();
-        $activity = $activityManager->getModel();
 
         // Creating a Post model
         $reply->setPostId($postId)
@@ -57,8 +56,10 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
         try {
             // Writing Post model to database
             $reply = $replyManager->createModel($reply);
-
             $this->createActivity($reply->getReplyId(), $userId, $postId, Activity::POST_TYPE, Activity::REPLY_TYPE);
+            if($reply->getLocationsNum() > 0) {
+                $this->insertLocations($jsonData['locations'], $reply->getReplyId(), Activity::REPLY_TYPE);
+            }
 
             // Commiting transaction on success
             $replyManager->commitTransaction();
@@ -66,18 +67,6 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
             // Rollback transaction on failure
             $replyManager->rollbackTransaction();
             throw new ServerErrorException();
-        }
-
-        if($reply->getLocationsNum() > 0) {
-            $locationManager = $this->modelManagerFactory->getModelManager('location');
-            foreach($jsonData['locations'] as $location) {
-                $newLocation = $locationManager->getModel();
-                $newLocation->setParentId($reply->getReplyId())
-                    ->setParentType(Activity::POST_TYPE)
-                    ->setLatt($location->latt)
-                    ->setLongt($location->longt);
-                $locationManager->createModel($newLocation);
-            }
         }
 
         // Calling the service for uploading Post attachments to S3 storage
@@ -90,16 +79,14 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
         $post->setPostId($postId);
         $postManager->incrNumOfReplies($post);
 
-        $replies = $this->fetchObjects(array(
+        $finalResult = $this->getReplies(array(
             'reply_id' => $reply->getReplyId()
-        ), 1, 0, 'reply');
-        $users = $this->getReplyOwners($replies, 1);
-        $finalResult = $this->getReplyJsonObjects($replies, $users);
+        ), 1);
 
         return new JsonResponse($finalResult, 200);
     }
 
-    public function deleteReply (Application $app, Request $request, $replyId) {
+    public function handleDeleteReply (Application $app, Request $request, $replyId) {
         // Get user id based on token
         $userId = $request->request->get('user_id');
 
@@ -116,20 +103,20 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
         return new JsonResponse(null, 200);
     }
 
-    public function getReplies(Application $app, Request $request, $postId) {
+    public function handleGetReplies(Application $app, Request $request, $postId) {
         $limit = $request->query->get('limit');
         $offset = $request->query->get('offset');
 
-        $replies = $this->fetchReplies(array(
+        $finalResult = $this->getReplies(array(
             'post_id' => $postId
         ), $limit, $offset);
-        $users = $this->getReplyOwners($replies, $limit);
-        $finalResult = $this->getReplyJsonObjects($replies, $users);
 
         $paginationService = new PaginationService($finalResult, $limit, $offset,
             '/posts/'.$postId.'/replies');
 
         return new JsonResponse($paginationService->getResponse(), 200);
     }
+
+
 
 }

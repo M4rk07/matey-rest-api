@@ -11,8 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 interface StandardReplyHandlerInterface
 {
-    public function createReply (Application $app, Request $request, $postId);
-    public function deleteReply (Application $app, Request $request, $replyId);
-    public function getReplies (Application $app, Request $request, $postId);
+    public function handleCreateReply (Application $app, Request $request, $postId);
+    public function handleDeleteReply (Application $app, Request $request, $replyId);
+    public function handleGetReplies (Application $app, Request $request, $postId);
 
 }

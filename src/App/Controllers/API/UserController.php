@@ -28,36 +28,36 @@ class UserController extends AbstractController
         $this->userHandlerFactory = $userHandlerFactory;
     }
 
-    public function getUserAction(Request $request, $userId) {
+    public function getUserAction(Application $app, Request $request, $userId) {
         if($userId == "me") $userId = $request->request->get('user_id');
 
         return $this->userHandlerFactory
             ->getUserHandler('user')
-            ->getUser($request, $userId);
+            ->handleGetUser($app, $request, $userId);
     }
 
     public function followAction(Application $app, Request $request, $id) {
         return $this->userHandlerFactory
             ->getUserHandler('user')
-            ->follow($app, $request, $id);
+            ->handleFollow($app, $request, $id);
     }
 
     public function getFollowersAction(Application $app, Request $request, $userId) {
         return $this->userHandlerFactory
             ->getUserHandler('user')
-            ->getConnections($app, $request, $userId, 'followers');
+            ->handleGetConnections($app, $request, $userId, 'followers');
     }
 
     public function getFollowingAction(Application $app, Request $request, $userId) {
         return $this->userHandlerFactory
             ->getUserHandler('user')
-            ->getConnections($app, $request, $userId, 'following');
+            ->handleGetConnections($app, $request, $userId, 'following');
     }
 
-    public function getFeedAction(Application $app, Request $request) {
+    public function uploadProfilePictureAction (Application $app, Request $request) {
         return $this->userHandlerFactory
             ->getUserHandler('user')
-            ->getFeed($app, $request);
+            ->handleProfilePictureUpload($app, $request);
     }
 
 

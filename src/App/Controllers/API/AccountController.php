@@ -13,6 +13,7 @@ use App\Controllers\AbstractController;
 use App\Handlers\Account\AccountHandlerFactory;
 use App\Handlers\Account\AccountHandlerFactoryInterface;
 use AuthBucket\OAuth2\Model\ModelManagerFactoryInterface;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -27,14 +28,14 @@ class AccountController extends AbstractController
         $this->accountHandlerFactory = $accountHandlerFactory;
     }
 
-    public function createAccountAction(Request $request) {
+    public function createAccountAction(Application $app, Request $request) {
 
         $accountType = $request->request->get('type');
         $accountType = !empty($accountType) ? : "standard";
 
         return $this->accountHandlerFactory
             ->getAccountHandler($accountType)
-            ->createAccount($request);
+            ->handleCreateAccount($app, $request);
 
     }
 

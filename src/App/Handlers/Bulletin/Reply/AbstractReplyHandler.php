@@ -13,9 +13,9 @@ use Symfony\Component\HttpFoundation\Request;
  * Date: 11.3.17.
  * Time: 16.40
  */
-class AbstractReplyHandler extends AbstractBulletinHandler
+abstract class AbstractReplyHandler extends AbstractBulletinHandler implements ReplyHandlerInterface
 {
-    public function approve(Application $app, Request $request, $type, $id) {
+    public function handleApprove(Application $app, Request $request, $type, $id) {
         $userId = $request->request->get('user_id');
 
         $approveManager = $this->modelManagerFactory->getModelManager('approve');

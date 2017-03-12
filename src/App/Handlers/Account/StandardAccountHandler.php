@@ -16,6 +16,7 @@ use App\Validators\UserId;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
 use AuthBucket\OAuth2\Validator\Constraints\Password;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
@@ -25,7 +26,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class StandardAccountHandler extends AbstractAccountHandler
 {
 
-    public function createAccount(Request $request)
+    public function handleCreateAccount(Application $app, Request $request)
     {
         /*
          * First, check if user is already registered

@@ -34,7 +34,7 @@ use Symfony\Component\Validator\Constraints\Type;
 class UserHandler extends AbstractUserHandler
 {
 
-    public function getUser(Request $request, $id)
+    public function handleGetUser(Application $app, Request $request, $id)
     {
         $this->validateValue($id, [
                 new NotBlank(),
@@ -52,7 +52,7 @@ class UserHandler extends AbstractUserHandler
         return new JsonResponse($user->asArray(), 200);
     }
 
-    public function follow (Application $app, Request $request, $id) {
+    public function handleFollow (Application $app, Request $request, $id) {
 
         $userId = $request->request->get('user_id');
 
@@ -107,7 +107,7 @@ class UserHandler extends AbstractUserHandler
 
     }
 
-    public function getConnections(Application $app, Request $request, $id, $type)
+    public function handleGetConnections(Application $app, Request $request, $id, $type)
     {
 
         $userId = $request->request->get('user_id');
@@ -184,6 +184,13 @@ class UserHandler extends AbstractUserHandler
         return new JsonResponse($paginationService->getResponse(), 200);
     }
 
+    public function handleProfilePictureUpload (Application $app, Request $request) {
+        $fileHandler = $app['matey.file_handler'];
+        return $fileHandler
+            ->getFileHandler('profile_picture')
+            ->upload($app, $request);
+    }
+
     public function addConnectionUserToResponse (User $user, $userId, $me, $type) {
         $userManager = $this->modelManagerFactory->getModelManager('user');
         $userVals = array();
@@ -208,18 +215,6 @@ class UserHandler extends AbstractUserHandler
 
     }
 
-    // Method for pushing three last posts to following user
-    public function pushToFeedsOnFollow(Application $app, User $userFrom, User $userTo) {
-        $postManager = $this->modelManagerFactory->getModelManager('post');
 
-        $posts = $postManager->readModelBy(array(
-            'user_id' => $userTo->getUserId()
-        ), array('time_c' => 'DESC'), DefaultNumbers::POSTS_NUM_ON_FOLLOW, 0, array('post_id'));
-
-        if(empty($posts)) return;
-
-        $app['matey.feed_handler']->push($userFrom, $posts);
-
-    }
 
 }

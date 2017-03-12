@@ -30,57 +30,57 @@ class PostController extends AbstractController
 
     public function createPostAction (Application $app, Request $request) {
         return $this->postHandler
-            ->createPost($app, $request);
+            ->handleCreatePost($app, $request);
     }
 
     public function deletePostAction (Application $app, Request $request, $postId) {
         return $this->postHandler
-            ->deletePost($app, $request, $postId);
+            ->handleDeletePost($app, $request, $postId);
     }
 
     public function getPostAction (Application $app, Request $request, $postId) {
         return $this->postHandler
-            ->getPost($app, $request, $postId);
+            ->handleGetSinglePost($app, $request, $postId);
     }
 
     public function getGroupPostsAction (Application $app, Request $request, $groupId) {
         return $this->postHandler
-            ->getPosts($app, $request, 'group', $groupId);
+            ->handleGetPosts($app, $request, 'group', $groupId);
     }
 
     public function getUserPostsAction (Application $app, Request $request, $userId) {
         return $this->postHandler
-            ->getPosts($app, $request, 'user', $userId);
+            ->handleGetPosts($app, $request, 'user', $userId);
     }
 
     public function boostAction (Application $app, Request $request, $postId) {
         return $this->postHandler
-            ->boost($app, $request, $postId);
+            ->handleBoost($app, $request, $postId);
     }
 
     public function shareAction (Application $app, Request $request, $postId) {
         return $this->postHandler
-            ->share($app, $request, $postId);
+            ->handleShare($app, $request, $postId);
     }
 
     public function bookmarkAction (Application $app, Request $request, $postId) {
         return $this->postHandler
-            ->bookmark($app, $request, $postId);
+            ->handleBookmark($app, $request, $postId);
     }
 
     public function archiveAction (Application $app, Request $request, $postId) {
         return $this->postHandler
-            ->archive($app, $request, $postId);
+            ->handleArchive($app, $request, $postId);
     }
 
     public function getUserDeckAction (Application $app, Request $request) {
         return $this->postHandler
-            ->getDeck($app, $request, 'user');
+            ->handleGetDeck($app, $request);
     }
 
     public function getGroupDeckAction (Application $app, Request $request, $groupId) {
         return $this->postHandler
-            ->getDeck($app, $request, 'group', $groupId);
+            ->handleGetDeck($app, $request, $groupId);
     }
 
 }

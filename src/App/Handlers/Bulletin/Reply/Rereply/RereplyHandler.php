@@ -9,6 +9,7 @@
 namespace App\Handlers\Bulletin\Rereply;
 
 
+use App\Constants\Defaults\DefaultNumbers;
 use App\MateyModels\Activity;
 use App\Services\PaginationService;
 use App\Validators\UnsignedInteger;
@@ -21,7 +22,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class RereplyHandler extends AbstractRereplyHandler
 {
 
-    public function createRereply (Application $app, Request $request, $replyId) {
+    public function handleCreateRereply (Application $app, Request $request, $replyId) {
         // Get user id based on token
         $userId = $request->request->get('user_id');
 
@@ -41,9 +42,7 @@ class RereplyHandler extends AbstractRereplyHandler
 
         // Creating necessary data managers.
         $rereplyManager = $this->modelManagerFactory->getModelManager('rereply');
-        $activityManager = $this->modelManagerFactory->getModelManager('activity');
         $rereply = $rereplyManager->getModel();
-        $activity = $activityManager->getModel();
 
         // Creating a Post model
         $rereply->setReplyId($replyId)
@@ -71,16 +70,14 @@ class RereplyHandler extends AbstractRereplyHandler
         $reply->setReplyId($replyId);
         $replyManager->incrNumOfReplies($reply);
 
-        $rereplies = $this->fetchObjects(array(
+        $finalResult = $this->getRereplies(array(
             'rereply_id' => $rereply->getRereplyId()
-        ), 1, 0, 'rereply');
-        $users = $this->getObjectOwners($rereplies, 1);
-        $finalResult = $this->getJsonObjects($rereplies, $users, 'rereply');
+        ), 1);
 
         return new JsonResponse($finalResult, 200);
     }
 
-    public function deleteRereply (Application $app, Request $request, $rereplyId) {
+    public function handleDeleteRereply (Application $app, Request $request, $rereplyId) {
         // Get user id based on token
         $userId = $request->request->get('user_id');
 
@@ -97,16 +94,14 @@ class RereplyHandler extends AbstractRereplyHandler
         return new JsonResponse(null, 200);
     }
 
-    public function getRereplies (Application $app, Request $request, $replyId) {
+    public function handleGetRereplies (Application $app, Request $request, $replyId) {
 
         $limit = $request->query->get('limit');
         $offset = $request->query->get('offset');
 
-        $rereplies = $this->fetchObjects(array(
+        $finalResult = $this->getRereplies(array(
             'reply_id' => $replyId
-        ), $limit, $offset, 'rereply');
-        $users = $this->getObjectOwners($rereplies, $limit);
-        $finalResult = $this->getJsonObjects($rereplies, $users, 'rereply');
+        ), $limit, $offset);
 
         $paginationService = new PaginationService($finalResult, $limit, $offset,
             '/replies/'.$replyId.'/rereplies');
@@ -114,5 +109,7 @@ class RereplyHandler extends AbstractRereplyHandler
         return new JsonResponse($paginationService->getResponse(), 200);
 
     }
+
+
 
 }

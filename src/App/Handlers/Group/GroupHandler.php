@@ -26,7 +26,6 @@ class GroupHandler extends AbstractGroupHandler
 {
     function createGroup(Application $app, Request $request)
     {
-
         $userId = $request->request->get('user_id');
 
         $groupJson = json_decode($request->getContent());

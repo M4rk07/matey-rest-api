@@ -42,7 +42,7 @@ class UserManager extends AbstractManager
         ));
     }
 
-    public function createModel(ModelInterface $model, $ignore = false)
+    public function createModel(ModelInterface $model)
     {
         $model = parent::createModel($model);
 

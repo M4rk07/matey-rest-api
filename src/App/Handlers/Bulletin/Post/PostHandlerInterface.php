@@ -14,14 +14,14 @@ use Symfony\Component\HttpFoundation\Request;
 interface PostHandlerInterface
 {
 
-    public function createPost (Application $app, Request $request);
-    public function deletePost (Application $app, Request $request, $postId);
-    public function getPost (Application $app, Request $request, $postId);
-    public function getPosts(Application $app, Request $request, $type, $id);
-    public function boost (Application $app, Request $request, $postId);
-    public function share (Application $app, Request $request, $postId);
-    public function bookmark (Application $app, Request $request, $postId);
-    public function archive (Application $app, Request $request, $postId);
-    public function getDeck (Application $app, Request $request, $type, $groupId = null);
+    public function handleCreatePost (Application $app, Request $request);
+    public function handleDeletePost (Application $app, Request $request, $postId);
+    public function handleGetSinglePost(Application $app, Request $request, $postId);
+    public function handleGetPosts(Application $app, Request $request, $type, $id);
+    public function handleBoost (Application $app, Request $request, $postId);
+    public function handleShare (Application $app, Request $request, $postId);
+    public function handleBookmark (Application $app, Request $request, $postId);
+    public function handleArchive (Application $app, Request $request, $postId);
+    public function handleGetDeck (Application $app, Request $request, $groupId = null);
 
 }

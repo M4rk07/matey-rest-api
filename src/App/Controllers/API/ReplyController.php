@@ -28,21 +28,21 @@ class ReplyController extends AbstractController
 
     public function createReplyAction (Application $app, Request $request, $postId) {
         return $this->replyHandler
-            ->createReply($app, $request, $postId);
+            ->handleCreateReply($app, $request, $postId);
     }
 
     public function deleteReplyAction (Application $app, Request $request, $replyId) {
         return $this->replyHandler
-            ->deleteReply($app, $request, $replyId);
+            ->handleDeleteReply($app, $request, $replyId);
     }
 
     public function getRepliesAction (Application $app, Request $request, $postId) {
         return $this->replyHandler
-            ->getReplies($app, $request, $postId);
+            ->handleGetReplies($app, $request, $postId);
     }
 
     public function approveAction (Application $app, Request $request, $replyId) {
         return $this->replyHandler
-            ->approve($app, $request, Activity::REPLY_TYPE, $replyId);
+            ->handleApprove($app, $request, Activity::REPLY_TYPE, $replyId);
     }
 }

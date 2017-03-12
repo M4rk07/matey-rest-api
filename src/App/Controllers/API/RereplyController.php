@@ -27,22 +27,22 @@ class RereplyController extends AbstractController
 
     public function createRereplyAction (Application $app, Request $request, $replyId) {
         return $this->rereplyHandler
-            ->createRereply($app, $request, $replyId);
+            ->handleCreateRereply($app, $request, $replyId);
     }
 
     public function deleteRereplyAction (Application $app, Request $request, $rereplyId) {
         return $this->rereplyHandler
-            ->deleteRereply($app, $request, $rereplyId);
+            ->handleDeleteRereply($app, $request, $rereplyId);
     }
 
     public function getRerepliesAction (Application $app, Request $request, $replyId) {
         return $this->rereplyHandler
-            ->getRereplies($app, $request, $replyId);
+            ->handleGetRereplies($app, $request, $replyId);
     }
 
     public function approveAction (Application $app, Request $request, $rereplyId) {
         return $this->rereplyHandler
-            ->approve($app, $request, Activity::REREPLY_TYPE, $rereplyId);
+            ->handleApprove($app, $request, Activity::REREPLY_TYPE, $rereplyId);
     }
 
 }

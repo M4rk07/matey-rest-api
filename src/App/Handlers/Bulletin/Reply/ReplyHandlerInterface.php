@@ -13,5 +13,5 @@ use Symfony\Component\HttpFoundation\Request;
 
 interface ReplyHandlerInterface
 {
-    public function approve(Application $app, Request $request, $type, $id);
+    public function handleApprove(Application $app, Request $request, $type, $id);
 }

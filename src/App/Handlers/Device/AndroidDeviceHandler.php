@@ -9,6 +9,8 @@
 namespace App\Handlers\Device;
 
 
+use App\Constants\Defaults\DefaultDates;
+use App\MateyModels\Login;
 use App\Security\SecretGenerator;
 use App\Validators\DeviceId;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
@@ -20,7 +22,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDeviceInterface
 {
-    public function createDevice(Request $request)
+    public function handleCreateDevice(Application $app, Request $request)
     {
         $gcm = $request->request->get("gcm");
         $this->validateValue($gcm, array(
@@ -45,7 +47,7 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
         return new JsonResponse($device->asArray($deviceManager->getAllFields()), 200);
     }
 
-    public function updateDevice(Request $request, $deviceId)
+    public function handleUpdateDevice (Application $app, Request $request, $deviceId)
     {
         $oldGcm = $request->request->get("old_gcm");
         $gcm = $request->request->get("gcm");
@@ -67,7 +69,7 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
         return new JsonResponse($device->asArray($deviceManager->getAllFields()), 200);
     }
 
-    public function loginOnDevice(Application $app, Request $request, $deviceId)
+    public function handleLogin (Application $app, Request $request, $deviceId)
     {
         $userId = $request->request->get("user_id");
 
@@ -78,26 +80,37 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
         $loginManager = $this->modelManagerFactory->getModelManager('login');
         $login = $loginManager->getModel();
 
-            if($request->getMethod() == "PUT") {
+        if($request->getMethod() == "PUT") {
+            /*
+            $loginCheck = $loginManager->readModelOneBy(array(
+                'device_id' => $deviceId,
+                'user_id' => $userId,
+                'status' => 1
+            ), null, array('user_id'));
 
-                $login->setUserId($userId)
-                    ->setDeviceId($deviceId)
-                    ->setGcm($device->getGcm());
-                $loginManager->createModel($login);
+            if(!empty($loginCheck)) throw new InvalidRequestException(array(
+                'description' => "Hey, you are already logged in."
+            ));
+            */
 
-            }
+            $login->setUserId($userId)
+                ->setDeviceId($deviceId)
+                ->setGcm($device->getGcm());
+            $loginManager->createModel($login);
 
-            else if($request->getMethod() == "DELETE") {
+        }
 
-                $login->setStatus(0);
-                $loginManager->updateModel($login, array(
-                    'device_id' => $deviceId,
-                    'user_id' => $userId
-                ));
+        else if($request->getMethod() == "DELETE") {
 
-            }
+            $login->setStatus(0);
+            $loginManager->updateModel($login, array(
+                'device_id' => $deviceId,
+                'user_id' => $userId
+            ));
 
-        return $app['matey.user_controller']->getUserAction($request, $userId);
+        }
+
+        return $app['matey.user_controller']->getUserAction($app, $request, $userId);
     }
 
     public function getGcmById($deviceId)

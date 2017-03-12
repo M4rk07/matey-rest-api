@@ -13,10 +13,10 @@ use Symfony\Component\HttpFoundation\Request;
 interface DeviceHandlerInterface
 {
 
-    public function createDevice(Request $request);
+    public function handleCreateDevice(Application $app, Request $request);
 
-    public function updateDevice(Request $request, $deviceId);
+    public function handleUpdateDevice(Application $app, Request $request, $deviceId);
 
-    public function loginOnDevice(Application $app, Request $request, $deviceId);
+    public function handleLogin (Application $app, Request $request, $deviceId);
 
 }

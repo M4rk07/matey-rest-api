@@ -50,8 +50,8 @@ class RoutesLoader
         $api->delete('/users/me/following/{id}', 'matey.user_controller:followAction');
         $api->get('/users/{userId}/followers', 'matey.user_controller:getFollowersAction');
         $api->get('/users/{userId}/following', 'matey.user_controller:getFollowingAction');
-        $api->post('/users/me/profiles/pictures', 'matey.file_controller:uploadProfilePictureAction');
-        $api->post('/users/me/profiles/covers', 'matey.file_controller:uploadCoverPictureAction');
+        $api->post('/users/me/profiles/pictures', 'matey.user_controller:uploadProfilePictureAction');
+        $api->post('/users/me/profiles/covers', 'matey.user_controller:uploadCoverPictureAction');
 
         // POST CONTROLLER
         $api->post('/posts', 'matey.post_controller:createPostAction');

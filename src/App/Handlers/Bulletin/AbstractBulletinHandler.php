@@ -115,48 +115,13 @@ abstract class AbstractBulletinHandler extends Activity
 
     }
 
-    public function getJsonObjects ($objects, $users, $type) {
-        $manager = $this->modelManagerFactory->getModelManager($type);
-
-        if(!is_array($objects)) $objects = array($objects);
-        if(!is_array($users)) $users = array($users);
-
+    public function getLocations ($parentId, $parentType, $limit) {
         $locationManager = $this->modelManagerFactory->getModelManager('location');
 
-        $finalResult = array();
-        foreach($objects as $object) {
-            $arr = $object->asArray(array_diff($manager->getAllFields(), array('user_id')));
-            foreach($users as $user) {
-                if($user->getUserId() == $object->getUserId()) {
-                    $arr['user'] = $user->asArray();
-                    break;
-                }
-            }
-            if($type == 'post' || $type == 'reply') {
-                if ($object->getAttachsNum() > 0)
-                    $arr['attachs'] = $object->getAttachsLocation($object->getAttachsNum());
-                if ($object->getLocationsNum() > 0)
-                    $arr['locations'] = $this->getLocations($object, $locationManager, $type);
-            }
-
-            $finalResult[]= $arr;
-        }
-
-        return $finalResult;
-    }
-
-    public function getLocations ($object, $locationManager, $type) {
-        if($type == 'post') {
-            $locations = $locationManager->readModelBy(array(
-                'parent_id' => $object->getPostId(),
-                'parent_type' => \App\MateyModels\Activity::POST_TYPE
-            ), null, $object->getLocationsNum(), null, array('latt', 'longt'));
-        } else {
-            $locations = $locationManager->readModelBy(array(
-                'parent_id' => $object->getReplyId(),
-                'parent_type' => \App\MateyModels\Activity::REPLY_TYPE
-            ), null, $object->getLocationsNum(), null, array('latt', 'longt'));
-        }
+        $locations = $locationManager->readModelBy(array(
+            'parent_id' => $parentId,
+            'parent_type' => $parentType
+        ), null, $limit, null, array('latt', 'longt'));
 
         $arr = array();
         foreach($locations as $location) {
@@ -166,30 +131,16 @@ abstract class AbstractBulletinHandler extends Activity
         return $arr;
     }
 
-    public function fetchObjects($criteria, $limit, $offset, $type) {
-        $manager = $this->modelManagerFactory->getModelManager($type);
-
-        $objects = $manager->readModelBy($criteria, array('time_c' => 'DESC'), $limit, $offset, $manager->getAllFields());
-
-        if($limit == 1 && is_array($objects)) return reset($objects);
-        else return $objects;
-    }
-
-    public function getObjectOwners ($objects, $limit) {
-        if(!is_array($objects)) $objects = array($objects);
-
-        $userManager = $this->modelManagerFactory->getModelManager('user');
-        $userIds = array();
-        foreach ($objects as $object) {
-            $userIds[] = $object->getUserId();
+    public function insertLocations ($locations, $parentId, $parentType) {
+        $locationManager = $this->modelManagerFactory->getModelManager('location');
+        foreach($locations as $location) {
+            $newLocation = $locationManager->getModel();
+            $newLocation->setParentId($parentId)
+                ->setParentType($parentType)
+                ->setLatt($location->latt)
+                ->setLongt($location->longt);
+            $locationManager->createModel($newLocation);
         }
-
-        $users = $userManager->readModelBy(array(
-            'user_id' => array_unique($userIds)
-        ), null, $limit, null, array('user_id', 'first_name', 'last_name'));
-
-        if($limit == 1 && is_array($users)) return reset($users);
-        else return $users;
     }
 
 }
