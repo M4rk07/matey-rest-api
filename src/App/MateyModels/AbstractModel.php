@@ -51,6 +51,7 @@ abstract class AbstractModel implements ModelInterface
 
         $keyValues = array();
 
+        if($fields === null && $this->allFields === null) throw new ServerErrorException();
         if($fields === null) $fields = $this->allFields;
         if(!is_array($fields)) $fields = array($fields);
 

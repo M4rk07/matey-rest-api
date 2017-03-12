@@ -80,9 +80,8 @@ CREATE TABLE IF NOT EXISTS matey_login (
   user_id int(11) UNSIGNED NOT NULL,
   device_id int(11) UNSIGNED NOT NULL,
   time_logged TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  status int(11) NOT NULL DEFAULT 1,
+  status boolean NOT NULL DEFAULT 1,
   gcm varchar(500) NOT NULL,
-  PRIMARY KEY (user_id, device_id),
   FOREIGN KEY(user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY(device_id) REFERENCES matey_device(device_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

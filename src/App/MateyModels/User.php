@@ -513,6 +513,9 @@ class User extends AbstractModel
             if($type == 'get') return $this->getNumOfShares();
             else return $this->setNumOfShares($props['value']);
         }
+        else if($props['key'] == 'picture_url') {
+            if($type == 'get') return $this->getProfilePicture();
+        }
     }
 
 }

@@ -108,7 +108,7 @@ abstract class AbstractManager implements ModelManagerInterface
         $result = $queryBuilder->execute();
 
         $model->setId($this->db->lastInsertId());
-        
+
         return $result > 0 ? $model : null;
 
     }
