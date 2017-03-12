@@ -123,8 +123,8 @@ class RefreshToken extends AbstractModel implements RefreshTokenInterface
             if ($type == 'get') return $this->getExpires()->format(DefaultDates::DATE_FORMAT);
             else return $this->setExpires($this->createDateTimeFromString($props['value']));
         } else if ($props['key'] == 'scope') {
-            if ($type == 'get') return $this->getScope();
-            else return $this->setScope($props['value']);
+            if ($type == 'get') return $this->createStringFromArray($this->getScope());
+            else return $this->setScope($this->createArrayFromString($props['value']));
         }
     }
 
