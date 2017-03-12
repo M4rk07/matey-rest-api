@@ -20,7 +20,7 @@ abstract class AbstractModel implements ModelInterface
     protected $id;
     protected $allFields;
 
-    public function __construct($allFields) {
+    public function __construct($allFields = null) {
         $this->allFields = $allFields;
     }
 
