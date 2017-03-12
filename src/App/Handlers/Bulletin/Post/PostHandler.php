@@ -102,9 +102,11 @@ class PostHandler extends AbstractPostHandler
         $user->setUserId($userId);
         $userManager->incrNumOfPosts($user);
 
-        $posts = $this->fetchPosts(array($post->getPostId()), 1);
-        $users = $this->getPostsOwners($posts, 1);
-        $finalResult = $this->getPostJsonObjects($posts, $users);
+        $posts = $this->fetchObjects(array(
+            'post_id' => $post->getPostId()
+        ), 1, 0, 'post');
+        $users = $this->getObjectOwners($posts, 1);
+        $finalResult = $this->getJsonObjects($posts, $users, 'post');
 
         return new JsonResponse($finalResult, 200);
 
@@ -129,14 +131,19 @@ class PostHandler extends AbstractPostHandler
 
     public function getPost (Application $app, Request $request, $postId) {
 
-        $post = $this->fetchPost($postId);
+        $post = $this->fetchObjects(array(
+            'post_id' => $postId
+        ), 1, 0, 'post');
+        $user = $this->getObjectOwners($post, 1);
 
-        $replies = $app['matey.reply_handler']->fetchReplies($post->getPostId(), DefaultNumbers::REPLIES_LIMIT, 0);
+        $replies = $this->fetchObjects(array(
+            'post_id' => $postId
+        ), DefaultNumbers::REPLIES_LIMIT, 0, 'reply');
+        $usersReplied = $this->getObjectOwners($replies, DefaultNumbers::REPLIES_LIMIT);
+        $finalReplies = $this->getJsonObjects($replies, $usersReplied, 'reply');
 
-        $finalResult = $post->asArray();
-        foreach ($replies as $reply) {
-            $finalResult['replies'][] = $reply->asArray();
-        }
+        $finalResult = $this->getJsonObjects($post, $user, 'post');
+        $finalResult[0]['replies'] = $finalReplies;
 
         return new JsonResponse($finalResult, 200);
     }
@@ -157,10 +164,8 @@ class PostHandler extends AbstractPostHandler
             ), array('time_c' => 'DESC'), $limit, $offset);
         }
 
-        $finalResult = array();
-        foreach ($posts as $post) {
-            $finalResult[] = $post->asArray();
-        }
+        $users = $this->getObjectOwners($posts, 1);
+        $finalResult = $this->getJsonObjects($posts, $users, 'post');
 
         $paginationService = new PaginationService($finalResult, $limit, $offset,
             $type =='user' ? '/users/'.$id.'/posts' : '/groups/'.$id.'/posts');
@@ -272,10 +277,11 @@ class PostHandler extends AbstractPostHandler
         else
             $postIds = $userManager->getDeck($user, $offset, $offset+$limit);
 
-        $posts = $this->fetchPosts($postIds, $limit);
-
-        $users = $this->getPostsOwners($posts, $limit);
-        $postJsonObjects = $this->getPostJsonObjects($posts, $users);
+        $posts = $this->fetchObjects(array(
+            'post_id' => $postIds
+        ), $limit, 0, 'post');
+        $users = $this->getObjectOwners($posts, $limit);
+        $postJsonObjects = $this->getJsonObjects($posts, $users, 'post');
 
         $finalResult = array();
         foreach($postJsonObjects as $jsonObject) {
@@ -292,63 +298,6 @@ class PostHandler extends AbstractPostHandler
 
         return new JsonResponse($paginationService->getResponse(), 200);
 
-    }
-
-    public function getPostJsonObjects ($posts, $users) {
-        $postManager = $this->modelManagerFactory->getModelManager('post');
-        $locationManager = $this->modelManagerFactory->getModelManager('location');
-
-        $finalResult = array();
-        foreach($posts as $post) {
-            $arr = $post->asArray(array_diff($postManager->getAllFields(), array('user_id')));
-            foreach($users as $user) {
-                if($user->getUserId() == $post->getUserId()) {
-                    $arr['user'] = $user->asArray();
-                    break;
-                }
-            }
-            if($post->getAttachsNum() > 0)
-                $arr['attachs'] = $post->getAttachsLocation($post->getAttachsNum());
-            if($post->getLocationsNum() > 0)
-                $arr['locations'] = $this->getPostLocations($post, $locationManager);
-
-            $finalResult[]= $arr;
-        }
-
-        return $finalResult;
-    }
-
-    public function fetchPosts($postIds, $limit) {
-        $postManager = $this->modelManagerFactory->getModelManager('post');
-
-        return $postManager->readModelBy(array(
-            'post_id' => $postIds
-        ), array('time_c' => 'DESC'), $limit, null, $postManager->getAllFields());
-    }
-
-    public function getPostsOwners($posts, $limit) {
-        $userManager = $this->modelManagerFactory->getModelManager('user');
-        $userIds = array();
-        foreach ($posts as $post) {
-            $userIds[] = $post->getUserId();
-        }
-
-        return $userManager->readModelBy(array(
-            'user_id' => array_unique($userIds)
-        ), null, $limit, null, array('user_id', 'first_name', 'last_name', 'picture_url'));
-    }
-
-    public function getPostLocations ($post, $locationManager) {
-        $locations = $locationManager->readModelBy(array(
-            'parent_id' => $post->getPostId(),
-            'parent_type' => Activity::POST_TYPE
-        ), null, $post->getLocationsNum(), null, array('latt', 'longt'));
-        $arr = array();
-        foreach($locations as $location) {
-            $arr[] = $location->asArray();
-        }
-
-        return $arr;
     }
 
     // Method for pushing newly created Post to Feeds

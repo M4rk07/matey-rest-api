@@ -71,9 +71,11 @@ class RereplyHandler extends AbstractRereplyHandler
         $reply->setReplyId($replyId);
         $replyManager->incrNumOfReplies($reply);
 
-        $rereplies = $this->fetchRereplies($replyId, 1, 0);
-        $users = $this->getRereplyOwners($rereplies, 1);
-        $finalResult = $this->getRereplyJsonObjects($rereplies, $users);
+        $rereplies = $this->fetchObjects(array(
+            'rereply_id' => $rereply->getRereplyId()
+        ), 1, 0, 'rereply');
+        $users = $this->getObjectOwners($rereplies, 1);
+        $finalResult = $this->getJsonObjects($rereplies, $users, 'rereply');
 
         return new JsonResponse($finalResult, 200);
     }
@@ -100,56 +102,17 @@ class RereplyHandler extends AbstractRereplyHandler
         $limit = $request->query->get('limit');
         $offset = $request->query->get('offset');
 
-        $rereplies = $this->fetchRereplies($replyId, $limit, $offset);
-
-        $users = $this->getRereplyOwners($rereplies, $limit);
-
-        $finalResult = $this->getRereplyJsonObjects($rereplies, $users);
+        $rereplies = $this->fetchObjects(array(
+            'reply_id' => $replyId
+        ), $limit, $offset, 'rereply');
+        $users = $this->getObjectOwners($rereplies, $limit);
+        $finalResult = $this->getJsonObjects($rereplies, $users, 'rereply');
 
         $paginationService = new PaginationService($finalResult, $limit, $offset,
             '/replies/'.$replyId.'/rereplies');
 
         return new JsonResponse($paginationService->getResponse(), 200);
 
-    }
-
-    public function getRereplyJsonObjects ($rereplies, $users) {
-        $rereplyManager = $this->modelManagerFactory->getModelManager('rereply');
-
-        $finalResult = array();
-        foreach($rereplies as $rereply) {
-            $arr = $rereply->asArray(array_diff($rereplyManager->getAllFields(), array('user_id')));
-            foreach($users as $user) {
-                if($user->getUserId() == $rereply->getUserId()) {
-                    $arr['user'] = $user->asArray();
-                    break;
-                }
-            }
-
-            $finalResult[]= $arr;
-        }
-
-        return $finalResult;
-    }
-
-    public function fetchRereplies($replyId, $limit, $offset) {
-        $rereplyManager = $this->modelManagerFactory->getModelManager('rereply');
-        return $rereplyManager->readModelBy(array(
-            'reply_id' => $replyId,
-            'deleted' => 0
-        ), array('time_c' => 'DESC'), $limit, $offset);
-    }
-
-    public function getRereplyOwners($rereplies, $limit) {
-        $userManager = $this->modelManagerFactory->getModelManager('user');
-        $userIds = array();
-        foreach ($rereplies as $rereply) {
-            $userIds[] = $rereply->getUserId();
-        }
-
-        return $userManager->readModelBy(array(
-            'user_id' => array_unique($userIds)
-        ), null, $limit, null, array('user_id', 'first_name', 'last_name'));
     }
 
 }

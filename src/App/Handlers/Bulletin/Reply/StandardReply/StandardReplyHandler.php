@@ -90,7 +90,9 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
         $post->setPostId($postId);
         $postManager->incrNumOfReplies($post);
 
-        $replies = $this->fetchReplies($postId, 1, 0);
+        $replies = $this->fetchObjects(array(
+            'reply_id' => $reply->getReplyId()
+        ), 1, 0, 'reply');
         $users = $this->getReplyOwners($replies, 1);
         $finalResult = $this->getReplyJsonObjects($replies, $users);
 
@@ -118,7 +120,9 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
         $limit = $request->query->get('limit');
         $offset = $request->query->get('offset');
 
-        $replies = $this->fetchReplies($postId, $limit, $offset);
+        $replies = $this->fetchReplies(array(
+            'post_id' => $postId
+        ), $limit, $offset);
         $users = $this->getReplyOwners($replies, $limit);
         $finalResult = $this->getReplyJsonObjects($replies, $users);
 
@@ -126,45 +130,6 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
             '/posts/'.$postId.'/replies');
 
         return new JsonResponse($paginationService->getResponse(), 200);
-    }
-
-    public function fetchReplies($postId, $limit, $offset) {
-        $replyManager = $this->modelManagerFactory->getModelManager('reply');
-        return $replyManager->readModelBy(array(
-            'post_id' => $postId,
-            'deleted' => 0
-        ), array('time_c' => 'DESC'), $limit, $offset);
-    }
-
-    public function getReplyOwners($replies, $limit) {
-        $userManager = $this->modelManagerFactory->getModelManager('user');
-        $userIds = array();
-        foreach ($replies as $reply) {
-            $userIds[] = $reply->getUserId();
-        }
-
-        return $userManager->readModelBy(array(
-            'user_id' => array_unique($userIds)
-        ), null, $limit, null, array('user_id', 'first_name', 'last_name'));
-    }
-
-    public function getReplyJsonObjects ($replies, $users) {
-        $rereplyManager = $this->modelManagerFactory->getModelManager('rereply');
-
-        $finalResult = array();
-        foreach($replies as $reply) {
-            $arr = $reply->asArray(array_diff($rereplyManager->getAllFields(), array('user_id')));
-            foreach($users as $user) {
-                if($user->getUserId() == $reply->getUserId()) {
-                    $arr['user'] = $user->asArray();
-                    break;
-                }
-            }
-
-            $finalResult[]= $arr;
-        }
-
-        return $finalResult;
     }
 
 }
