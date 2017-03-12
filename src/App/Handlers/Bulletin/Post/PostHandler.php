@@ -102,7 +102,11 @@ class PostHandler extends AbstractPostHandler
         $user->setUserId($userId);
         $userManager->incrNumOfPosts($user);
 
-        return new JsonResponse(null, 200);
+        $posts = $this->fetchPosts(array($post->getPostId()), 1);
+        $users = $this->getPostsOwners($posts, 1);
+        $finalResult = $this->getPostJsonObjects($posts, $users);
+
+        return new JsonResponse($finalResult, 200);
 
     }
 
@@ -125,10 +129,7 @@ class PostHandler extends AbstractPostHandler
 
     public function getPost (Application $app, Request $request, $postId) {
 
-        $postManager = $this->modelManagerFactory->getModelManager('post');
-        $post = $postManager->readModelOneBy(array(
-            'post_id' => $postId
-        ));
+        $post = $this->fetchPost($postId);
 
         $replies = $app['matey.reply_handler']->fetchReplies($post->getPostId(), DefaultNumbers::REPLIES_LIMIT, 0);
 
@@ -260,35 +261,26 @@ class PostHandler extends AbstractPostHandler
         $offset = $request->query->get('offset');
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
-        $postManager = $this->modelManagerFactory->getModelManager('post');
         $groupManager = $this->modelManagerFactory->getModelManager('group');
-        $locationManager = $this->modelManagerFactory->getModelManager('location');
         $user = $userManager->getModel();
         $group = $groupManager->getModel();
         $user->setUserId($userId);
         $group->setGroupId($groupId);
 
         if($type == 'group' && $groupId !== null)
-            $posts = $this->fetchDeckPosts($limit, $offset, $group, $groupManager, $postManager);
+            $postIds = $groupManager->getDeck($group, $offset, $offset+$limit);
         else
-            $posts = $this->fetchDeckPosts($limit, $offset, $user, $userManager, $postManager);
+            $postIds = $userManager->getDeck($user, $offset, $offset+$limit);
 
-        $users = $this->getPostsOwners($posts, $limit, $userManager);
+        $posts = $this->fetchPosts($postIds, $limit);
+
+        $users = $this->getPostsOwners($posts, $limit);
+        $postJsonObjects = $this->getPostJsonObjects($posts, $users);
 
         $finalResult = array();
-        foreach($posts as $post) {
+        foreach($postJsonObjects as $jsonObject) {
             $arr['activity_type'] = Activity::POST_TYPE;
-            $arr['activity_object'] = $post->asArray(array_diff($postManager->getAllFields(), array('user_id')));
-            foreach($users as $user) {
-                if($user->getUserId() == $post->getUserId()) {
-                    $arr['activity_object']['user'] = $user->asArray();
-                    break;
-                }
-            }
-            if($post->getAttachsNum() > 0)
-                $arr['activity_object']['attachs'] = $post->getAttachsLocation($post->getAttachsNum());
-            if($post->getLocationsNum() > 0)
-                $arr['activity_object']['locations'] = $this->getPostLocations($post, $locationManager);
+            $arr['activity_object'] = $jsonObject;
 
             $finalResult[]= $arr;
         }
@@ -302,15 +294,40 @@ class PostHandler extends AbstractPostHandler
 
     }
 
-    public function fetchDeckPosts($limit, $offset, $model, $manager, $postManager) {
-        $postIds = $manager->getDeck($model, $offset, $offset+$limit);
+    public function getPostJsonObjects ($posts, $users) {
+        $postManager = $this->modelManagerFactory->getModelManager('post');
+        $locationManager = $this->modelManagerFactory->getModelManager('location');
+
+        $finalResult = array();
+        foreach($posts as $post) {
+            $arr = $post->asArray(array_diff($postManager->getAllFields(), array('user_id')));
+            foreach($users as $user) {
+                if($user->getUserId() == $post->getUserId()) {
+                    $arr['user'] = $user->asArray();
+                    break;
+                }
+            }
+            if($post->getAttachsNum() > 0)
+                $arr['attachs'] = $post->getAttachsLocation($post->getAttachsNum());
+            if($post->getLocationsNum() > 0)
+                $arr['locations'] = $this->getPostLocations($post, $locationManager);
+
+            $finalResult[]= $arr;
+        }
+
+        return $finalResult;
+    }
+
+    public function fetchPosts($postIds, $limit) {
+        $postManager = $this->modelManagerFactory->getModelManager('post');
 
         return $postManager->readModelBy(array(
             'post_id' => $postIds
         ), array('time_c' => 'DESC'), $limit, null, $postManager->getAllFields());
     }
 
-    public function getPostsOwners($posts, $limit, $userManager) {
+    public function getPostsOwners($posts, $limit) {
+        $userManager = $this->modelManagerFactory->getModelManager('user');
         $userIds = array();
         foreach ($posts as $post) {
             $userIds[] = $post->getUserId();
@@ -318,7 +335,7 @@ class PostHandler extends AbstractPostHandler
 
         return $userManager->readModelBy(array(
             'user_id' => array_unique($userIds)
-        ), null, $limit, null, array('user_id', 'first_name', 'last_name'));
+        ), null, $limit, null, array('user_id', 'first_name', 'last_name', 'picture_url'));
     }
 
     public function getPostLocations ($post, $locationManager) {

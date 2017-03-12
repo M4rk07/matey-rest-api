@@ -90,7 +90,11 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
         $post->setPostId($postId);
         $postManager->incrNumOfReplies($post);
 
-        return new JsonResponse(null, 200);
+        $replies = $this->fetchReplies($postId, 1, 0);
+        $users = $this->getReplyOwners($replies, 1);
+        $finalResult = $this->getReplyJsonObjects($replies, $users);
+
+        return new JsonResponse($finalResult, 200);
     }
 
     public function deleteReply (Application $app, Request $request, $replyId) {
@@ -115,11 +119,8 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
         $offset = $request->query->get('offset');
 
         $replies = $this->fetchReplies($postId, $limit, $offset);
-
-        $finalResult = array();
-        foreach($replies as $reply) {
-            $finalResult[] = $reply->asArray();
-        }
+        $users = $this->getReplyOwners($replies, $limit);
+        $finalResult = $this->getReplyJsonObjects($replies, $users);
 
         $paginationService = new PaginationService($finalResult, $limit, $offset,
             '/posts/'.$postId.'/replies');
@@ -133,6 +134,37 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
             'post_id' => $postId,
             'deleted' => 0
         ), array('time_c' => 'DESC'), $limit, $offset);
+    }
+
+    public function getReplyOwners($replies, $limit) {
+        $userManager = $this->modelManagerFactory->getModelManager('user');
+        $userIds = array();
+        foreach ($replies as $reply) {
+            $userIds[] = $reply->getUserId();
+        }
+
+        return $userManager->readModelBy(array(
+            'user_id' => array_unique($userIds)
+        ), null, $limit, null, array('user_id', 'first_name', 'last_name'));
+    }
+
+    public function getReplyJsonObjects ($replies, $users) {
+        $rereplyManager = $this->modelManagerFactory->getModelManager('rereply');
+
+        $finalResult = array();
+        foreach($replies as $reply) {
+            $arr = $reply->asArray(array_diff($rereplyManager->getAllFields(), array('user_id')));
+            foreach($users as $user) {
+                if($user->getUserId() == $reply->getUserId()) {
+                    $arr['user'] = $user->asArray();
+                    break;
+                }
+            }
+
+            $finalResult[]= $arr;
+        }
+
+        return $finalResult;
     }
 
 }
