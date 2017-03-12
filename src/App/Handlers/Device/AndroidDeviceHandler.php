@@ -76,14 +76,14 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
         if(empty($device)) throw new ResourceNotFoundException();
 
         $loginManager = $this->modelManagerFactory->getModelManager('login');
-        $loginClass = $loginManager->getClassName();
-        $login = new $loginClass();
+        $login = $loginManager->getModel();
 
             if($request->getMethod() == "PUT") {
 
                 $login->setUserId($userId)
                     ->setDeviceId($deviceId)
-                    ->setStatus(1);
+                    ->setStatus(1)
+                    ->setGcm($device->getGcm());
                 $loginManager->createModel($login);
 
             }
