@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Handlers\Bulletin\Reply;
+namespace App\Handlers\Bulletin\StandardReply;
 use App\Handlers\Bulletin\Reply\StandardReply\AbstractStandardReplyHandler;
 use App\MateyModels\Activity;
 use App\Services\PaginationService;
@@ -82,7 +82,7 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
 
         // Calling the service for uploading Post attachments to S3 storage
         if(strpos($contentType, 'multipart/form-data') === 0) {
-            $app['matey.file_handler.factory']->getFileHandler('post_attachment')->upload($app, $request, $post->getPostId());
+            $app['matey.file_handler.factory']->getFileHandler('post_attachment')->upload($app, $request, $reply->getReplyId());
         }
 
         $postManager = $this->modelManagerFactory->getModelManager('post');

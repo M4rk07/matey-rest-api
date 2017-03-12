@@ -50,7 +50,7 @@ class PostController extends AbstractController
 
     public function getUserPostsAction (Application $app, Request $request, $userId) {
         return $this->postHandler
-            ->getPosts($app, $request, 'group', $userId);
+            ->getPosts($app, $request, 'user', $userId);
     }
 
     public function boostAction (Application $app, Request $request, $postId) {

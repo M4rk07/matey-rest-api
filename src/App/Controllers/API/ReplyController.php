@@ -11,7 +11,7 @@ namespace App\Controllers\API;
 
 use App\Controllers\AbstractController;
 use App\Handlers\Bulletin\Reply\ReplyHandler;
-use App\Handlers\Bulletin\Reply\StandardReplyHandler;
+use App\Handlers\Bulletin\StandardReply\StandardReplyHandler;
 use App\MateyModels\Activity;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;

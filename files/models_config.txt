@@ -3,7 +3,7 @@ class_name=App\MateyModels\User
 table_name=matey_user
 mysql_fields=user_id,email,first_name,last_name,full_name,country,location,birthday,phone_number,is_silhouette,verified,date_registered
 redis_key=USER
-redis_fields=counts
+redis_fields=num_of_followers,num_of_following,num_of_posts,num_of_given_replies,num_of_received_replies,num_of_given_approves,num_of_received_approves,num_of_best_replies,num_of_shares
 
 model_name=oauth2User
 class_name=App\MateyModels\OAuth2User
@@ -50,14 +50,14 @@ class_name=App\MateyModels\Follow
 table_name=matey_follow
 mysql_fields=user_id,parent_id,parent_type,time_c
 redis_key=FOLLOW
-redis_fields=interactions
+redis_fields=num_of_interactions,sum_of_interactions
 
 model_name=group
 class_name=App\MateyModels\Group
 table_name=matey_group
 mysql_fields=group_id,user_id,group_name,description,is_silhouette,time_c,deleted
 redis_key=GROUP
-redis_fields=statistics
+redis_fields=num_of_followers
 
 model_name=groupAdmin
 class_name=App\MateyModels\GroupAdmin
@@ -89,21 +89,21 @@ class_name=App\MateyModels\Post
 table_name=matey_post
 mysql_fields=post_id,group_id,user_id,title,text,attachs_num,locations_num,time_c,archived,deleted
 redis_key=POST
-redis_fields=statistics
+redis_fields=num_of_boosts,num_of_replies
 
 model_name=reply
 class_name=App\MateyModels\Reply
 table_name=matey_reply
 mysql_fields=reply_id,user_id,post_id,text,attachs_num,locations_num,time_c,deleted
 redis_key=REPLY
-redis_fields=statistics
+redis_fields=num_of_replies,num_of_approves
 
 model_name=rereply
 class_name=App\MateyModels\Rereply
 table_name=matey_rereply
 mysql_fields=rereply_id,user_id,reply_id,text,time_c,deleted
 redis_key=REREPLY
-redis_fields=statistics
+redis_fields=num_of_approves
 
 model_name=share
 class_name=App\MateyModels\Share

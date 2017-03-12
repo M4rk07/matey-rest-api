@@ -2,6 +2,7 @@
 
 namespace App\MateyModels;
 use App\Algos\Algo;
+use App\Constants\Defaults\DefaultNumbers;
 use App\MateyModels\Activity;
 use App\MateyModels\User;
 use App\Security\SaltGenerator;
@@ -54,7 +55,7 @@ class UserManager extends AbstractManager
 
         $models = parent::readModelBy($criteria, $orderBy, $limit, $offset, $fields);
 
-        if($fields == null || (in_array('counts', $fields) && !empty($models))) {
+        if($fields === null || count(array_intersect($this->getRedisFields(), $fields)) && !empty($models)) {
 
             foreach($models as $key => $model) {
                 $models[$key] = $this->getUserStatistics($model);
@@ -137,11 +138,13 @@ class UserManager extends AbstractManager
     public function pushDeck (User $user, $posts) {
         if(!is_array($posts)) $posts = array($posts);
         foreach($posts as $post)
-            $this->redis->lpush($this->getRedisKey().":feed:".$user->getUserId(), $post->getPostId());
+            $this->redis->lpush($this->getRedisKey().":deck:".$user->getUserId(), $post->getPostId());
+
+        $this->redis->ltrim($this->getRedisKey().":deck:".$user->getUserId(), 0, DefaultNumbers::DECK_CAPACITY);
     }
 
     public function getDeck (User $user, $start = 0, $stop = 10) {
-        return $this->redis->lrange($this->getRedisKey().":feed:".$user->getUserId(), $start, $stop);
+        return $this->redis->lrange($this->getRedisKey().":deck:".$user->getUserId(), $start, $stop);
     }
 
     public function pushFeedSeen (User $user, $ids) {

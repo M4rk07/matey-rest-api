@@ -35,7 +35,7 @@ class Login extends AbstractModel
      */
     public function setDeviceId($deviceId)
     {
-        $this->deviceId = $deviceId;
+        $this->deviceId = (int)$deviceId;
         return $this;
     }
 
@@ -52,7 +52,7 @@ class Login extends AbstractModel
      */
     public function setUserId($userId)
     {
-        $this->userId = $userId;
+        $this->userId = (int)$userId;
         return $this;
     }
 

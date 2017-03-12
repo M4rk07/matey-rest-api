@@ -23,21 +23,16 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
     public function createDevice(Request $request)
     {
         $gcm = $request->request->get("gcm");
-        $errors = $this->validator->validate($gcm, [
+        $this->validateValue($gcm, array(
             new NotBlank()
-        ]);
-        if (count($errors) > 0) {
-            throw new InvalidRequestException([
-                'error_description' => $errors->get(0)->getMessage(),
-            ]);
-        }
+        ));
+
 
         $secretGenerator = new SecretGenerator();
         $deviceSecret = $secretGenerator->generateDeviceSecret();
 
         $deviceManager = $this->modelManagerFactory->getModelManager('device');
-        $deviceClass = $deviceManager->getClassName();
-        $device = new $deviceClass();
+        $device = $deviceManager->getModel();
 
         $device->setDeviceSecret($deviceSecret)
             ->setGcm($gcm);

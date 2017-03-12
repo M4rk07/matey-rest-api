@@ -28,6 +28,10 @@ class Reply extends AbstractModel
         return $this->setReplyId($id);
     }
 
+    public function getId() {
+        return $this->getReplyId();
+    }
+
     /**
      * @return mixed
      */
@@ -41,7 +45,7 @@ class Reply extends AbstractModel
      */
     public function setReplyId($replyId)
     {
-        $this->replyId = $replyId;
+        $this->replyId = (int)$replyId;
         return $this;
     }
 
@@ -58,7 +62,7 @@ class Reply extends AbstractModel
      */
     public function setPostId($postId)
     {
-        $this->postId = $postId;
+        $this->postId = (int)$postId;
         return $this;
     }
 
@@ -75,7 +79,7 @@ class Reply extends AbstractModel
      */
     public function setUserId($userId)
     {
-        $this->userId = $userId;
+        $this->userId = (int)$userId;
         return $this;
     }
 
@@ -109,7 +113,7 @@ class Reply extends AbstractModel
      */
     public function setAttachsNum($attachsNum)
     {
-        $this->attachsNum = $attachsNum;
+        $this->attachsNum = (int)$attachsNum;
         return $this;
     }
 
@@ -126,7 +130,7 @@ class Reply extends AbstractModel
      */
     public function setLocationsNum($locationsNum)
     {
-        $this->locationsNum = $locationsNum;
+        $this->locationsNum = (int)$locationsNum;
         return $this;
     }
 
@@ -177,7 +181,7 @@ class Reply extends AbstractModel
      */
     public function setNumOfApproves($numOfApproves)
     {
-        $this->numOfApproves = $numOfApproves;
+        $this->numOfApproves = (int)$numOfApproves;
         return $this;
     }
 
@@ -194,7 +198,7 @@ class Reply extends AbstractModel
      */
     public function setNumOfReplies($numOfReplies)
     {
-        $this->numOfReplies = $numOfReplies;
+        $this->numOfReplies = (int)$numOfReplies;
         return $this;
     }
 
@@ -250,7 +254,7 @@ class Reply extends AbstractModel
         }
         else if ($props['key'] == 'deleted') {
             if ($type == 'get') return $this->getDeleted();
-            else return $this->setDeleted($props['key']);
+            else return $this->setDeleted($props['value']);
         }
     }
 

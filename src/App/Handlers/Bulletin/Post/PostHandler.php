@@ -126,9 +126,9 @@ class PostHandler extends AbstractPostHandler
     public function getPost (Application $app, Request $request, $postId) {
 
         $postManager = $this->modelManagerFactory->getModelManager('post');
-        $post = $postManager->readModelBy(array(
+        $post = $postManager->readModelOneBy(array(
             'post_id' => $postId
-        ), null, 1);
+        ));
 
         $replies = $app['matey.reply_handler']->fetchReplies($post->getPostId(), DefaultNumbers::REPLIES_LIMIT, 0);
 
@@ -172,7 +172,7 @@ class PostHandler extends AbstractPostHandler
 
         $boostManager = $this->modelManagerFactory->getModelManager('boost');
         $boost = $boostManager->getModel();
-        $boost->setUsedId($userId)
+        $boost->setUserId($userId)
             ->setPostId($postId);
         $boostManager->createModel($boost);
 
@@ -245,7 +245,8 @@ class PostHandler extends AbstractPostHandler
         ));
 
         $post = $postManager->readModelOneBy(array(
-            'post_id' => $postId
+            'post_id' => $postId,
+            'archived' => 1
         ), null, array('group_id'));
         $this->createActivity($postId, $userId, $post->getGroupId(), Activity::GROUP_TYPE, Activity::ARCHIVE_TYPE);
 
@@ -304,7 +305,7 @@ class PostHandler extends AbstractPostHandler
     public function fetchDeckPosts($limit, $offset, $model, $manager, $postManager) {
         $postIds = $manager->getDeck($model, $offset, $offset+$limit);
 
-        return $manager->readModelBy(array(
+        return $postManager->readModelBy(array(
             'post_id' => $postIds
         ), array('time_c' => 'DESC'), $limit, null, $postManager->getAllFields());
     }

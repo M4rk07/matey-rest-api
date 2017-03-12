@@ -36,7 +36,7 @@ class Device extends AbstractModel
      */
     public function setDeviceId($deviceId)
     {
-        $this->deviceId = $deviceId;
+        $this->deviceId = (int)$deviceId;
         return $this;
     }
 
@@ -53,7 +53,7 @@ class Device extends AbstractModel
      */
     public function setDeviceSecret($deviceSecret)
     {
-        $this->deviceSecret = $deviceSecret;
+        $this->deviceSecret = (int)$deviceSecret;
         return $this;
     }
 

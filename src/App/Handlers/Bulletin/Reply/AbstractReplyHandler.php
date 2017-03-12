@@ -38,13 +38,13 @@ class AbstractReplyHandler extends AbstractBulletinHandler
         if($type == Activity::REPLY_TYPE) {
             $reply = $replyManager->readModelOneBy(array(
                 'reply_id' => $id
-            ), null, array('post_id'));
-            $this->createActivity($reply->getReplyId(), $userId, $reply->getPostId(), Activity::POST_TYPE, Activity::APPROVE_TYPE);
+            ), null, array('reply_id', 'post_id'));
+            $this->createActivity($reply->getId(), $userId, $reply->getPostId(), Activity::POST_TYPE, Activity::APPROVE_TYPE);
         } else if($type == Activity::REREPLY_TYPE) {
             $reply = $replyManager->readModelOneBy(array(
                 'rereply_id' => $id
-            ), null, array('reply_id'));
-            $this->createActivity($reply->getRereplyId(), $userId, $reply->getReplyId(), Activity::REPLY_TYPE, Activity::APPROVE_TYPE);
+            ), null, array('rereply_id', 'reply_id'));
+            $this->createActivity($reply->getId(), $userId, $reply->getReplyId(), Activity::REPLY_TYPE, Activity::APPROVE_TYPE);
         } else throw new ServerErrorException();
 
         return new JsonResponse(null, 200);

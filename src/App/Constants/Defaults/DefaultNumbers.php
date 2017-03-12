@@ -13,4 +13,5 @@ class DefaultNumbers
     const MIN_TITLE_CHARS = 5;
     const MAX_TITLE_CHARS = 100;
     const REPLIES_LIMIT = 5;
+    const DECK_CAPACITY = 300;
 }

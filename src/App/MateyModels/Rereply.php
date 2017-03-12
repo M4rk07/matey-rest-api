@@ -25,6 +25,10 @@ class Rereply extends AbstractModel
     public function setId($id) {
         return $this->setRereplyId($id);
     }
+
+    public function getId() {
+        return $this->getRereplyId();
+    }
     /**
      * @return mixed
      */
@@ -38,7 +42,7 @@ class Rereply extends AbstractModel
      */
     public function setRereplyId($rereplyId)
     {
-        $this->rereplyId = $rereplyId;
+        $this->rereplyId = (int)$rereplyId;
         return $this;
     }
 
@@ -55,7 +59,7 @@ class Rereply extends AbstractModel
      */
     public function setReplyId($replyId)
     {
-        $this->replyId = $replyId;
+        $this->replyId = (int)$replyId;
         return $this;
     }
 
@@ -72,7 +76,7 @@ class Rereply extends AbstractModel
      */
     public function setUserId($userId)
     {
-        $this->userId = $userId;
+        $this->userId = (int)$userId;
         return $this;
     }
 
@@ -123,7 +127,7 @@ class Rereply extends AbstractModel
      */
     public function setDeleted($deleted)
     {
-        $this->deleted = $deleted;
+        $this->deleted = (int)$deleted;
         return $this;
     }
 
@@ -141,7 +145,7 @@ class Rereply extends AbstractModel
      */
     public function setNumOfApproves($numOfApproves)
     {
-        $this->numOfApproves = $numOfApproves;
+        $this->numOfApproves = (int)$numOfApproves;
         return $this;
     }
 
@@ -184,7 +188,7 @@ class Rereply extends AbstractModel
         }
         else if ($props['key'] == 'deleted') {
             if ($type == 'get') return $this->getDeleted();
-            else return $this->setDeleted($props['key']);
+            else return $this->setDeleted($props['value']);
         }
     }
 

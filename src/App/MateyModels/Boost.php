@@ -30,7 +30,7 @@ class Boost extends AbstractModel
      */
     public function setUserId($userId)
     {
-        $this->userId = $userId;
+        $this->userId = (int)$userId;
         return $this;
     }
 
@@ -47,7 +47,7 @@ class Boost extends AbstractModel
      */
     public function setPostId($postId)
     {
-        $this->postId = $postId;
+        $this->postId = (int)$postId;
         return $this;
     }
 

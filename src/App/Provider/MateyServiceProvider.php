@@ -10,6 +10,8 @@ use App\Controllers\API\GroupController;
 use App\Controllers\API\PostController;
 use App\Controllers\API\ProfileController;
 use App\Controllers\API\ProfilePictureController;
+use App\Controllers\API\ReplyController;
+use App\Controllers\API\RereplyController;
 use App\Controllers\API\TestDataController;
 use App\Controllers\API\UserController;
 use App\Controllers\RegistrationController;
@@ -17,8 +19,8 @@ use App\Handlers\Account\AccountHandlerFactory;
 use App\Handlers\Bulletin\Post\PostHandler;
 use App\Handlers\Bulletin\Post\StandardPostHandler;
 use App\Handlers\Bulletin\Reply\ReplyHandler;
-use App\Handlers\Bulletin\Reply\StandardReplyHandler;
 use App\Handlers\Bulletin\Rereply\RereplyHandler;
+use App\Handlers\Bulletin\StandardReply\StandardReplyHandler;
 use App\Handlers\Connections\ConnectionHandlerFactory;
 use App\Handlers\Device\DeviceHandlerFactory;
 use App\Handlers\Feed\FeedHandler;
@@ -202,6 +204,18 @@ class MateyServiceProvider implements ServiceProviderInterface
         $app['matey.post_controller'] = $app->share(function () use ($app) {
             return new PostController(
                 $app['matey.post_handler']
+            );
+        });
+
+        $app['matey.reply_controller'] = $app->share(function () use ($app) {
+            return new ReplyController(
+                $app['matey.reply_handler']
+            );
+        });
+
+        $app['matey.rereply_controller'] = $app->share(function () use ($app) {
+            return new RereplyController(
+                $app['matey.rereply_handler']
             );
         });
 

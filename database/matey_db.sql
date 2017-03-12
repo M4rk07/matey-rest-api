@@ -450,8 +450,6 @@ INSERT INTO matey_activity_type (activity_type) VALUES
 ('GROUP'), ('POST'), ('REPLY'),
 ('FOLLOW'), ('SHARE'), ('REREPLY'), ('BOOKMARK'), ('BOOST'), ('APPROVE'), ('ARCHIVE');
 
-INSERT INTO matey_group (group_id, group_name) VALUES (1, 'default');
-
 -- --------------------------------------------------------
 
 --

@@ -28,7 +28,7 @@ class RereplyManager extends AbstractManager
 
         $models = parent::readModelBy($criteria, $orderBy, $limit, $offset, $fields);
 
-        if($fields == null || (in_array('statistics', $fields) && !empty($models))) {
+        if($fields == null || count(array_intersect($this->getRedisFields(), $fields)) && !empty($models)) {
 
             foreach($models as $key => $model) {
                 $models[$key] = $this->getStatisticsData($model);

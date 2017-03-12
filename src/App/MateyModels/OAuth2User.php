@@ -38,7 +38,7 @@ class OAuth2User extends \App\MateyModels\AbstractModel implements UserInterface
      */
     public function setUserId($userId)
     {
-        $this->userId = $userId;
+        $this->userId = (int)$userId;
         return $this;
     }
 

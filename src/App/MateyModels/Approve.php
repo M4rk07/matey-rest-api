@@ -32,7 +32,7 @@ class Approve extends AbstractModel
      */
     public function setUserId($userId)
     {
-        $this->userId = $userId;
+        $this->userId = (int)$userId;
         return $this;
     }
 
@@ -49,7 +49,7 @@ class Approve extends AbstractModel
      */
     public function setParentId($parentId)
     {
-        $this->parentId = $parentId;
+        $this->parentId = (int)$parentId;
         return $this;
     }
 
@@ -66,7 +66,7 @@ class Approve extends AbstractModel
      */
     public function setParentType($parentType)
     {
-        $this->parentType = $parentType;
+        $this->parentType = (int)$parentType;
         return $this;
     }
 

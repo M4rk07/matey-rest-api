@@ -115,7 +115,7 @@ class RereplyHandler extends AbstractRereplyHandler
         return $rereplyManager->readModelBy(array(
             'reply_id' => $replyId,
             'deleted' => 0
-        ), array('time_c', 'DESC'), $limit, $offset);
+        ), array('time_c' => 'DESC'), $limit, $offset);
     }
 
 }

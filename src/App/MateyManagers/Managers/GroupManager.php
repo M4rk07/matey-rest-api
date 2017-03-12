@@ -9,6 +9,7 @@
 namespace App\MateyModels;
 
 
+use App\Constants\Defaults\DefaultNumbers;
 use AuthBucket\OAuth2\Model\ModelInterface;
 
 class GroupManager extends AbstractManager
@@ -39,6 +40,8 @@ class GroupManager extends AbstractManager
         if(!is_array($posts)) $posts = array($posts);
         foreach($posts as $post)
             $this->redis->lpush($this->getRedisKey().":feed:".$group->getGroupId(), $post->getPostId());
+
+        $this->redis->ltrim($this->getRedisKey().":deck:".$group->getGroupId(), 0, DefaultNumbers::DECK_CAPACITY);
     }
 
     public function getDeck (Group $group, $start = 0, $stop = 10) {
