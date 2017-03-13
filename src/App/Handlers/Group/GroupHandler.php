@@ -9,7 +9,9 @@
 namespace App\Handlers\Group;
 
 
+use App\Constants\Defaults\DefaultNumbers;
 use App\Exception\NotFoundException;
+use App\MateyModels\Activity;
 use App\Paths\Paths;
 use App\Validators\GroupId;
 use App\Validators\GroupPrivacy;
@@ -24,91 +26,67 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class GroupHandler extends AbstractGroupHandler
 {
-    function createGroup(Application $app, Request $request)
+    function handleCreateGroup(Request $request)
     {
         $userId = $request->request->get('user_id');
 
-        $groupJson = json_decode($request->getContent());
-        if ($groupJson === null) throw new InvalidRequestException();
+        // Getting json data in relation to Content-Type
+        $contentType = $request->headers->get('Content-Type');
 
-        $groupName = $groupJson->group_name;
-        $description = isset($groupJson->description) ? $groupJson->description : null;
+        $this->validateNumOfFiles($request);
+        $jsonDataRequest = $this->getJsonPostData($request, $contentType);
 
-        $errors =$this->validator->validate($groupName, array(
-            new NotBlank()
-        ));
-        if(count($errors) > 0) {
-            throw new InvalidRequestException(array(
-                'error_description' => $errors->get(0)->getMessage()
-            ));
-        }
+        $jsonData = array();
+        $jsonData['group_name'] = $this->gValidateGroupName($jsonDataRequest);
+        $jsonData['description'] = $this->gValidateDescription($jsonDataRequest);
 
         $groupManager = $this->modelManagerFactory->getModelManager('group');
-        $groupRelationshipManager = $this->modelManagerFactory->getModelManager('group_relationship');
-        $groupRelationshipClass = $groupRelationshipManager->getClassName();
-        $groupClass =$groupManager->getClassName();
-        $groupRelationship = new $groupRelationshipClass();
-        $group = new $groupClass();
+        $group = $groupManager->getModel();
 
         $group->setUserId($userId)
-            ->setGroupName($groupName)
+            ->setGroupName($jsonData['group_name'])
+            ->setDescription($jsonData['description'])
             ->setSilhouette(1);
 
-        if(!empty($description)) $group->setDescription($description);
-
         $group = $groupManager->createModel($group);
+        $this->createActivity($group->getGroupId(),$userId,null,Activity::GROUP_TYPE,Activity::GROUP_TYPE);
 
-        $groupRelationship->setGroupId($group->getId())
-            ->setUserId($userId)
-            ->setRole('OWNER');
-        $groupRelationshipManager->createModel($groupRelationship);
+        $groupResult = $group->asArray();
+        $finalResult['data'] = $groupResult;
 
-        return new JsonResponse($group->getValuesAsArray(), 201, array(
-            'Location' => Paths::BASE_API_URL.$app['api.endpoint'].'/'.$app['api.version'].'/groups/'.$group->getId()
-        ));
+        return new JsonResponse($finalResult, 200);
 
     }
 
-    function getGroup(Application $app, Request $request, $groupId)
+    function handleGetGroup(Request $request, $groupId)
     {
-        $errors =$this->validator->validate($groupId, array(
+        $this->validateValue($groupId, array(
             new NotBlank(),
             new GroupId()
         ));
-        if(count($errors) > 0) {
-            throw new InvalidRequestException(array(
-                'error_description' => $errors->get(0)->getMessage()
-            ));
-        }
 
         $groupManager = $this->modelManagerFactory->getModelManager('group');
         $group = $groupManager->readModelOneBy(array(
             'group_id' => $groupId
         ));
 
-        if(empty($group) || $group->getDeleted() == 1) throw new NotFoundException();
+        if(empty($group)) throw new NotFoundException();
 
-        return new JsonResponse($group->getValuesAsArray(), 200);
+        return $group->asArray();
     }
 
-    function deleteGroup(Application $app, Request $request, $groupId)
+    function handleDeleteGroup(Request $request, $groupId)
     {
 
         $userId = $request->request->get('user_id');
 
-        $errors =$this->validator->validate($groupId, array(
+        $this->validateValue($groupId, array(
             new NotBlank(),
             new GroupId()
         ));
-        if(count($errors) > 0) {
-            throw new InvalidRequestException(array(
-                'error_description' => $errors->get(0)->getMessage()
-            ));
-        }
 
         $groupManager = $this->modelManagerFactory->getModelManager('group');
-        $groupClass =$groupManager->getClassName();
-        $group = new $groupClass();
+        $group =$groupManager->getModel();
         $group->setDeleted(1);
 
         $group = $groupManager->updateModel($group, array(
@@ -116,15 +94,80 @@ class GroupHandler extends AbstractGroupHandler
             'user_id' => $userId
         ));
 
-        if($group==null) throw new UnauthorizedClientException();
+        if($group <= 0) throw new UnauthorizedClientException();
 
         return new JsonResponse(null, 200);
 
     }
 
-    function followGroup(Application $app, Request $request, $groupId)
+    public function handleFollowGroup(Request $request, $groupId)
     {
-        // TODO: Implement followGroup() method.
+        $userId = $request->request->get('user_id');
+
+        $this->validateValue($groupId, array(
+            new NotBlank(),
+            new GroupId()
+        ));
+
+        $followManager = $this->modelManagerFactory->getModelManager('group');
+        $follow = $followManager->getModel();
+
+        $follow->setUserId($userId)
+            ->setParentId($groupId)
+            ->setParentType(Activity::GROUP_TYPE);
+
+        $followManager->createModel($follow);
+
+        $groupManager = $this->modelManagerFactory->getModelManager('group');
+        $groupManager->incrNumOfFollowers();
+
+        return new JsonResponse(null, 200);
+    }
+
+    public function handleShareGroup(Application $app, Request $request, $groupId) {
+        $userId = $request->request->get('user_id');
+
+        $this->validateValue($groupId, array(
+            new NotBlank(),
+            new GroupId()
+        ));
+
+        $shareManager = $this->modelManagerFactory->getModelManager('share');
+        $share = $shareManager->getModel();
+
+        $share->setUserId($userId)
+            ->setParentId($groupId)
+            ->setParentType(Activity::GROUP_TYPE);
+
+        $shareManager->createModel($share);
+
+        $groupManager = $this->modelManagerFactory->getModelManager('group');
+        $groupManager->incrNumOfShares();
+
+        return new JsonResponse(null, 200);
+
+    }
+
+    public function handleFavoriteGroup (Application $app, Request $request, $groupId) {
+        $userId = $request->request->get('user_id');
+
+        $this->validateValue($groupId, array(
+            new NotBlank(),
+            new GroupId()
+        ));
+
+        $favoriteManager = $this->modelManagerFactory->getModelManager('favorite');
+        $favorite = $favoriteManager->getModel();
+
+        $favorite->setUserId($userId)
+            ->setGroupId($groupId);
+
+        $favoriteManager->createModel($favorite);
+
+        $groupManager = $this->modelManagerFactory->getModelManager('group');
+        $groupManager->incrNumOfFavorites();
+
+        return new JsonResponse(null, 200);
     }
 
 }

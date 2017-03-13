@@ -12,8 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 interface GroupHandlerInterface
 {
-    function createGroup(Application $app, Request $request);
-    function getGroup(Application $app, Request $request, $groupId);
-    function deleteGroup(Application $app, Request $request, $groupId);
-    function followGroup(Application $app, Request $request, $groupId);
+    function handleCreateGroup(Request $request);
+    function handleGetGroup(Request $request, $groupId);
+    function handleDeleteGroup(Request $request, $groupId);
+    function handleFollowGroup(Request $request, $groupId);
 }

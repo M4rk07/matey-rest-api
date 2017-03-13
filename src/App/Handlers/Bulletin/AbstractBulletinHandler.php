@@ -121,7 +121,7 @@ abstract class AbstractBulletinHandler extends Activity
         $locations = $locationManager->readModelBy(array(
             'parent_id' => $parentId,
             'parent_type' => $parentType
-        ), null, $limit, null, array('latt', 'longt'));
+        ), null, $limit, null, array('latt', 'longt', 'description'));
 
         $arr = array();
         foreach($locations as $location) {
@@ -139,6 +139,7 @@ abstract class AbstractBulletinHandler extends Activity
                 ->setParentType($parentType)
                 ->setLatt($location->latt)
                 ->setLongt($location->longt);
+            if(isset($location->description)) $newLocation->setDescription($location->description);
             $locationManager->createModel($newLocation);
         }
     }

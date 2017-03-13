@@ -8,15 +8,12 @@
 
 namespace App\Controllers\API;
 
-
 use App\Controllers\AbstractController;
 use App\Handlers\Bulletin\Post\PostHandlerInterface;
-use App\Handlers\Post\PostHandlerFactoryInterface;
-use App\MateyModels\ModelManagerFactoryInterface;
 use Silex\Application;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+
 
 class PostController extends AbstractController
 {
@@ -39,18 +36,27 @@ class PostController extends AbstractController
     }
 
     public function getPostAction (Application $app, Request $request, $postId) {
-        return $this->postHandler
-            ->handleGetSinglePost($app, $request, $postId);
+        $postResult = $this->postHandler
+            ->handleGetSinglePost($postId);
+
+        $replyController = $app['matey.reply_controller'];
+        $repliesResult = $replyController->getRepliesAction($app, $request, $postId);
+        if($repliesResult->getStatusCode() !== 200) return $repliesResult;
+
+        $finalResult['data'] = $postResult[0];
+        $finalResult['data']['replies'] = json_decode($repliesResult->getContent());
+
+        return new JsonResponse($finalResult, 200);
     }
 
     public function getGroupPostsAction (Application $app, Request $request, $groupId) {
         return $this->postHandler
-            ->handleGetPosts($app, $request, 'group', $groupId);
+        ->handleGetPostsByOwner($request, 'group', $groupId);
     }
 
     public function getUserPostsAction (Application $app, Request $request, $userId) {
         return $this->postHandler
-            ->handleGetPosts($app, $request, 'user', $userId);
+            ->handleGetPostsByOwner($request, 'user', $userId);
     }
 
     public function boostAction (Application $app, Request $request, $postId) {

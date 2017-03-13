@@ -78,7 +78,7 @@ mysql_fields=scope
 model_name=location
 class_name=App\MateyModels\Location
 table_name=matey_location
-mysql_fields=parent_id,parent_type,latt,longt
+mysql_fields=parent_id,parent_type,latt,longt,description
 
 model_name=login
 class_name=App\MateyModels\Login

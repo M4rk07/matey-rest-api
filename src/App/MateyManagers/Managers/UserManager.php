@@ -68,7 +68,7 @@ class UserManager extends AbstractManager
     }
 
     public function initializeUserStatistics(User $user) {
-        $this->redis->hmset($this->getRedisKey().":counts:".$user->getUserId(), array(
+        $this->redis->hmset($this->getRedisKey().":statistics:".$user->getUserId(), array(
             self::FIELD_NUM_OF_FOLLOWERS => 0,
             self::FIELD_NUM_OF_FOLLOWING => 0,
             self::FIELD_NUM_OF_POSTS => 0,
@@ -83,7 +83,7 @@ class UserManager extends AbstractManager
 
     public function getUserStatistics (User $user) {
 
-        $userStatistics = $this->redis->hgetall($this->getRedisKey().":counts:".$user->getUserId());
+        $userStatistics = $this->redis->hgetall($this->getRedisKey().":statistics:".$user->getUserId());
 
         $user->setValuesFromArray($userStatistics);
 
@@ -92,47 +92,47 @@ class UserManager extends AbstractManager
     }
 
     public function incrNumOfFollowers(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWERS, $incrBy);
+        $this->redis->hincrby($this->getRedisKey().":statistics:".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWERS, $incrBy);
     }
 
     public function decrNumOfFollowers(User $user, $decrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWERS, $decrBy);
+        $this->redis->hincrby($this->getRedisKey().":statistics:".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWERS, $decrBy);
     }
 
     public function incrNumOfFollowing(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWING, $incrBy);
+        $this->redis->hincrby($this->getRedisKey().":statistics:".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWING, $incrBy);
     }
 
     public function decrNumOfFollowing(User $user, $decrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWING, $decrBy);
+        $this->redis->hincrby($this->getRedisKey().":statistics:".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWING, $decrBy);
     }
 
     public function incrNumOfPosts(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_POSTS, $incrBy);
+        $this->redis->hincrby($this->getRedisKey().":statistics:".$user->getUserId(), self::FIELD_NUM_OF_POSTS, $incrBy);
     }
 
     public function incrNumOfGivenApproves(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_GIVEN_APPROVES, $incrBy);
+        $this->redis->hincrby($this->getRedisKey().":statistics:".$user->getUserId(), self::FIELD_NUM_OF_GIVEN_APPROVES, $incrBy);
     }
 
     public function incrNumOfReceivedApproves(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_RECEIVED_APPROVES, $incrBy);
+        $this->redis->hincrby($this->getRedisKey().":statistics:".$user->getUserId(), self::FIELD_NUM_OF_RECEIVED_APPROVES, $incrBy);
     }
 
     public function incrNumOfGivenReplies(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_GIVEN_REPLIES, $incrBy);
+        $this->redis->hincrby($this->getRedisKey().":statistics:".$user->getUserId(), self::FIELD_NUM_OF_GIVEN_REPLIES, $incrBy);
     }
 
     public function incrNumOfReceivedReplies(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_RECEIVED_REPLIES, $incrBy);
+        $this->redis->hincrby($this->getRedisKey().":statistics:".$user->getUserId(), self::FIELD_NUM_OF_RECEIVED_REPLIES, $incrBy);
     }
 
     public function incrNumOfBestReplies(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_BEST_REPLIES, $incrBy);
+        $this->redis->hincrby($this->getRedisKey().":statistics:".$user->getUserId(), self::FIELD_NUM_OF_BEST_REPLIES, $incrBy);
     }
 
     public function incrNumOfShares(User $user, $incrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":counts:".$user->getUserId(), self::FIELD_NUM_OF_SHARES, $incrBy);
+        $this->redis->hincrby($this->getRedisKey().":statistics:".$user->getUserId(), self::FIELD_NUM_OF_SHARES, $incrBy);
     }
 
     public function pushDeck (User $user, $posts) {
@@ -143,7 +143,7 @@ class UserManager extends AbstractManager
         $this->redis->ltrim($this->getRedisKey().":deck:".$user->getUserId(), 0, DefaultNumbers::DECK_CAPACITY);
     }
 
-    public function getDeck (User $user, $start = 0, $stop = 10) {
+    public function getDeck (User $user, $start = 0, $stop = -1) {
         return $this->redis->lrange($this->getRedisKey().":deck:".$user->getUserId(), $start, $stop);
     }
 

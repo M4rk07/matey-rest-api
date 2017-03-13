@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 abstract class AbstractPostHandler extends AbstractBulletinHandler  implements PostHandlerInterface
 {
 
-    public function mergePostsAndUsers ($posts, $users) {
+    protected function mergePostsAndUsers ($posts, $users) {
         $postManager = $this->modelManagerFactory->getModelManager('post');
 
         if(!is_array($posts)) $posts = array($posts);
@@ -49,9 +49,9 @@ abstract class AbstractPostHandler extends AbstractBulletinHandler  implements P
         return $finalResult;
     }
 
-    public function getPosts ($criteria, $limit = DefaultNumbers::POSTS_LIMIT, $offset = 0) {
+    protected function getPosts ($criteria, $count = DefaultNumbers::POSTS_LIMIT) {
         $postManager = $this->modelManagerFactory->getModelManager('post');
-        $posts = $postManager->readModelBy($criteria, array('time_c' => 'DESC'), $limit, $offset);
+        $posts = $postManager->readModelBy($criteria, array('post_id' => 'DESC'), $count);
 
         $userIds = array();
         foreach($posts as $post) {
@@ -61,7 +61,7 @@ abstract class AbstractPostHandler extends AbstractBulletinHandler  implements P
         $userManager = $this->modelManagerFactory->getModelManager('user');
         $users = $userManager->readModelBy(array(
             'user_id' => array_unique($userIds)
-        ), null, $limit, $offset, array('user_id', 'first_name', 'last_name'));
+        ), null, $count, null, array('user_id', 'first_name', 'last_name'));
 
         return $this->mergePostsAndUsers($posts, $users);
     }

@@ -135,8 +135,7 @@ class MateyServiceProvider implements ServiceProviderInterface
         $app['matey.group_handler'] = $app->share(function($app) {
             return new GroupHandler(
                 $app['validator'],
-                $app['matey.model_manager.factory'],
-                $app['matey.handlers.group']
+                $app['matey.model_manager.factory']
             );
         });
 
@@ -186,12 +185,6 @@ class MateyServiceProvider implements ServiceProviderInterface
         $app['matey.user_controller'] = $app->share(function () use ($app) {
             return new UserController(
                 $app['matey.user_handler.factory']
-            );
-        });
-
-        $app['matey.file_controller'] = $app->share(function () use ($app) {
-            return new FileController(
-                $app['matey.file_handler.factory']
             );
         });
 

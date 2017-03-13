@@ -35,9 +35,9 @@ abstract class AbstractRereplyHandler extends AbstractReplyHandler implements Re
         return $finalResult;
     }
 
-    public function getRereplies($criteria, $limit = DefaultNumbers::REREPLIES_LIMIT, $offset = 0) {
+    public function getRereplies($criteria, $count = DefaultNumbers::REREPLIES_LIMIT) {
         $rereplyManager = $this->modelManagerFactory->getModelManager('rereply');
-        $rereplies = $rereplyManager->readModelBy($criteria, array('time_c' => 'DESC'), $limit, $offset);
+        $rereplies = $rereplyManager->readModelBy($criteria, array('rereply_id' => 'DESC'), $count);
 
         $userIds = array();
         foreach($rereplies as $rereply) {
@@ -47,7 +47,7 @@ abstract class AbstractRereplyHandler extends AbstractReplyHandler implements Re
         $userManager = $this->modelManagerFactory->getModelManager('user');
         $users = $userManager->readModelBy(array(
             'user_id' => array_unique($userIds)
-        ), null, $limit, $offset, array('user_id', 'first_name', 'last_name'));
+        ), null, $count, null, array('user_id', 'first_name', 'last_name'));
 
         return $this->mergeRerepliesAndUsers($rereplies, $users);
     }

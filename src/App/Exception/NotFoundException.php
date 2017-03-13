@@ -19,7 +19,7 @@ class NotFoundException extends \InvalidArgumentException implements ExceptionIn
     {
 
         $message['error'] = 'not_found';
-        $message['error_description'] = 'Resource can not be found.';
+        $message['description'] = 'Resource can not be found.';
 
         parent::__construct(serialize($message), $code, $previous);
     }

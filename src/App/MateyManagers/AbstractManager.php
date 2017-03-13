@@ -141,15 +141,20 @@ abstract class AbstractManager implements ModelManagerInterface
 
         $counter = 0;
         foreach($criteria as $key => $value) {
+
+            $keySign = $this->getSign($key);
+            $key = $keySign[0];
+            $sign = $keySign[1];
+
             $key = $this->makeColumnName($key);
             if(is_array($value)) {
                 foreach($value as $val) {
-                    $queryBuilder->orWhere($key . "=?");
+                    $queryBuilder->orWhere($key . $sign . "?");
                     $queryBuilder->setParameter($counter++, $val);
                 }
             }
             else {
-                $queryBuilder->andWhere($key . "=?");
+                $queryBuilder->andWhere($key . $sign . "?");
                 $queryBuilder->setParameter($counter++, $value);
             }
         }
@@ -246,6 +251,17 @@ abstract class AbstractManager implements ModelManagerInterface
         else if(strcmp($key, "refreshToken") == 0) $key = "refresh_token";
 
         return $key;
+    }
+
+    public function getSign ($key) {
+        $keySign = explode(":", $key);
+
+        if(!empty($keySign) && count($keySign) == 2) {
+            $sign = $keySign[1];
+            $key = $keySign[0];
+        } else $sign = "=";
+
+        return array($key, $sign);
     }
 
 }

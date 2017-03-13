@@ -16,6 +16,7 @@ class Location extends AbstractModel
     protected $parentType;
     protected $latt;
     protected $longt;
+    protected $description;
 
     /**
      * @return mixed
@@ -85,6 +86,23 @@ class Location extends AbstractModel
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param mixed $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+        return $this;
+    }
+
     public function getSetFunction (array $props, $type = 'get') {
         if($props['key'] == 'parent_id') {
             if($type == 'get') return $this->getParentId();
@@ -101,6 +119,10 @@ class Location extends AbstractModel
         else if($props['key'] == 'longt') {
             if($type == 'get') return $this->getLongt();
             else return $this->setLongt($props['value']);
+        }
+        else if($props['key'] == 'description') {
+            if($type == 'get') return $this->getDescription();
+            else return $this->setDescription($props['value']);
         }
     }
 

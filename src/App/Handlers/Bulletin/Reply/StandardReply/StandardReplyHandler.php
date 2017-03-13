@@ -79,9 +79,10 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
         $post->setPostId($postId);
         $postManager->incrNumOfReplies($post);
 
-        $finalResult = $this->getReplies(array(
+        $replyResult = $this->getReplies(array(
             'reply_id' => $reply->getReplyId()
         ), 1);
+        $finalResult['data'] = $replyResult[0];
 
         return new JsonResponse($finalResult, 200);
     }
@@ -104,14 +105,19 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
     }
 
     public function handleGetReplies(Application $app, Request $request, $postId) {
-        $limit = $request->query->get('limit');
-        $offset = $request->query->get('offset');
+        $pagParams = $this->getPaginationData($request, array(
+            'def_max_id' => null,
+            'def_count' => DefaultNumbers::REREPLIES_LIMIT
+        ));
 
-        $finalResult = $this->getReplies(array(
-            'post_id' => $postId
-        ), $limit, $offset);
+        $criteria['post_id'] = $postId;
+        if(!empty($pagParams['max_id'])) $criteria['reply_id:<'] = $pagParams['max_id'];
 
-        $paginationService = new PaginationService($finalResult, $limit, $offset,
+        $finalResult = $this->getReplies($criteria, $pagParams['count']);
+
+        $nexMaxId = $finalResult[count($finalResult)-1]['reply_id'];
+
+        $paginationService = new PaginationService($finalResult, $nexMaxId, $pagParams['count'],
             '/posts/'.$postId.'/replies');
 
         return new JsonResponse($paginationService->getResponse(), 200);

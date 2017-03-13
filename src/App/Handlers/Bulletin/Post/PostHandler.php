@@ -65,8 +65,10 @@ class PostHandler extends AbstractPostHandler
         try {
             // Writing Post model to database
             $post = $postManager->createModel($post);
-
             $this->createActivity($post->getPostId(), $userId, $jsonData['group_id'], Activity::GROUP_TYPE, Activity::POST_TYPE);
+            if($post->getLocationsNum() > 0) {
+                $this->insertLocations($jsonData['locations'], $post->getPostId(), Activity::POST_TYPE);
+            }
 
             // Commiting transaction on success
             $postManager->commitTransaction();
@@ -74,18 +76,6 @@ class PostHandler extends AbstractPostHandler
             // Rollback transaction on failure
             $postManager->rollbackTransaction();
             throw new ServerErrorException();
-        }
-
-        if($post->getLocationsNum() > 0) {
-            $locationManager = $this->modelManagerFactory->getModelManager('location');
-            foreach($jsonData['locations'] as $location) {
-                $newLocation = $locationManager->getModel();
-                $newLocation->setParentId($post->getPostId())
-                    ->setParentType(Activity::POST_TYPE)
-                    ->setLatt($location->latt)
-                    ->setLongt($location->longt);
-                $locationManager->createModel($newLocation);
-            }
         }
 
         // Calling the service for uploading Post attachments to S3 storage
@@ -101,9 +91,10 @@ class PostHandler extends AbstractPostHandler
         $user->setUserId($userId);
         $userManager->incrNumOfPosts($user);
 
-        $finalResult = $this->getPosts(array(
+        $postResult = $this->getPosts(array(
             'post_id' => $post->getPostId()
-        ));
+        ), 1);
+        $finalResult['data'] = $postResult[0];
 
         return new JsonResponse($finalResult, 200);
 
@@ -126,39 +117,31 @@ class PostHandler extends AbstractPostHandler
         return new JsonResponse(null, 200);
     }
 
-    public function handleGetSinglePost (Application $app, Request $request, $postId) {
-
-        $postResult = $this->getPosts(array(
+    public function handleGetSinglePost ($postId) {
+        return $this->getPosts(array(
             'post_id' => $postId
         ), 1);
-
-        $replyHandler = $app['matey.reply_handler'];
-        $repliesResult = $replyHandler->getReplies(array(
-            'post_id' => $postId
-        ), DefaultNumbers::REPLIES_LIMIT);
-
-        $postResult[0]['replies'] = $repliesResult;
-
-        return new JsonResponse($postResult, 200);
     }
 
-    public function handleGetPosts(Application $app, Request $request, $type, $id) {
+    public function handleGetPostsByOwner(Request $request, $ownerType, $id) {
+        $pagParams = $this->getPaginationData($request, array(
+            'def_max_id' => null,
+            'def_count' => DefaultNumbers::POSTS_LIMIT
+        ));
 
-        $limit = $request->query->get('limit');
-        $offset = $request->query->get('offset');
+        if($ownerType == 'user') $criteria['user_id'] = $id;
+        else $criteria['group_id'] = $id;
 
-        if($type == 'user') {
-            $finalResult = $this->getPosts(array(
-                'user_id' => $id
-            ), $limit, $offset);
-        } else {
-            $finalResult = $this->getPosts(array(
-                'user_id' => $id
-            ), $limit, $offset);
-        }
+        if(!empty($pagParams['max_id'])) $criteria['post_id:<'] = $pagParams['max_id'];
 
-        $paginationService = new PaginationService($finalResult, $limit, $offset,
-            $type =='user' ? '/users/'.$id.'/posts' : '/groups/'.$id.'/posts');
+        $postResult = $this->getPosts($criteria, $pagParams['count']);
+
+        if(($resultNum = count($postResult)) > 0)
+            $nextMaxId = $postResult[$resultNum-1]['post_id'];
+        else $nextMaxId=null;
+
+        $paginationService = new PaginationService($postResult, $nextMaxId, $pagParams['count'],
+            '/groups/'.$id.'/posts');
 
         return new JsonResponse($paginationService->getResponse(), 200);
     }
@@ -252,8 +235,26 @@ class PostHandler extends AbstractPostHandler
     public function handleGetDeck (Application $app, Request $request, $groupId = null) {
 
         $userId = $request->request->get('user_id');
-        $limit = $request->query->get('limit');
-        $offset = $request->query->get('offset');
+        $pagParams = $this->getPaginationData($request, array(
+            'def_max_id' => null,
+            'def_count' => DefaultNumbers::POSTS_LIMIT
+        ));
+
+        $finalResult = $this->getDeck($userId, $groupId, $pagParams);
+
+        $nextMaxId = $finalResult[count($finalResult)-1]['activity_object']['post_id'];
+
+        if($groupId !== null)
+            $paginationService = new PaginationService($finalResult, $nextMaxId, $pagParams['count'], '/groups/'.$groupId.'/deck');
+        else
+            $paginationService = new PaginationService($finalResult, $nextMaxId, $pagParams['count'], '/deck');
+
+        return new JsonResponse($paginationService->getResponse(), 200);
+
+    }
+
+    public function getDeck ($userId, $groupId, $pagParams) {
+
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
         $groupManager = $this->modelManagerFactory->getModelManager('group');
@@ -263,13 +264,21 @@ class PostHandler extends AbstractPostHandler
         $group->setGroupId($groupId);
 
         if($groupId !== null)
-            $postIds = $groupManager->getDeck($group, $offset, $offset+$limit);
+            $allPostIds = $groupManager->getDeck($group);
         else
-            $postIds = $userManager->getDeck($user, $offset, $offset+$limit);
+            $allPostIds = $userManager->getDeck($user);
+
+        $maxIdKey = 0;
+        if(!empty($pagParams['max_id'])) $maxIdKey = (int)(array_search($pagParams['max_id'], $allPostIds)) + 1;
+
+        $postIds = array();
+        for($i = $maxIdKey; $i < $maxIdKey + $pagParams['count']; $i++) {
+            $postIds[] = $allPostIds[$i];
+        }
 
         $finalPosts = $this->getPosts(array(
             'post_id' => $postIds
-        ));
+        ), $pagParams['count']);
 
         $finalResult = array();
         foreach($finalPosts as $finalPost) {
@@ -279,13 +288,7 @@ class PostHandler extends AbstractPostHandler
             $finalResult[]= $arr;
         }
 
-        if($type == 'group')
-            $paginationService = new PaginationService($finalResult, $limit, $offset, '/groups/'.$groupId.'/deck');
-        else
-            $paginationService = new PaginationService($finalResult, $limit, $offset, '/deck');
-
-        return new JsonResponse($paginationService->getResponse(), 200);
-
+        return $finalResult;
     }
 
     // Method for pushing newly created Post to Feeds

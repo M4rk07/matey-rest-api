@@ -10,14 +10,17 @@ namespace App\Handlers\Device;
 
 
 use App\Constants\Defaults\DefaultDates;
+use App\Exception\NotFoundException;
 use App\MateyModels\Login;
 use App\Security\SecretGenerator;
 use App\Validators\DeviceId;
+use App\Validators\GCM;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Symfony\Component\Security\Core\Exception\InvalidArgumentException;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDeviceInterface
@@ -26,9 +29,9 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
     {
         $gcm = $request->request->get("gcm");
         $this->validateValue($gcm, array(
-            new NotBlank()
+            new NotBlank(),
+            new GCM()
         ));
-
 
         $secretGenerator = new SecretGenerator();
         $deviceSecret = $secretGenerator->generateDeviceSecret();
@@ -44,7 +47,7 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
          */
         $device = $deviceManager->createModel($device);
 
-        return new JsonResponse($device->asArray($deviceManager->getAllFields()), 200);
+        return new JsonResponse($device->asArray(), 200);
     }
 
     public function handleUpdateDevice (Application $app, Request $request, $deviceId)
@@ -52,21 +55,22 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
         $oldGcm = $request->request->get("old_gcm");
         $gcm = $request->request->get("gcm");
 
-        $errors = $this->validator->validate($deviceId, [
+        $this->validateValue($deviceId, array(
             new NotBlank(),
             new DeviceId()
-        ]);
-        if (count($errors) > 0) {
-            throw new InvalidRequestException([
-                'error_description' => 'The request includes an invalid parameter value.',
-            ]);
-        }
-
-        $deviceManager = $this->modelManagerFactory->getModelManager('device');
+        ));
+        $this->validateValue($oldGcm, array(
+            new NotBlank(),
+            new GCM()
+        ));
+        $this->validateValue($gcm, array(
+            new NotBlank(),
+            new GCM()
+        ));
 
         $device = $this->updateGcmById($deviceId, $gcm, $oldGcm);
 
-        return new JsonResponse($device->asArray($deviceManager->getAllFields()), 200);
+        return new JsonResponse($device->asArray(), 200);
     }
 
     public function handleLogin (Application $app, Request $request, $deviceId)
@@ -135,22 +139,6 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
 
     public function updateGcmById($deviceId, $gcm, $oldGcm)
     {
-        $errors = $this->validator->validate($oldGcm, [
-            new NotBlank()
-        ]);
-        if (count($errors) > 0) {
-            throw new InvalidRequestException([
-                'error_description' => 'The request includes an invalid parameter value.',
-            ]);
-        }
-        $errors = $this->validator->validate($gcm, [
-            new NotBlank()
-        ]);
-        if (count($errors) > 0) {
-            throw new InvalidRequestException([
-                'error_description' => 'The request includes an invalid parameter value.',
-            ]);
-        }
 
         $deviceManager = $this->modelManagerFactory->getModelManager('device');
         $deviceClass = $deviceManager->getClassName();
@@ -159,9 +147,11 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
         $device->setDeviceId($deviceId)
             ->setGcm($gcm);
 
-        $deviceManager->updateModel($device, array(
+        $result = $deviceManager->updateModel($device, array(
             'gcm' => $oldGcm
         ));
+
+        if($result <= 0) throw new NotFoundException();
 
         return $device;
     }

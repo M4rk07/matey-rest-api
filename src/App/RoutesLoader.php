@@ -33,7 +33,7 @@ class RoutesLoader
 
         // Matey API controllers
         $this->app->post('/devices', 'matey.device_controller:createDeviceAction');
-        $this->app->put('/devices/{deviceId}', 'matey.device_controller:updateDeviceAction');
+        $api->put('/devices/{deviceId}', 'matey.device_controller:updateDeviceAction');
 
         $this->app->post('/users/accounts', 'matey.account_controller:createAccountAction');
         $api->post('/users/me/accounts', 'matey.account_controller:createNewAccountAction');
