@@ -292,7 +292,8 @@ CREATE TABLE IF NOT EXISTS matey_location (
   parent_id int(11) UNSIGNED NOT NULL,
   parent_type varchar(20) CHARACTER SET utf8,
   latt varchar(20) CHARACTER SET utf8,
-  longt varchar(20) CHARACTER SET utf8
+  longt varchar(20) CHARACTER SET utf8,
+  description VARCHAR(100) CHARACTER SET utf8
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------

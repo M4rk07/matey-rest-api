@@ -59,7 +59,6 @@ abstract class AbstractModel implements ModelInterface
             $props['key'] = $field;
             $thisValue = $this->getSetFunction($props);
 
-            if($thisValue === null && $field == 'group_id') $keyValues[$field] = null;
             if(isset($thisValue)) {
                 if($thisValue instanceof \DateTime) $thisValue = $thisValue->format(DefaultDates::DATE_FORMAT);
                 $keyValues[$field] = $thisValue;

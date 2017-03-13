@@ -72,12 +72,11 @@ class GroupHandler extends AbstractGroupHandler
 
         if(empty($group)) throw new NotFoundException();
 
-        return $group->asArray();
+        return $group->asArray(array_diff($groupManager->getAllFields(), array('deleted')));
     }
 
     function handleDeleteGroup(Request $request, $groupId)
     {
-
         $userId = $request->request->get('user_id');
 
         $this->validateValue($groupId, array(
@@ -89,12 +88,10 @@ class GroupHandler extends AbstractGroupHandler
         $group =$groupManager->getModel();
         $group->setDeleted(1);
 
-        $group = $groupManager->updateModel($group, array(
+        $groupManager->updateModel($group, array(
             'group_id' => $groupId,
             'user_id' => $userId
         ));
-
-        if($group <= 0) throw new UnauthorizedClientException();
 
         return new JsonResponse(null, 200);
 

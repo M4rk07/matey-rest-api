@@ -141,7 +141,7 @@ class PostHandler extends AbstractPostHandler
         else $nextMaxId=null;
 
         $paginationService = new PaginationService($postResult, $nextMaxId, $pagParams['count'],
-            '/groups/'.$id.'/posts');
+            $ownerType == 'group' ? '/groups/'.$id.'/posts' : '/users/'.$id.'/posts');
 
         return new JsonResponse($paginationService->getResponse(), 200);
     }
@@ -242,7 +242,9 @@ class PostHandler extends AbstractPostHandler
 
         $finalResult = $this->getDeck($userId, $groupId, $pagParams);
 
-        $nextMaxId = $finalResult[count($finalResult)-1]['activity_object']['post_id'];
+        if(($resultNum = count($finalResult)) > 0)
+            $nextMaxId = $finalResult[count($finalResult)-1]['activity_object']['post_id'];
+        else $nextMaxId=null;
 
         if($groupId !== null)
             $paginationService = new PaginationService($finalResult, $nextMaxId, $pagParams['count'], '/groups/'.$groupId.'/deck');
@@ -273,8 +275,11 @@ class PostHandler extends AbstractPostHandler
 
         $postIds = array();
         for($i = $maxIdKey; $i < $maxIdKey + $pagParams['count']; $i++) {
+            if(!isset($allPostIds[$i])) break;
             $postIds[] = $allPostIds[$i];
         }
+
+        if(empty($postIds)) return array();
 
         $finalPosts = $this->getPosts(array(
             'post_id' => $postIds

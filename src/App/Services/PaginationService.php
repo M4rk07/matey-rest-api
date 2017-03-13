@@ -29,12 +29,12 @@ class PaginationService
 
     public function getResponse () {
         $response['data'] = $this->responseData;
-        $response['size'] = count($this->responseData);
-        $response['count'] = $this->count;
+        $response['pagination']['size'] = count($this->responseData);
+        $response['pagination']['count'] = $this->count;
 
-        $response['_links']['base'] = Paths::BASE_API_URL;
-        if($response['size'] == $response['count'])
-            $response['_links']['next'] =
+        $response['pagination']['_links']['base'] = Paths::BASE_API_URL;
+        if($response['pagination']['size'] == $response['pagination']['count'])
+            $response['pagination']['_links']['next'] =
                 Paths::API_ENDPOINT.'/'.Paths::API_VERSION.$this->route.
                 '?max_id='.$this->nextMaxId.'&count='.$this->count;
         /*

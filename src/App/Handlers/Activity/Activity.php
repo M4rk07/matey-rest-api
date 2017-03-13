@@ -15,9 +15,9 @@ class Activity extends AbstractActivity
 
         $activity->setSourceId($sourceId)
             ->setUserId($userId)
-            ->setParentId($parentId)
             ->setParentType($parentType)
-            ->setActivityType($activityType);
+            ->setActivityType($activityType)
+            ->setParentId($parentId);
 
         // Writing Activity model to database
         $activityManager->createModel($activity);

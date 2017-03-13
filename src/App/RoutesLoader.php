@@ -56,7 +56,7 @@ class RoutesLoader
         // POST CONTROLLER
         $api->post('/posts', 'matey.post_controller:createPostAction');
         $api->delete('/posts/{postId}', 'matey.post_controller:deletePostAction');
-        $api->get('/group/{groupId}/posts', 'matey.post_controller:getGroupPostsAction');
+        $api->get('/groups/{groupId}/posts', 'matey.post_controller:getGroupPostsAction');
         $api->get('/users/{userId}/posts', 'matey.post_controller:getUserPostsAction');
         $api->get('/posts/{postId}', 'matey.post_controller:getPostAction');
         $api->put('/posts/{postId}/boosts', 'matey.post_controller:boostAction');

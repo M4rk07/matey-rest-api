@@ -28,7 +28,7 @@ class Activity extends AbstractModel
     protected $activityId;
     protected $userId;
     protected $sourceId;
-    protected $parentId = null;
+    protected $parentId;
     protected $parentType;
     protected $activityType;
     protected $timeC;
@@ -50,7 +50,8 @@ class Activity extends AbstractModel
      */
     public function setActivityId($activityId)
     {
-        $this->activityId = (int)$activityId;
+        if($activityId !== null) $activityId = (int) $activityId;
+        $this->activityId = $activityId;
         return $this;
     }
 
@@ -68,7 +69,8 @@ class Activity extends AbstractModel
      */
     public function setUserId($userId)
     {
-        $this->userId = (int)$userId;
+        if($userId !== null) $userId = (int) $userId;
+        $this->userId = $userId;
         return $this;
     }
 
@@ -85,7 +87,8 @@ class Activity extends AbstractModel
      */
     public function setSourceId($sourceId)
     {
-        $this->sourceId = (int)$sourceId;
+        if($sourceId !== null) $sourceId = (int) $sourceId;
+        $this->sourceId = $sourceId;
         return $this;
     }
 
@@ -102,7 +105,8 @@ class Activity extends AbstractModel
      */
     public function setParentId($parentId)
     {
-        $this->parentId = (int)$parentId;
+        if($parentId !== null) $parentId = (int) $parentId;
+        $this->parentId = $parentId;
         return $this;
     }
 

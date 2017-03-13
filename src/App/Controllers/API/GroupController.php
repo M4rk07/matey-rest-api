@@ -42,11 +42,11 @@ class GroupController extends AbstractController
         $finalResult['data'] = $groupResult;
 
         $postController = $app['matey.post_controller'];
-        $deckResult = $postController->handleGetDeck($app, $request, $groupId);
+        $deckResult = $postController->getGroupDeckAction($app, $request, $groupId);
         if($deckResult->getStatusCode() !== 200) return $deckResult;
         $deckResult = json_decode($deckResult->getContent());
 
-        $finalResult['posts'] = $deckResult;
+        $finalResult['data']['posts'] = $deckResult;
 
         return new JsonResponse($finalResult, 200);
     }
