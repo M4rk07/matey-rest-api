@@ -13,6 +13,7 @@ use App\Constants\Defaults\DefaultNumbers;
 use App\Exception\NotFoundException;
 use App\MateyModels\Activity;
 use App\Paths\Paths;
+use App\Services\PaginationService;
 use App\Validators\GroupId;
 use App\Validators\GroupPrivacy;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
@@ -51,11 +52,12 @@ class GroupHandler extends AbstractGroupHandler
         $group = $groupManager->createModel($group);
         $this->createActivity($group->getGroupId(),$userId,null,Activity::GROUP_TYPE,Activity::GROUP_TYPE);
 
-        $groupResult = $group->asArray();
-        $finalResult['data'] = $groupResult;
+        $group = $groupManager->readModelOneBy(array(
+            'group_id' => $group->getGroupId()
+        ));
+        $finalResult['data'] = $group->asArray();
 
         return new JsonResponse($finalResult, 200);
-
     }
 
     function handleGetGroup(Request $request, $groupId)
@@ -165,6 +167,41 @@ class GroupHandler extends AbstractGroupHandler
         $groupManager->incrNumOfFavorites();
 
         return new JsonResponse(null, 200);
+    }
+
+    public function handleGetFollowingGroups (Request $request, $userId) {
+        $pagParams = $this->getPaginationData($request, array(
+            'def_max_id' => null,
+            'def_count' => DefaultNumbers::POSTS_LIMIT
+        ));
+
+        $criteria['user_id'] = $userId;
+        $criteria['parent_type'] = Activity::GROUP_TYPE;
+
+        if(!empty($pagParams['max_id'])) $criteria['parent_id:<'] = $pagParams['max_id'];
+
+        $followManager = $this->modelManagerFactory->getModelManager('follow');
+        $follows = $followManager->readModelBy($criteria, array('parent_id' => 'DESC'), $pagParams['count']);
+
+        $groupIds = array();
+        foreach ($follows as $follow) {
+            $groupIds[] = $follow->getParentId();
+        }
+
+        $groupManager = $this->modelManagerFactory->getModelManager('group');
+        $groups = $groupManager->readModelBy(array(
+            'group_id' => array_unique($groupIds)
+        ), array('group_id' => 'DESC'), $pagParams['count'], null, array('group_id', 'group_name', 'statistics'));
+
+        $groupResult = array();
+        foreach($groups as $group) {
+            $groupResult[] = $group->asArray();
+        }
+
+        $paginationService = new PaginationService($groupResult, $pagParams['count'],
+            '/users/'.$userId.'/groups/following', 'group_id');
+
+        return new JsonResponse($paginationService->getResponse(), 200);
     }
 
 }

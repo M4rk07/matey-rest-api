@@ -19,12 +19,27 @@ class PaginationService
     protected $count;
     protected $route;
 
-    public function __construct($responseData, $nextMaxId, $count, $route)
+    public function __construct($responseData, $count, $route, $identifier)
     {
         $this->responseData = $responseData;
-        $this->nextMaxId = $nextMaxId;
         $this->count = $count;
         $this->route = $route;
+        $this->nextMaxId = $this->getNexMaxId($responseData, $identifier);
+    }
+
+    public function getNexMaxId($responseData, $identifier) {
+        if(($resultNum = count($responseData)) > 0) {
+            if (!is_array($identifier))
+                return $responseData[$resultNum - 1][$identifier];
+            else {
+                $arr = $responseData[$resultNum - 1];
+                foreach ($identifier as $key) {
+                    $arr = $arr[$key];
+                }
+                return $arr;
+            }
+        }
+        return null;
     }
 
     public function getResponse () {

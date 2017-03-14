@@ -12,6 +12,7 @@ use App\Controllers\API\ProfileController;
 use App\Controllers\API\ProfilePictureController;
 use App\Controllers\API\ReplyController;
 use App\Controllers\API\RereplyController;
+use App\Controllers\API\SearchController;
 use App\Controllers\API\TestDataController;
 use App\Controllers\API\UserController;
 use App\Controllers\RegistrationController;
@@ -32,6 +33,7 @@ use App\Handlers\MergeAccount\MergeAccountHandlerFactory;
 use App\Handlers\Post\PostHandlerFactory;
 use App\Handlers\Profile\ProfileHandlerFactory;
 use App\Handlers\ProfilePicture\ProfilePictureHandler;
+use App\Handlers\Search\SearchHandler;
 use App\Handlers\TestingData\TestingDataHandler;
 use App\MateyModels\Group;
 use App\MateyModels\ModelManagerFactory;
@@ -160,6 +162,13 @@ class MateyServiceProvider implements ServiceProviderInterface
             );
         });
 
+        $app['matey.search_handler'] = $app->share(function($app) {
+            return new SearchHandler(
+                $app['validator'],
+                $app['matey.model_manager.factory']
+            );
+        });
+
         $app['matey.testingdata_handler'] = $app->share(function($app) {
             return new TestingDataHandler(
                 $app['validator'],
@@ -212,6 +221,12 @@ class MateyServiceProvider implements ServiceProviderInterface
             );
         });
 
+        $app['matey.search_controller'] = $app->share(function () use ($app) {
+            return new SearchController(
+                $app['matey.search_handler']
+            );
+        });
+
         $app['matey.testingdata_controller'] = $app->share(function () use ($app) {
             return new \App\Controllers\TEST\TestDataController(
                 $app['validator'],
@@ -219,35 +234,6 @@ class MateyServiceProvider implements ServiceProviderInterface
                 $app['matey.testingdata_handler']
             );
         });
-
-        $app['before.pagination_params'] = function (Application $app, Request $request) {
-            $limit = $request->query->get('limit');
-            $offset = $request->query->get('offset');
-
-            $validator = $app['validator'];
-
-            $errors = $validator->validate($limit, array(
-                new NotBlank(),
-                new UnsignedInteger()
-            ));
-
-            if (count($errors) > 0) {
-                throw new InvalidRequestException([
-                    'error_description' => $errors->get(0)->getMessage(),
-                ]);
-            }
-
-            $errors = $validator->validate($offset, array(
-                new NotBlank(),
-                new PositiveInteger()
-            ));
-
-            if (count($errors) > 0) {
-                throw new InvalidRequestException([
-                    'error_description' => $errors->get(0)->getMessage(),
-                ]);
-            }
-        };
 
     }
 

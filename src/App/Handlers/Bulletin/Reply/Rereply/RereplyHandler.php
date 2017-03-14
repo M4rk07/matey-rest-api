@@ -107,10 +107,8 @@ class RereplyHandler extends AbstractRereplyHandler
 
         $finalResult = $this->getRereplies($criteria, $pagParams['count']);
 
-        $nexMaxId = $finalResult[count($finalResult)-1]['rereply_id'];
-
-        $paginationService = new PaginationService($finalResult, $nexMaxId, $pagParams['count'],
-            '/replies/'.$replyId.'/rereplies');
+        $paginationService = new PaginationService($finalResult, $pagParams['count'],
+            '/replies/'.$replyId.'/rereplies', 'rereply_id');
 
         return new JsonResponse($paginationService->getResponse(), 200);
 

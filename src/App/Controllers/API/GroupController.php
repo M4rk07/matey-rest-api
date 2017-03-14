@@ -56,4 +56,11 @@ class GroupController extends AbstractController
             ->handleDeleteGroup($request, $groupId);
     }
 
+    public function getFollowingGroupsAction (Application $app, Request $request, $userId) {
+        if($userId == 'me') $userId = $request->request->get('user_id');
+
+        return $this->groupHandler
+            ->handleGetFollowingGroups($request, $userId);
+    }
+
 }

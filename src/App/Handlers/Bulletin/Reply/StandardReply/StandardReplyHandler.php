@@ -115,10 +115,8 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
 
         $finalResult = $this->getReplies($criteria, $pagParams['count']);
 
-        $nexMaxId = $finalResult[count($finalResult)-1]['reply_id'];
-
-        $paginationService = new PaginationService($finalResult, $nexMaxId, $pagParams['count'],
-            '/posts/'.$postId.'/replies');
+        $paginationService = new PaginationService($finalResult, $pagParams['count'],
+            '/posts/'.$postId.'/replies', 'reply_id');
 
         return new JsonResponse($paginationService->getResponse(), 200);
     }

@@ -218,6 +218,9 @@ class Group extends AbstractModel
             if($type == 'get') return $this->getDeleted();
             else return $this->setDeleted($props['value']);
         }
+        else if($props['key'] == 'group_picture_url') {
+            if($type == 'get') return $this->getGroupPicture();
+        }
     }
 
 

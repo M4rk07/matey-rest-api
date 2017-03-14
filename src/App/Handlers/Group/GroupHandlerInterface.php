@@ -16,4 +16,5 @@ interface GroupHandlerInterface
     function handleGetGroup(Request $request, $groupId);
     function handleDeleteGroup(Request $request, $groupId);
     function handleFollowGroup(Request $request, $groupId);
+    public function handleGetFollowingGroups (Request $request, $userId);
 }

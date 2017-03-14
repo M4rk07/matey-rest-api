@@ -59,6 +59,7 @@ table_name=matey_group
 mysql_fields=group_id,user_id,group_name,description,is_silhouette,time_c,deleted
 redis_key=GROUP
 redis_fields=num_of_followers
+additional_fields=group_picture_url
 
 model_name=groupAdmin
 class_name=App\MateyModels\GroupAdmin

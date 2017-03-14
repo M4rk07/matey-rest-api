@@ -136,12 +136,8 @@ class PostHandler extends AbstractPostHandler
 
         $postResult = $this->getPosts($criteria, $pagParams['count']);
 
-        if(($resultNum = count($postResult)) > 0)
-            $nextMaxId = $postResult[$resultNum-1]['post_id'];
-        else $nextMaxId=null;
-
-        $paginationService = new PaginationService($postResult, $nextMaxId, $pagParams['count'],
-            $ownerType == 'group' ? '/groups/'.$id.'/posts' : '/users/'.$id.'/posts');
+        $paginationService = new PaginationService($postResult, $pagParams['count'],
+            $ownerType == 'group' ? '/groups/'.$id.'/posts' : '/users/'.$id.'/posts', 'post_id');
 
         return new JsonResponse($paginationService->getResponse(), 200);
     }
@@ -166,6 +162,40 @@ class PostHandler extends AbstractPostHandler
         $this->createActivity($postId, $userId, $post->getGroupId(), Activity::GROUP_TYPE, Activity::BOOST_TYPE);
 
         return new JsonResponse(null, 200);
+    }
+
+    public function handleGetUsersBoosted(Application $app, Request $request, $postId) {
+        $boostManager = $this->modelManagerFactory->getModelManager('boost');
+        $userManager = $this->modelManagerFactory->getModelManager('user');
+
+        $pagParams = $this->getPaginationData($request, array(
+            'def_max_id' => null,
+            'def_count' => DefaultNumbers::POSTS_LIMIT
+        ));
+
+        $criteria['post_id'] = $postId;
+        if(!empty($pagParams['max_id'])) $criteria['user_id:<'] = $pagParams['max_id'];
+
+        $boosts = $boostManager->readModelBy($criteria, array('user_id' => 'DESC'), $pagParams['count']);
+
+        $userIds = array();
+        foreach($boosts as $boost) {
+            $userIds[] = $boost->getUserId();
+        }
+
+        $users = $userManager->readModelBy(array(
+            'user_id' => $userIds
+        ), array('user_id' => 'DESC'), $pagParams['count'], null, array('user_id', 'fist_name', 'last_name', 'picture_url'));
+        
+        $finalResult = array();
+        foreach ($users as $user) {
+            $finalResult[] = $user->asArray();
+        }
+
+        $paginationService = new PaginationService($finalResult, $pagParams['count'],
+            '/posts/'.$postId.'/boosts', 'user_id');
+
+        return new JsonResponse($paginationService->getResponse(), 200);
     }
 
     public function handleShare (Application $app, Request $request, $postId) {
@@ -247,9 +277,11 @@ class PostHandler extends AbstractPostHandler
         else $nextMaxId=null;
 
         if($groupId !== null)
-            $paginationService = new PaginationService($finalResult, $nextMaxId, $pagParams['count'], '/groups/'.$groupId.'/deck');
+            $paginationService = new PaginationService($finalResult, $pagParams['count'],
+                '/groups/'.$groupId.'/deck', array('activity_object', 'post_id'));
         else
-            $paginationService = new PaginationService($finalResult, $nextMaxId, $pagParams['count'], '/deck');
+            $paginationService = new PaginationService($finalResult, $pagParams['count'],
+                '/deck', array('activity_object', 'post_id'));
 
         return new JsonResponse($paginationService->getResponse(), 200);
 
