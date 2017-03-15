@@ -37,7 +37,7 @@ class PostController extends AbstractController
 
     public function getPostAction (Application $app, Request $request, $postId) {
         $postResult = $this->postHandler
-            ->handleGetSinglePost($postId);
+            ->handleGetSinglePost($request, $postId);
 
         $replyController = $app['matey.reply_controller'];
         $repliesResult = $replyController->getRepliesAction($app, $request, $postId);

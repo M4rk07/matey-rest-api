@@ -13,6 +13,7 @@ use App\Constants\Defaults\DefaultNumbers;
 use App\MateyModels\Activity;
 use App\Services\PaginationService;
 use App\Validators\UnsignedInteger;
+use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -38,7 +39,7 @@ class RereplyHandler extends AbstractRereplyHandler
         $jsonDataRequest = $this->getJsonPostData($request, $contentType);
 
         $jsonData = array();
-        $jsonData['text'] = $this->gValidateText($jsonDataRequest);
+        $jsonData['text'] = $this->gValidateText($jsonDataRequest, true);
 
         // Creating necessary data managers.
         $rereplyManager = $this->modelManagerFactory->getModelManager('rereply');
@@ -72,7 +73,7 @@ class RereplyHandler extends AbstractRereplyHandler
 
         $rereplyResult = $this->getRereplies(array(
             'rereply_id' => $rereply->getRereplyId()
-        ), 1);
+        ), $userId, 1);
         $finalResult['data'] = $rereplyResult[0];
 
         return new JsonResponse($finalResult, 200);
@@ -97,6 +98,8 @@ class RereplyHandler extends AbstractRereplyHandler
 
     public function handleGetRereplies (Application $app, Request $request, $replyId) {
 
+        $userId = $request->request->get('user_id');
+
         $pagParams = $this->getPaginationData($request, array(
             'def_max_id' => null,
             'def_count' => DefaultNumbers::REREPLIES_LIMIT
@@ -105,7 +108,7 @@ class RereplyHandler extends AbstractRereplyHandler
         $criteria['reply_id'] = $replyId;
         if(!empty($pagParams['max_id'])) $criteria['rereply_id:<'] = $pagParams['max_id'];
 
-        $finalResult = $this->getRereplies($criteria, $pagParams['count']);
+        $finalResult = $this->getRereplies($criteria, $userId, $pagParams['count']);
 
         $paginationService = new PaginationService($finalResult, $pagParams['count'],
             '/replies/'.$replyId.'/rereplies', 'rereply_id');

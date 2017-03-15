@@ -57,7 +57,9 @@ abstract class AbstractBulletinHandler extends Activity
         return $jsonData->title;
     }
 
-    public function gValidateText($jsonData) {
+    public function gValidateText($jsonData, $required = false) {
+
+        if($required && !isset($jsonData->text)) throw new InvalidRequestException();
 
         if(isset($jsonData->text)) {
             $this->validateValue($jsonData->text, [

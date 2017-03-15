@@ -44,7 +44,12 @@ class S3Storage
                 'Bucket' => 'matey',
                 'Key' => $upload['name'],
                 'Body' => $upload['file'],
-                'ACL' => 'public-read'
+                'ACL' => 'public-read',
+                'Metadata'     => array(
+                    'mime' => $upload['mime'],
+                    'extension' => $upload['extension'],
+                    'filename' => $upload['filename']
+                )
             ));
 
             $promises[$i++]

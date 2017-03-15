@@ -16,7 +16,7 @@ interface PostHandlerInterface
 
     public function handleCreatePost (Application $app, Request $request);
     public function handleDeletePost (Application $app, Request $request, $postId);
-    public function handleGetSinglePost($postId);
+    public function handleGetSinglePost(Request $request, $postId);
     public function handleGetPostsByOwner(Request $request, $ownerType, $id);
     public function handleBoost (Application $app, Request $request, $postId);
     public function handleShare (Application $app, Request $request, $postId);

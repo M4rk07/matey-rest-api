@@ -17,7 +17,7 @@ use App\MateyModels\Activity;
 abstract class AbstractStandardReplyHandler extends AbstractReplyHandler implements StandardReplyHandlerInterface
 {
 
-    public function mergeRepliesAndUsers ($replies, $users) {
+    public function mergeRepliesAndUsers ($replies, $users, $approvedIds) {
         $replyManager = $this->modelManagerFactory->getModelManager('reply');
 
         if(!is_array($replies)) $replies = array($replies);
@@ -37,20 +37,25 @@ abstract class AbstractStandardReplyHandler extends AbstractReplyHandler impleme
             if ($reply->getLocationsNum() > 0)
                 $arr['locations'] = $this->getLocations($reply->getReplyId(), Activity::REPLY_TYPE, $reply->getLocationsNum());
 
+            if(in_array($reply->getReplyId(), $approvedIds)) $arr['approved'] = true;
+            else $arr['approved'] = false;
+
             $finalResult[]= $arr;
         }
 
         return $finalResult;
     }
 
-    public function getReplies($criteria, $count = DefaultNumbers::REPLIES_LIMIT) {
+    public function getReplies($criteria, $userRequestingId, $count = DefaultNumbers::REPLIES_LIMIT) {
 
         $replyManager = $this->modelManagerFactory->getModelManager('reply');
         $replies = $replyManager->readModelBy($criteria, array('reply_id' => 'DESC'), $count);
 
         $userIds = array();
+        $replyIds = array();
         foreach($replies as $reply) {
             $userIds[] = $reply->getUserId();
+            $replyIds[] = $reply->getReplyId();
         }
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
@@ -58,7 +63,19 @@ abstract class AbstractStandardReplyHandler extends AbstractReplyHandler impleme
             'user_id' => array_unique($userIds)
         ), null, $count, null, array('user_id', 'first_name', 'last_name'));
 
-        return $this->mergeRepliesAndUsers($replies, $users);
+        $approveManager = $this->modelManagerFactory->getModelManager('approve');
+        $approves = $approveManager->readModelBy(array(
+            'user_id' => $userRequestingId,
+            'parent_id' => array_unique($replyIds),
+            'parent_type' => Activity::REPLY_TYPE
+        ), null, $count, null);
+
+        $approvedIds = array();
+        foreach($approves as $approve) {
+            $approvedIds[] = $approve->getParentId();
+        }
+
+        return $this->mergeRepliesAndUsers($replies, $users, $approvedIds);
 
     }
 

@@ -6,6 +6,7 @@ use App\Handlers\Bulletin\Reply\StandardReply\AbstractStandardReplyHandler;
 use App\MateyModels\Activity;
 use App\Services\PaginationService;
 use App\Validators\UnsignedInteger;
+use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -37,7 +38,7 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
         $jsonDataRequest = $this->getJsonPostData($request, $contentType);
 
         $jsonData = array();
-        $jsonData['text'] = $this->gValidateText($jsonDataRequest);
+        $jsonData['text'] = $this->gValidateText($jsonDataRequest, true);
         $jsonData['locations'] = $this->gValidateLocations($jsonDataRequest);
 
         // Creating necessary data managers.
@@ -71,7 +72,7 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
 
         // Calling the service for uploading Post attachments to S3 storage
         if(strpos($contentType, 'multipart/form-data') === 0) {
-            $app['matey.file_handler.factory']->getFileHandler('post_attachment')->upload($app, $request, $reply->getReplyId());
+            $app['matey.file_handler.factory']->getFileHandler('post_attachment')->upload($app, $request, $reply->getReplyId(), 'replies');
         }
 
         $postManager = $this->modelManagerFactory->getModelManager('post');
@@ -81,7 +82,7 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
 
         $replyResult = $this->getReplies(array(
             'reply_id' => $reply->getReplyId()
-        ), 1);
+        ), $userId, 1);
         $finalResult['data'] = $replyResult[0];
 
         return new JsonResponse($finalResult, 200);
@@ -105,6 +106,8 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
     }
 
     public function handleGetReplies(Application $app, Request $request, $postId) {
+        $userId = $request->request->get('user_id');
+
         $pagParams = $this->getPaginationData($request, array(
             'def_max_id' => null,
             'def_count' => DefaultNumbers::REREPLIES_LIMIT
@@ -113,7 +116,7 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
         $criteria['post_id'] = $postId;
         if(!empty($pagParams['max_id'])) $criteria['reply_id:<'] = $pagParams['max_id'];
 
-        $finalResult = $this->getReplies($criteria, $pagParams['count']);
+        $finalResult = $this->getReplies($criteria, $userId, $pagParams['count']);
 
         $paginationService = new PaginationService($finalResult, $pagParams['count'],
             '/posts/'.$postId.'/replies', 'reply_id');

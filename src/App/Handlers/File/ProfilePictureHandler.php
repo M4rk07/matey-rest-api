@@ -9,6 +9,7 @@
 namespace App\Handlers\File;
 
 
+use App\Paths\Paths;
 use App\Upload\CloudStorageUpload;
 use App\Upload\S3Storage;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
@@ -61,19 +62,31 @@ class ProfilePictureHandler extends AbstractFileHandler
         $uploads = array(
             array(
                 'file' => $picture100x100,
-                'name' => 'pictures/100x100/'.$userId.'.jpg'
+                'name' => 'pictures/100x100/'.$userId,
+                'mime' => $picture->getMimeType(),
+                'extension' => $picture->guessExtension(),
+                'filename' => $picture->getClientOriginalName()
             ),
             array(
                 'file' => $picture200x200,
-                'name' => 'pictures/200x200/'.$userId.'.jpg'
+                'name' => 'pictures/200x200/'.$userId,
+                'mime' => $picture->getMimeType(),
+                'extension' => $picture->guessExtension(),
+                'filename' => $picture->getClientOriginalName()
             ),
             array(
                 'file' => $picture480x480,
-                'name' => 'pictures/480x480/'.$userId.'.jpg'
+                'name' => 'pictures/480x480/'.$userId,
+                'mime' => $picture->getMimeType(),
+                'extension' => $picture->guessExtension(),
+                'filename' => $picture->getClientOriginalName()
             ),
             array(
                 'file' => file_get_contents($originalPicture),
-                'name' => 'pictures/originals/'.$userId.'.jpg'
+                'name' => 'pictures/originals/'.$userId,
+                'mime' => $picture->getMimeType(),
+                'extension' => $picture->guessExtension(),
+                'filename' => $picture->getClientOriginalName()
             )
         );
 

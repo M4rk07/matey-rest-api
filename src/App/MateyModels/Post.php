@@ -159,7 +159,7 @@ class Post extends AbstractModel
     public function getAttachsLocation ($numOfAttachs) {
         $arr = array();
         for($i=1; $i<=$numOfAttachs; $i++) {
-            $arr[] = Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/posts/".$this->getPostId()."/".$i.".jpg";
+            $arr[] = array('file_url' => Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/posts/".$this->getPostId()."/".$i);
         }
         return $arr;
     }

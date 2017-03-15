@@ -154,7 +154,7 @@ class User extends AbstractModel
             else if($size == 'original') $dimension = 'originals';
         }
         if($this->silhouette == 0) return "https://tctechcrunch2011.files.wordpress.com/2010/10/pirate.jpg";
-        return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/pictures/".$dimension."/".$this->getId().".jpg";
+        return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/pictures/".$dimension."/".$this->getUserId();
     }
 
     /**

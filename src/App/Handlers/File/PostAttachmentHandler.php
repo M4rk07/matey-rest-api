@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class PostAttachmentHandler extends AbstractFileHandler
 {
 
-    public function upload(Application $app, Request $request, $id = null)
+    public function upload(Application $app, Request $request, $id = null, $type = 'posts')
     {
         $files = array();
         for($iterator = $request->files->getIterator();
@@ -35,7 +35,7 @@ class PostAttachmentHandler extends AbstractFileHandler
         );
 
         $uploads = array();
-        $fileId = 1;
+        $fieldId = 1;
         foreach($files as $file) {
 
             $this->validateValue($file, [
@@ -50,7 +50,10 @@ class PostAttachmentHandler extends AbstractFileHandler
 
             $uploads[] = array(
                 "file" => file_get_contents($file->getRealPath()),
-                'name' => 'posts/'.$id.'/'.$fileId++.'.jpg'
+                'name' => $type.'/'.$id.'/'.$fieldId++,
+                'mime' => $file->getMimeType(),
+                'extension' => $file->guessExtension(),
+                'filename' => $file->getClientOriginalName()
             );
 
         }

@@ -9,6 +9,7 @@
 namespace App\MateyModels;
 
 use App\Constants\Defaults\DefaultDates;
+use App\Paths\Paths;
 use AuthBucket\OAuth2\Model\ModelInterface;
 
 class Reply extends AbstractModel
@@ -202,7 +203,13 @@ class Reply extends AbstractModel
         return $this;
     }
 
-
+    public function getAttachsLocation ($numOfAttachs) {
+        $arr = array();
+        for($i=1; $i<=$numOfAttachs; $i++) {
+            $arr[] = array('file_url' => Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/replies/".$this->getReplyId()."/".$i);
+        }
+        return $arr;
+    }
 
     public function serialize() {
         return serialize(array(

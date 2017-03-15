@@ -93,7 +93,7 @@ class PostHandler extends AbstractPostHandler
 
         $postResult = $this->getPosts(array(
             'post_id' => $post->getPostId()
-        ), 1);
+        ), $userId, 1);
         $finalResult['data'] = $postResult[0];
 
         return new JsonResponse($finalResult, 200);
@@ -117,13 +117,17 @@ class PostHandler extends AbstractPostHandler
         return new JsonResponse(null, 200);
     }
 
-    public function handleGetSinglePost ($postId) {
+    public function handleGetSinglePost (Request $request, $postId) {
+        $userId = $request->request->get('user_id');
+
         return $this->getPosts(array(
             'post_id' => $postId
-        ), 1);
+        ), $userId, 1);
     }
 
     public function handleGetPostsByOwner(Request $request, $ownerType, $id) {
+        $userId = $request->request->get('user_id');
+
         $pagParams = $this->getPaginationData($request, array(
             'def_max_id' => null,
             'def_count' => DefaultNumbers::POSTS_LIMIT
@@ -134,7 +138,7 @@ class PostHandler extends AbstractPostHandler
 
         if(!empty($pagParams['max_id'])) $criteria['post_id:<'] = $pagParams['max_id'];
 
-        $postResult = $this->getPosts($criteria, $pagParams['count']);
+        $postResult = $this->getPosts($criteria, $userId, $pagParams['count']);
 
         $paginationService = new PaginationService($postResult, $pagParams['count'],
             $ownerType == 'group' ? '/groups/'.$id.'/posts' : '/users/'.$id.'/posts', 'post_id');
@@ -272,10 +276,6 @@ class PostHandler extends AbstractPostHandler
 
         $finalResult = $this->getDeck($userId, $groupId, $pagParams);
 
-        if(($resultNum = count($finalResult)) > 0)
-            $nextMaxId = $finalResult[count($finalResult)-1]['activity_object']['post_id'];
-        else $nextMaxId=null;
-
         if($groupId !== null)
             $paginationService = new PaginationService($finalResult, $pagParams['count'],
                 '/groups/'.$groupId.'/deck', array('activity_object', 'post_id'));
@@ -315,7 +315,7 @@ class PostHandler extends AbstractPostHandler
 
         $finalPosts = $this->getPosts(array(
             'post_id' => $postIds
-        ), $pagParams['count']);
+        ), $userId, $pagParams['count']);
 
         $finalResult = array();
         foreach($finalPosts as $finalPost) {

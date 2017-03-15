@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 abstract class AbstractPostHandler extends AbstractBulletinHandler  implements PostHandlerInterface
 {
 
-    protected function mergePostsAndUsers ($posts, $users) {
+    protected function mergePostsAndUsers ($posts, $users, $boostedIds) {
         $postManager = $this->modelManagerFactory->getModelManager('post');
 
         if(!is_array($posts)) $posts = array($posts);
@@ -43,27 +43,43 @@ abstract class AbstractPostHandler extends AbstractBulletinHandler  implements P
             if ($post->getLocationsNum() > 0)
                 $arr['locations'] = $this->getLocations($post->getPostId(), Activity::POST_TYPE, $post->getLocationsNum());
 
+            if(in_array($post->getPostId(), $boostedIds)) $arr['boosted'] = true;
+            else $arr['boosted'] = false;
+
             $finalResult[]= $arr;
         }
 
         return $finalResult;
     }
 
-    protected function getPosts ($criteria, $count = DefaultNumbers::POSTS_LIMIT) {
+    protected function getPosts ($criteria, $userRequestingId, $count = DefaultNumbers::POSTS_LIMIT) {
         $postManager = $this->modelManagerFactory->getModelManager('post');
         $posts = $postManager->readModelBy($criteria, array('post_id' => 'DESC'), $count);
 
         $userIds = array();
+        $postIds = array();
         foreach($posts as $post) {
             $userIds[] = $post->getUserId();
+            $postIds[] = $post->getPostId();
         }
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
         $users = $userManager->readModelBy(array(
             'user_id' => array_unique($userIds)
-        ), null, $count, null, array('user_id', 'first_name', 'last_name'));
+        ), null, $count, null, array('user_id', 'first_name', 'last_name', 'picture_url'));
 
-        return $this->mergePostsAndUsers($posts, $users);
+        $boostManager = $this->modelManagerFactory->getModelManager('boost');
+        $boosts = $boostManager->readModelBy(array(
+            'user_id' => $userRequestingId,
+            'post_id' => array_unique($postIds)
+        ), null, $count, null);
+
+        $boostedIds = array();
+        foreach($boosts as $boost) {
+            $boostedIds[] = $boost->getPostId();
+        }
+
+        return $this->mergePostsAndUsers($posts, $users, $boostedIds);
     }
 
 }

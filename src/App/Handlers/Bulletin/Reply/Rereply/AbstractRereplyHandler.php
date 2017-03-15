@@ -4,6 +4,7 @@ namespace App\Handlers\Bulletin\Rereply;
 use App\Constants\Defaults\DefaultNumbers;
 use App\Handlers\Bulletin\Reply\AbstractReplyHandler;
 use App\Handlers\Post\AbstractBulletinHandler;
+use App\MateyModels\Activity;
 
 /**
  * Created by PhpStorm.
@@ -13,7 +14,7 @@ use App\Handlers\Post\AbstractBulletinHandler;
  */
 abstract class AbstractRereplyHandler extends AbstractReplyHandler implements RereplyHandlerInterface
 {
-    public function mergeRerepliesAndUsers ($rereplies, $users) {
+    public function mergeRerepliesAndUsers ($rereplies, $users, $approvedIds) {
         $rereplyManager = $this->modelManagerFactory->getModelManager('rereply');
 
         if(!is_array($rereplies)) $rereplies = array($rereplies);
@@ -29,19 +30,24 @@ abstract class AbstractRereplyHandler extends AbstractReplyHandler implements Re
                 }
             }
 
+            if(in_array($rereply->getRereplyId(), $approvedIds)) $arr['approved'] = true;
+            else $arr['approved'] = false;
+
             $finalResult[]= $arr;
         }
 
         return $finalResult;
     }
 
-    public function getRereplies($criteria, $count = DefaultNumbers::REREPLIES_LIMIT) {
+    public function getRereplies($criteria, $userRequestingId, $count = DefaultNumbers::REREPLIES_LIMIT) {
         $rereplyManager = $this->modelManagerFactory->getModelManager('rereply');
         $rereplies = $rereplyManager->readModelBy($criteria, array('rereply_id' => 'DESC'), $count);
 
         $userIds = array();
+        $rereplyIds = array();
         foreach($rereplies as $rereply) {
             $userIds[] = $rereply->getUserId();
+            $rereplyIds[] = $rereply->getRereplyId();
         }
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
@@ -49,6 +55,18 @@ abstract class AbstractRereplyHandler extends AbstractReplyHandler implements Re
             'user_id' => array_unique($userIds)
         ), null, $count, null, array('user_id', 'first_name', 'last_name'));
 
-        return $this->mergeRerepliesAndUsers($rereplies, $users);
+        $approveManager = $this->modelManagerFactory->getModelManager('approve');
+        $approves = $approveManager->readModelBy(array(
+            'user_id' => $userRequestingId,
+            'parent_id' => array_unique($rereplyIds),
+            'parent_type' => Activity::REREPLY_TYPE
+        ), null, $count, null);
+
+        $approvedIds = array();
+        foreach($approves as $approve) {
+            $approvedIds[] = $approve->getParentId();
+        }
+
+        return $this->mergeRerepliesAndUsers($rereplies, $users, $approvedIds);
     }
 }
