@@ -41,6 +41,7 @@ class PostController extends AbstractController
 
         $replyController = $app['matey.reply_controller'];
         $repliesResult = $replyController->getRepliesAction($app, $request, $postId);
+
         if($repliesResult->getStatusCode() !== 200) return $repliesResult;
 
         $finalResult['data'] = $postResult[0];

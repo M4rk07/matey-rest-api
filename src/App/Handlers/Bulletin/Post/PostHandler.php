@@ -12,6 +12,7 @@ use App\Algos\FeedRank\FeedRank;
 use App\Constants\Defaults\DefaultDates;
 use App\Constants\Defaults\DefaultNumbers;
 use App\Constants\Messages\ResponseMessages;
+use App\Handlers\File\PostAttachmentHandler;
 use App\MateyModels\Activity;
 use App\MateyModels\FeedEntry;
 use App\MateyModels\Group;
@@ -80,7 +81,7 @@ class PostHandler extends AbstractPostHandler
 
         // Calling the service for uploading Post attachments to S3 storage
         if(strpos($contentType, 'multipart/form-data') === 0) {
-            $app['matey.file_handler.factory']->getFileHandler('post_attachment')->upload($app, $request, $post->getPostId());
+            $app['matey.file_handler.factory']->getFileHandler('post_attachment')->upload($app, $request, $post->getPostId(), PostAttachmentHandler::LOCATION_POSTS);
         }
 
         // Pushing newly created post to news feed of followers
@@ -148,22 +149,29 @@ class PostHandler extends AbstractPostHandler
 
     public function handleBoost (Application $app, Request $request, $postId) {
         $userId = $request->request->get('user_id');
+        $method = $request->getMethod();
 
         $boostManager = $this->modelManagerFactory->getModelManager('boost');
         $boost = $boostManager->getModel();
         $boost->setUserId($userId)
             ->setPostId($postId);
-        $boostManager->createModel($boost);
 
         $postManager = $this->modelManagerFactory->getModelManager('post');
         $post = $postManager->getModel();
         $post->setPostId($postId);
-        $postManager->incrNumOfBoosts($post);
 
-        $post = $postManager->readModelOneBy(array(
-            'post_id' => $postId
-        ), null, array('group_id'));
-        $this->createActivity($postId, $userId, $post->getGroupId(), Activity::GROUP_TYPE, Activity::BOOST_TYPE);
+        if($method == 'PUT') {
+            $boostManager->createModel($boost);
+            $postManager->incrNumOfBoosts($post);
+            $post = $postManager->readModelOneBy(array(
+                'post_id' => $postId
+            ), null, array('group_id'));
+            $this->createActivity($postId, $userId, $post->getGroupId(), Activity::GROUP_TYPE, Activity::BOOST_TYPE);
+        }
+        else {
+            $boostManager->deleteModel($boost);
+            $postManager->incrNumOfBoosts($post, -1);
+        }
 
         return new JsonResponse(null, 200);
     }
@@ -227,22 +235,29 @@ class PostHandler extends AbstractPostHandler
 
     public function handleBookmark (Application $app, Request $request, $postId) {
         $userId = $request->request->get('user_id');
+        $method = $request->getMethod();
 
         $bookmarkManager = $this->modelManagerFactory->getModelManager('bookmark');
         $bookmark = $bookmarkManager->getModel();
         $bookmark->setUserId($userId)
             ->setPostId($postId);
-        $bookmarkManager->createModel($bookmark);
 
         $postManager = $this->modelManagerFactory->getModelManager('post');
         $post = $postManager->getModel();
         $post->setPostId($postId);
-        $postManager->incrNumOfBookmarks($post);
 
-        $post = $postManager->readModelOneBy(array(
-            'post_id' => $postId
-        ), null, array('group_id'));
-        $this->createActivity($postId, $userId, $post->getGroupId(), Activity::GROUP_TYPE, Activity::BOOKMARK_TYPE);
+        if($method == 'PUT') {
+            $bookmarkManager->createModel($bookmark);
+            $postManager->incrNumOfBoosts($post);
+            $post = $postManager->readModelOneBy(array(
+                'post_id' => $postId
+            ), null, array('group_id'));
+            $this->createActivity($postId, $userId, $post->getGroupId(), Activity::GROUP_TYPE, Activity::BOOKMARK_TYPE);
+        }
+        else {
+            $bookmarkManager->deleteModel($bookmark);
+            $postManager->incrNumOfBookmarks($post, -1);
+        }
 
         return new JsonResponse(null, 200);
     }

@@ -64,8 +64,10 @@ class RoutesLoader
         $apiCachable->get('/users/{userId}/posts', 'matey.post_controller:getUserPostsAction');
         $apiCachable->get('/posts/{postId}', 'matey.post_controller:getPostAction');
         $api->put('/posts/{postId}/boosts', 'matey.post_controller:boostAction');
+        $api->delete('/posts/{postId}/boosts', 'matey.post_controller:boostAction');
         $api->put('/posts/{postId}/shares', 'matey.post_controller:shareAction');
         $api->put('/posts/{postId}/bookmarks', 'matey.post_controller:bookmarkAction');
+        $api->delete('/posts/{postId}/bookmarks', 'matey.post_controller:bookmarkAction');
         $api->put('/posts/{postId}/archive', 'matey.post_controller:archiveAction');
         $apiCachable->get('/deck', 'matey.post_controller:getUserDeckAction');
         $apiCachable->get('/groups/{groupId}/deck', 'matey.post_controller:getGroupDeckAction');

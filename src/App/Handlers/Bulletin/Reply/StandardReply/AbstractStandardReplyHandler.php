@@ -4,6 +4,7 @@ use App\Constants\Defaults\DefaultNumbers;
 use App\Handlers\AbstractHandler;
 use App\Handlers\Bulletin\Reply\AbstractReplyHandler;
 use App\Handlers\Bulletin\Reply\StandardReplyHandlerInterface;
+use App\Handlers\File\PostAttachmentHandler;
 use App\Handlers\Post\AbstractBulletinHandler;
 use App\MateyModels\Activity;
 
@@ -33,7 +34,7 @@ abstract class AbstractStandardReplyHandler extends AbstractReplyHandler impleme
                 }
             }
             if ($reply->getAttachsNum() > 0)
-                $arr['attachs'] = $reply->getAttachsLocation($reply->getAttachsNum());
+                $arr['attachs'] = PostAttachmentHandler::getAttachUrls($reply, PostAttachmentHandler::LOCATION_REPLIES);
             if ($reply->getLocationsNum() > 0)
                 $arr['locations'] = $this->getLocations($reply->getReplyId(), Activity::REPLY_TYPE, $reply->getLocationsNum());
 

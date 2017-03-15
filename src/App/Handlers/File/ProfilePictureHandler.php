@@ -9,6 +9,7 @@
 namespace App\Handlers\File;
 
 
+use App\MateyModels\User;
 use App\Paths\Paths;
 use App\Upload\CloudStorageUpload;
 use App\Upload\S3Storage;
@@ -23,6 +24,10 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ProfilePictureHandler extends AbstractFileHandler
 {
+    const SMALL = '100x100';
+    const MEDIUM = '200x200';
+    const LARGE = '480x480';
+    const ORIGINAL = 'original';
 
     public function upload (Application $app, Request $request)
     {
@@ -62,28 +67,28 @@ class ProfilePictureHandler extends AbstractFileHandler
         $uploads = array(
             array(
                 'file' => $picture100x100,
-                'name' => 'pictures/100x100/'.$userId,
+                'name' => ProfilePictureHandler::generatePicturePrefix($userId, self::SMALL),
                 'mime' => $picture->getMimeType(),
                 'extension' => $picture->guessExtension(),
                 'filename' => $picture->getClientOriginalName()
             ),
             array(
                 'file' => $picture200x200,
-                'name' => 'pictures/200x200/'.$userId,
+                'name' => ProfilePictureHandler::generatePicturePrefix($userId, self::MEDIUM),
                 'mime' => $picture->getMimeType(),
                 'extension' => $picture->guessExtension(),
                 'filename' => $picture->getClientOriginalName()
             ),
             array(
                 'file' => $picture480x480,
-                'name' => 'pictures/480x480/'.$userId,
+                'name' => ProfilePictureHandler::generatePicturePrefix($userId, self::LARGE),
                 'mime' => $picture->getMimeType(),
                 'extension' => $picture->guessExtension(),
                 'filename' => $picture->getClientOriginalName()
             ),
             array(
                 'file' => file_get_contents($originalPicture),
-                'name' => 'pictures/originals/'.$userId,
+                'name' => ProfilePictureHandler::generatePicturePrefix($userId, self::ORIGINAL),
                 'mime' => $picture->getMimeType(),
                 'extension' => $picture->guessExtension(),
                 'filename' => $picture->getClientOriginalName()
@@ -94,8 +99,7 @@ class ProfilePictureHandler extends AbstractFileHandler
         $cloudStorage->upload();
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
-        $userClass = $userManager->getClassName();
-        $user = new $userClass();
+        $user = $userManager->getModel();
 
         $user->setSilhouette(0);
 
@@ -110,7 +114,18 @@ class ProfilePictureHandler extends AbstractFileHandler
         ));
     }
 
+    public static function generatePicturePrefix ($userId, $dimension = self::SMALL) {
+        return "users/pictures/".$dimension."/".$userId;
+    }
 
+    public static function generatePictureUrl ($userId, $dimension = self::SMALL) {
+        return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/".ProfilePictureHandler::generatePicturePrefix($userId, $dimension);
+    }
+
+    public static function getPictureUrl(User $user, $dimension = self::SMALL) {
+        if($user->isSilhouette() == 0) return "https://tctechcrunch2011.files.wordpress.com/2010/10/pirate.jpg";
+        return ProfilePictureHandler::generatePictureUrl($user->getUserId(), $dimension);
+    }
 
     function compress($source, $destination, $quality) {
 

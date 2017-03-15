@@ -2,6 +2,7 @@
 
 namespace App\MateyModels;
 use App\Constants\Defaults\DefaultDates;
+use App\Handlers\File\ProfilePictureHandler;
 use App\Paths\Paths;
 use App\Validators\Name;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
@@ -140,21 +141,6 @@ class User extends AbstractModel
     {
         $this->fullName = $fullName;
         return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getProfilePicture($size = 'small')
-    {
-        $dimension = '100x100';
-        if($size != 'small' && in_array($size, array('medium', 'large', 'veryLarge', 'original'))) {
-            if($size == 'medium') $dimension = '200x200';
-            else if($size == 'large') $dimension = '480x480';
-            else if($size == 'original') $dimension = 'originals';
-        }
-        if($this->silhouette == 0) return "https://tctechcrunch2011.files.wordpress.com/2010/10/pirate.jpg";
-        return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/pictures/".$dimension."/".$this->getUserId();
     }
 
     /**
@@ -514,7 +500,7 @@ class User extends AbstractModel
             else return $this->setNumOfShares($props['value']);
         }
         else if($props['key'] == 'picture_url') {
-            if($type == 'get') return $this->getProfilePicture();
+            if($type == 'get') return ProfilePictureHandler::getPictureUrl($this);
         }
     }
 

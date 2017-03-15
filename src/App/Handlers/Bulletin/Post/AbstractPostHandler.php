@@ -3,6 +3,7 @@ namespace App\Handlers\Bulletin\Post;
 use App\Constants\Defaults\DefaultNumbers;
 use App\Constants\Messages\ResponseMessages;
 use App\Handlers\AbstractHandler;
+use App\Handlers\File\PostAttachmentHandler;
 use App\Handlers\Post\AbstractBulletinHandler;
 use App\MateyModels\Activity;
 use App\MateyModels\ModelManagerFactoryInterface;
@@ -39,7 +40,7 @@ abstract class AbstractPostHandler extends AbstractBulletinHandler  implements P
                 }
             }
             if ($post->getAttachsNum() > 0)
-                $arr['attachs'] = $post->getAttachsLocation($post->getAttachsNum());
+                $arr['attachs'] = PostAttachmentHandler::getAttachUrls($post, PostAttachmentHandler::LOCATION_POSTS);
             if ($post->getLocationsNum() > 0)
                 $arr['locations'] = $this->getLocations($post->getPostId(), Activity::POST_TYPE, $post->getLocationsNum());
 

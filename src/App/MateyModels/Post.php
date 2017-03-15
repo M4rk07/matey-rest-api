@@ -36,6 +36,9 @@ class Post extends AbstractModel
     public function setId($id) {
         return $this->setPostId($id);
     }
+    public function getId() {
+        return $this->getPostId();
+    }
 
     /**
      * @return mixed
@@ -154,14 +157,6 @@ class Post extends AbstractModel
     {
         $this->attachsNum = (int)$attachsNum;
         return $this;
-    }
-
-    public function getAttachsLocation ($numOfAttachs) {
-        $arr = array();
-        for($i=1; $i<=$numOfAttachs; $i++) {
-            $arr[] = array('file_url' => Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/posts/".$this->getPostId()."/".$i);
-        }
-        return $arr;
     }
 
     /**

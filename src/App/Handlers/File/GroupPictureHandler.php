@@ -9,7 +9,10 @@
 namespace App\Handlers\File;
 
 
+use App\MateyModels\Group;
+use App\Paths\Paths;
 use App\Upload\CloudStorageUpload;
+use App\Upload\S3Storage;
 use App\Validators\GroupId;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Exception\UnauthorizedClientException;
@@ -21,6 +24,11 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class GroupPictureHandler extends AbstractFileHandler
 {
+    const SMALL = '100x100';
+    const MEDIUM = '200x200';
+    const LARGE = '480x480';
+    const ORIGINAL = 'original';
+
     public function upload(Application $app, Request $request, $groupId = null)
     {
         $userId = $request->request->get('user_id');
@@ -52,15 +60,14 @@ class GroupPictureHandler extends AbstractFileHandler
         /*
          * Check if user is owner of the group or not
          */
-        $groupRelationshipManager = $this->modelManagerFactory->getModelManager('group_relationship');
+        $groupAdminManager = $this->modelManagerFactory->getModelManager('groupAdmin');
 
-        $groupRelationship = $groupRelationshipManager->readModelOneBy(array(
+        $groupAdmin = $groupAdminManager->readModelOneBy(array(
             'group_id' =>$groupId,
-            'user_id' => $userId,
-            'role' => ['OWNER', 'ADMIN']
+            'user_id' => $userId
         ));
 
-        if(empty($groupRelationship)) throw new UnauthorizedClientException();
+        if(empty($groupAdmin)) throw new UnauthorizedClientException();
 
         $originalPicture = $picture->getRealPath();
 
@@ -79,17 +86,40 @@ class GroupPictureHandler extends AbstractFileHandler
 
         $uploads = array(
             array(
+                'file' => $picture100x100,
+                'name' => ProfilePictureHandler::generatePicturePrefix($groupId, self::SMALL),
+                'mime' => $picture->getMimeType(),
+                'extension' => $picture->guessExtension(),
+                'filename' => $picture->getClientOriginalName()
+            ),
+            array(
+                'file' => $picture200x200,
+                'name' => ProfilePictureHandler::generatePicturePrefix($groupId, self::MEDIUM),
+                'mime' => $picture->getMimeType(),
+                'extension' => $picture->guessExtension(),
+                'filename' => $picture->getClientOriginalName()
+            ),
+            array(
+                'file' => $picture480x480,
+                'name' => ProfilePictureHandler::generatePicturePrefix($groupId, self::LARGE),
+                'mime' => $picture->getMimeType(),
+                'extension' => $picture->guessExtension(),
+                'filename' => $picture->getClientOriginalName()
+            ),
+            array(
                 'file' => file_get_contents($originalPicture),
-                'name' => 'groups/originals/'.$userId.'.jpg'
+                'name' => ProfilePictureHandler::generatePicturePrefix($groupId, self::ORIGINAL),
+                'mime' => $picture->getMimeType(),
+                'extension' => $picture->guessExtension(),
+                'filename' => $picture->getClientOriginalName()
             )
         );
 
-        $cloudStorage = new CloudStorageUpload($uploads);
+        $cloudStorage = new S3Storage($uploads);
         $cloudStorage->upload();
 
         $groupManager = $this->modelManagerFactory->getModelManager('group');
-        $groupClass = $groupManager->getClassName();
-        $group = new $groupClass();
+        $group = $groupManager->getModel();
 
         $group->setSilhouette(0);
 
@@ -102,6 +132,19 @@ class GroupPictureHandler extends AbstractFileHandler
         return new JsonResponse(null, 201, array(
             'Location' => $group->getGroupPicture('original')
         ));
+    }
+
+    public static function generatePicturePrefix ($groupId, $dimension = self::SMALL) {
+        return "groups/pictures/".$dimension."/".$groupId;
+    }
+
+    public static function generatePictureUrl ($groupId, $dimension = self::SMALL) {
+        return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/".ProfilePictureHandler::generatePicturePrefix($groupId, $dimension);
+    }
+
+    public static function getPictureUrl(Group $group, $dimension = self::SMALL) {
+        if($group->isSilhouette() == 0) return "https://tctechcrunch2011.files.wordpress.com/2010/10/pirate.jpg";
+        return GroupPictureHandler::generatePictureUrl($group->getGroupId(), $dimension);
     }
 
 

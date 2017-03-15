@@ -10,6 +10,7 @@ namespace App\MateyModels;
 
 
 use App\Constants\Defaults\DefaultDates;
+use App\Handlers\File\GroupPictureHandler;
 use App\Paths\Paths;
 
 class Group extends AbstractModel
@@ -122,7 +123,7 @@ class Group extends AbstractModel
     /**
      * @return mixed
      */
-    public function getSilhouette()
+    public function isSilhouette()
     {
         return $this->silhouette;
     }
@@ -207,7 +208,7 @@ class Group extends AbstractModel
             else return $this->setTimeC($this->createDateTimeFromString($props['value']));
         }
         else if($props['key'] == 'is_silhouette') {
-            if($type == 'get') return $this->getSilhouette();
+            if($type == 'get') return $this->isSilhouette();
             else return $this->setSilhouette($props['value']);
         }
         else if($props['key'] == 'num_of_followers') {
@@ -219,7 +220,7 @@ class Group extends AbstractModel
             else return $this->setDeleted($props['value']);
         }
         else if($props['key'] == 'group_picture_url') {
-            if($type == 'get') return $this->getGroupPicture();
+            if($type == 'get') return GroupPictureHandler::getPictureUrl($this);
         }
     }
 

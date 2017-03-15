@@ -217,7 +217,7 @@ abstract class AbstractManager implements ModelManagerInterface
         $counter = 0;
         foreach($criterias as $key => $value) {
             $key = $this->makeColumnName($key);
-            $queryBuilder->andWhere($key, "=?");
+            $queryBuilder->andWhere($key . "=?");
             $queryBuilder->setParameter($counter++, $value);
         }
 
