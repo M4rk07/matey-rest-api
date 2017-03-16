@@ -46,7 +46,7 @@ class RoutesLoader
         $api->delete('/users/me/devices/{deviceId}/login', 'matey.device_controller:loginOnDeviceAction');
 
         // OPERATIONS ON USERS
-        $apiCachable->get('/users/{userId}', 'matey.user_controller:getUserAction');
+        $apiCachable->get('/users/{userRequestingId}', 'matey.user_controller:getUserAction');
         $apiCachable->get('/users/{userId}/profile', 'matey.user_controller:getUserAction');
         $api->post('/users/me/users/{id}/follow', 'matey.user_controller:followAction'); // deprecated
         $api->delete('/users/me/users/{id}/follow', 'matey.user_controller:followAction'); // deprecated

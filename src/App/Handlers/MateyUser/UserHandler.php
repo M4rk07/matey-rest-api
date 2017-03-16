@@ -49,7 +49,7 @@ class UserHandler extends AbstractUserHandler
 
         if(empty($user)) throw new NotFoundException();
 
-        return new JsonResponse($user->asArray(), 200);
+        return $user->asArray();
     }
 
     public function handleFollow (Application $app, Request $request, $id) {

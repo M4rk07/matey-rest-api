@@ -14,6 +14,7 @@ use App\Handlers\MateyUser\UserHandlerFactoryInterface;
 use App\Handlers\Profile\ProfileHandlerFactoryInterface;
 use App\MateyModels\ModelManagerFactoryInterface;
 use Silex\Application;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -28,7 +29,28 @@ class UserController extends AbstractController
         $this->userHandlerFactory = $userHandlerFactory;
     }
 
-    public function getUserAction(Application $app, Request $request, $userId) {
+    public function getUserAction(Application $app, Request $request, $userRequestingId) {
+        if($userRequestingId == "me") $userRequestingId = $request->request->get('user_id');
+        $userId = $request->request->get('user_id');
+
+        $userData = $this->userHandlerFactory
+            ->getUserHandler('user')
+            ->handleGetUser($app, $request, $userRequestingId);
+
+        $finalResult['data'] = $userData;
+
+        $postsResult = $app['matey.post_controller']->getUserPostsAction($app, $request, $userRequestingId);
+
+        if($postsResult->getStatusCode() !== 200) return $postsResult;
+
+        $postsResult = json_decode($postsResult->getContent());
+
+        $finalResult['data']['posts'] = $postsResult;
+
+        return new JsonResponse($finalResult, 200);
+    }
+
+    public function getUserProfileAction(Application $app, Request $request, $userId) {
         if($userId == "me") $userId = $request->request->get('user_id');
 
         return $this->userHandlerFactory

@@ -142,16 +142,21 @@ abstract class AbstractManager implements ModelManagerInterface
         $counter = 0;
         foreach($criteria as $key => $value) {
 
+            if(empty($value) && $value !== 0 && $value != '0' && $value !== null) throw new ServerErrorException();
+
             $keySign = $this->getSign($key);
             $key = $keySign[0];
             $sign = $keySign[1];
 
             $key = $this->makeColumnName($key);
             if(is_array($value)) {
+                $qString = "";
                 foreach($value as $val) {
-                    $queryBuilder->orWhere($key . $sign . "?");
+                    $qString .= "?,";
                     $queryBuilder->setParameter($counter++, $val);
                 }
+                $qString = trim($qString, ",");
+                $queryBuilder->andWhere($key . " IN (". $qString .")");
             }
             else {
                 $queryBuilder->andWhere($key . $sign . "?");
