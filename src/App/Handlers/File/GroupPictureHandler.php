@@ -31,7 +31,7 @@ class GroupPictureHandler extends AbstractFileHandler
 
     public function upload(Application $app, Request $request, $groupId = null)
     {
-        $userId = $request->request->get('user_id');
+        $userId = $request->query->get('token-user-id');
         $picture = $request->files->get('group_picture');
 
         if(count($request->files) != 1) throw new InvalidRequestException();
