@@ -29,7 +29,7 @@ class GroupHandler extends AbstractGroupHandler
 {
     function handleCreateGroup(Application $app, Request $request)
     {
-        $userId = $request->query->get('token-user-id');
+        $userId = self::getTokenUserId($request);
 
         // Getting json data in relation to Content-Type
         $contentType = $request->headers->get('Content-Type');
@@ -89,7 +89,7 @@ class GroupHandler extends AbstractGroupHandler
 
     function handleDeleteGroup(Request $request, $groupId)
     {
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
 
         $this->validateValue($groupId, array(
             new NotBlank(),
@@ -111,7 +111,7 @@ class GroupHandler extends AbstractGroupHandler
 
     public function handleFollowGroup(Request $request, $groupId)
     {
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
 
         $this->validateValue($groupId, array(
             new NotBlank(),
@@ -134,7 +134,7 @@ class GroupHandler extends AbstractGroupHandler
     }
 
     public function handleShareGroup(Application $app, Request $request, $groupId) {
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
 
         $this->validateValue($groupId, array(
             new NotBlank(),
@@ -158,7 +158,7 @@ class GroupHandler extends AbstractGroupHandler
     }
 
     public function handleFavoriteGroup (Application $app, Request $request, $groupId) {
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
 
         $this->validateValue($groupId, array(
             new NotBlank(),

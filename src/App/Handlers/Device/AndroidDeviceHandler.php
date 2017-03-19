@@ -75,7 +75,7 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
 
     public function handleLogin (Application $app, Request $request, $deviceId)
     {
-        $userId = $request->request->get("user_id");
+        $userId = self::getTokenUserId($request);
 
         $device = $this->getGcmById($deviceId);
 

@@ -25,7 +25,7 @@ class RereplyHandler extends AbstractRereplyHandler
 
     public function handleCreateRereply (Application $app, Request $request, $replyId) {
         // Get user id based on token
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
 
         $this->validateValue($replyId, [
             new NotBlank(),
@@ -81,7 +81,7 @@ class RereplyHandler extends AbstractRereplyHandler
 
     public function handleDeleteRereply (Application $app, Request $request, $rereplyId) {
         // Get user id based on token
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
 
         $rereplyManager = $this->modelManagerFactory->getModelManager('rereply');
         $rereply = $rereplyManager->getModel();
@@ -98,7 +98,7 @@ class RereplyHandler extends AbstractRereplyHandler
 
     public function handleGetRereplies (Application $app, Request $request, $replyId) {
 
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
 
         $pagParams = $this->getPaginationData($request, array(
             'def_max_id' => null,

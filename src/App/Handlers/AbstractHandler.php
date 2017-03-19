@@ -66,4 +66,8 @@ abstract class AbstractHandler
         return $params;
     }
 
+    public static function getTokenUserId(Request $request) {
+        return $request->query->get('token-user-id');
+    }
+
 }

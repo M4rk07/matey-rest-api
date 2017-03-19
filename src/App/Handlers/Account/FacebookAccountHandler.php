@@ -146,7 +146,7 @@ class FacebookAccountHandler extends AbstractAccountHandler
 
     public function mergeAccount(Request $request)
     {
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
         $user = $this->getAccountById($userId);
 
         if(empty($user)) return new ResourceNotFoundException();

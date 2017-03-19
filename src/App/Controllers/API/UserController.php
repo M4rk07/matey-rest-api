@@ -10,6 +10,7 @@ namespace App\Controllers\API;
 
 
 use App\Controllers\AbstractController;
+use App\Handlers\AbstractHandler;
 use App\Handlers\MateyUser\UserHandlerFactoryInterface;
 use App\Handlers\Profile\ProfileHandlerFactoryInterface;
 use App\MateyModels\ModelManagerFactoryInterface;
@@ -30,7 +31,7 @@ class UserController extends AbstractController
     }
 
     public function getUserAction(Application $app, Request $request, $userRequestingId) {
-        if($userRequestingId == "me") $userRequestingId = $request->request->get('user_id');
+        if($userRequestingId == "me") $userRequestingId = AbstractHandler::getTokenUserId($request);
         $userId = $request->request->get('user_id');
 
         $userData = $this->userHandlerFactory
@@ -51,7 +52,7 @@ class UserController extends AbstractController
     }
 
     public function getUserProfileAction(Application $app, Request $request, $userId) {
-        if($userId == "me") $userId = $request->request->get('user_id');
+        if($userId == "me") $userId = AbstractHandler::getTokenUserId($request);
 
         return $this->userHandlerFactory
             ->getUserHandler('user')

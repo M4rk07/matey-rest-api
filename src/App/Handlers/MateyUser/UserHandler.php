@@ -54,7 +54,7 @@ class UserHandler extends AbstractUserHandler
 
     public function handleFollow (Application $app, Request $request, $id) {
 
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
 
         $this->validateValue($id, [
             new NotBlank(),
@@ -110,7 +110,7 @@ class UserHandler extends AbstractUserHandler
     public function handleGetConnections(Application $app, Request $request, $id, $type)
     {
 
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
         $limit = $request->get('limit');
         $offset = $request->get('offset');
         $me = false;

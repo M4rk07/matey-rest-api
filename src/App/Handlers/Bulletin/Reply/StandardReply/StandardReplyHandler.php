@@ -25,7 +25,7 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
 
     public function handleCreateReply(Application $app, Request $request, $postId) {
         // Get user id based on token
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
 
         $this->validateValue($postId, [
             new NotBlank(),
@@ -91,7 +91,7 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
 
     public function handleDeleteReply (Application $app, Request $request, $replyId) {
         // Get user id based on token
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
 
         $replyManager = $this->modelManagerFactory->getModelManager('reply');
         $reply = $replyManager->getModel();
@@ -107,7 +107,7 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
     }
 
     public function handleGetReplies(Application $app, Request $request, $postId) {
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
 
         $pagParams = $this->getPaginationData($request, array(
             'def_max_id' => null,

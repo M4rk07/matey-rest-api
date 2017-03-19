@@ -34,7 +34,7 @@ class PostHandler extends AbstractPostHandler
 
     public function handleCreatePost(Application $app, Request $request) {
         // Get user id based on token
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
 
         // Getting json data in relation to Content-Type
         $contentType = $request->headers->get('Content-Type');
@@ -76,7 +76,7 @@ class PostHandler extends AbstractPostHandler
         } catch (\Exception $e) {
             // Rollback transaction on failure
             $postManager->rollbackTransaction();
-            throw new ServerErrorException();
+            throw $e;
         }
 
         // Calling the service for uploading Post attachments to S3 storage
@@ -103,7 +103,7 @@ class PostHandler extends AbstractPostHandler
 
     public function handleDeletePost (Application $app, Request $request, $postId) {
         // Get user id based on token
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
 
         $postManager = $this->modelManagerFactory->getModelManager('post');
         $post = $postManager->getModel();
@@ -119,7 +119,7 @@ class PostHandler extends AbstractPostHandler
     }
 
     public function handleGetSinglePost (Request $request, $postId) {
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
 
         return $this->getPosts(array(
             'post_id' => $postId
@@ -127,7 +127,7 @@ class PostHandler extends AbstractPostHandler
     }
 
     public function handleGetPostsByOwner(Request $request, $ownerType, $id) {
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
 
         $pagParams = $this->getPaginationData($request, array(
             'def_max_id' => null,
@@ -148,7 +148,7 @@ class PostHandler extends AbstractPostHandler
     }
 
     public function handleBoost (Application $app, Request $request, $postId) {
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
         $method = $request->getMethod();
 
         $boostManager = $this->modelManagerFactory->getModelManager('boost');
@@ -211,7 +211,7 @@ class PostHandler extends AbstractPostHandler
     }
 
     public function handleShare (Application $app, Request $request, $postId) {
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
 
         $shareManager = $this->modelManagerFactory->getModelManager('share');
         $share = $shareManager->getModel();
@@ -234,7 +234,7 @@ class PostHandler extends AbstractPostHandler
     }
 
     public function handleBookmark (Application $app, Request $request, $postId) {
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
         $method = $request->getMethod();
 
         $bookmarkManager = $this->modelManagerFactory->getModelManager('bookmark');
@@ -263,7 +263,7 @@ class PostHandler extends AbstractPostHandler
     }
 
     public function handleArchive (Application $app, Request $request, $postId) {
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
 
         $postManager = $this->modelManagerFactory->getModelManager('post');
         $post = $postManager->getModel();
@@ -283,7 +283,7 @@ class PostHandler extends AbstractPostHandler
 
     public function handleGetDeck (Application $app, Request $request, $groupId = null) {
 
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
         $pagParams = $this->getPaginationData($request, array(
             'def_max_id' => null,
             'def_count' => DefaultNumbers::POSTS_LIMIT
@@ -303,7 +303,6 @@ class PostHandler extends AbstractPostHandler
     }
 
     public function getDeck ($userId, $groupId, $pagParams) {
-
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
         $groupManager = $this->modelManagerFactory->getModelManager('group');

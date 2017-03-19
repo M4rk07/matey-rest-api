@@ -10,6 +10,7 @@ namespace App\Controllers\API;
 
 
 use App\Controllers\AbstractController;
+use App\Handlers\AbstractHandler;
 use App\Handlers\Group\GroupHandlerFactoryInterface;
 use App\Handlers\Group\GroupHandlerInterface;
 use App\MateyModels\ModelManagerFactoryInterface;
@@ -50,7 +51,7 @@ class GroupController extends AbstractController
     }
 
     public function getFollowingGroupsAction (Application $app, Request $request, $userId) {
-        if($userId == 'me') $userId = $request->query->get('user_id');
+        if($userId == 'me') $userId = AbstractHandler::getTokenUserId($request);
 
         return $this->groupHandler
             ->handleGetFollowingGroups($request, $userId);

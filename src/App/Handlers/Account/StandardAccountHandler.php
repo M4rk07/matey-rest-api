@@ -140,7 +140,7 @@ class StandardAccountHandler extends AbstractAccountHandler
         /*
          * Check if user is really registered
          */
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
         $user = $this->getAccountById($userId);
 
         if(empty($user)) return new ResourceNotFoundException();
