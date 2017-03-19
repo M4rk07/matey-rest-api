@@ -201,7 +201,7 @@ class GroupHandler extends AbstractGroupHandler
         $groupManager = $this->modelManagerFactory->getModelManager('group');
         $groups = $groupManager->readModelBy(array(
             'group_id' => array_unique($groupIds)
-        ), array('group_id' => 'DESC'), $pagParams['count'], null, array('group_id', 'group_name', 'statistics'));
+        ), array('group_id' => 'DESC'), $pagParams['count'], null, array('group_id', 'group_name', 'num_of_followers'));
 
         $groupResult = array();
         foreach($groups as $group) {

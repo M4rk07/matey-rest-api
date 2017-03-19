@@ -27,7 +27,7 @@ abstract class AbstractGroupHandler extends Activity implements GroupHandlerInte
     // Method for retrieving json file from request
     public function getJsonPostData (Request $request, $contentType) {
         // Retrieving json based on Content-Type
-        if($contentType == 'application/json') {
+        if(strpos($contentType, 'application/json') === 0) {
             $jsonData = $request->getContent();
             $jsonData = json_decode($jsonData);
         } else if(strpos($contentType, 'multipart/form-data') === 0) {

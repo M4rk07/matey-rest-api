@@ -50,7 +50,7 @@ class GroupController extends AbstractController
     }
 
     public function getFollowingGroupsAction (Application $app, Request $request, $userId) {
-        if($userId == 'me') $userId = $request->request->get('user_id');
+        if($userId == 'me') $userId = $request->query->get('user_id');
 
         return $this->groupHandler
             ->handleGetFollowingGroups($request, $userId);
