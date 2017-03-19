@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 interface GroupHandlerInterface
 {
-    function handleCreateGroup(Request $request);
+    function handleCreateGroup(Application $app, Request $request);
     function handleGetGroup(Request $request, $groupId);
     function handleDeleteGroup(Request $request, $groupId);
     function handleFollowGroup(Request $request, $groupId);

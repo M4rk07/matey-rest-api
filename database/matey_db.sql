@@ -183,9 +183,9 @@ CREATE TABLE IF NOT EXISTS matey_group_scope (
 CREATE TABLE IF NOT EXISTS matey_group_admin (
   user_id int(11) UNSIGNED NOT NULL,
   group_id int(11) UNSIGNED NOT NULL,
-  scope varchar(300) CHARACTER SET utf8 NOT NULL,
+  scope varchar(300) CHARACTER SET utf8,
   time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  active boolean NOT NULL DEFAULT 0,
+  active boolean NOT NULL DEFAULT 1,
   PRIMARY KEY (user_id, group_id),
   FOREIGN KEY(user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY(group_id) REFERENCES matey_group(group_id)

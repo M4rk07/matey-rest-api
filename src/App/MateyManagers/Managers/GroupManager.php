@@ -32,7 +32,7 @@ class GroupManager extends AbstractManager
         $this->redis->hmset($this->getRedisKey().":statistics:".$group->getGroupId(), array(
             self::FIELD_NUM_OF_FOLLOWERS => 0,
             self::FIELD_NUM_OF_SHARES => 0,
-            self::FIELD_NUM_OF_SHARES => 0
+            self::FIELD_NUM_OF_FAVORITES => 0
         ));
     }
 

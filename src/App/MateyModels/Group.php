@@ -25,6 +25,8 @@ class Group extends AbstractModel
     protected $timeC;
     protected $silhouette;
     protected $numOfFollowers;
+    protected $numOfShares;
+    protected $numOfFavorites;
     protected $deleted;
 
     public function setId($id) {
@@ -140,21 +142,6 @@ class Group extends AbstractModel
     /**
      * @return mixed
      */
-    public function getGroupPicture($size = 'small')
-    {
-        $dimension = '100x100';
-        if($size != 'small' && in_array($size, array('medium', 'large', 'veryLarge', 'original'))) {
-            if($size == 'medium') $dimension = '200x200';
-            else if($size == 'large') $dimension = '480x480';
-            else if($size == 'original') $dimension = 'originals';
-        }
-        if($this->silhouette == 1) return "https://tctechcrunch2011.files.wordpress.com/2010/10/pirate.jpg";
-        return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/groups/".$dimension."/".$this->getId().".jpg";
-    }
-
-    /**
-     * @return mixed
-     */
     public function getNumOfFollowers()
     {
         return $this->numOfFollowers;
@@ -165,7 +152,41 @@ class Group extends AbstractModel
      */
     public function setNumOfFollowers($numOfFollowers)
     {
-        $this->numOfFollowers = $numOfFollowers;
+        $this->numOfFollowers = (int)$numOfFollowers;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNumOfShares()
+    {
+        return $this->numOfShares;
+    }
+
+    /**
+     * @param mixed $numOfShares
+     */
+    public function setNumOfShares($numOfShares)
+    {
+        $this->numOfShares = (int)$numOfShares;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNumOfFavorites()
+    {
+        return $this->numOfFavorites;
+    }
+
+    /**
+     * @param mixed $numOfFavorites
+     */
+    public function setNumOfFavorites($numOfFavorites)
+    {
+        $this->numOfFavorites = (int)$numOfFavorites;
         return $this;
     }
 
@@ -214,6 +235,14 @@ class Group extends AbstractModel
         else if($props['key'] == 'num_of_followers') {
             if($type == 'get') return $this->getNumOfFollowers();
             else return $this->setNumOfFollowers($props['value']);
+        }
+        else if($props['key'] == 'num_of_shares') {
+            if($type == 'get') return $this->getNumOfShares();
+            else return $this->setNumOfShares($props['value']);
+        }
+        else if($props['key'] == 'num_of_favorites') {
+            if($type == 'get') return $this->getNumOfFavorites();
+            else return $this->setNumOfFavorites($props['value']);
         }
         else if($props['key'] == 'deleted') {
             if($type == 'get') return $this->getDeleted();

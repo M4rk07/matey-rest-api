@@ -31,7 +31,7 @@ class GroupController extends AbstractController
 
     public function createGroupAction (Application $app, Request $request) {
         return $this->groupHandler
-            ->handleCreateGroup($request);
+            ->handleCreateGroup($app, $request);
     }
 
     public function getGroupAction (Application $app, Request $request, $groupId) {
@@ -40,13 +40,6 @@ class GroupController extends AbstractController
             ->handleGetGroup($request, $groupId);
 
         $finalResult['data'] = $groupResult;
-
-        $postController = $app['matey.post_controller'];
-        $deckResult = $postController->getGroupDeckAction($app, $request, $groupId);
-        if($deckResult->getStatusCode() !== 200) return $deckResult;
-        $deckResult = json_decode($deckResult->getContent());
-
-        $finalResult['data']['posts'] = $deckResult;
 
         return new JsonResponse($finalResult, 200);
     }

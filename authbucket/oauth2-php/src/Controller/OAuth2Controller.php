@@ -19,6 +19,7 @@ use AuthBucket\OAuth2\ResponseType\ResponseTypeHandlerFactoryInterface;
 use AuthBucket\OAuth2\Security\Authentication\Token\AccessTokenToken;
 use AuthBucket\OAuth2\Validator\Constraints\GrantType;
 use AuthBucket\OAuth2\Validator\Constraints\ResponseType;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -95,7 +96,7 @@ class OAuth2Controller
             ->handle($request);
     }
 
-    public function debugAction(Request $request)
+    public function debugAction(Application $app, Request $request)
     {
         // Fetch authenticated access token from security context.
         $token = $this->tokenStorage->getToken();

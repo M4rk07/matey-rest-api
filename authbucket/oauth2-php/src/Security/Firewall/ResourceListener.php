@@ -23,6 +23,7 @@ use AuthBucket\OAuth2\Security\Authentication\Token\AccessTokenToken;
 use AuthBucket\OAuth2\TokenType\TokenTypeHandlerFactoryInterface;
 use AuthBucket\OAuth2\Validator\Constraints\AccessToken;
 use Psr\Log\LoggerInterface;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
@@ -117,8 +118,8 @@ class ResourceListener implements ListenerInterface
         $this->tokenStorage->setToken($tokenAuthenticated);
 
         $user = $this->getTokenOwnerId($tokenAuthenticated);
-        $request->request->set("user_id", $user->getUserId());
-
+        $request->query->set("user_id", $user->getUserId());
+        $request->query->set("token-user-id", $user->getUserId());
     }
 
     public function getTokenOwnerId ($tokenAuthenticated) {

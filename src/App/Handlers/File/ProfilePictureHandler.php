@@ -110,7 +110,7 @@ class ProfilePictureHandler extends AbstractFileHandler
         $user->setUserId($userId);
 
         return new JsonResponse(null, 201, array(
-            'Location' => $user->getProfilePicture('original')
+            'Location' => self::getPictureUrl($user)
         ));
     }
 

@@ -34,6 +34,8 @@ class GroupPictureHandler extends AbstractFileHandler
         $userId = $request->request->get('user_id');
         $picture = $request->files->get('group_picture');
 
+        if(count($request->files) != 1) throw new InvalidRequestException();
+
         $errors = $this->validator->validate($groupId, [
             new NotBlank(),
             new GroupId()
@@ -130,7 +132,7 @@ class GroupPictureHandler extends AbstractFileHandler
         $group->setId($groupId);
 
         return new JsonResponse(null, 201, array(
-            'Location' => $group->getGroupPicture('original')
+            'Location' => self::getPictureUrl($group)
         ));
     }
 
@@ -139,7 +141,7 @@ class GroupPictureHandler extends AbstractFileHandler
     }
 
     public static function generatePictureUrl ($groupId, $dimension = self::SMALL) {
-        return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/".ProfilePictureHandler::generatePicturePrefix($groupId, $dimension);
+        return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/".GroupPictureHandler::generatePicturePrefix($groupId, $dimension);
     }
 
     public static function getPictureUrl(Group $group, $dimension = self::SMALL) {

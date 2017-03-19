@@ -27,9 +27,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class GroupHandler extends AbstractGroupHandler
 {
-    function handleCreateGroup(Request $request)
+    function handleCreateGroup(Application $app, Request $request)
     {
-        $userId = $request->request->get('user_id');
+        $userId = $request->query->get('token-user-id');
 
         // Getting json data in relation to Content-Type
         $contentType = $request->headers->get('Content-Type');
@@ -42,15 +42,25 @@ class GroupHandler extends AbstractGroupHandler
         $jsonData['description'] = $this->gValidateDescription($jsonDataRequest);
 
         $groupManager = $this->modelManagerFactory->getModelManager('group');
+        $groupAdminManager = $this->modelManagerFactory->getModelManager('groupAdmin');
         $group = $groupManager->getModel();
+        $groupAdmin = $groupAdminManager->getModel();
 
         $group->setUserId($userId)
             ->setGroupName($jsonData['group_name'])
             ->setDescription($jsonData['description'])
             ->setSilhouette(1);
-
         $group = $groupManager->createModel($group);
-        $this->createActivity($group->getGroupId(),$userId,null,Activity::GROUP_TYPE,Activity::GROUP_TYPE);
+        $this->createActivity($group->getGroupId(), $userId, null, Activity::GROUP_TYPE, Activity::GROUP_TYPE);
+
+        $groupAdmin->setUserId($userId)
+            ->setGroupId($group->getGroupId());
+        $groupAdminManager->createModel($groupAdmin);
+
+        // Calling the service for uploading Post attachments to S3 storage
+        if(strpos($contentType, 'multipart/form-data') === 0) {
+            $app['matey.file_handler.factory']->getFileHandler('group_picture')->upload($app, $request, $group->getGroupId());
+        }
 
         $group = $groupManager->readModelOneBy(array(
             'group_id' => $group->getGroupId()
