@@ -10,5 +10,5 @@ use Symfony\Component\HttpFoundation\Request;
  */
 interface SearchHandlerInterface
 {
-    public function handleSearch (Request $request);
+    public function handleUserSearch (Request $request);
 }

@@ -67,10 +67,11 @@ class UserManager extends AbstractManager
 
     }
 
-    public function search ($q) {
-        $all = $this->db->fetchAll("SELECT user_id, first_name, last_name FROM ". $this->getTableName() .
-            " WHERE CONCAT( first_name,  ' ', last_name) LIKE  '%?%'",
-            array($q));
+    public function search ($q, $limit, $offset = 0) {
+        $all = $this->db->fetchAll("SELECT user_id, first_name, last_name, country, location FROM ". $this->getTableName() .
+            " where lower(concat_ws(' ', first_name, last_name)) 
+        like lower(?) LIMIT ".$limit." OFFSET ".$offset,
+            array('%'.$q.'%'));
 
         return $this->makeObjects($all);
     }

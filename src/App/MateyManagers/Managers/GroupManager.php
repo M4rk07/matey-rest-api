@@ -64,6 +64,21 @@ class GroupManager extends AbstractManager
         return $models;
     }
 
+    public function search ($q, $limit, $offset = 0) {
+        $all = $this->db->fetchAll("SELECT group_id, group_name FROM ". $this->getTableName() .
+            " where lower(group_name) 
+        like lower(?) LIMIT ".$limit." OFFSET ".$offset,
+            array('%'.$q.'%'));
+
+        $models = $this->makeObjects($all);
+
+        foreach($models as $key => $model) {
+            $models[$key] = $this->getGroupStatistics($model);
+        }
+
+        return $models;
+    }
+
     public function incrNumOfFollowers(Group $group, $incrBy = 1) {
         $this->redis->hincrby($this->getRedisKey().":statistics:".$group->getGroupId(), self::FIELD_NUM_OF_FOLLOWERS, $incrBy);
     }

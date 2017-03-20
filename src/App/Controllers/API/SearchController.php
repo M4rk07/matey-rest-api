@@ -25,9 +25,14 @@ class SearchController extends AbstractController
         $this->seachHandler = $seachHandler;
     }
 
-    public function searchAction (Application $app, Request $request) {
+    public function searchUsersAction (Application $app, Request $request) {
         return $this->seachHandler
-            ->handleSearch($request);
+            ->handleUserSearch($request);
+    }
+
+    public function searchGroupsAction (Application $app, Request $request) {
+        return $this->seachHandler
+            ->handleGroupSearch($request);
     }
 
 }

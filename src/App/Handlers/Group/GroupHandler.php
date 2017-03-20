@@ -193,19 +193,22 @@ class GroupHandler extends AbstractGroupHandler
         $followManager = $this->modelManagerFactory->getModelManager('follow');
         $follows = $followManager->readModelBy($criteria, array('parent_id' => 'DESC'), $pagParams['count']);
 
-        $groupIds = array();
-        foreach ($follows as $follow) {
-            $groupIds[] = $follow->getParentId();
-        }
-
-        $groupManager = $this->modelManagerFactory->getModelManager('group');
-        $groups = $groupManager->readModelBy(array(
-            'group_id' => array_unique($groupIds)
-        ), array('group_id' => 'DESC'), $pagParams['count'], null, array('group_id', 'group_name', 'num_of_followers'));
-
         $groupResult = array();
-        foreach($groups as $group) {
-            $groupResult[] = $group->asArray();
+
+        if(!empty($follows)) {
+            $groupIds = array();
+            foreach ($follows as $follow) {
+                $groupIds[] = $follow->getParentId();
+            }
+
+            $groupManager = $this->modelManagerFactory->getModelManager('group');
+            $groups = $groupManager->readModelBy(array(
+                'group_id' => array_unique($groupIds)
+            ), array('group_id' => 'DESC'), $pagParams['count'], null, array('group_id', 'group_name', 'num_of_followers'));
+
+            foreach ($groups as $group) {
+                $groupResult[] = $group->asArray();
+            }
         }
 
         $paginationService = new PaginationService($groupResult, $pagParams['count'],

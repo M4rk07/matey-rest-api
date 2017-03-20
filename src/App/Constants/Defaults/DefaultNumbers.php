@@ -16,4 +16,5 @@ class DefaultNumbers
     const DECK_CAPACITY = 300;
     const REREPLIES_LIMIT = 10;
     const POSTS_LIMIT = 10;
+    const SEARCH_LIMIT = 5;
 }

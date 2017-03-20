@@ -92,7 +92,8 @@ class RoutesLoader
         $apiCachable->get('/users/{userId}/groups/following', 'matey.group_controller:getFollowingGroupsAction');
 
         // SEARCH
-        $apiCachable->get('/search', 'matey.search_controller:searchAction');
+        $apiCachable->get('/search/users', 'matey.search_controller:searchUsersAction');
+        $apiCachable->get('/search/groups', 'matey.search_controller:searchGroupsAction');
 
         $this->app->get('/tests/data', 'matey.testingdata_controller:makeData');
 
