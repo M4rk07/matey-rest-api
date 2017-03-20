@@ -57,6 +57,8 @@ class GroupHandler extends AbstractGroupHandler
             ->setGroupId($group->getGroupId());
         $groupAdminManager->createModel($groupAdmin);
 
+        $this->handleFollowGroup($request, $group->getGroupId());
+
         // Calling the service for uploading Post attachments to S3 storage
         if(strpos($contentType, 'multipart/form-data') === 0) {
             $app['matey.file_handler.factory']->getFileHandler('group_picture')->upload($app, $request, $group->getGroupId());
@@ -118,7 +120,7 @@ class GroupHandler extends AbstractGroupHandler
             new GroupId()
         ));
 
-        $followManager = $this->modelManagerFactory->getModelManager('group');
+        $followManager = $this->modelManagerFactory->getModelManager('follow');
         $follow = $followManager->getModel();
 
         $follow->setUserId($userId)
@@ -128,7 +130,9 @@ class GroupHandler extends AbstractGroupHandler
         $followManager->createModel($follow);
 
         $groupManager = $this->modelManagerFactory->getModelManager('group');
-        $groupManager->incrNumOfFollowers();
+        $group = $groupManager->getModel();
+        $group->setGroupId($groupId);
+        $groupManager->incrNumOfFollowers($group);
 
         return new JsonResponse(null, 200);
     }
