@@ -31,7 +31,7 @@ class SearchService
         $this->client->setGroupBy ( "auto_text", SPH_GROUPBY_ATTR, "@count desc");
         $result = $this->client->query($query, 'autocomplete_rt');
 
-        $finalResult = array();
+        $finalResult['data'] = array();
         if(isset($result['matches'])) {
             foreach ($result['matches'] as $res) {
                 $finalResult['data'][] = $res['attrs']['auto_text'];
