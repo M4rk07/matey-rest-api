@@ -15,6 +15,7 @@ use AuthBucket\OAuth2\Exception\ServerErrorException;
 use AuthBucket\OAuth2\Model\ModelInterface;
 use AuthBucket\OAuth2\Model\ModelManagerInterface;
 use Doctrine\DBAL\Connection;
+use Foolz\SphinxQL\SphinxQL;
 use NilPortugues\Sphinx\SphinxClient;
 use Predis\Client;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -241,9 +242,24 @@ abstract class AbstractManager implements ModelManagerInterface
         $sphinxClient = new SphinxClient();
         $sphinxClient->setServer(Paths::BASE_IP, Paths::SPHINX_PORT);
         $sphinxClient->setMatchMode(SPH_MATCH_EXTENDED);
-        $sphinxClient->setRankingMode(SPH_RANK_PROXIMITY_BM25);
+        $sphinxClient->setRankingMode(SPH_RANK_SPH04);
         $sphinxClient->setLimits($offset, $limit);
         return $sphinxClient->query($query, $this->getSphinxIndex());
+    }
+
+    public function toAutocomplete ($text) {
+        $this->redis->incr('AUTOCOMPLETE:id');
+        $id = $this->redis->get('AUTOCOMPLETE:id');
+
+        $client = new \Foolz\SphinxQL\Drivers\Mysqli\Connection();
+        $client->setParams(array('host' => Paths::BASE_IP, 'port' => Paths::SPHINXQL_PORT));
+        $query = SphinxQL::create($client)->insert()->into('autocomplete_rt');
+        $query->set(array(
+            'id' => $id,
+            'text' => $text,
+            'auto_text' => $text
+        ));
+        $query->execute();
     }
 
     // making objects form array

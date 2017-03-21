@@ -94,6 +94,7 @@ class RoutesLoader
         // SEARCH
         $apiCachable->get('/search/users', 'matey.search_controller:searchUsersAction');
         $apiCachable->get('/search/groups', 'matey.search_controller:searchGroupsAction');
+        $apiCachable->get('/autocomplete', 'matey.search_controller:autocompleteAction');
 
         $this->app->get('/tests/data', 'matey.testingdata_controller:makeData');
 

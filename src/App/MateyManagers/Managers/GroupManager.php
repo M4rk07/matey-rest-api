@@ -43,6 +43,7 @@ class GroupManager extends AbstractManager
             'group_name' => $group->getGroupName()
         ));
         $query->execute();
+        $this->toAutocomplete($group->getGroupName());
     }
 
     public function getSearchResults ($ids) {

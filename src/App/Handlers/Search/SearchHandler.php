@@ -13,6 +13,7 @@ use App\Constants\Defaults\DefaultNumbers;
 use App\Paths\Paths;
 use App\Services\PaginationService;
 use App\Services\PaginationServiceOffset;
+use App\Services\SearchService;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use NilPortugues\Sphinx\SphinxClient;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,6 +21,12 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SearchHandler extends AbstractSearchHandler
 {
+
+    public function autocomplete (Request $request) {
+        $query = $request->get('q');
+        $searchService = new SearchService();
+        return new JsonResponse($searchService->getAutocomplete($query), 200);
+    }
 
     public function handleSearch (Request $request, $type) {
 

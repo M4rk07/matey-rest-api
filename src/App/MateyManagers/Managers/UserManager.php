@@ -68,6 +68,8 @@ class UserManager extends AbstractManager
             'last_name' => $user->getLastName()
         ));
         $query->execute();
+        $fullName = $user->getFirstName() . " " . $user->getLastName();
+        $this->toAutocomplete($fullName);
     }
 
     public function readModelBy(array $criteria, array $orderBy = null, $limit = null, $offset = null, array $fields = null) {

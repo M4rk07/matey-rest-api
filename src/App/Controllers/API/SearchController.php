@@ -35,4 +35,9 @@ class SearchController extends AbstractController
             ->handleSearch($request, 'group');
     }
 
+    public function autocompleteAction (Request $request) {
+        return $this->seachHandler
+            ->autocomplete($request);
+    }
+
 }
