@@ -5,12 +5,16 @@ use App\Algos\Algo;
 use App\Constants\Defaults\DefaultNumbers;
 use App\MateyModels\Activity;
 use App\MateyModels\User;
+use App\Paths\Paths;
 use App\Security\SaltGenerator;
 use App\Services\BaseService;
 use App\Services\CloudStorageService;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
 use AuthBucket\OAuth2\Model\ModelInterface;
+use Foolz\SphinxQL\Drivers\Mysqli\Connection;
+use Foolz\SphinxQL\SphinxQL;
+use NilPortugues\Sphinx\SphinxClient;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -48,7 +52,22 @@ class UserManager extends AbstractManager
 
         $this->initializeUserStatistics($model);
 
+        $this->addToSearch($model);
+
         return $model;
+    }
+
+    public function addToSearch (User $user) {
+        $client = new Connection();
+        $client->setParams(array('host' => Paths::BASE_IP, 'port' => Paths::SPHINXQL_PORT));
+        $query = SphinxQL::create($client)->insert()->into($this->getSphinxIndex());
+        $query->set(array(
+            'id' => $user->getUserId(),
+            'user_id' => $user->getUserId(),
+            'first_name' => $user->getFirstName(),
+            'last_name' => $user->getLastName()
+        ));
+        $query->execute();
     }
 
     public function readModelBy(array $criteria, array $orderBy = null, $limit = null, $offset = null, array $fields = null) {
@@ -65,15 +84,6 @@ class UserManager extends AbstractManager
 
         return $models;
 
-    }
-
-    public function search ($q, $limit, $offset = 0) {
-        $all = $this->db->fetchAll("SELECT user_id, first_name, last_name, country, location FROM ". $this->getTableName() .
-            " where lower(concat_ws(' ', first_name, last_name)) 
-        like lower(?) LIMIT ".$limit." OFFSET ".$offset,
-            array('%'.$q.'%'));
-
-        return $this->makeObjects($all);
     }
 
     public function initializeUserStatistics(User $user) {

@@ -10,16 +10,18 @@ namespace App\Handlers\Search;
 
 
 use App\Constants\Defaults\DefaultNumbers;
+use App\Paths\Paths;
 use App\Services\PaginationService;
 use App\Services\PaginationServiceOffset;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
+use NilPortugues\Sphinx\SphinxClient;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 class SearchHandler extends AbstractSearchHandler
 {
 
-    public function handleUserSearch (Request $request) {
+    public function handleSearch (Request $request, $type) {
 
         $query = $request->get('q');
         $limit = $request->get('limit');
@@ -28,41 +30,42 @@ class SearchHandler extends AbstractSearchHandler
         if(!isset($query)) throw new InvalidRequestException();
         if(!isset($limit)) $limit = DefaultNumbers::SEARCH_LIMIT;
         if(!isset($offset)) $offset = 0;
+        if($type == 'user') {
+            $manager = $this->modelManagerFactory->getModelManager('user');
+        } else
+            $manager = $this->modelManagerFactory->getModelManager('group');
 
-        $userManager = $this->modelManagerFactory->getModelManager('user');
-        $users = $userManager->search($query, $limit, $offset);
+        $result = $manager->search($query, $limit, $offset);
 
-        $finalUsers = array();
-        foreach ($users as $user) {
-            $finalUsers[] = $user->asArray();
+        if($result) {
+            $result = $result['matches'];
         }
 
-        $paginationService = new PaginationServiceOffset($finalUsers, $limit, $offset,
-            '/search/users?q='.$query);
+        $finalResult = array();
+        if(!empty($result)) {
+            $ids = array();
+            foreach ($result as $key => $id) {
+                $ids[] = $key;
+            }
 
-        return new JsonResponse($paginationService->getResponse(), 200);
-    }
+            if($type == 'user') {
+                $models = $manager->readModelBy(array(
+                    'user_id' => $ids
+                ), null, $limit, null, array('user_id', 'first_name', 'last_name'));
+            } else {
+                $models = $manager->readModelBy(array(
+                    'group_id' => $ids
+                ), null, $limit, null, array('group_id', 'group_name', 'num_of_followers'));
+            }
 
-    public function handleGroupSearch (Request $request) {
-
-        $query = $request->get('q');
-        $limit = $request->get('limit');
-        $offset = $request->get('offset');
-
-        if(!isset($query)) throw new InvalidRequestException();
-        if(!isset($limit)) $limit = DefaultNumbers::SEARCH_LIMIT;
-        if(!isset($offset)) $offset = 0;
-
-        $groupManager = $this->modelManagerFactory->getModelManager('group');
-        $groups = $groupManager->search($query, $limit, $offset);
-
-        $finalGroups = array();
-        foreach ($groups as $group) {
-            $finalGroups[] = $group->asArray();
+            foreach ($models as $model) {
+                $finalResult[] = $model->asArray();
+            }
         }
 
-        $paginationService = new PaginationServiceOffset($finalGroups, $limit, $offset,
-            '/search/groups?q='.$query);
+        $paginationService = new PaginationServiceOffset($finalResult, $limit, $offset,
+            $type == 'user' ? '/search/users?q='.$query : '/search/groups?q='.$query);
+
 
         return new JsonResponse($paginationService->getResponse(), 200);
     }

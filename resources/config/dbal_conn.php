@@ -16,6 +16,7 @@ $connectionParams = array(
     'host' => 'localhost',
     'driver' => 'pdo_mysql',
     'charset' => 'utf8',
+    'port' => 3306,
     'driverOptions' => array(
         1002=>'SET NAMES utf8'
     )

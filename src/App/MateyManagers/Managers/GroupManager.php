@@ -10,7 +10,10 @@ namespace App\MateyModels;
 
 
 use App\Constants\Defaults\DefaultNumbers;
+use App\Paths\Paths;
 use AuthBucket\OAuth2\Model\ModelInterface;
+use Foolz\SphinxQL\Drivers\Mysqli\Connection;
+use Foolz\SphinxQL\SphinxQL;
 
 class GroupManager extends AbstractManager
 {
@@ -25,7 +28,21 @@ class GroupManager extends AbstractManager
 
         $this->initializeGroupStatistics($model);
 
+        $this->addToSearch($model);
+
         return $model;
+    }
+
+    public function addToSearch (Group $group) {
+        $client = new Connection();
+        $client->setParams(array('host' => Paths::BASE_IP, 'port' => Paths::SPHINXQL_PORT));
+        $query = SphinxQL::create($client)->insert()->into($this->getSphinxIndex());
+        $query->set(array(
+            'id' => $group->getGroupId(),
+            'group_id' => $group->getGroupId(),
+            'group_name' => $group->getGroupName()
+        ));
+        $query->execute();
     }
 
     public function initializeGroupStatistics(Group $group) {
@@ -59,21 +76,6 @@ class GroupManager extends AbstractManager
                 $models[$key] = $this->getGroupStatistics($model);
             }
 
-        }
-
-        return $models;
-    }
-
-    public function search ($q, $limit, $offset = 0) {
-        $all = $this->db->fetchAll("SELECT group_id, group_name FROM ". $this->getTableName() .
-            " where lower(group_name) 
-        like lower(?) LIMIT ".$limit." OFFSET ".$offset,
-            array('%'.$q.'%'));
-
-        $models = $this->makeObjects($all);
-
-        foreach($models as $key => $model) {
-            $models[$key] = $this->getGroupStatistics($model);
         }
 
         return $models;

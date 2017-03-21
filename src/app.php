@@ -29,9 +29,10 @@ $app->register(new DoctrineServiceProvider(), array(
         'dbname' => 'matey_db',
         'user' => 'root',
         'password' => 'maka',
-        'host' => 'localhost',
+        'host' => \App\Paths\Paths::BASE_IP,
         'driver' => 'pdo_mysql',
         'charset' => 'utf8',
+        'port' => \App\Paths\Paths::MYSQL_PORT,
         'driverOptions' => array(
             1002=>'SET NAMES utf8'
         )
@@ -39,17 +40,12 @@ $app->register(new DoctrineServiceProvider(), array(
 ));
 
 $app->register(new Predis\Silex\ClientServiceProvider(), [
-    'predis.parameters' => 'tcp://127.0.0.1:6379',
+    'predis.parameters' => 'tcp://'.\App\Paths\Paths::BASE_IP.':'.\App\Paths\Paths::REDIS_PORT,
     'predis.options'    => [
         'prefix'  => 'silex:',
         'profile' => '3.0',
     ]
 ]);
-
-/*
-$app['matey.db.connection'] = $app->share(function ($app) {
-    return require_once __DIR__ . '/../resources/config/dbal_conn.php';
-});*/
 
 # Register MUST have Silex providers for AuthBucketOAuth2ServiceProvider.
 $app->register(new MonologServiceProvider(), array(

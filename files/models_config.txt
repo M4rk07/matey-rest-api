@@ -5,6 +5,7 @@ mysql_fields=user_id,email,first_name,last_name,full_name,country,location,birth
 redis_key=USER
 redis_fields=num_of_followers,num_of_following,num_of_posts,num_of_given_replies,num_of_received_replies,num_of_given_approves,num_of_received_approves,num_of_best_replies,num_of_shares
 additional_fields=picture_url
+sphinx_index=matey_user_rt
 
 model_name=oauth2User
 class_name=App\MateyModels\OAuth2User
@@ -60,6 +61,7 @@ mysql_fields=group_id,user_id,group_name,description,is_silhouette,time_c,delete
 redis_key=GROUP
 redis_fields=num_of_followers,num_of_shares,num_of_favorites
 additional_fields=group_picture_url
+sphinx_index=matey_group_rt
 
 model_name=groupAdmin
 class_name=App\MateyModels\GroupAdmin

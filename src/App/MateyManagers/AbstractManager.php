@@ -9,11 +9,13 @@
 namespace App\MateyModels;
 
 
+use App\Paths\Paths;
 use App\Services\BaseService;
 use AuthBucket\OAuth2\Exception\ServerErrorException;
 use AuthBucket\OAuth2\Model\ModelInterface;
 use AuthBucket\OAuth2\Model\ModelManagerInterface;
 use Doctrine\DBAL\Connection;
+use NilPortugues\Sphinx\SphinxClient;
 use Predis\Client;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -81,6 +83,10 @@ abstract class AbstractManager implements ModelManagerInterface
 
     public function getAllFields() {
         return array_merge($this->getMysqlFields(), $this->getRedisFields(), $this->getAdditionalFields());
+    }
+
+    public function getSphinxIndex() {
+        return isset($this->modelConfig['sphinx_index']) ? $this->modelConfig['sphinx_index'] : null;
     }
 
     public function startTransaction() {
@@ -229,6 +235,15 @@ abstract class AbstractManager implements ModelManagerInterface
         $result = $queryBuilder->execute();
 
         return $result > 0 ? $model : null;
+    }
+
+    public function search ($query, $limit, $offset) {
+        $sphinxClient = new SphinxClient();
+        $sphinxClient->setServer(Paths::BASE_IP, Paths::SPHINX_PORT);
+        $sphinxClient->setMatchMode(SPH_MATCH_EXTENDED);
+        $sphinxClient->setRankingMode(SPH_RANK_PROXIMITY);
+        $sphinxClient->setLimits($offset, $limit);
+        return $sphinxClient->query($query, $this->getSphinxIndex());
     }
 
     // making objects form array

@@ -9,7 +9,11 @@ namespace App\Paths;
  */
 class Paths
 {
-
+    const BASE_IP = '127.0.0.1';
+    const SPHINX_PORT = 9312;
+    const SPHINXQL_PORT = 9306;
+    const REDIS_PORT = 6379;
+    const MYSQL_PORT = 3306;
     const BASE_API_URL = "http://localhost/matey-api/web/index.php";
     const DEBUG_ENDPOINT = "http://localhost/matey-oauth2/web/index.php/api/oauth2/debug";
 
