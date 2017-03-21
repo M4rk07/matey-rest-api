@@ -45,6 +45,26 @@ class GroupManager extends AbstractManager
         $query->execute();
     }
 
+    public function getSearchResults ($ids) {
+        $qMarks = "";
+        foreach ($ids as $id) {
+            $qMarks .= "?,";
+        }
+        $qMarks = trim($qMarks, ",");
+
+        $all = $this->db->fetchAll("SELECT group_id, group_name FROM ". $this->getTableName().
+            " WHERE group_id IN (".$qMarks.") ORDER BY FIELD(group_id, ".$qMarks.")",
+            array_merge($ids, $ids));
+
+        $models = $this->makeObjects($all);
+
+        foreach($models as $key => $model) {
+            $models[$key] = $this->getGroupStatistics($model);
+        }
+
+        return $models;
+    }
+
     public function initializeGroupStatistics(Group $group) {
         $this->redis->hmset($this->getRedisKey().":statistics:".$group->getGroupId(), array(
             self::FIELD_NUM_OF_FOLLOWERS => 0,

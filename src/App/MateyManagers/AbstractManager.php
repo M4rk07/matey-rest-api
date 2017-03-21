@@ -241,7 +241,7 @@ abstract class AbstractManager implements ModelManagerInterface
         $sphinxClient = new SphinxClient();
         $sphinxClient->setServer(Paths::BASE_IP, Paths::SPHINX_PORT);
         $sphinxClient->setMatchMode(SPH_MATCH_EXTENDED);
-        $sphinxClient->setRankingMode(SPH_RANK_PROXIMITY);
+        $sphinxClient->setRankingMode(SPH_RANK_PROXIMITY_BM25);
         $sphinxClient->setLimits($offset, $limit);
         return $sphinxClient->query($query, $this->getSphinxIndex());
     }

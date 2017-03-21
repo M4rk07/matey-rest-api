@@ -86,6 +86,20 @@ class UserManager extends AbstractManager
 
     }
 
+    public function getSearchResults ($ids) {
+        $qMarks = "";
+        foreach ($ids as $id) {
+            $qMarks .= "?,";
+        }
+        $qMarks = trim($qMarks, ",");
+
+        $all = $this->db->fetchAll("SELECT user_id, first_name, last_name FROM ". $this->getTableName().
+            " WHERE user_id IN (".$qMarks.") ORDER BY FIELD(user_id, ".$qMarks.")",
+            array_merge($ids, $ids));
+
+        return $this->makeObjects($all);
+    }
+
     public function initializeUserStatistics(User $user) {
         $this->redis->hmset($this->getRedisKey().":statistics:".$user->getUserId(), array(
             self::FIELD_NUM_OF_FOLLOWERS => 0,

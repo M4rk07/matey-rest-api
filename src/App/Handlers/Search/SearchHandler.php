@@ -48,15 +48,7 @@ class SearchHandler extends AbstractSearchHandler
                 $ids[] = $key;
             }
 
-            if($type == 'user') {
-                $models = $manager->readModelBy(array(
-                    'user_id' => $ids
-                ), null, $limit, null, array('user_id', 'first_name', 'last_name'));
-            } else {
-                $models = $manager->readModelBy(array(
-                    'group_id' => $ids
-                ), null, $limit, null, array('group_id', 'group_name', 'num_of_followers'));
-            }
+            $models = $manager->getSearchResults($ids);
 
             foreach ($models as $model) {
                 $finalResult[] = $model->asArray();
