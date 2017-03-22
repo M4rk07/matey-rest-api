@@ -28,22 +28,7 @@ class GroupManager extends AbstractManager
 
         $this->initializeGroupStatistics($model);
 
-        $this->addToSearch($model);
-
         return $model;
-    }
-
-    public function addToSearch (Group $group) {
-        $client = new Connection();
-        $client->setParams(array('host' => Paths::BASE_IP, 'port' => Paths::SPHINXQL_PORT));
-        $query = SphinxQL::create($client)->insert()->into($this->getSphinxIndex());
-        $query->set(array(
-            'id' => $group->getGroupId(),
-            'group_id' => $group->getGroupId(),
-            'group_name' => $group->getGroupName()
-        ));
-        $query->execute();
-        $this->toAutocomplete($group->getGroupName());
     }
 
     public function getSearchResults ($ids) {

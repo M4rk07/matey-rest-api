@@ -125,6 +125,7 @@ class StandardAccountHandler extends AbstractAccountHandler
             $user = $this->storeUserData($user);
             $oauth2User->setUserId($user->getUserId());
             $oauth2UserManager->createModel($oauth2User);
+            $app['matey.search_service']->addUserToSearch($user);
 
             $userManager->commitTransaction();
         } catch (\Exception $e) {

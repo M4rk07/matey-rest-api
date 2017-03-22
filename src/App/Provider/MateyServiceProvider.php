@@ -38,6 +38,7 @@ use App\Handlers\TestingData\TestingDataHandler;
 use App\MateyModels\Group;
 use App\MateyModels\ModelManagerFactory;
 use App\RoutesLoader;
+use App\Services\SearchService;
 use App\ServicesLoader;
 use App\Handlers\Registration\RegistrationHandlerFactory;
 use App\Validators\PositiveInteger;
@@ -76,6 +77,10 @@ class MateyServiceProvider implements ServiceProviderInterface
                 $app['db'],
                 $app['predis']
             );
+        });
+
+        $app['matey.search_service'] = $app->share(function ($app) {
+           return new SearchService($app['predis']);
         });
 
                     // HANDLERS //

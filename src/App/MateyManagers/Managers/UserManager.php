@@ -52,24 +52,7 @@ class UserManager extends AbstractManager
 
         $this->initializeUserStatistics($model);
 
-        $this->addToSearch($model);
-
         return $model;
-    }
-
-    public function addToSearch (User $user) {
-        $client = new Connection();
-        $client->setParams(array('host' => Paths::BASE_IP, 'port' => Paths::SPHINXQL_PORT));
-        $query = SphinxQL::create($client)->insert()->into($this->getSphinxIndex());
-        $query->set(array(
-            'id' => $user->getUserId(),
-            'user_id' => $user->getUserId(),
-            'first_name' => $user->getFirstName(),
-            'last_name' => $user->getLastName()
-        ));
-        $query->execute();
-        $fullName = $user->getFirstName() . " " . $user->getLastName();
-        $this->toAutocomplete($fullName);
     }
 
     public function readModelBy(array $criteria, array $orderBy = null, $limit = null, $offset = null, array $fields = null) {

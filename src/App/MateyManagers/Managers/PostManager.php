@@ -48,6 +48,26 @@ class PostManager extends AbstractManager
 
     }
 
+    public function getSearchResults ($ids) {
+        $qMarks = "";
+        foreach ($ids as $id) {
+            $qMarks .= "?,";
+        }
+        $qMarks = trim($qMarks, ",");
+
+        $all = $this->db->fetchAll("SELECT post_id, title FROM ". $this->getTableName().
+            " WHERE post_id IN (".$qMarks.") ORDER BY FIELD(group_id, ".$qMarks.")",
+            array_merge($ids, $ids));
+
+        $models = $this->makeObjects($all);
+
+        foreach($models as $key => $model) {
+            $models[$key] = $this->getStatisticsData($model);
+        }
+
+        return $models;
+    }
+
     // ---------------------------- REDIS TOOOLS ---------------------------------
 
     public function initializeStatisticsData(Post $post) {

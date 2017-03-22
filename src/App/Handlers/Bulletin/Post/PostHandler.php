@@ -70,6 +70,7 @@ class PostHandler extends AbstractPostHandler
             if($post->getLocationsNum() > 0) {
                 $this->insertLocations($jsonData['locations'], $post->getPostId(), Activity::POST_TYPE);
             }
+            $app['matey.search_service']->addPostToSearch($post);
 
             // Commiting transaction on success
             $postManager->commitTransaction();

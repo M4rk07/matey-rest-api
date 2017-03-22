@@ -122,6 +122,7 @@ class FacebookAccountHandler extends AbstractAccountHandler
 
             $facebookInfo->setId($user->getId());
             $facebookInfoManager->createModel($facebookInfo);
+            $app['matey.search_service']->addUserToSearch($user);
             /*
              * Store facebook image to cloud storage
              */

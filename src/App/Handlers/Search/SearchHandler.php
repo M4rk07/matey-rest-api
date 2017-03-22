@@ -16,19 +16,19 @@ use App\Services\PaginationServiceOffset;
 use App\Services\SearchService;
 use AuthBucket\OAuth2\Exception\InvalidRequestException;
 use NilPortugues\Sphinx\SphinxClient;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 class SearchHandler extends AbstractSearchHandler
 {
 
-    public function autocomplete (Request $request) {
+    public function autocomplete (Application $app, Request $request) {
         $query = $request->get('q');
-        $searchService = new SearchService();
-        return new JsonResponse($searchService->getAutocomplete($query), 200);
+        return new JsonResponse($app['matey.search_service']->getAutocomplete($query), 200);
     }
 
-    public function handleSearch (Request $request, $type) {
+    public function handleSearch (Application $app, Request $request, $type) {
 
         $query = $request->get('q');
         $limit = $request->get('limit');
@@ -37,15 +37,16 @@ class SearchHandler extends AbstractSearchHandler
         if(!isset($query)) throw new InvalidRequestException();
         if(!isset($limit)) $limit = DefaultNumbers::SEARCH_LIMIT;
         if(!isset($offset)) $offset = 0;
-        if($type == 'user') {
-            $manager = $this->modelManagerFactory->getModelManager('user');
-        } else
-            $manager = $this->modelManagerFactory->getModelManager('group');
 
-        $result = $manager->search($query, $limit, $offset);
+        if($type == 'user')
+            $result = $app['matey.search_service']->search($query, $limit, $offset, IND_MATEY_USER);
+        else if ($type == 'group')
+            $result = $app['matey.search_service']->search($query, $limit, $offset, IND_MATEY_GROUP);
+        else
+            $result = $app['matey.search_service']->search($query, $limit, $offset, IND_MATEY_POST);
 
         if($result) {
-            $result = $result['matches'];
+            $result = isset($result['matches']) ? $result['matches'] : null;
         }
 
         $finalResult = array();
@@ -55,6 +56,13 @@ class SearchHandler extends AbstractSearchHandler
                 $ids[] = $key;
             }
 
+            if($type == 'user')
+                $manager = $this->modelManagerFactory->getModelManager('user');
+            else if($type == 'group')
+                $manager = $this->modelManagerFactory->getModelManager('group');
+            else
+                $manager = $this->modelManagerFactory->getModelManager('post');
+
             $models = $manager->getSearchResults($ids);
 
             foreach ($models as $model) {
@@ -62,11 +70,17 @@ class SearchHandler extends AbstractSearchHandler
             }
         }
 
-        $paginationService = new PaginationServiceOffset($finalResult, $limit, $offset,
-            $type == 'user' ? '/search/users?q='.$query : '/search/groups?q='.$query);
+        if($type == 'user')
+            $paginationService = new PaginationServiceOffset($finalResult, $limit, $offset,
+                '/search/users?q='.$query);
+        else if ($type == 'group')
+            $paginationService = new PaginationServiceOffset($finalResult, $limit, $offset,
+                '/search/groups?q='.$query);
+        else
+            $paginationService = new PaginationServiceOffset($finalResult, $limit, $offset,
+                '/search/posts?q='.$query);
 
-
-        return new JsonResponse($paginationService->getResponse(), 200);
+        return $paginationService->getResponse();
     }
 
 }

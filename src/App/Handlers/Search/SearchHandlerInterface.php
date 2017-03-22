@@ -1,5 +1,6 @@
 <?php
 namespace App\Handlers\Search;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -10,5 +11,5 @@ use Symfony\Component\HttpFoundation\Request;
  */
 interface SearchHandlerInterface
 {
-    public function handleSearch (Request $request, $type);
+    public function handleSearch (Application $app, Request $request, $type);
 }
