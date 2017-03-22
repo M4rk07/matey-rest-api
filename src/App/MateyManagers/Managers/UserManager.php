@@ -175,4 +175,40 @@ class UserManager extends AbstractManager
         return true;
     }
 
+    public function pushLoggedDevice (User $user, $deviceId) {
+        $this->redis->sadd($this->getRedisKey().":logged_devices:".$user->getUserId(), $deviceId);
+    }
+
+    public function remLoggedDevice (User $user, $deviceId) {
+        $this->redis->srem($this->getRedisKey().":logged_devices:".$user->getUserId(), $deviceId);
+    }
+
+    public function getLoggedDevices(User $user) {
+        return $this->redis->smembers($this->getRedisKey().":logged_devices:".$user->getUserId());
+    }
+
+    public function pushNotification (User $user, $activities) {
+        if(!is_array($activities)) $activities = array($activities);
+        foreach($activities as $activity)
+            $this->redis->lpush($this->getRedisKey().":notifications:".$user->getUserId(), $activity->getActivityId());
+
+        $this->redis->ltrim($this->getRedisKey().":notifications:".$user->getUserId(), 0, DefaultNumbers::NOTIFICATION_CAPACITY);
+    }
+
+    public function getNotifications (User $user, $start = 0, $stop = -1) {
+        return $this->redis->lrange($this->getRedisKey().":notifications:".$user->getUserId(), $start, $stop);
+    }
+
+    public function incrNumOfNewNotifications (User $user, $incrBy = 1) {
+        return $this->redis->set($this->getRedisKey().":num_of_new_notifications:".$user->getUserId(), $incrBy);
+    }
+
+    public function getNumOfNewNotifications (User $user) {
+        return $this->redis->get($this->getRedisKey().":num_of_new_notifications:".$user->getUserId());
+    }
+
+    public function resetNumOfNewNotifications(User $user) {
+        return $this->redis->set($this->getRedisKey().":num_of_new_notifications:".$user->getUserId(), 0);
+    }
+
 }

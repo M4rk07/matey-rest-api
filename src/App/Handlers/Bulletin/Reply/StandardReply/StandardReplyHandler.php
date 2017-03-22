@@ -58,7 +58,7 @@ class StandardReplyHandler extends AbstractStandardReplyHandler
         try {
             // Writing Post model to database
             $reply = $replyManager->createModel($reply);
-            $this->createActivity($reply->getReplyId(), $userId, $postId, Activity::POST_TYPE, Activity::REPLY_TYPE);
+            $this->createActivity($userId, $reply->getReplyId(), Activity::REPLY_TYPE, $postId, Activity::POST_TYPE, Activity::REPLY_CREATE_ACT);
             if($reply->getLocationsNum() > 0) {
                 $this->insertLocations($jsonData['locations'], $reply->getReplyId(), Activity::REPLY_TYPE);
             }

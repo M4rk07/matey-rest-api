@@ -40,9 +40,9 @@ class SearchService
 
     public function getAutocomplete ($query) {
         $this->clientAPI->setMatchMode(SPH_MATCH_EXTENDED);
-        $this->clientAPI->setRankingMode(SPH_RANK_PROXIMITY_BM25);
+        $this->clientAPI->setRankingMode(SPH_RANK_SPH04);
         $this->clientAPI->setLimits(0, 10);
-        $this->clientAPI->setGroupBy ( "auto_text", SPH_GROUPBY_ATTR, "@count desc");
+        $this->clientAPI->setGroupBy ( "auto_text", SPH_GROUPBY_ATTR);
         $result = $this->clientAPI->query($query, 'autocomplete_rt');
 
         $finalResult['data'] = array();

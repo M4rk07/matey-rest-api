@@ -51,7 +51,7 @@ class GroupHandler extends AbstractGroupHandler
             ->setDescription($jsonData['description'])
             ->setSilhouette(1);
         $group = $groupManager->createModel($group);
-        $this->createActivity($group->getGroupId(), $userId, null, Activity::GROUP_TYPE, Activity::GROUP_TYPE);
+        $this->createActivity($userId, $group->getGroupId(), Activity::GROUP_TYPE, null, null, Activity::GROUP_CREATE_ACT);
         $app['matey.search_service']->addGroupToSearch($group);
 
         $groupAdmin->setUserId($userId)

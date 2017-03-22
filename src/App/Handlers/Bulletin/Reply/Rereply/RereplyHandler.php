@@ -56,7 +56,7 @@ class RereplyHandler extends AbstractRereplyHandler
             // Writing Post model to database
             $rereply = $rereplyManager->createModel($rereply);
 
-            $this->createActivity($rereply->getRereplyId(), $userId, $replyId, Activity::REPLY_TYPE, Activity::REREPLY_TYPE);
+            $this->createActivity($userId, $rereply->getRereplyId(), Activity::REREPLY_TYPE, $replyId, Activity::REPLY_TYPE, Activity::REREPLY_CREATE_ACT);
 
             // Commiting transaction on success
             $rereplyManager->commitTransaction();

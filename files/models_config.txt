@@ -15,12 +15,7 @@ mysql_fields=user_id,username,password,salt
 model_name=activity
 class_name=App\MateyModels\Activity
 table_name=matey_activity
-mysql_fields=activity_id,user_id,source_id,parent_id,parent_type,activity_type,time_c,deleted
-
-model_name=activityType
-class_name=App\MateyModels\ActivityType
-table_name=matey_activity_type
-mysql_fields=activity_type
+mysql_fields=activity_id,user_id,source_id,source_type,parent_id,parent_type,activity_type,time_c,deleted
 
 model_name=approve
 class_name=App\MateyModels\Approve

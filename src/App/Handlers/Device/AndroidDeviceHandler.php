@@ -83,6 +83,9 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
 
         $loginManager = $this->modelManagerFactory->getModelManager('login');
         $login = $loginManager->getModel();
+        $userManger = $this->modelManagerFactory->getModelManager('user');
+        $user = $userManger->getModel();
+        $user->setUserId($userId);
 
         if($request->getMethod() == "PUT") {
             /*
@@ -101,6 +104,7 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
                 ->setDeviceId($deviceId)
                 ->setGcm($device->getGcm());
             $loginManager->createModel($login);
+            $userManger->pushLoggedDevice($user, $deviceId);
 
         }
 
@@ -111,6 +115,7 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
                 'device_id' => $deviceId,
                 'user_id' => $userId
             ));
+            $userManger->remLoggedDevice($user, $deviceId);
 
         }
 

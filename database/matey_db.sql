@@ -303,8 +303,19 @@ CREATE TABLE IF NOT EXISTS matey_location (
 --
 
 CREATE TABLE IF NOT EXISTS matey_activity_type (
-  activity_type varchar(50) NOT NULL,
+  activity_type varchar(30) NOT NULL,
   PRIMARY KEY (activity_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_object_type`
+--
+
+CREATE TABLE IF NOT EXISTS matey_object_type (
+  object_type varchar(30) NOT NULL,
+  PRIMARY KEY (object_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -317,15 +328,17 @@ CREATE TABLE IF NOT EXISTS matey_activity (
   activity_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id int(11) UNSIGNED NOT NULL,
   source_id int(11) UNSIGNED NOT NULL,
+  source_type varchar(50) NOT NULL,
   parent_id int(11) UNSIGNED,
-  parent_type varchar(50) NOT NULL,
+  parent_type varchar(50),
   activity_type varchar(50) NOT NULL,
   time_c timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   deleted tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (activity_id),
   FOREIGN KEY (user_id) REFERENCES matey_user(user_id),
   FOREIGN KEY (activity_type) REFERENCES matey_activity_type(activity_type),
-  FOREIGN KEY (parent_type) REFERENCES matey_activity_type(activity_type)
+  FOREIGN KEY (parent_type) REFERENCES matey_object_type(object_type),
+  FOREIGN KEY (source_type) REFERENCES matey_object_type(object_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -447,8 +460,11 @@ CREATE TABLE IF NOT EXISTS oauth2_scope (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO matey_activity_type (activity_type) VALUES
-('GROUP'), ('POST'), ('REPLY'),
-('FOLLOW'), ('SHARE'), ('REREPLY'), ('BOOKMARK'), ('BOOST'), ('APPROVE'), ('ARCHIVE');
+('FOLLOW'), ('SHARE'), ('BOOKMARK'), ('BOOST'), ('APPROVE'), ('ARCHIVE'),
+('REPLY_CREATE'), ('REREPLY_CREATE'), ('GROUP_CREATE'), ('POST_CREATE');
+
+INSERT INTO matey_object_type (object_type) VALUES
+('MATEY_USER'), ('GROUP'), ('POST'), ('REPLY'), ('REREPLY');
 
 -- --------------------------------------------------------
 

@@ -66,7 +66,7 @@ class PostHandler extends AbstractPostHandler
         try {
             // Writing Post model to database
             $post = $postManager->createModel($post);
-            $this->createActivity($post->getPostId(), $userId, $jsonData['group_id'], Activity::GROUP_TYPE, Activity::POST_TYPE);
+            $this->createActivity($userId, $post->getPostId(), Activity::POST_TYPE, $jsonData['group_id'], Activity::GROUP_TYPE, Activity::POST_CREATE_ACT);
             if($post->getLocationsNum() > 0) {
                 $this->insertLocations($jsonData['locations'], $post->getPostId(), Activity::POST_TYPE);
             }
@@ -167,7 +167,7 @@ class PostHandler extends AbstractPostHandler
             $post = $postManager->readModelOneBy(array(
                 'post_id' => $postId
             ), null, array('group_id'));
-            $this->createActivity($postId, $userId, $post->getGroupId(), Activity::GROUP_TYPE, Activity::BOOST_TYPE);
+            $this->createActivity($userId, $postId, Activity::POST_TYPE, $post->getGroupId(), Activity::GROUP_TYPE, Activity::BOOST_ACT);
         }
         else {
             $boostManager->deleteModel($boost);
@@ -229,7 +229,7 @@ class PostHandler extends AbstractPostHandler
         $post = $postManager->readModelOneBy(array(
             'post_id' => $postId
         ), null, array('group_id'));
-        $this->createActivity($postId, $userId, $post->getGroupId(), Activity::GROUP_TYPE, Activity::SHARE_TYPE);
+        $this->createActivity($userId, $postId, Activity::POST_TYPE, $post->getGroupId(), Activity::GROUP_TYPE, Activity::SHARE_ACT);
 
         return new JsonResponse(null, 200);
     }
@@ -253,7 +253,7 @@ class PostHandler extends AbstractPostHandler
             $post = $postManager->readModelOneBy(array(
                 'post_id' => $postId
             ), null, array('group_id'));
-            $this->createActivity($postId, $userId, $post->getGroupId(), Activity::GROUP_TYPE, Activity::BOOKMARK_TYPE);
+            $this->createActivity($userId, $postId, Activity::POST_TYPE, $post->getGroupId(), Activity::GROUP_TYPE, Activity::BOOKMARK_ACT);
         }
         else {
             $bookmarkManager->deleteModel($bookmark);
@@ -277,7 +277,7 @@ class PostHandler extends AbstractPostHandler
             'post_id' => $postId,
             'archived' => 1
         ), null, array('group_id'));
-        $this->createActivity($postId, $userId, $post->getGroupId(), Activity::GROUP_TYPE, Activity::ARCHIVE_TYPE);
+        $this->createActivity($userId, $postId, Activity::POST_TYPE, $post->getGroupId(), Activity::GROUP_TYPE, Activity::ARCHIVE_ACT);
 
         return new JsonResponse(null, 200);
     }

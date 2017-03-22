@@ -95,7 +95,7 @@ class UserHandler extends AbstractUserHandler
             }
             $userManager->incrNumOfFollowers($userTo);
             $userManager->incrNumOfFollowing($userFrom);
-            $this->createActivity($userTo->getUserId(), $userFrom->getUserId(), $userTo->getUserId(), Activity::USER_TYPE, Activity::FOLLOW_TYPE);
+            $this->createActivity($userFrom->getUserId(), $userTo->getUserId(), Activity::USER_TYPE, null, null, Activity::FOLLOW_ACT);
         }
         else if ($method == "DELETE") {
             $followManager->deleteModel($follow);

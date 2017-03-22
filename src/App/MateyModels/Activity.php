@@ -16,18 +16,24 @@ class Activity extends AbstractModel
     const USER_TYPE = "MATEY_USER";
     const POST_TYPE = "POST";
     const GROUP_TYPE = "GROUP";
-    const SHARE_TYPE = "SHARE";
-    const BOOKMARK_TYPE = "BOOKMARK";
-    const BOOST_TYPE = "BOOST";
     const REPLY_TYPE = "REPLY";
     const REREPLY_TYPE = "REREPLY";
-    const APPROVE_TYPE = "APPROVE";
-    const FOLLOW_TYPE = "FOLLOW";
-    const ARCHIVE_TYPE = "ARCHIVE";
+
+    const BOOKMARK_ACT = "BOOKMARK";
+    const SHARE_ACT = "SHARE";
+    const BOOST_ACT = "BOOST";
+    const APPROVE_ACT = "APPROVE";
+    const FOLLOW_ACT = "FOLLOW";
+    const ARCHIVE_ACT = "ARCHIVE";
+    const REPLY_CREATE_ACT = "REPLY_CREATE";
+    const REREPLY_CREATE_ACT = "REREPLY_CREATE";
+    const GROUP_CREATE_ACT = "GROUP_CREATE";
+    const POST_CREATE_ACT ="POST_CREATE";
 
     protected $activityId;
     protected $userId;
     protected $sourceId;
+    protected $sourceType;
     protected $parentId;
     protected $parentType;
     protected $activityType;
@@ -89,6 +95,23 @@ class Activity extends AbstractModel
     {
         if($sourceId !== null) $sourceId = (int) $sourceId;
         $this->sourceId = $sourceId;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSourceType()
+    {
+        return $this->sourceType;
+    }
+
+    /**
+     * @param mixed $sourceType
+     */
+    public function setSourceType($sourceType)
+    {
+        $this->sourceType = $sourceType;
         return $this;
     }
 
@@ -173,6 +196,10 @@ class Activity extends AbstractModel
         else if($props['key'] == 'source_id') {
             if($type == 'get') return $this->getSourceId();
             else return $this->setSourceId($props['value']);
+        }
+        else if($props['key'] == 'source_type') {
+            if($type == 'get') return $this->getSourceType();
+            else return $this->setSourceType($props['value']);
         }
         else if($props['key'] == 'parent_id') {
             if($type == 'get') return $this->getParentId();
