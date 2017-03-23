@@ -317,8 +317,14 @@ class PostHandler extends AbstractPostHandler
         else
             $allPostIds = $userManager->getDeck($user);
 
+        $finalResult = array();
         $maxIdKey = 0;
-        if(!empty($pagParams['max_id'])) $maxIdKey = (int)(array_search($pagParams['max_id'], $allPostIds)) + 1;
+        if(!empty($pagParams['max_id'])) {
+            $index = array_search($pagParams['max_id'], $allPostIds);
+            if($index !== false) {
+                $maxIdKey = (int)$index + 1;
+            } else return $finalResult;
+        }
 
         $postIds = array();
         for($i = $maxIdKey; $i < $maxIdKey + $pagParams['count']; $i++) {
@@ -332,7 +338,6 @@ class PostHandler extends AbstractPostHandler
             'post_id' => $postIds
         ), $userId, $pagParams['count']);
 
-        $finalResult = array();
         foreach($finalPosts as $finalPost) {
             $arr['activity_type'] = Activity::POST_TYPE;
             $arr['activity_object'] = $finalPost;

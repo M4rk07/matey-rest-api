@@ -2,6 +2,7 @@
 
 namespace App\Provider;
 use App\Controllers\API\AccountController;
+use App\Controllers\API\ActivityController;
 use App\Controllers\API\ConnectionController;
 use App\Controllers\API\DeviceController;
 use App\Controllers\API\FeedController;
@@ -17,6 +18,7 @@ use App\Controllers\API\TestDataController;
 use App\Controllers\API\UserController;
 use App\Controllers\RegistrationController;
 use App\Handlers\Account\AccountHandlerFactory;
+use App\Handlers\Activity\Activity;
 use App\Handlers\Bulletin\Post\PostHandler;
 use App\Handlers\Bulletin\Post\StandardPostHandler;
 use App\Handlers\Bulletin\Reply\ReplyHandler;
@@ -152,6 +154,13 @@ class MateyServiceProvider implements ServiceProviderInterface
             );
         });
 
+        $app['matey.activity_handler'] = $app->share(function($app) {
+            return new Activity(
+                $app['validator'],
+                $app['matey.model_manager.factory']
+            );
+        });
+
         $app['matey.reply_handler'] = $app->share(function($app) {
             return new StandardReplyHandler(
                 $app['validator'],
@@ -228,6 +237,12 @@ class MateyServiceProvider implements ServiceProviderInterface
         $app['matey.search_controller'] = $app->share(function () use ($app) {
             return new SearchController(
                 $app['matey.search_handler']
+            );
+        });
+
+        $app['matey.activity_controller'] = $app->share(function () use ($app) {
+            return new ActivityController(
+                $app['matey.activity_handler']
             );
         });
 

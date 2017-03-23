@@ -18,4 +18,5 @@ class DefaultNumbers
     const REREPLIES_LIMIT = 10;
     const POSTS_LIMIT = 10;
     const SEARCH_LIMIT = 5;
+    const NOTIFICATIONS_LIMIT = 10;
 }

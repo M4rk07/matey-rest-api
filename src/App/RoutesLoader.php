@@ -98,6 +98,9 @@ class RoutesLoader
         $apiCachable->get('/search/top', 'matey.search_controller:searchTopAction');
         $apiCachable->get('/autocomplete', 'matey.search_controller:autocompleteAction');
 
+        // ACTIVITIES
+        $apiCachable->get('/notifications', 'matey.activity_controller:getNotificationsAction');
+
         $this->app->get('/tests/data', 'matey.testingdata_controller:makeData');
 
         // SOME SETTINGS
