@@ -52,6 +52,8 @@ abstract class AbstractStandardReplyHandler extends AbstractReplyHandler impleme
         $replyManager = $this->modelManagerFactory->getModelManager('reply');
         $replies = $replyManager->readModelBy($criteria, array('reply_id' => 'DESC'), $count);
 
+        if(empty($replies)) return array();
+
         $userIds = array();
         $replyIds = array();
         foreach($replies as $reply) {

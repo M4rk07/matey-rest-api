@@ -43,6 +43,8 @@ abstract class AbstractRereplyHandler extends AbstractReplyHandler implements Re
         $rereplyManager = $this->modelManagerFactory->getModelManager('rereply');
         $rereplies = $rereplyManager->readModelBy($criteria, array('rereply_id' => 'DESC'), $count);
 
+        if(empty($rereplies)) return array();
+
         $userIds = array();
         $rereplyIds = array();
         foreach($rereplies as $rereply) {
