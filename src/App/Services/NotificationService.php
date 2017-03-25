@@ -23,7 +23,6 @@ class NotificationService
     public function push ($tokens, $message) {
         // First, instantiate the manager and declare an adapter.
         $pushManager    = new PushManager();
-        $adapter = new Gcm();
 
         $adapter = new Gcm(array(
             'apiKey' => 'AIzaSyDdvRxK8P2-6ZAjFqrA13rBd4qWHuDrWgs'

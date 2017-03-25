@@ -38,15 +38,7 @@ class UserController extends AbstractController
             ->getUserHandler('user')
             ->handleGetUser($app, $request, $userRequestingId);
 
-        $finalResult['data'] = $userData;
-
-        $postsResult = $app['matey.post_controller']->getUserPostsAction($app, $request, $userRequestingId);
-
-        if($postsResult->getStatusCode() !== 200) return $postsResult;
-
-        $postsResult = json_decode($postsResult->getContent());
-
-        $finalResult['data']['posts'] = $postsResult;
+        $finalResult = $userData;
 
         return new JsonResponse($finalResult, 200);
     }
