@@ -31,11 +31,11 @@ class Activity extends AbstractActivity
         // Writing Activity model to database
         $activityManager->createModel($activity);
         $this->pushNotification($activity);
+
     }
 
     public function pushNotification($activity) {
         $message = $this->getNotificationMessage($activity);
-
         $user = $this->getRelativeUser($message);
         if(empty($user)) return;
         $userManager = $this->modelManagerFactory->getModelManager('user');
@@ -43,8 +43,8 @@ class Activity extends AbstractActivity
         $tokens = $this->getGcmTokens($user);
 
         $msg['data'] = $message;
-        //$notificationService = new NotificationService();
-        //$notificationService->push($tokens, $msg);
+        $notificationService = new NotificationService();
+        $notificationService->push($tokens, $msg);
     }
 
     public function getRelativeUser ($message) {
@@ -55,19 +55,25 @@ class Activity extends AbstractActivity
 
         // FOLLOW NOTIFICATION --------------------------------------------------
         if($activityType == \App\MateyModels\Activity::FOLLOW_ACT)
-            $user->setUserId($message['source']['user_id']);
+            $user->setUserId($message['user']['user_id']);
         // APPROVE NOTIFICATION --------------------------------------------------
-        else if($activityType == \App\MateyModels\Activity::APPROVE_ACT)
-            $user->setUserId($message['source']['user_id']);
+        else if($activityType == \App\MateyModels\Activity::APPROVE_ACT) {
+            // APPROVE REPLY --------------------------------------------------
+            if(isset($message['rereply'])) {
+                $user->setUserId($message['reply']['user_id']);
+            }
+            // APPROVE REREPLY --------------------------------------------------
+            else $user->setUserId($message['post']['user_id']);
+        }
         // BOOST NOTIFICATION --------------------------------------------------
         else if($activityType == \App\MateyModels\Activity::BOOST_ACT)
-            $user->setUserId($message['source']['user_id']);
+            $user->setUserId($message['post']['user_id']);
         // REPLY NOTIFICATION --------------------------------------------------
         else if($activityType == \App\MateyModels\Activity::REPLY_CREATE_ACT)
-            $user->setUserId($message['parent']['user_id']);
+            $user->setUserId($message['post']['user_id']);
         // REREPLY NOTIFICATION --------------------------------------------------
         else if($activityType == \App\MateyModels\Activity::REREPLY_CREATE_ACT)
-            $user->setUserId($message['parent']['user_id']);
+            $user->setUserId($message['reply']['user_id']);
 
         return $user;
     }
@@ -81,6 +87,7 @@ class Activity extends AbstractActivity
 
         foreach($users as $user) {
             $deviceIds = $userManager->getLoggedDevices($user);
+            if( empty($deviceIds)) continue;
             $devices = $deviceManager->readModelBy(array(
                 'device_id' => $deviceIds
             ), null, count($deviceIds), null, array('gcm'));
@@ -99,22 +106,23 @@ class Activity extends AbstractActivity
         $sourceType = $activity->getSourceType();
 
         $message['activity_id'] = $activity->getActivityId();
-        $message['activity_type'] = $activityType; // <----------------------- add
-        $message['parent_type'] = $parentType; // <----------------------- add
-        $message['source_type'] = $sourceType; // <----------------------- add
+        $message['activity_type'] = $activityType;
+        $message['time_c'] = $activity->getTimeC();
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
         $userGenerated = $userManager->readModelOneBy(array(
             'user_id' => $activity->getUserId()
-        ), null, array('user_id', 'first_name', 'last_name'));
+        ), null, array('user_id', 'first_name', 'last_name', 'picture_url'));
+        $message['user_generated'] = $userGenerated->asArray();
 
-        $message['user_generated'] = $userGenerated->asArray(); // <----------------------- add
+        $message['message'] = $userGenerated->getFirstName() . " " . $userGenerated->getLastName();
 
         if($activityType == \App\MateyModels\Activity::FOLLOW_ACT) {
             $user = $userManager->readModelOneBy(array(
                 'user_id' => $activity->getSourceId()
-            ), null, array('user_id', 'first_name', 'last_name'));
-            $message['source'] = $user->asArray(); // <----------------------- add
+            ), null, array('user_id', 'first_name', 'last_name', 'picture_url'));
+            $message['user'] = $user->asArray();
+            $message['message'] .= " is following you."; // <----------------------- add
         }
         // APPROVE NOTIFICATION --------------------------------------------------
         if($activityType == \App\MateyModels\Activity::APPROVE_ACT) {
@@ -128,9 +136,9 @@ class Activity extends AbstractActivity
                 $post = $postManager->readModelOneBy(array(
                     'post_id' => $activity->getParentId()
                 ), null, array('post_id', 'user_id', 'title'));
-
-                $message['source'] = $reply->asArray(); // <----------------------- add
-                $message['parent'] = $post->asArray(); // <----------------------- add
+                $message['post'] = $post->asArray();
+                $message['reply'] = $reply->asArray();
+                $message['message'] .= " approved your reply."; // <----------------------- add
             }
             // APPROVE REREPLY --------------------------------------------------
             else if($parentType == \App\MateyModels\Activity::REREPLY_TYPE) {
@@ -142,9 +150,15 @@ class Activity extends AbstractActivity
                 $reply = $replyManager->readModelOneBy(array(
                     'reply_id' => $activity->getParentId()
                 ), null, array('reply_id', 'user_id', 'text'));
+                $postManager = $this->modelManagerFactory->getModelManager('post');
+                $post = $postManager->readModelOneBy(array(
+                    'reply_id' => $reply->getReplyId()
+                ), null, array('post_id', 'user_id', 'title'));
 
-                $message['source'] = $rereply->asArray(); // <----------------------- add
-                $message['parent'] = $reply->asArray(); // <----------------------- add
+                $message['rereply'] = $rereply->asArray(); // <----------------------- add
+                $message['reply'] = $reply->asArray();
+                $message['post'] = $post->asArray();
+                $message['message'] .= " approved your reply."; // <----------------------- add
             }
         }
         // BOOST NOTIFICATION --------------------------------------------------
@@ -158,10 +172,11 @@ class Activity extends AbstractActivity
                 $group = $groupManager->readModelOneBy(array(
                     'group_id' => $activity->getParentId()
                 ), null, array('group_id', 'user_id', 'group_name'));
-                $message['parent'] = $group->asArray(); // <----------------------- add
+                $message['group'] = $group->asArray(); // <----------------------- add
             }
 
-            $message['source'] = $post->asArray(); // <----------------------- add
+            $message['post'] = $post->asArray(); // <----------------------- add
+            $message['message'] .= " boosted your post.";
         }
         // REPLY NOTIFICATION --------------------------------------------------
         else if($activityType == \App\MateyModels\Activity::REPLY_CREATE_ACT) {
@@ -174,8 +189,9 @@ class Activity extends AbstractActivity
                 'reply_id' => $activity->getSourceId()
             ), null, array('reply_id', 'user_id', 'text'));
 
-            $message['parent'] = $post->asArray(); // <----------------------- add
-            $message['source'] = $reply->asArray(); // <----------------------- add
+            $message['post'] = $post->asArray(); // <----------------------- add
+            $message['reply'] = $reply->asArray(); // <----------------------- add
+            $message['message'] .= " replied on your post";
         }
         // REREPLY NOTIFICATION --------------------------------------------------
         else if($activityType == \App\MateyModels\Activity::REREPLY_CREATE_ACT) {
@@ -187,9 +203,15 @@ class Activity extends AbstractActivity
             $rereply = $rereplyManager->readModelOneBy(array(
                 'rereply_id' => $activity->getSourceId()
             ), null, array('rereply_id', 'user_id', 'text'));
+            $postManager = $this->modelManagerFactory->getModelManager('post');
+            $post = $postManager->readModelOneBy(array(
+                'reply_id' => $reply->getReplyId()
+            ), null, array('post_id', 'user_id', 'title'));
 
-            $message['parent'] = $reply->asArray(); // <----------------------- add
-            $message['source'] = $rereply->asArray(); // <----------------------- add
+            $message['reply'] = $reply->asArray(); // <----------------------- add
+            $message['rereply'] = $rereply->asArray(); // <----------------------- add
+            $message['post'] = $post->asArray();
+            $message['message'] .= " replied on your reply.";
         }
 
         return $message;
