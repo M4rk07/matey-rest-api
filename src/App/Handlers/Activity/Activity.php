@@ -56,7 +56,7 @@ class Activity extends AbstractActivity
 
         // FOLLOW NOTIFICATION --------------------------------------------------
         if($activityType == \App\MateyModels\Activity::FOLLOW_ACT)
-            $user->setUserId($message['user']['user_id']);
+            $user->setUserId($message['user_followed']['user_id']);
         // APPROVE NOTIFICATION --------------------------------------------------
         else if($activityType == \App\MateyModels\Activity::APPROVE_ACT) {
             // APPROVE REPLY --------------------------------------------------
@@ -122,7 +122,8 @@ class Activity extends AbstractActivity
             $user = $userManager->readModelOneBy(array(
                 'user_id' => $activity->getSourceId()
             ), null, array('user_id', 'first_name', 'last_name', 'picture_url'));
-            $message['user'] = $user->asArray();
+            $message['user']['user_id'] = $userGenerated->getUserId();
+            $message['user_followed'] = $user->asArray();
             $message['message'] .= " is following you."; // <----------------------- add
         }
         // APPROVE NOTIFICATION --------------------------------------------------
