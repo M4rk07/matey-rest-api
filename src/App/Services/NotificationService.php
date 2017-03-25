@@ -24,11 +24,10 @@ class NotificationService
         // First, instantiate the manager and declare an adapter.
         $pushManager    = new PushManager();
         $adapter = new Gcm();
-        /*
+
         $adapter = new Gcm(array(
-            'apiKey' =>
+            'apiKey' => 'AIzaSyDdvRxK8P2-6ZAjFqrA13rBd4qWHuDrWgs'
         ));
-        */
 
         $devices = array();
         if(is_array($tokens)) {

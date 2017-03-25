@@ -30,7 +30,7 @@ class Activity extends AbstractActivity
 
         // Writing Activity model to database
         $activityManager->createModel($activity);
-        $this->pushNotification($activity);
+        // $this->pushNotification($activity);
     }
 
     public function pushNotification($activity) {
