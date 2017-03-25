@@ -261,6 +261,10 @@ class User extends AbstractModel
         return $this;
     }
 
+    public function getPictureUrl() {
+        return ProfilePictureHandler::getPictureUrl($this);
+    }
+
     /**
      * @return mixed
      */
@@ -500,7 +504,7 @@ class User extends AbstractModel
             else return $this->setNumOfShares($props['value']);
         }
         else if($props['key'] == 'picture_url') {
-            if($type == 'get') return ProfilePictureHandler::getPictureUrl($this);
+            if($type == 'get') return $this->getPictureUrl();
         }
     }
 

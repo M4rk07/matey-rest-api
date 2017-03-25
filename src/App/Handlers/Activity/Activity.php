@@ -1,5 +1,6 @@
 <?php
 namespace App\Handlers\Activity;
+use App\Constants\Defaults\DefaultDates;
 use App\Constants\Defaults\DefaultNumbers;
 use App\Handlers\AbstractHandler;
 use App\MateyModels\ActivityTypeManager;
@@ -107,13 +108,13 @@ class Activity extends AbstractActivity
 
         $message['activity_id'] = $activity->getActivityId();
         $message['activity_type'] = $activityType;
-        $message['time_c'] = $activity->getTimeC();
+        $message['time_c'] = $activity->getTimeC()->format(DefaultDates::DATE_FORMAT);
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
         $userGenerated = $userManager->readModelOneBy(array(
             'user_id' => $activity->getUserId()
         ), null, array('user_id', 'first_name', 'last_name', 'picture_url'));
-        $message['user_generated'] = $userGenerated->asArray();
+        $message['picture_url'] = $userGenerated->getPictureUrl();
 
         $message['message'] = $userGenerated->getFirstName() . " " . $userGenerated->getLastName();
 
