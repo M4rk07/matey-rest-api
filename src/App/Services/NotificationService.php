@@ -8,7 +8,6 @@
 
 namespace App\Services;
 
-
 use Sly\NotificationPusher\Adapter\Apns;
 use Sly\NotificationPusher\Adapter\Gcm;
 use Sly\NotificationPusher\Collection\DeviceCollection;
@@ -21,30 +20,33 @@ class NotificationService
 {
 
     public function push ($tokens, $message) {
-        // First, instantiate the manager and declare an adapter.
-        $pushManager    = new PushManager();
+        // API access key from Google API's Console
+        define( 'API_ACCESS_KEY', 'AIzaSyDdvRxK8P2-6ZAjFqrA13rBd4qWHuDrWgs' );
+        $registrationIds = $tokens;
+        // prep the bundle
 
-        $adapter = new Gcm(array(
-            'apiKey' => 'AIzaSyDdvRxK8P2-6ZAjFqrA13rBd4qWHuDrWgs'
-        ));
+        $fields = array
+        (
+            'registration_ids' 	=> $registrationIds,
+            'data'			=> $message
+        );
 
-        $devices = array();
-        if(is_array($tokens)) {
-            foreach ($tokens as $token) {
-                $devices[] = new Device($token);
-            }
-        } else $devices[] = new Device($tokens);
+        $headers = array
+        (
+            'Authorization: key=' . API_ACCESS_KEY,
+            'Content-Type: application/json'
+        );
 
-        // Set the device(s) to push the notification to.
-        $devices = new DeviceCollection($devices);
-
-        // Then, create the push skel.
-        $message = new Message($message);
-
-        // Finally, create and add the push to the manager, and push it!
-        $push = new Push($adapter, $devices, $message);
-        $pushManager->add($push);
-        $pushManager->push();
+        $ch = curl_init();
+        curl_setopt( $ch,CURLOPT_URL, 'https://android.googleapis.com/gcm/send' );
+        curl_setopt( $ch,CURLOPT_POST, true );
+        curl_setopt( $ch,CURLOPT_HTTPHEADER, $headers );
+        curl_setopt( $ch,CURLOPT_RETURNTRANSFER, true );
+        curl_setopt( $ch,CURLOPT_SSL_VERIFYPEER, false );
+        curl_setopt( $ch,CURLOPT_POSTFIELDS, json_encode( $fields ) );
+        $result = curl_exec($ch );
+        curl_close( $ch );
+        echo $result;
     }
 
 }
