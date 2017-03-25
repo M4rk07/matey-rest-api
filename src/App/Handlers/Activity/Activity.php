@@ -108,7 +108,7 @@ class Activity extends AbstractActivity
 
         $message['activity_id'] = $activity->getActivityId();
         $message['activity_type'] = $activityType;
-        $message['time_c'] = $activity->getTimeC()->format(DefaultDates::DATE_FORMAT);
+        $message['time_c'] = $activity->getTimeC();
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
         $userGenerated = $userManager->readModelOneBy(array(
