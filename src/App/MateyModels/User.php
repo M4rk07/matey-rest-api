@@ -47,10 +47,6 @@ class User extends AbstractModel
     protected $numOfBestResponses;
     protected $numOfShares;
 
-    protected $feedForCalculation;
-    protected $feedScored;
-    protected $feedSeen;
-
     public function setId($id) {
         return $this->setUserId($id);
     }

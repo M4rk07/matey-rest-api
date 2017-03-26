@@ -100,6 +100,7 @@ class RoutesLoader
 
         // ACTIVITIES
         $apiCachable->get('/notifications', 'matey.activity_controller:getNotificationsAction');
+        $apiCachable->get('/users/{userId}/activities', 'matey.activity_controller:getActivitiesAction');
 
         $this->app->get('/tests/data', 'matey.testingdata_controller:makeData');
 

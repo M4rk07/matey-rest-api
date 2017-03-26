@@ -30,4 +30,9 @@ class ActivityController extends AbstractController
             ->getNotifications($request);
     }
 
+    public function getActivitiesAction(Application $app, Request $request, $userId) {
+        return $this->activityHandler
+            ->getActivities($request, $userId);
+    }
+
 }
