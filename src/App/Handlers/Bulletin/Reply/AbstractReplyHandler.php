@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 abstract class AbstractReplyHandler extends AbstractBulletinHandler implements ReplyHandlerInterface
 {
     public function handleApprove(Application $app, Request $request, $type, $id) {
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
 
         $approveManager = $this->modelManagerFactory->getModelManager('approve');
         $approve = $approveManager->getModel();

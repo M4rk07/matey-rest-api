@@ -19,16 +19,16 @@ use Sly\NotificationPusher\PushManager;
 class NotificationService
 {
 
-    public function push ($tokens, $message) {
+    public function push ($allData) {
         // API access key from Google API's Console
         define( 'API_ACCESS_KEY', 'AAAAjZuDvCk:APA91bGIN-O4936zAKlhDvglXBmnuHN7LoZc5rp3H385zqd-OK_qPcKNKwRWFW_PxmsC1503-av4HEZZWNrg99vVz1Ac82qTXXKKU9Pca4HaSQM3r7WV8dYISCztzGQfnwV77Z7soNZy');
-        $registrationIds = $tokens;
         // prep the bundle
 
+        $data['data'] = $allData['data'];
         $fields = array
         (
-            'registration_ids' 	=> $tokens,
-            'data'			=> $message
+            'registration_ids' 	=> $allData['tokens'],
+            'data'			=> $data
         );
 
         $headers = array

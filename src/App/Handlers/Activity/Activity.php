@@ -51,7 +51,7 @@ class Activity extends AbstractActivity
     }
 
     public function pushNotification($activity) {
-        $sendAllData = array();
+        $allData = array();
 
         $activityData = $this->getActivityData($activity);
         $userIds = $this->getNotificationRelativeUsers($activityData);
@@ -59,32 +59,32 @@ class Activity extends AbstractActivity
         if(empty($userIds)) return;
         $userManager = $this->modelManagerFactory->getModelManager('user');
         foreach($userIds as $userId) {
-            $sendAllData[] = $this->getNotificationData($activityData, $userId);
+            $tokens = $this->getGcmTokens($userId);
+            if(empty($tokens)) continue;
+            $notificationData = $this->getNotificationData($activityData, $userId);
+            $notificationData['tokens'] = $tokens;
+            $allData[] = $notificationData;
             $userManager->pushNotification($userId, $activity->getActivityId());
         }
 
-        $tokens = $this->getGcmTokens($sendAllData);
-        $msg['data'] = $activityData;
         $notificationService = new NotificationService();
-        $notificationService->push($tokens, $msg);
+        $notificationService->push($allData);
     }
 
-    public function getGcmTokens (array $sendAllData) {
+    public function getGcmTokens ($userId) {
 
         $userManager = $this->modelManagerFactory->getModelManager('user');
         $deviceManager = $this->modelManagerFactory->getModelManager('device');
         $tokens = array();
 
-        foreach($sendAllData as $data) {
-            $deviceIds = $userManager->getLoggedDevices($data['to']);
-            if( empty($deviceIds)) continue;
-            $devices = $deviceManager->readModelBy(array(
-                'device_id' => $deviceIds
-            ), null, count($deviceIds), null, array('gcm'));
+        $deviceIds = $userManager->getLoggedDevices($userId);
+        if( empty($deviceIds)) return;
+        $devices = $deviceManager->readModelBy(array(
+            'device_id' => $deviceIds
+        ), null, count($deviceIds), null, array('gcm'));
 
-            foreach($devices as $device) {
-                $tokens[] = $device->getGcm();
-            }
+        foreach($devices as $device) {
+            $tokens[] = $device->getGcm();
         }
 
         return $tokens;
@@ -101,9 +101,8 @@ class Activity extends AbstractActivity
     // ON PUSH
     public function getNotificationRelativeUsers ($activityData) {
         $activityType = $activityData['activity_type'];
-        $userGeneratedId = $activityData['user_id'];
+        $userGeneratedId = $activityData['user_generated']['user_id'];
 
-        $userManager = $this->modelManagerFactory->getModelManager('user');
         $userIds = array();
 
         // FOLLOW NOTIFICATION --------------------------------------------------
@@ -114,26 +113,26 @@ class Activity extends AbstractActivity
         else if($activityType == \App\MateyModels\Activity::APPROVE_ACT) {
             // APPROVE REPLY --------------------------------------------------
             if(isset($message['rereply'])
-                && $userGeneratedId != $activityData['reply']['user_id']) {
-                $userIds[] = $activityData['reply']['user_id'];
+                && $userGeneratedId != $activityData['reply']['user']['user_id']) {
+                $userIds[] = $activityData['reply']['user']['user_id'];
             }
             // APPROVE REREPLY --------------------------------------------------
             else if(!isset($message['rereply'])
-                && $userGeneratedId != $activityData['post']['user_id'])
-                $userIds[] = $activityData['post']['user_id'];
+                && $userGeneratedId != $activityData['post']['user']['user_id'])
+                $userIds[] = $activityData['post']['user']['user_id'];
         }
         // BOOST NOTIFICATION --------------------------------------------------
         else if($activityType == \App\MateyModels\Activity::BOOST_ACT
-            && $userGeneratedId != $activityData['post']['user_id'])
-            $userIds[] = $activityData['post']['user_id'];
+            && $userGeneratedId != $activityData['post']['user']['user_id'])
+            $userIds[] = $activityData['post']['user']['user_id'];
         // REPLY NOTIFICATION --------------------------------------------------
         else if($activityType == \App\MateyModels\Activity::REPLY_CREATE_ACT
-            && $userGeneratedId != $activityData['post']['user_id'])
-            $userIds[] = $activityData['post']['user_id'];
+            && $userGeneratedId != $activityData['post']['user']['user_id'])
+            $userIds[] = $activityData['post']['user']['user_id'];
         // REREPLY NOTIFICATION --------------------------------------------------
         else if($activityType == \App\MateyModels\Activity::REREPLY_CREATE_ACT
-            && $userGeneratedId != $activityData['reply']['user_id'])
-            $userIds[] = $activityData['reply']['user_id'];
+            && $userGeneratedId != $activityData['reply']['user']['user_id'])
+            $userIds[] = $activityData['reply']['user']['user_id'];
 
         return $userIds;
     }
