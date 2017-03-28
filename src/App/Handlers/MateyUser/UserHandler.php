@@ -111,8 +111,6 @@ class UserHandler extends AbstractUserHandler
     {
 
         $userId = self::getTokenUserId($request);
-        $limit = $request->get('limit');
-        $offset = $request->get('offset');
         $me = false;
 
         if($id == "me") {
@@ -120,17 +118,10 @@ class UserHandler extends AbstractUserHandler
             $me = true;
         }
 
-        if(empty($limit)) $limit = DefaultNumbers::PAG_LIMIT_FOLLOWERS;
-
-        $this->validateValue($limit, [
-            new NotBlank(),
-            new UnsignedInteger()
-        ]);
-
-        $this->validateValue($offset, [
-            new NotBlank(),
-            new PositiveInteger()
-        ]);
+        $pagParams = $this->getPaginationData($request, array(
+            'def_max_id' => null,
+            'def_count' => DefaultNumbers::POSTS_LIMIT
+        ));
 
         $this->validateValue($id, [
             new NotBlank(),
@@ -141,24 +132,21 @@ class UserHandler extends AbstractUserHandler
         $followManager = $this->modelManagerFactory->getModelManager('follow');
 
         $connectionsArray = array();
+        $criteria['parent_type'] = Activity::USER_TYPE;
 
         if($type == "followers") {
-            $followers = $followManager->readModelBy(array(
-                'parent_id' => $id,
-                'parent_type' => Activity::USER_TYPE
-            ), null, $limit, $offset);
-            foreach($followers as $follower) {
-                $connectionsArray[] = $follower->getUserId();
-            }
+            $criteria['parent_id'] = $id;
+            if(!empty($pagParams['max_id'])) $criteria['user_id:<'] = $pagParams['max_id'];
+            $followers = $followManager->readModelBy($criteria, array('user_id' => 'DESC'), $pagParams['count']);
 
         } else {
-            $followers = $followManager->readModelBy(array(
-                'user_id' => $id,
-                'parent_type' => Activity::USER_TYPE
-            ), null, $limit, $offset);
-            foreach($followers as $follower) {
-                $connectionsArray[] = $follower->getParentId();
-            }
+            $criteria['user_id'] = $id;
+            if(!empty($pagParams['max_id'])) $criteria['parent_id:<'] = $pagParams['max_id'];
+            $followers = $followManager->readModelBy($criteria, array('parent_id' => 'DESC'), $pagParams['count']);
+        }
+
+        foreach($followers as $follower) {
+            $connectionsArray[] = $follower->getParentId();
         }
 
         $users = array();
@@ -166,7 +154,7 @@ class UserHandler extends AbstractUserHandler
         if(!empty($followers)) {
             $users = $userManager->readModelBy(array(
                 'user_id' => $connectionsArray
-            ), null, $limit, null, array(
+            ), null, $pagParams['count'], null, array(
                 'user_id', 'first_name', 'last_name', 'full_name', 'location', 'country'
             ));
         }
@@ -179,7 +167,8 @@ class UserHandler extends AbstractUserHandler
         } else if ($users) $responseData[] = $this->addConnectionUserToResponse($users, $userId, $me, $type);
 
         // GENERATING PAGINATION DETAILS
-        $paginationService = new PaginationService($responseData, $limit, $offset, '/users/'.$id.'/'.$type);
+        $paginationService = new PaginationService($responseData, $pagParams['count'],
+            $type == 'followers' ? '/users/'.$id.'/followers' : '/users/'.$id.'/following', 'user_id');
 
         return new JsonResponse($paginationService->getResponse(), 200);
     }
