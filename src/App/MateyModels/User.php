@@ -2,6 +2,7 @@
 
 namespace App\MateyModels;
 use App\Constants\Defaults\DefaultDates;
+use App\Handlers\File\CoverPictureHandler;
 use App\Handlers\File\ProfilePictureHandler;
 use App\Paths\Paths;
 use App\Validators\Name;
@@ -261,6 +262,10 @@ class User extends AbstractModel
         return ProfilePictureHandler::getPictureUrl($this);
     }
 
+    public function getCoverUrl() {
+        return CoverPictureHandler::getCoverUrl($this);
+    }
+
     /**
      * @return mixed
      */
@@ -501,6 +506,9 @@ class User extends AbstractModel
         }
         else if($props['key'] == 'picture_url') {
             if($type == 'get') return $this->getPictureUrl();
+        }
+        else if($props['key'] == 'cover_url') {
+            if($type == 'get') return $this->getCoverUrl();
         }
     }
 
