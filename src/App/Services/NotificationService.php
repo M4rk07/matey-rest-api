@@ -24,10 +24,11 @@ class NotificationService
         define( 'API_ACCESS_KEY', 'AAAAjZuDvCk:APA91bGIN-O4936zAKlhDvglXBmnuHN7LoZc5rp3H385zqd-OK_qPcKNKwRWFW_PxmsC1503-av4HEZZWNrg99vVz1Ac82qTXXKKU9Pca4HaSQM3r7WV8dYISCztzGQfnwV77Z7soNZy');
         // prep the bundle
 
+        $data['data'] = $notificationData['data'];
         $fields = array
         (
             'registration_ids' 	=> $notificationData['tokens'],
-            'data'			=> $notificationData['data']
+            'data'			=> $data
         );
 
         $headers = array

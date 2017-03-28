@@ -236,10 +236,10 @@ class Activity extends AbstractActivity
                     'post_id' => $activity->getParentId()
                 ), null, array('post_id', 'user_id', 'title'));
                 $replyOwner = $userManager->readModelOneBy(array(
-                    'user_id' => $reply->getReplyId()
+                    'user_id' => $reply->getUserId()
                 ), null, array('user_id', 'first_name', 'last_name'));
                 $postOwner = $userManager->readModelOneBy(array(
-                    'user_id' => $post->getPostId()
+                    'user_id' => $post->getUserId()
                 ), null, array('user_id', 'first_name', 'last_name'));
 
                 $activityData['post']['post_id'] = $post->getPostId();
@@ -390,6 +390,8 @@ class Activity extends AbstractActivity
             'def_count' => DefaultNumbers::NOTIFICATIONS_LIMIT
         ));
 
+        $finalResult = array();
+
         $userManager = $this->modelManagerFactory->getModelManager('user');
         $user = $userManager->getModel();
         $user->setUserId($userId);
@@ -397,20 +399,30 @@ class Activity extends AbstractActivity
         $allNotificationIds = $userManager->getNotifications($userId);
 
         $maxIdKey = 0;
-        if(!empty($pagParams['max_id'])) $maxIdKey = (int)(array_search($pagParams['max_id'], $allNotificationIds)) + 1;
+        if(!empty($pagParams['max_id'])) {
+            $index = array_search($pagParams['max_id'], $allNotificationIds);
+            if($index !== false) {
+                $maxIdKey = (int)$index + 1;
+            } else {
+                $paginationService = new PaginationService($finalResult, $pagParams['count'],
+                    '/notifications', 'activity_id');
+
+                return new JsonResponse($paginationService->getResponse(), 200);
+            }
+        }
 
         $notificationIds = array();
         for($i = $maxIdKey; $i < $maxIdKey + $pagParams['count']; $i++) {
             if(!isset($allNotificationIds[$i])) break;
             $notificationIds[] = $allNotificationIds[$i];
         }
-        $finalResult = array();
+
         if(!empty($notificationIds)) {
             $activityManager = $this->modelManagerFactory->getModelManager('activity');
 
             $activities = $activityManager->readModelBy(array(
                 'activity_id' => $notificationIds
-            ), null, $pagParams['count']);
+            ), array('activity_id' => 'DESC'), $pagParams['count']);
 
             foreach ($activities as $activity) {
                 $activityData = $this->getActivityData($activity);
@@ -445,7 +457,7 @@ class Activity extends AbstractActivity
         );
 
         $activityManager = $this->modelManagerFactory->getModelManager('activity');
-        $activities = $activityManager->readModelBy($criteria, null, $pagParams['count']);
+        $activities = $activityManager->readModelBy($criteria, array('activity_id' => 'DESC'), $pagParams['count']);
 
         $finalResult = array();
         if(!empty($activities)) {
