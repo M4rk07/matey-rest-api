@@ -39,7 +39,7 @@ class Activity extends AbstractActivity
 
         // Writing Activity model to database
         $activityManager->createModel($activity);
-/*
+
         if( in_array($activity->getActivityType(), array(
             \App\MateyModels\Activity::REREPLY_CREATE_ACT,
             \App\MateyModels\Activity::REPLY_CREATE_ACT,
@@ -47,28 +47,27 @@ class Activity extends AbstractActivity
             \App\MateyModels\Activity::BOOST_ACT,
             \App\MateyModels\Activity::FOLLOW_ACT)) )
             $this->pushNotification($activity);
-*/
+
     }
 
     public function pushNotification($activity) {
-        $allData = array();
-
         $activityData = $this->getActivityData($activity);
         $userIds = $this->getNotificationRelativeUsers($activityData);
 
         if(empty($userIds)) return;
         $userManager = $this->modelManagerFactory->getModelManager('user');
+        $notificationData['tokens'] = array();
         foreach($userIds as $userId) {
             $tokens = $this->getGcmTokens($userId);
             if(empty($tokens)) continue;
-            $notificationData = $this->getNotificationData($activityData, $userId);
-            $notificationData['tokens'] = $tokens;
-            $allData[] = $notificationData;
+            $notificationData['tokens'] = array_merge($notificationData['tokens'], $tokens);
             $userManager->pushNotification($userId, $activity->getActivityId());
         }
 
+        $notificationData['data'] = $activityData;
+
         $notificationService = new NotificationService();
-        $notificationService->push($allData);
+        $notificationService->push($notificationData);
     }
 
     public function getGcmTokens ($userId) {
@@ -415,8 +414,7 @@ class Activity extends AbstractActivity
 
             foreach ($activities as $activity) {
                 $activityData = $this->getActivityData($activity);
-                $notificationData = $this->getNotificationData($activityData, $userId);
-                $finalResult[] = $notificationData['data'];
+                $finalResult[] = $activityData;
             }
         }
 
