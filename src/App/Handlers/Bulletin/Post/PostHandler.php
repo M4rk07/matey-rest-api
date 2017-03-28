@@ -170,8 +170,9 @@ class PostHandler extends AbstractPostHandler
             $this->createActivity($userId, $postId, Activity::POST_TYPE, $post->getGroupId(), Activity::GROUP_TYPE, Activity::BOOST_ACT);
         }
         else {
-            $boostManager->deleteModel($boost);
-            $postManager->incrNumOfBoosts($post, -1);
+            $result = $boostManager->deleteModel($boost);
+            if($result !== null)
+                $postManager->incrNumOfBoosts($post, -1);
         }
 
         return new JsonResponse(null, 200);
@@ -256,8 +257,9 @@ class PostHandler extends AbstractPostHandler
             $this->createActivity($userId, $postId, Activity::POST_TYPE, $post->getGroupId(), Activity::GROUP_TYPE, Activity::BOOKMARK_ACT);
         }
         else {
-            $bookmarkManager->deleteModel($bookmark);
-            $postManager->incrNumOfBookmarks($post, -1);
+            $result = $bookmarkManager->deleteModel($bookmark);
+            if($result !== null)
+                $postManager->incrNumOfBookmarks($post, -1);
         }
 
         return new JsonResponse(null, 200);

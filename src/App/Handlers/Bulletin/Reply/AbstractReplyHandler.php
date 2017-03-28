@@ -52,8 +52,9 @@ abstract class AbstractReplyHandler extends AbstractBulletinHandler implements R
 
         } else if($method == "DELETE") {
 
-            $approveManager->deleteModel($approve);
-            $replyManager->incrNumOfApproves($reply, -1);
+            $result = $approveManager->deleteModel($approve);
+            if($result !== null)
+                $replyManager->incrNumOfApproves($reply, -1);
 
         }
 
