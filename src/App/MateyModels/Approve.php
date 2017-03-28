@@ -66,7 +66,7 @@ class Approve extends AbstractModel
      */
     public function setParentType($parentType)
     {
-        $this->parentType = (int)$parentType;
+        $this->parentType = $parentType;
         return $this;
     }
 

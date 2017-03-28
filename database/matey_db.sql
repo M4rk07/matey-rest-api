@@ -241,21 +241,6 @@ CREATE TABLE IF NOT EXISTS matey_follow (
 -- Table structure for table `matey_group_admin`
 --
 
-CREATE TABLE IF NOT EXISTS matey_approve (
-  user_id int(11) UNSIGNED NOT NULL,
-  parent_id int(11) UNSIGNED NOT NULL,
-  parent_type varchar(20) CHARACTER SET utf8,
-  time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (user_id, parent_id, parent_type),
-  FOREIGN KEY(user_id) REFERENCES matey_user(user_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `matey_group_admin`
---
-
 CREATE TABLE IF NOT EXISTS matey_boost (
   user_id int(11) UNSIGNED NOT NULL,
   post_id int(11) UNSIGNED NOT NULL,
@@ -316,6 +301,22 @@ CREATE TABLE IF NOT EXISTS matey_activity_type (
 CREATE TABLE IF NOT EXISTS matey_object_type (
   object_type varchar(30) NOT NULL,
   PRIMARY KEY (object_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matey_group_admin`
+--
+
+CREATE TABLE IF NOT EXISTS matey_approve (
+  user_id int(11) UNSIGNED NOT NULL,
+  parent_id int(11) UNSIGNED NOT NULL,
+  parent_type varchar(20) CHARACTER SET utf8,
+  time_c TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, parent_id, parent_type),
+  FOREIGN KEY(user_id) REFERENCES matey_user(user_id),
+  FOREIGN KEY(parent_type) REFERENCES matey_object_type(object_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------

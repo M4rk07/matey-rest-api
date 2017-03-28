@@ -36,10 +36,7 @@ class Activity extends AbstractActivity
 
         if( in_array($activity->getActivityType(), array(
             \App\MateyModels\Activity::REREPLY_CREATE_ACT,
-            \App\MateyModels\Activity::REPLY_CREATE_ACT,
-            \App\MateyModels\Activity::APPROVE_ACT,
-            \App\MateyModels\Activity::BOOST_ACT,
-            \App\MateyModels\Activity::FOLLOW_ACT)) )
+            \App\MateyModels\Activity::REPLY_CREATE_ACT)) )
             $this->pushNotification($activity);
 
     }
