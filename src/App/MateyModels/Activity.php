@@ -180,7 +180,7 @@ class Activity extends AbstractModel
      */
     public function setTimeC($timeC)
     {
-        $this->timeC = $this->createDateTimeFromString($timeC);
+        $this->timeC = $timeC;
         return $this;
     }
 
@@ -214,8 +214,8 @@ class Activity extends AbstractModel
             else return $this->setActivityType($props['value']);
         }
         else if($props['key'] == 'time_c') {
-            if($type == 'get') return $this->getTimeC();
-            else return $this->setTimeC($props['value']);
+            if($type == 'get') return $this->getTimeC()->format(DefaultDates::DATE_FORMAT);
+            else return $this->setTimeC($this->createDateTimeFromString($props['value']));
         }
     }
 

@@ -17,13 +17,13 @@ abstract class AbstractReplyHandler extends AbstractBulletinHandler implements R
 {
     public function handleApprove(Application $app, Request $request, $type, $id) {
         $userId = self::getTokenUserId($request);
+        $method = $request->getMethod();
 
         $approveManager = $this->modelManagerFactory->getModelManager('approve');
         $approve = $approveManager->getModel();
         $approve->setUserId($userId)
             ->setParentId($id)
             ->setParentType($type);
-        $approveManager->createModel($approve);
 
         if($type == Activity::REPLY_TYPE) {
             $replyManager = $this->modelManagerFactory->getModelManager('reply');
@@ -33,19 +33,29 @@ abstract class AbstractReplyHandler extends AbstractBulletinHandler implements R
 
         $reply = $replyManager->getModel();
         $reply->setId($id);
-        $replyManager->incrNumOfApproves($reply);
 
-        if($type == Activity::REPLY_TYPE) {
-            $reply = $replyManager->readModelOneBy(array(
-                'reply_id' => $id
-            ), null, array('reply_id', 'post_id'));
-            $this->createActivity($userId, $reply->getId(), Activity::REPLY_TYPE, $reply->getPostId(), Activity::POST_TYPE, Activity::APPROVE_ACT);
-        } else if($type == Activity::REREPLY_TYPE) {
-            $reply = $replyManager->readModelOneBy(array(
-                'rereply_id' => $id
-            ), null, array('rereply_id', 'reply_id'));
-            $this->createActivity($userId, $reply->getId(), Activity::REREPLY_TYPE, $reply->getReplyId(), Activity::REPLY_TYPE, Activity::APPROVE_ACT);
-        } else throw new ServerErrorException();
+        if($method == "PUT") {
+
+            $approveManager->createModel($approve);
+            $replyManager->incrNumOfApproves($reply);
+            if ($type == Activity::REPLY_TYPE) {
+                $reply = $replyManager->readModelOneBy(array(
+                    'reply_id' => $id
+                ), null, array('reply_id', 'post_id'));
+                $this->createActivity($userId, $reply->getId(), Activity::REPLY_TYPE, $reply->getPostId(), Activity::POST_TYPE, Activity::APPROVE_ACT);
+            } else if ($type == Activity::REREPLY_TYPE) {
+                $reply = $replyManager->readModelOneBy(array(
+                    'rereply_id' => $id
+                ), null, array('rereply_id', 'reply_id'));
+                $this->createActivity($userId, $reply->getId(), Activity::REREPLY_TYPE, $reply->getReplyId(), Activity::REPLY_TYPE, Activity::APPROVE_ACT);
+            } else throw new ServerErrorException();
+
+        } else if($method == "DELETE") {
+
+            $approveManager->deleteModel($approve);
+            $replyManager->incrNumOfApproves($reply, -1);
+
+        }
 
         return new JsonResponse(null, 200);
     }

@@ -123,7 +123,7 @@ class ProfilePictureHandler extends AbstractFileHandler
     }
 
     public static function getPictureUrl(User $user, $dimension = self::SMALL) {
-        if($user->isSilhouette() == 0) return "https://tctechcrunch2011.files.wordpress.com/2010/10/pirate.jpg";
+        if($user->isSilhouette() == 1 || $user->isSilhouette() === null) return "https://www.linkedin.com/mpr/mpr/AAEAAQAAAAAAAArhAAAAJDY4MjFlMDNiLTNlYjUtNGQ1Mi05NmM0LTEyMWJlMjMzNGRhYg.jpg";
         return ProfilePictureHandler::generatePictureUrl($user->getUserId(), $dimension);
     }
 

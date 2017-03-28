@@ -119,7 +119,10 @@ class AndroidDeviceHandler extends AbstractDeviceHandler implements AndroidDevic
 
         }
 
-        return $app['matey.user_controller']->getUserAction($app, $request, $userId);
+        $userResult = $app['matey.user_controller']->getUserAction($app, $request, $userId);
+        $userResult = json_decode($userResult->getContent());
+
+        return new JsonResponse($userResult->data, 200);
     }
 
     public function getGcmById($deviceId)

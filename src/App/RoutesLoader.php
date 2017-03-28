@@ -77,12 +77,14 @@ class RoutesLoader
         $api->delete('/replies/{replyId}', 'matey.reply_controller:deleteReplyAction');
         $apiCachable->get('/posts/{postId}/replies', 'matey.reply_controller:getRepliesAction');
         $api->put('/replies/{replyId}/approves', 'matey.reply_controller:approveAction');
+        $api->delete('/replies/{replyId}/approves', 'matey.reply_controller:approveAction');
 
         // REREPLY CONTROLLER
         $api->post('/replies/{replyId}/rereplies', 'matey.rereply_controller:createRereplyAction');
         $api->delete('/rereplies/{rereplyId}', 'matey.rereply_controller:deleteRereplyAction');
         $apiCachable->get('/replies/{replyId}/rereplies', 'matey.rereply_controller:getRerepliesAction');
         $api->put('/rereplies/{rereplyId}/approves', 'matey.rereply_controller:approveAction');
+        $api->delete('/rereplies/{rereplyId}/approves', 'matey.rereply_controller:approveAction');
 
         // OPERATIONS ON GROUPS
         $api->post('/groups', 'matey.group_controller:createGroupAction');

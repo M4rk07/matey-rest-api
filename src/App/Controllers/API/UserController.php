@@ -30,15 +30,14 @@ class UserController extends AbstractController
         $this->userHandlerFactory = $userHandlerFactory;
     }
 
-    public function getUserAction(Application $app, Request $request, $userRequestingId) {
-        if($userRequestingId == "me") $userRequestingId = AbstractHandler::getTokenUserId($request);
-        $userId = $request->request->get('user_id');
+    public function getUserAction(Application $app, Request $request, $userId) {
+        if($userId == "me") $userId = AbstractHandler::getTokenUserId($request);
 
         $userData = $this->userHandlerFactory
             ->getUserHandler('user')
-            ->handleGetUser($app, $request, $userRequestingId);
+            ->handleGetUser($app, $request, $userId);
 
-        $finalResult = $userData;
+        $finalResult['data'] = $userData;
 
         return new JsonResponse($finalResult, 200);
     }
