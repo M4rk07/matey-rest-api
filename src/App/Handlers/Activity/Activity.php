@@ -10,12 +10,6 @@ use App\Services\PaginationService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-define('APPROVE_MESSAGE', '@1$s approved your reply: "@2$s".');
-define('BOOST_MESSAGE', '@1$s boosted your post: "@2$s".');
-define('FOLLOW_MESSAGE', '@1$s is following you.');
-define('REREPLY_CREATE_MESSAGE', '@1$s replied on your reply: "@2$s."');
-define('REPLY_CREATE_MESSAGE', '@1$s replied on your post: "@2$s."');
-
 /**
  * Created by PhpStorm.
  * User: marko
@@ -89,14 +83,6 @@ class Activity extends AbstractActivity
         return $tokens;
     }
 
-    public function mergeArgsAndTemplate($template, $args) {
-        $i=1;
-        foreach($args as $arg) {
-            $template = str_replace('@'.$i++.'$s', $arg, $template);
-        }
-        return $template;
-    }
-
     // ON PUSH
     public function getNotificationRelativeUsers ($activityData) {
         $activityType = $activityData['activity_type'];
@@ -134,68 +120,6 @@ class Activity extends AbstractActivity
             $userIds[] = $activityData['reply']['user']['user_id'];
 
         return $userIds;
-    }
-
-    public function getNotificationData ($activityData, $userReceiverId) {
-
-        $activityType = $activityData['activity_type'];
-        $parentType = $activityData['parent_type'];
-        $sourceType = $activityData['source_type'];
-
-        $notificationData['to'] = $userReceiverId;
-        $notificationData['data']['activity_id'] = $activityData['activity_id'];
-        $notificationData['data']['activity_type'] = $activityType;
-        $notificationData['data']['picture_url'] = $activityData['user_generated']['picture_url'];
-        $notificationData['data']['time_c'] = $activityData['time_c'];
-
-        $args = array();
-        $args[] = $activityData['user_generated']['first_name'] . " " . $activityData['user_generated']['last_name'];
-
-        if($activityType == \App\MateyModels\Activity::FOLLOW_ACT) {
-            $notificationData['data']['message'] = $this->mergeArgsAndTemplate(FOLLOW_MESSAGE, $args);
-            $notificationData['data']['user_following']['user_id'] = $activityData['user_generated']['user_id'];
-        }
-        // APPROVE NOTIFICATION --------------------------------------------------
-        else if($activityType == \App\MateyModels\Activity::APPROVE_ACT) {
-            // APPROVE REPLY --------------------------------------------------
-            if($sourceType == \App\MateyModels\Activity::REPLY_TYPE) {
-                $args[] = $activityData['reply']['text'];
-                $notificationData['data']['message'] = $this->mergeArgsAndTemplate(APPROVE_MESSAGE, $args);
-                $notificationData['data']['post']['post_id'] = $activityData['post']['post_id'];
-                $notificationData['data']['reply']['reply_id'] = $activityData['reply']['reply_id'];
-            }
-            // APPROVE REREPLY --------------------------------------------------
-            else if($parentType == \App\MateyModels\Activity::REREPLY_TYPE) {
-                $args[] = $activityData['rereply']['text'];
-                $notificationData['data']['message'] = $this->mergeArgsAndTemplate(APPROVE_MESSAGE, $args);
-                $notificationData['data']['post']['post_id'] = $activityData['post']['post_id'];
-                $notificationData['data']['reply']['reply_id'] = $activityData['reply']['reply_id'];
-                $notificationData['data']['rereply']['rereply_id'] = $activityData['rereply']['rereply_id'];
-            }
-            $notificationData['data']['post']['post_id'] = $activityData['post']['post_id'];
-        }
-        // BOOST NOTIFICATION --------------------------------------------------
-        else if($activityType == \App\MateyModels\Activity::BOOST_ACT) {
-            $args[] = $activityData['post']['title'];
-            $notificationData['data']['message'] = $this->mergeArgsAndTemplate(BOOST_MESSAGE, $args);
-            $notificationData['data']['post']['post_id'] = $activityData['post']['post_id'];
-        }
-        // REPLY AND REREPLY NOTIFICATION --------------------------------------------------
-        else if($activityType == \App\MateyModels\Activity::REPLY_CREATE_ACT) {
-            $args[] = $activityData['post']['title'];
-            $notificationData['data']['message'] = $this->mergeArgsAndTemplate(REPLY_CREATE_MESSAGE, $args);
-            $notificationData['data']['post']['post_id'] = $activityData['post']['post_id'];
-            $notificationData['data']['reply']['reply_id'] = $activityData['reply']['reply_id'];
-        }
-        else if($activityType == \App\MateyModels\Activity::REREPLY_CREATE_ACT) {
-            $args[] = $activityData['reply']['text'];
-            $notificationData['data']['message'] = $this->mergeArgsAndTemplate(REREPLY_CREATE_MESSAGE, $args);
-            $notificationData['data']['post']['post_id'] = $activityData['post']['post_id'];
-            $notificationData['data']['reply']['reply_id'] = $activityData['reply']['reply_id'];
-            $notificationData['data']['rereply']['rereply_id'] = $activityData['reply']['reply_id'];
-        }
-
-        return $notificationData;
     }
 
     public function getActivityData ($activity) {
