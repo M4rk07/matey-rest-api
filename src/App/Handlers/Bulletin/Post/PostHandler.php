@@ -372,7 +372,7 @@ class PostHandler extends AbstractPostHandler
     }
 
     public function pushToDecks ($users, $posts) {
-
+        if(!is_array($posts)) $posts = array($posts);
         // push to users decks
         $userManager = $this->modelManagerFactory->getModelManager('user');
         foreach($users as $user) {

@@ -50,24 +50,13 @@ class FollowManager extends AbstractManager
     public function getRelevantFollowers (Post $post) {
         if(empty($post->getUserId())) throw new ServerErrorException();
 
-        $queryBuilder = $this->db->createQueryBuilder();
-
-        $queryBuilder->select('user_id')
-            ->from($this->getTableName());
-
-        $queryBuilder->andWhere('parent_id=?');
-        $queryBuilder->andWhere('parent_type=?');
-        $queryBuilder->setParameter(0, $post->getUserId());
-        $queryBuilder->setParameter(1, Activity::USER_TYPE);
-
+        $sql = "SELECT user_id FROM " . $this->getTableName() . " WHERE (parent_id=? AND parent_type=?)";
         if(!empty($post->getGroupId())) {
-            $queryBuilder->andWhere('parent_id=?');
-            $queryBuilder->andWhere('parent_type=?');
-            $queryBuilder->setParameter(0, $post->getGroupId());
-            $queryBuilder->setParameter(1, Activity::GROUP_TYPE);
+            $sql .= " OR (parent_id=? AND parent_type=?)";
+            $all = $this->db->fetchAll($sql, array($post->getUserId(), Activity::USER_TYPE, $post->getGroupId(), Activity::GROUP_TYPE));
+        } else {
+            $all = $this->db->fetchAll($sql, array($post->getUserId(), Activity::USER_TYPE));
         }
-
-        $all = $queryBuilder->execute()->fetchAll();
 
         $models = $this->makeObjects($all);
         return $models;
