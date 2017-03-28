@@ -96,6 +96,13 @@ class UserHandler extends AbstractUserHandler
             $userManager->incrNumOfFollowers($userTo);
             $userManager->incrNumOfFollowing($userFrom);
             $this->createActivity($userFrom->getUserId(), $userTo->getUserId(), Activity::USER_TYPE, null, null, Activity::FOLLOW_ACT);
+
+            $postManager =$this->modelManagerFactory->getModelManager('post');
+            $posts = $postManager->readModelBy(array(
+                'user_id' => $userTo->getUserId()
+            ), array('post_id' => 'DESC'), DefaultNumbers::TRANSFER_ON_FOLLOW);
+
+            $userManager->pushDeck($userFrom, $posts);
         }
         else if ($method == "DELETE") {
             $followManager->deleteModel($follow);
@@ -171,13 +178,6 @@ class UserHandler extends AbstractUserHandler
             $type == 'followers' ? '/users/'.$id.'/followers' : '/users/'.$id.'/following', 'user_id');
 
         return new JsonResponse($paginationService->getResponse(), 200);
-    }
-
-    public function handleProfilePictureUpload (Application $app, Request $request) {
-        $fileHandler = $app['matey.file_handler'];
-        return $fileHandler
-            ->getFileHandler('profile_picture')
-            ->upload($app, $request);
     }
 
     public function addConnectionUserToResponse (User $user, $userId, $me, $type) {

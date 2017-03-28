@@ -69,9 +69,17 @@ class UserController extends AbstractController
     }
 
     public function uploadProfilePictureAction (Application $app, Request $request) {
-        return $this->userHandlerFactory
-            ->getUserHandler('user')
-            ->handleProfilePictureUpload($app, $request);
+        $fileHandler = $app['matey.file_handler.factory'];
+        return $fileHandler
+            ->getFileHandler('profile_picture')
+            ->upload($app, $request);
+    }
+
+    public function uploadCoverPictureAction (Application $app, Request $request) {
+        $fileHandler = $app['matey.file_handler.factory'];
+        return $fileHandler
+            ->getFileHandler('cover_picture')
+            ->upload($app, $request);
     }
 
 

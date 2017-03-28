@@ -302,6 +302,20 @@ class Activity extends AbstractActivity
             $activityData['post']['title'] = $post->getTitle();
             $activityData['post']['user'] = $postOwner->asArray();
         }
+        // GROUP NOTIFICATION --------------------------------------------------
+        else if($activityType == \App\MateyModels\Activity::GROUP_CREATE_ACT) {
+            $groupManager = $this->modelManagerFactory->getModelManager('group');
+            $group = $groupManager->readModelOneBy(array(
+                'group_id' => $activity->getSourceId()
+            ), null, array('group_id', 'user_id', 'group_name'));
+            $groupOwner = $userManager->readModelOneBy(array(
+                'user_id' => $group->getGroupId()
+            ), null, array('user_id', 'first_name', 'last_name'));
+
+            $activityData['group']['group_id'] = $group->getGroupId();
+            $activityData['group']['group_name'] = $group->getGroupName();
+            $activityData['group']['user'] = $groupOwner->asArray();
+        }
 
         return $activityData;
 
@@ -372,8 +386,6 @@ class Activity extends AbstractActivity
         $criteria['user_id'] = $reqUserId;
         if(!empty($pagParams['max_id'])) $criteria['activity_id:<'] = $pagParams['max_id'];
         $criteria['activity_type'] = array(
-            \App\MateyModels\Activity::APPROVE_ACT,
-            \App\MateyModels\Activity::BOOST_ACT,
             \App\MateyModels\Activity::GROUP_CREATE_ACT,
             \App\MateyModels\Activity::POST_CREATE_ACT,
             \App\MateyModels\Activity::REPLY_CREATE_ACT,

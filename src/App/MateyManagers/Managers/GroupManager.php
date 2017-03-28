@@ -100,15 +100,18 @@ class GroupManager extends AbstractManager
     }
 
     public function pushDeck (Group $group, $posts) {
+        if(empty($posts)) return;
         if(!is_array($posts)) $posts = array($posts);
-        foreach($posts as $post)
-            $this->redis->lpush($this->getRedisKey().":deck:".$group->getGroupId(), $post->getPostId());
-
-        $this->redis->ltrim($this->getRedisKey().":deck:".$group->getGroupId(), 0, DefaultNumbers::DECK_CAPACITY);
+        foreach($posts as $post) {
+            $this->redis->zadd($this->getRedisKey().":deck-set:".$group->getGroupId(), array(
+                $post->getPostId() => $post->getPostId()
+            ));
+        }
+        $this->redis->zremrangebyrank($this->getRedisKey().":deck-set:".$group->getGroupId(), 0, -(DefaultNumbers::DECK_CAPACITY));
     }
 
     public function getDeck (Group $group, $start = 0, $stop = -1) {
-        return $this->redis->lrange($this->getRedisKey().":deck:".$group->getGroupId(), $start, $stop);
+        return $this->redis->zrevrange($this->getRedisKey().":deck-set:".$group->getGroupId(), $start, $stop);
     }
 
 }

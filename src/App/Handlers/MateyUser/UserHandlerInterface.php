@@ -14,5 +14,4 @@ interface UserHandlerInterface
     public function handleGetUser(Application $app, Request $request, $id);
     public function handleFollow(Application $app, Request $request, $id);
     public function handleGetConnections(Application $app, Request $request, $id, $type);
-    public function handleProfilePictureUpload (Application $app, Request $request);
 }

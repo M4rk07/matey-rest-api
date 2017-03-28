@@ -19,4 +19,5 @@ class DefaultNumbers
     const POSTS_LIMIT = 10;
     const SEARCH_LIMIT = 5;
     const NOTIFICATIONS_LIMIT = 10;
+    const TRANSFER_ON_FOLLOW = 5;
 }

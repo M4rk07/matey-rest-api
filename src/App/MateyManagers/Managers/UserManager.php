@@ -154,15 +154,18 @@ class UserManager extends AbstractManager
     }
 
     public function pushDeck (User $user, $posts) {
+        if(empty($posts)) return;
         if(!is_array($posts)) $posts = array($posts);
-        foreach($posts as $post)
-            $this->redis->lpush($this->getRedisKey().":deck:".$user->getUserId(), $post->getPostId());
-
-        $this->redis->ltrim($this->getRedisKey().":deck:".$user->getUserId(), 0, DefaultNumbers::DECK_CAPACITY);
+        foreach($posts as $post) {
+            $this->redis->zadd($this->getRedisKey().":deck-set:".$user->getUserId(), array(
+                $post->getPostId() => $post->getPostId()
+            ));
+        }
+        $this->redis->zremrangebyrank($this->getRedisKey().":deck-set:".$user->getUserId(), 0, -(DefaultNumbers::DECK_CAPACITY));
     }
 
     public function getDeck (User $user, $start = 0, $stop = -1) {
-        return $this->redis->lrange($this->getRedisKey().":deck:".$user->getUserId(), $start, $stop);
+        return $this->redis->zrevrange($this->getRedisKey().":deck-set:".$user->getUserId(), $start, $stop);
     }
 
     public function pushFeedSeen (User $user, $ids) {

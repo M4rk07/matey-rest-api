@@ -102,6 +102,7 @@ class MateyServiceProvider implements ServiceProviderInterface
 
         $app['matey.handlers.file'] = [
             'profile_picture' => 'App\\Handlers\\File\\ProfilePictureHandler',
+            'cover_picture' => 'App\\Handlers\\File\\CoverPictureHandler',
             'group_picture' => 'App\\Handlers\\File\\GroupPictureHandler',
             'post_attachment' => 'App\\Handlers\\File\\PostAttachmentHandler',
         ];
