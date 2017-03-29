@@ -122,7 +122,7 @@ class ProfilePictureHandler extends AbstractFileHandler
         return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/".ProfilePictureHandler::generatePicturePrefix($userId, $dimension);
     }
 
-    public static function getPictureUrl(User $user, $dimension = self::SMALL) {
+    public static function getPictureUrl(User $user, $dimension = self::LARGE) {
         if($user->isSilhouette() == 1 || $user->isSilhouette() === null) return "https://www.linkedin.com/mpr/mpr/AAEAAQAAAAAAAArhAAAAJDY4MjFlMDNiLTNlYjUtNGQ1Mi05NmM0LTEyMWJlMjMzNGRhYg.jpg";
         return ProfilePictureHandler::generatePictureUrl($user->getUserId(), $dimension);
     }
