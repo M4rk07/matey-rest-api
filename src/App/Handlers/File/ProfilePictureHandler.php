@@ -31,7 +31,7 @@ class ProfilePictureHandler extends AbstractFileHandler
 
     public function upload (Application $app, Request $request)
     {
-        $userId = $request->request->get('user_id');
+        $userId = self::getTokenUserId($request);
         $picture = $request->files->get('picture');
 
         $errors = $this->validator->validate($picture, [
