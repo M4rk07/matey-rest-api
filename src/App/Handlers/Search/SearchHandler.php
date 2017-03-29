@@ -10,6 +10,7 @@ namespace App\Handlers\Search;
 
 
 use App\Constants\Defaults\DefaultNumbers;
+use App\MateyModels\Activity;
 use App\Paths\Paths;
 use App\Services\PaginationService;
 use App\Services\PaginationServiceOffset;
@@ -29,7 +30,7 @@ class SearchHandler extends AbstractSearchHandler
     }
 
     public function handleSearch (Application $app, Request $request, $type) {
-
+        $userId = self::getTokenUserId($request);
         $query = $request->get('q');
         $limit = $request->get('limit');
         $offset = $request->get('offset');
@@ -38,9 +39,9 @@ class SearchHandler extends AbstractSearchHandler
         if(!isset($limit)) $limit = DefaultNumbers::SEARCH_LIMIT;
         if(!isset($offset)) $offset = 0;
 
-        if($type == 'user')
+        if($type == Activity::USER_TYPE)
             $result = $app['matey.search_service']->search($query, $limit, $offset, IND_MATEY_USER);
-        else if ($type == 'group')
+        else if ($type == Activity::GROUP_TYPE)
             $result = $app['matey.search_service']->search($query, $limit, $offset, IND_MATEY_GROUP);
         else
             $result = $app['matey.search_service']->search($query, $limit, $offset, IND_MATEY_POST);
@@ -56,17 +57,25 @@ class SearchHandler extends AbstractSearchHandler
                 $ids[] = $key;
             }
 
-            if($type == 'user')
+            if($type == Activity::USER_TYPE)
                 $manager = $this->modelManagerFactory->getModelManager('user');
-            else if($type == 'group')
+            else if($type == Activity::GROUP_TYPE)
                 $manager = $this->modelManagerFactory->getModelManager('group');
             else
                 $manager = $this->modelManagerFactory->getModelManager('post');
 
             $models = $manager->getSearchResults($ids);
+            $userHandler = $app['matey.user_handler.factory']->getUserHandler('user');
+            $groupHandler = $app['matey.group_handler'];
 
             foreach ($models as $model) {
-                $finalResult[] = $model->asArray();
+                $arrModel = $model->asArray();
+                if($type == Activity::USER_TYPE)
+                    $arrModel['followed'] = $userHandler->isFollowing($userId, $model->getUserId());
+                else if ($type == Activity::GROUP_TYPE)
+                    $arrModel['followed'] = $groupHandler->isFollowing($userId, $model->getGroupId());
+
+                $finalResult[] = $arrModel;
             }
         }
 

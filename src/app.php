@@ -17,8 +17,7 @@ require_once __DIR__.'/../resources/config/security.php';
 
 putenv('GOOGLE_APPLICATION_CREDENTIALS='.__DIR__.'/../app-files/matey-service.json');
 putenv('FACEBOOK_APPLICATION_CREDENTIALS='.__DIR__.'/../app-files/fb-credentials.json');
-
-$app['matey.timezone'] = 'Europe/Belgrade';
+$app['matey.timezone'] = 'UTC';
 
 date_default_timezone_set($app['matey.timezone']);
 

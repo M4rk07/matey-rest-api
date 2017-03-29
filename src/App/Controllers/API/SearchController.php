@@ -11,6 +11,7 @@ namespace App\Controllers\API;
 
 use App\Controllers\AbstractController;
 use App\Handlers\Search\SearchHandler;
+use App\MateyModels\Activity;
 use App\Services\SearchService;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -29,13 +30,13 @@ class SearchController extends AbstractController
 
     public function searchTopAction (Application $app, Request $request) {
         $finalUsersPagin = $this->seachHandler
-            ->handleSearch($app, $request, 'user');
+            ->handleSearch($app, $request, Activity::USER_TYPE);
 
         $finalGroupsPagin = $this->seachHandler
-            ->handleSearch($app, $request, 'group');
+            ->handleSearch($app, $request, Activity::GROUP_TYPE);
 
         $finalPostPagin = $this->seachHandler
-            ->handleSearch($app, $request, 'post');
+            ->handleSearch($app, $request, Activity::POST_TYPE);
 
         $finalResult['data']['users'] = $finalUsersPagin;
         $finalResult['data']['groups'] = $finalGroupsPagin;
@@ -46,7 +47,7 @@ class SearchController extends AbstractController
 
     public function searchUsersAction (Application $app, Request $request) {
         $finalUsersPagin = $this->seachHandler
-            ->handleSearch($app, $request, 'user');
+            ->handleSearch($app, $request, Activity::USER_TYPE);
 
         return new JsonResponse($finalUsersPagin, 200);
     }
@@ -54,7 +55,7 @@ class SearchController extends AbstractController
     public function searchGroupsAction (Application $app, Request $request) {
 
         $finalGroupsPagin = $this->seachHandler
-            ->handleSearch($app, $request, 'group');
+            ->handleSearch($app, $request, Activity::GROUP_TYPE);
 
         return new JsonResponse($finalGroupsPagin, 200);
     }
@@ -62,7 +63,7 @@ class SearchController extends AbstractController
     public function searchPostsAction (Application $app, Request $request) {
 
         $finalPostsPagin = $this->seachHandler
-            ->handleSearch($app, $request, 'post');
+            ->handleSearch($app, $request, Activity::POST_TYPE);
 
         return new JsonResponse($finalPostsPagin, 200);
     }

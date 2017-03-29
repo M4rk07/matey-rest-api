@@ -36,6 +36,7 @@ class UserHandler extends AbstractUserHandler
 
     public function handleGetUser(Application $app, Request $request, $id)
     {
+        $userId = self::getTokenUserId($request);
         $this->validateValue($id, [
                 new NotBlank(),
                 new UserId()
@@ -49,7 +50,10 @@ class UserHandler extends AbstractUserHandler
 
         if(empty($user)) throw new NotFoundException();
 
-        return $user->asArray();
+        $arrModel = $user->asArray();
+        $arrModel['followed'] = $this->isFollowing($userId, $user->getUserId());
+
+        return $arrModel;
     }
 
     public function handleFollow (Application $app, Request $request, $id) {

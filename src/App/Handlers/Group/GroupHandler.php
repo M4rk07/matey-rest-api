@@ -230,4 +230,18 @@ class GroupHandler extends AbstractGroupHandler
         return new JsonResponse($paginationService->getResponse(), 200);
     }
 
+    public function isFollowing($userId, $followingId) {
+
+        $followManager = $this->modelManagerFactory->getModelManager('follow');
+        $follow = $followManager->readModelOneBy(array(
+            'user_id' => $userId,
+            'parent_id' => $followingId,
+            'parent_type' => Activity::GROUP_TYPE
+        ));
+
+        if(!empty($follow)) return true;
+        return false;
+
+    }
+
 }
