@@ -113,16 +113,8 @@ class UserManager extends AbstractManager
         $this->redis->hincrby($this->getRedisKey().":statistics:".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWERS, $incrBy);
     }
 
-    public function decrNumOfFollowers(User $user, $decrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":statistics:".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWERS, $decrBy);
-    }
-
     public function incrNumOfFollowing(User $user, $incrBy = 1) {
         $this->redis->hincrby($this->getRedisKey().":statistics:".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWING, $incrBy);
-    }
-
-    public function decrNumOfFollowing(User $user, $decrBy = 1) {
-        $this->redis->hincrby($this->getRedisKey().":statistics:".$user->getUserId(), self::FIELD_NUM_OF_FOLLOWING, $decrBy);
     }
 
     public function incrNumOfPosts(User $user, $incrBy = 1) {

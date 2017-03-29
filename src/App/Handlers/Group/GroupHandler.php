@@ -115,6 +115,7 @@ class GroupHandler extends AbstractGroupHandler
     public function handleFollowGroup(Request $request, $groupId)
     {
         $userId = self::getTokenUserId($request);
+        $method = $request->getMethod();
 
         $this->validateValue($groupId, array(
             new NotBlank(),
@@ -122,18 +123,25 @@ class GroupHandler extends AbstractGroupHandler
         ));
 
         $followManager = $this->modelManagerFactory->getModelManager('follow');
+        $groupManager = $this->modelManagerFactory->getModelManager('group');
         $follow = $followManager->getModel();
+        $group = $groupManager->getModel();
 
         $follow->setUserId($userId)
             ->setParentId($groupId)
             ->setParentType(Activity::GROUP_TYPE);
 
-        $followManager->createModel($follow);
-
-        $groupManager = $this->modelManagerFactory->getModelManager('group');
-        $group = $groupManager->getModel();
         $group->setGroupId($groupId);
-        $groupManager->incrNumOfFollowers($group);
+
+        if($method == "POST") {
+            $followManager->createModel($follow);
+            $groupManager->incrNumOfFollowers($group);
+        } else if($method == "DELETE") {
+            $result = $followManager->deleteModel($follow);
+            if($result !== null) {
+                $groupManager->incrNumOfFollowers($group, -1);
+            }
+        }
 
         return new JsonResponse(null, 200);
     }

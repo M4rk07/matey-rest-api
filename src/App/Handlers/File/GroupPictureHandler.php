@@ -73,44 +73,10 @@ class GroupPictureHandler extends AbstractFileHandler
 
         $originalPicture = $picture->getRealPath();
 
-        ob_start(); // start a new output buffer
-        imagejpeg( $this->resizeImage($originalPicture, 100, 100), NULL, 90);
-            $picture100x100 = ob_get_contents();
-            ob_end_clean(); // stop this output buffer
-        ob_start(); // start a new output buffer
-            imagejpeg( $this->resizeImage($originalPicture, 200, 200), NULL, 90);
-            $picture200x200 = ob_get_contents();
-        ob_end_clean(); // stop this output buffer
-        ob_start(); // start a new output buffer
-            imagejpeg( $this->resizeImage($originalPicture, 480, 480), NULL, 90);
-            $picture480x480 = ob_get_contents();
-        ob_end_clean(); // stop this output buffer
-
         $uploads = array(
             array(
-                'file' => $picture100x100,
-                'name' => ProfilePictureHandler::generatePicturePrefix($groupId, self::SMALL),
-                'mime' => $picture->getMimeType(),
-                'extension' => $picture->guessExtension(),
-                'filename' => $picture->getClientOriginalName()
-            ),
-            array(
-                'file' => $picture200x200,
-                'name' => ProfilePictureHandler::generatePicturePrefix($groupId, self::MEDIUM),
-                'mime' => $picture->getMimeType(),
-                'extension' => $picture->guessExtension(),
-                'filename' => $picture->getClientOriginalName()
-            ),
-            array(
-                'file' => $picture480x480,
-                'name' => ProfilePictureHandler::generatePicturePrefix($groupId, self::LARGE),
-                'mime' => $picture->getMimeType(),
-                'extension' => $picture->guessExtension(),
-                'filename' => $picture->getClientOriginalName()
-            ),
-            array(
                 'file' => file_get_contents($originalPicture),
-                'name' => ProfilePictureHandler::generatePicturePrefix($groupId, self::ORIGINAL),
+                'name' => GroupPictureHandler::generatePicturePrefix($groupId, self::ORIGINAL),
                 'mime' => $picture->getMimeType(),
                 'extension' => $picture->guessExtension(),
                 'filename' => $picture->getClientOriginalName()

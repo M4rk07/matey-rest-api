@@ -105,9 +105,11 @@ class UserHandler extends AbstractUserHandler
             $userManager->pushDeck($userFrom, $posts);
         }
         else if ($method == "DELETE") {
-            $followManager->deleteModel($follow);
-            $userManager->incrNumOfFollowers($userTo, -1);
-            $userManager->incrNumOfFollowing($userFrom, -1);
+            $result = $followManager->deleteModel($follow);
+            if($result !== null) {
+                $userManager->incrNumOfFollowers($userTo, -1);
+                $userManager->incrNumOfFollowing($userFrom, -1);
+            }
         }
 
         return new JsonResponse(array(), 200);
