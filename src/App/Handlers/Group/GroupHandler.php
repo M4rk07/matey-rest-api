@@ -75,6 +75,7 @@ class GroupHandler extends AbstractGroupHandler
 
     function handleGetGroup(Request $request, $groupId)
     {
+        $userId = self::getTokenUserId($request);
         $this->validateValue($groupId, array(
             new NotBlank(),
             new GroupId()
@@ -87,7 +88,10 @@ class GroupHandler extends AbstractGroupHandler
 
         if(empty($group)) throw new NotFoundException();
 
-        return $group->asArray(array_diff($groupManager->getAllFields(), array('deleted')));
+        $arrModel = $group->asArray(array_diff($groupManager->getAllFields(), array('deleted')));
+        $arrModel['followed'] = $this->isFollowing($userId, $group->getGroupId());
+
+        return $arrModel;
     }
 
     function handleDeleteGroup(Request $request, $groupId)
