@@ -50,7 +50,7 @@ class RoutesLoader
         $apiCachable->get('/users/{userId}/profile', 'matey.user_controller:getUserAction');
         $api->post('/users/me/users/{id}/follow', 'matey.user_controller:followAction'); // deprecated
         $api->delete('/users/me/users/{id}/follow', 'matey.user_controller:followAction'); // deprecated
-        $api->post('/following/{id}', 'matey.user_controller:followAction');
+        $api->put('/following/{id}', 'matey.user_controller:followAction');
         $api->delete('/following/{id}', 'matey.user_controller:followAction');
         $apiCachable->get('/users/{userId}/followers', 'matey.user_controller:getFollowersAction');
         $apiCachable->get('/users/{userId}/following', 'matey.user_controller:getFollowingAction');
@@ -93,7 +93,7 @@ class RoutesLoader
         $api->delete('/groups/{groupId}', 'matey.group_controller:deleteGroupAction');
         $apiCachable->get('/users/{userId}/groups/following', 'matey.group_controller:getFollowingGroupsAction');
         $api->post('/groups/{groupId}/pictures', 'matey.group_controller:uploadGroupPictureAction');
-        $api->post('/following/groups/{groupId}', 'matey.group_controller:followGroupAction');
+        $api->put('/following/groups/{groupId}', 'matey.group_controller:followGroupAction');
         $api->delete('/following/groups/{groupId}', 'matey.group_controller:followGroupAction');
 
         // SEARCH

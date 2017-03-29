@@ -133,7 +133,7 @@ class GroupHandler extends AbstractGroupHandler
 
         $group->setGroupId($groupId);
 
-        if($method == "POST") {
+        if($method == "PUT") {
             $followManager->createModel($follow);
             $groupManager->incrNumOfFollowers($group);
         } else if($method == "DELETE") {

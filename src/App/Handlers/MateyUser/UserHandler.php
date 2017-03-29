@@ -89,7 +89,7 @@ class UserHandler extends AbstractUserHandler
 
         if(empty($userExists)) throw new InvalidRequestException();
 
-        if($method == "POST") {
+        if($method == "PUT") {
             try {
                 $followManager->createModel($follow);
             } catch (UniqueConstraintViolationException $e) {
