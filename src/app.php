@@ -22,16 +22,18 @@ $app['matey.timezone'] = 'UTC';
 date_default_timezone_set($app['matey.timezone']);
 
 define("ROOT_PATH", __DIR__ . "/..");
+var_dump(getenv('HOME'));
+$dbConfig = json_decode(file_get_contents(getenv('HOME') . "/matey-config/db"));
 
 $app->register(new DoctrineServiceProvider(), array(
     'db.options' => array(
-        'dbname' => 'matey_db',
-        'user' => 'root',
-        'password' => 'maka',
-        'host' => \App\Paths\Paths::BASE_IP,
-        'driver' => 'pdo_mysql',
-        'charset' => 'utf8',
-        'port' => \App\Paths\Paths::MYSQL_PORT,
+        'dbname' => $dbConfig->dbname,
+        'user' => $dbConfig->user,
+        'password' => $dbConfig->password,
+        'host' => $dbConfig->host,
+        'driver' => $dbConfig->driver,
+        'charset' => $dbConfig->charset,
+        'port' => $dbConfig->port,
         'driverOptions' => array(
             1002=>'SET NAMES utf8'
         )

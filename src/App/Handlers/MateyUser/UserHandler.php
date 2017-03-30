@@ -191,7 +191,7 @@ class UserHandler extends AbstractUserHandler
         $userVals = array();
         if($user) {
             $userVals = $user->asArray();
-            $userVals ['following'] = $me && $type == 'following' ? true : $this->isFollowing($userId, $user->getId());
+            $userVals ['followed'] = $me && $type == 'following' ? true : $this->isFollowing($userId, $user->getId());
         }
         return $userVals;
     }
