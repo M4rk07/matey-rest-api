@@ -62,11 +62,11 @@ class GroupController extends AbstractController
             ->handleFollowGroup($request, $groupId);
     }
 
-    public function uploadGroupPictureAction (Application $app, Request $request) {
+    public function uploadGroupPictureAction (Application $app, Request $request, $groupId) {
         $fileHandler = $app['matey.file_handler.factory'];
         return $fileHandler
             ->getFileHandler('group_picture')
-            ->upload($app, $request);
+            ->upload($app, $request, $groupId);
     }
 
 }

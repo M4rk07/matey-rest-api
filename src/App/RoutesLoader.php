@@ -89,7 +89,7 @@ class RoutesLoader
         // OPERATIONS ON GROUPS
         $api->post('/groups', 'matey.group_controller:createGroupAction');
         $apiCachable->get('/groups/{groupId}', 'matey.group_controller:getGroupAction');
-        $api->post('/groups/{groupId}/pictures', 'matey.file_controller:uploadGroupPictureAction');
+        $api->post('/groups/{groupId}/pictures', 'matey.group_controller:uploadGroupPictureAction');
         $api->delete('/groups/{groupId}', 'matey.group_controller:deleteGroupAction');
         $apiCachable->get('/users/{userId}/groups/following', 'matey.group_controller:getFollowingGroupsAction');
         $api->post('/groups/{groupId}/pictures', 'matey.group_controller:uploadGroupPictureAction');

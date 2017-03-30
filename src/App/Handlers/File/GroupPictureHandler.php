@@ -102,15 +102,15 @@ class GroupPictureHandler extends AbstractFileHandler
         ));
     }
 
-    public static function generatePicturePrefix ($groupId, $dimension = self::SMALL) {
+    public static function generatePicturePrefix ($groupId, $dimension = self::ORIGINAL) {
         return "groups/pictures/".$dimension."/".$groupId;
     }
 
-    public static function generatePictureUrl ($groupId, $dimension = self::SMALL) {
+    public static function generatePictureUrl ($groupId, $dimension = self::ORIGINAL) {
         return Paths::STORAGE_BASE."/".Paths::BUCKET_MATEY."/".GroupPictureHandler::generatePicturePrefix($groupId, $dimension);
     }
 
-    public static function getPictureUrl(Group $group, $dimension = self::SMALL) {
+    public static function getPictureUrl(Group $group, $dimension = self::ORIGINAL) {
         if($group->isSilhouette() == 0 || $group->isSilhouette() === null) return "https://www.linkedin.com/mpr/mpr/AAEAAQAAAAAAAArhAAAAJDY4MjFlMDNiLTNlYjUtNGQ1Mi05NmM0LTEyMWJlMjMzNGRhYg.jpg";
         return GroupPictureHandler::generatePictureUrl($group->getGroupId(), $dimension);
     }
