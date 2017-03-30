@@ -22,7 +22,6 @@ $app['matey.timezone'] = 'UTC';
 date_default_timezone_set($app['matey.timezone']);
 
 define("ROOT_PATH", __DIR__ . "/..");
-var_dump(getenv('HOME'));
 $dbConfig = json_decode(file_get_contents(getenv('HOME') . "/matey-config/db"));
 
 $app->register(new DoctrineServiceProvider(), array(

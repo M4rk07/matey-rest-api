@@ -29,10 +29,17 @@ abstract class AbstractPostHandler extends AbstractBulletinHandler  implements P
 
         if(!is_array($posts)) $posts = array($posts);
         if(!is_array($users)) $users = array($users);
-
+        $groupManager = $this->modelManagerFactory->getModelManager('group');
         $finalResult = array();
         foreach($posts as $post) {
             $arr = $post->asArray(array_diff($postManager->getAllFields(), array('user_id', 'deleted', 'archived')));
+            if($post->getGroupId() !== null) {
+                $group = $groupManager->readModelOneBy(array(
+                    'group_id' => $post->getGroupId()
+                ), null, array('group_id', 'group_name'));
+                $arr['group'] = $group->asArray();
+                unset($arr['group_id']);
+            }
             foreach($users as $user) {
                 if($user->getUserId() == $post->getUserId()) {
                     $arr['user'] = $user->asArray();
