@@ -62,14 +62,14 @@ class GroupPictureHandler extends AbstractFileHandler
         /*
          * Check if user is owner of the group or not
          */
-        $groupAdminManager = $this->modelManagerFactory->getModelManager('groupAdmin');
+        //$groupAdminManager = $this->modelManagerFactory->getModelManager('groupAdmin');
 
-        $groupAdmin = $groupAdminManager->readModelOneBy(array(
-            'group_id' =>$groupId,
-            'user_id' => $userId
-        ));
+        //$groupAdmin = $groupAdminManager->readModelOneBy(array(
+        //    'group_id' =>$groupId,
+        //    'user_id' => $userId
+        //));
 
-        if(empty($groupAdmin)) throw new UnauthorizedClientException();
+        //if(empty($groupAdmin)) throw new UnauthorizedClientException();
 
         $originalPicture = $picture->getRealPath();
 
@@ -111,7 +111,7 @@ class GroupPictureHandler extends AbstractFileHandler
     }
 
     public static function getPictureUrl(Group $group, $dimension = self::ORIGINAL) {
-        if($group->isSilhouette() == 0 || $group->isSilhouette() === null) return "https://www.linkedin.com/mpr/mpr/AAEAAQAAAAAAAArhAAAAJDY4MjFlMDNiLTNlYjUtNGQ1Mi05NmM0LTEyMWJlMjMzNGRhYg.jpg";
+        if($group->isSilhouette() == 1 || $group->isSilhouette() === null) return "https://www.linkedin.com/mpr/mpr/AAEAAQAAAAAAAArhAAAAJDY4MjFlMDNiLTNlYjUtNGQ1Mi05NmM0LTEyMWJlMjMzNGRhYg.jpg";
         return GroupPictureHandler::generatePictureUrl($group->getGroupId(), $dimension);
     }
 

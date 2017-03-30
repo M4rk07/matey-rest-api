@@ -306,7 +306,7 @@ class Activity extends AbstractActivity
                 'group_id' => $activity->getSourceId()
             ), null, array('group_id', 'user_id', 'group_name'));
             $groupOwner = $userManager->readModelOneBy(array(
-                'user_id' => $group->getGroupId()
+                'user_id' => $group->getUserId()
             ), null, array('user_id', 'first_name', 'last_name'));
 
             $activityData['group']['group_id'] = $group->getGroupId();
