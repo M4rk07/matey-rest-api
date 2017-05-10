@@ -25,8 +25,8 @@ class S3Storage
             'region'   => 'us-west-2',
             'version'  => 'latest',
             'credentials' => [
-                'key'    => 'AKIAJ3J6P7TGWGJVYORQ',
-                'secret' => '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',
+                'key'    => '',
+                'secret' => ''
             ],
         ]);
         $s3 = $sdk->createS3();
